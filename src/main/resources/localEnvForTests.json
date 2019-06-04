@@ -1,0 +1,4 @@
+{
+    "applicationPort": "8081",
+    "applicationThreads": "4"
+}
