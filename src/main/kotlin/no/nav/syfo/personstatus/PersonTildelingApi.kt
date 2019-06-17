@@ -19,35 +19,36 @@ fun Route.registerPersonTildelingApi(personTildelingService: PersonTildelingServ
         get("/veileder/{veileder}") {
             if (isInvalidToken(call.request.cookies)) {
                 call.respond(HttpStatusCode.Unauthorized)
-            }
-            try {
-                val veileder: String = call.parameters["veileder"]?.takeIf { it.isNotEmpty() }
-                        ?: throw IllegalArgumentException("Veileder mangler")
+            } else {
+                try {
+                    val veileder: String = call.parameters["veileder"]?.takeIf { it.isNotEmpty() }
+                            ?: throw IllegalArgumentException("Veileder mangler")
 
-                val tilknytninger: List<VeilederBrukerKnytning> = personTildelingService.hentBrukertilknytningerPaVeileder(veileder)
+                    val tilknytninger: List<VeilederBrukerKnytning> = personTildelingService.hentBrukertilknytningerPaVeileder(veileder)
 
-                when {
-                    tilknytninger.isNotEmpty() -> call.respond(tilknytninger)
-                    else -> call.respond(HttpStatusCode.NoContent)
+                    when {
+                        tilknytninger.isNotEmpty() -> call.respond(tilknytninger)
+                        else -> call.respond(HttpStatusCode.NoContent)
+                    }
+                } catch (e: IllegalArgumentException) {
+                    log.warn("Kan ikke hente tilknytninger: {}", e.message)
+                    call.respond(HttpStatusCode.BadRequest, e.message ?: "Kan ikke hente tilknytninger")
                 }
-            } catch (e: IllegalArgumentException) {
-                log.warn("Kan ikke hente tilknytninger: {}", e.message)
-                call.respond(HttpStatusCode.BadRequest, e.message ?: "Kan ikke hente tilknytninger")
             }
         }
 
         post("/registrer") {
             if (isInvalidToken(call.request.cookies)) {
                 call.respond(HttpStatusCode.Unauthorized)
+            } else {
+                val veilederBrukerKnytningerListe: VeilederBrukerKnytningListe = call.receive()
+
+                val veilederBrukerKnytninger: List<VeilederBrukerKnytning> = veilederBrukerKnytningerListe.tilknytninger
+
+                personTildelingService.lagreKnytningMellomVeilederOgBruker(veilederBrukerKnytninger)
+
+                call.respond(HttpStatusCode.Created)
             }
-
-            val veilederBrukerKnytningerListe: VeilederBrukerKnytningListe = call.receive()
-
-            val veilederBrukerKnytninger: List<VeilederBrukerKnytning> = veilederBrukerKnytningerListe.tilknytninger
-
-            personTildelingService.lagreKnytningMellomVeilederOgBruker(veilederBrukerKnytninger)
-
-            call.respond(HttpStatusCode.Created)
         }
     }
 }
