@@ -1,12 +1,9 @@
 package no.nav.syfo
 
-import io.ktor.http.HttpMethod
-import io.ktor.http.HttpStatusCode
-import io.ktor.http.isSuccess
+import io.ktor.http.*
 import io.ktor.routing.routing
 import io.ktor.server.testing.TestApplicationEngine
 import io.ktor.server.testing.handleRequest
-import io.ktor.util.KtorExperimentalAPI
 import no.nav.syfo.api.registerNaisApi
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldNotEqual
@@ -14,7 +11,6 @@ import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import java.net.ServerSocket
 
-@KtorExperimentalAPI
 object SelftestSpek : Spek({
     fun getRandomPort() = ServerSocket(0).use {
         it.localPort

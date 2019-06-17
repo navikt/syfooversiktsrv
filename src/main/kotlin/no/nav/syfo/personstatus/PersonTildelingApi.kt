@@ -5,15 +5,20 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.*
+import no.nav.syfo.auth.getTokenFromCookie
 import no.nav.syfo.auth.isInvalidToken
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytningListe
+import no.nav.syfo.tilgangskontroll.TilgangskontrollConsumer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 val log: Logger = LoggerFactory.getLogger("no.nav.syfo")
 
-fun Route.registerPersonTildelingApi(personTildelingService: PersonTildelingService) {
+fun Route.registerPersonTildelingApi(
+        tilgangskontrollConsumer: TilgangskontrollConsumer,
+        personTildelingService: PersonTildelingService
+) {
     route("/api/v1/persontildeling") {
 
         get("/veileder/{veileder}") {
@@ -45,9 +50,17 @@ fun Route.registerPersonTildelingApi(personTildelingService: PersonTildelingServ
 
                 val veilederBrukerKnytninger: List<VeilederBrukerKnytning> = veilederBrukerKnytningerListe.tilknytninger
 
-                personTildelingService.lagreKnytningMellomVeilederOgBruker(veilederBrukerKnytninger)
+                val token = getTokenFromCookie(call.request.cookies)
 
-                call.respond(HttpStatusCode.Created)
+                veilederBrukerKnytninger.filter { tilgangskontrollConsumer.harVeilederTilgangTilPerson(it.fnr, token) }
+
+                if (veilederBrukerKnytninger.isEmpty()) {
+                    call.respond(HttpStatusCode.Forbidden)
+                } else {
+                    personTildelingService.lagreKnytningMellomVeilederOgBruker(veilederBrukerKnytninger)
+
+                    call.respond(HttpStatusCode.Created)
+                }
             }
         }
     }

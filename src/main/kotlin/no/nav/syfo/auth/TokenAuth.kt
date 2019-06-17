@@ -20,13 +20,25 @@ val log: Logger = LoggerFactory.getLogger("no.nav.syfo.auth")
 
 const val expectedCookieName = "isso-idtoken"
 
-fun isInvalidToken(cookies: RequestCookies): Boolean {
+fun getTokenFromCookie(cookies: RequestCookies): String {
+    return cookies[expectedCookieName].toString()
+}
+
+fun getDecodedTokenFromCookie(cookies: RequestCookies): DecodedJWT? {
     val token = cookies[expectedCookieName]
+
+    return if (token != null) {
+        verifyToken(token, getEnvironment())
+    } else {
+        null
+    }
+}
+
+fun isInvalidToken(cookies: RequestCookies): Boolean {
+    val decodedToken = getDecodedTokenFromCookie(cookies)
     val env = getEnvironment()
 
-    if (token != null) {
-        val decodedToken = verifyToken(token, env)
-
+    if (decodedToken != null) {
         return if (!decodedToken.audience.contains(env.clientid)) {
             log.warn(
                     "Auth: Unexpected audience for jwt {}, {}, {}",
