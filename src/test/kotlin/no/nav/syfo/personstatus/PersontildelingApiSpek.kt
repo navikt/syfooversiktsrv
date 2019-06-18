@@ -6,12 +6,10 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.ktor.application.install
 import io.ktor.features.ContentNegotiation
-import io.ktor.http.HttpMethod
-import io.ktor.http.HttpStatusCode
+import io.ktor.http.*
 import io.ktor.jackson.jackson
 import io.ktor.routing.routing
-import io.ktor.server.testing.TestApplicationEngine
-import io.ktor.server.testing.handleRequest
+import io.ktor.server.testing.*
 import io.ktor.util.KtorExperimentalAPI
 import io.mockk.every
 import io.mockk.mockkStatic
@@ -71,7 +69,7 @@ object PersontildelingApiSpek : Spek({
             describe("Hent veiledertilknytninger") {
                 val url = "$baseUrl/veileder/$VEILEDER_ID"
 
-                it("skal returnere status Unauthorized dersom bruker ikke gyldig id-token i cookies") {
+                it("skal returnere status Unauthorized om bruker ikke gyldig id-token i cookies") {
                     every {
                         isInvalidToken(any())
                     } returns true
@@ -83,7 +81,7 @@ object PersontildelingApiSpek : Spek({
                     }
                 }
 
-                it("skal returnere status no content hvis veileder ikke har tilknytninger") {
+                it("skal returnere status NoContent om veileder ikke har tilknytninger") {
                     every {
                         isInvalidToken(any())
                     } returns false
@@ -100,24 +98,26 @@ object PersontildelingApiSpek : Spek({
                         isInvalidToken(any())
                     } returns false
 
-                    database.connection.opprettVeilederBrukerKnytning(
-                            VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
-                    )
+                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
+
+                    database.connection.opprettVeilederBrukerKnytning(tilknytning)
 
                     with(handleRequest(HttpMethod.Get, url) {
                         call.request.cookies[cookies]
                     }) {
                         response.status() shouldEqual HttpStatusCode.OK
-                        objectMapper.readValue<List<VeilederBrukerKnytning>>(response.content!!)[0]
-                                .veilederIdent shouldEqual VEILEDER_ID
+                        val returnertVerdig = objectMapper.readValue<List<VeilederBrukerKnytning>>(response.content!!)[0]
+                        returnertVerdig.veilederIdent shouldEqual tilknytning.veilederIdent
+                        returnertVerdig.fnr shouldEqual tilknytning.fnr
+                        returnertVerdig.enhet shouldEqual tilknytning.enhet
                     }
                 }
             }
 
-            describe("Lagre veiledertilknytninger") {
+            describe("skal lagre veiledertilknytninger") {
                 val url = "$baseUrl/registrer"
 
-                it("skal returnere status Unauthorized dersom bruker ikke gyldig id-token i cookies") {
+                it("skal returnere status Unauthorized om det ikke er gyldig id-token i cookies") {
                     every {
                         isInvalidToken(any())
                     } returns true
@@ -126,6 +126,20 @@ object PersontildelingApiSpek : Spek({
                         call.request.cookies[cookies]
                     }) {
                         response.status() shouldEqual HttpStatusCode.Unauthorized
+                    }
+                }
+
+                it("skal lagre liste med veiledertilknytninger") {
+                    every {
+                        isInvalidToken(any())
+                    } returns false
+
+                    with(handleRequest(HttpMethod.Post, url) {
+                        addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                        call.request.cookies[cookies]
+                        setBody("{\"tilknytninger\":[{\"veilederIdent\": \"$VEILEDER_ID\",\"fnr\": \"$ARBEIDSTAKER_FNR\",\"enhet\": \"$NAV_ENHET\"}]}")
+                    }) {
+                        response.status() shouldEqual HttpStatusCode.Created
                     }
                 }
             }
