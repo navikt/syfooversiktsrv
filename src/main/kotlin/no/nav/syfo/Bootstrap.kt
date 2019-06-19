@@ -8,6 +8,13 @@ import io.ktor.application.*
 import io.ktor.auth.Authentication
 import io.ktor.auth.jwt.JWTPrincipal
 import io.ktor.auth.jwt.jwt
+import io.ktor.client.HttpClient
+import io.ktor.client.HttpClientConfig
+import io.ktor.client.engine.apache.Apache
+import io.ktor.client.engine.apache.ApacheEngineConfig
+import io.ktor.client.features.json.JacksonSerializer
+import io.ktor.client.features.json.JsonFeature
+import io.ktor.client.features.logging.*
 import io.ktor.features.*
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
@@ -18,7 +25,6 @@ import io.ktor.response.respond
 import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
-import io.ktor.util.KtorExperimentalAPI
 import io.micrometer.core.instrument.Clock
 import io.micrometer.core.instrument.binder.jvm.*
 import io.micrometer.core.instrument.binder.logging.LogbackMetrics
@@ -34,8 +40,8 @@ import no.nav.syfo.api.registerNaisApi
 import no.nav.syfo.db.*
 import no.nav.syfo.personstatus.PersonTildelingService
 import no.nav.syfo.personstatus.registerPersonTildelingApi
+import no.nav.syfo.tilgangskontroll.TilgangskontrollConsumer
 import no.nav.syfo.vault.Vault
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.net.URL
 import java.util.*
@@ -44,11 +50,10 @@ import java.util.concurrent.TimeUnit
 
 data class ApplicationState(var running: Boolean = true, var initialized: Boolean = false)
 
-val log: Logger = LoggerFactory.getLogger("no.nav.syfo")
+val log: org.slf4j.Logger = LoggerFactory.getLogger("no.nav.syfo")
 
 val backgroundTasksContext = Executors.newFixedThreadPool(4).asCoroutineDispatcher() + MDCContext()
 
-@KtorExperimentalAPI
 fun main() = runBlocking(Executors.newFixedThreadPool(4).asCoroutineDispatcher()) {
     val env = getEnvironment()
     val applicationState = ApplicationState()
@@ -100,7 +105,6 @@ fun main() = runBlocking(Executors.newFixedThreadPool(4).asCoroutineDispatcher()
     applicationState.initialized = true
 }
 
-@KtorExperimentalAPI
 fun Application.initRouting(
         applicationState: ApplicationState,
         database: DatabaseInterface,
@@ -150,10 +154,28 @@ fun Application.initRouting(
         }
     }
 
+    val config: HttpClientConfig<ApacheEngineConfig>.() -> Unit = {
+        install(JsonFeature) {
+            serializer = JacksonSerializer {
+                registerKotlinModule()
+                registerModule(JavaTimeModule())
+                configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+            }
+        }
+        install(Logging) {
+            logger = Logger.DEFAULT
+            level = LogLevel.INFO
+        }
+    }
+
+    val httpClient = HttpClient(Apache, config)
+
     val personTildelingService = PersonTildelingService(database)
+    val tilgangskontrollConsumer = TilgangskontrollConsumer(env.syfotilgangskontrollUrl, httpClient)
+
     routing {
         registerNaisApi(applicationState)
-        registerPersonTildelingApi(personTildelingService)
+        registerPersonTildelingApi(tilgangskontrollConsumer, personTildelingService)
     }
 }
 
