@@ -7,6 +7,8 @@ import io.ktor.response.respond
 import io.ktor.routing.*
 import no.nav.syfo.auth.getTokenFromCookie
 import no.nav.syfo.auth.isInvalidToken
+import no.nav.syfo.metric.COUNT_PERSONTILDELING_TILDEL
+import no.nav.syfo.metric.COUNT_PERSONTILDELING_TILDELT
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytningListe
 import no.nav.syfo.tilgangskontroll.TilgangskontrollConsumer
@@ -46,6 +48,8 @@ fun Route.registerPersonTildelingApi(
             if (isInvalidToken(call.request.cookies)) {
                 call.respond(HttpStatusCode.Unauthorized)
             } else {
+                COUNT_PERSONTILDELING_TILDEL.inc()
+
                 val veilederBrukerKnytningerListe: VeilederBrukerKnytningListe = call.receive()
 
                 val veilederBrukerKnytninger: List<VeilederBrukerKnytning> = veilederBrukerKnytningerListe.tilknytninger
@@ -58,6 +62,8 @@ fun Route.registerPersonTildelingApi(
                     call.respond(HttpStatusCode.Forbidden)
                 } else {
                     personTildelingService.lagreKnytningMellomVeilederOgBruker(veilederBrukerKnytninger)
+
+                    COUNT_PERSONTILDELING_TILDELT.inc(veilederBrukerKnytninger.size.toDouble())
 
                     call.respond(HttpStatusCode.Created)
                 }
