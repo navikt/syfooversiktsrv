@@ -19,19 +19,12 @@ import io.ktor.features.*
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.jackson.jackson
-import io.ktor.metrics.micrometer.MicrometerMetrics
 import io.ktor.request.ApplicationRequest
 import io.ktor.response.respond
 import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
-import io.micrometer.core.instrument.Clock
-import io.micrometer.core.instrument.binder.jvm.*
-import io.micrometer.core.instrument.binder.logging.LogbackMetrics
-import io.micrometer.core.instrument.binder.system.ProcessorMetrics
-import io.micrometer.prometheus.PrometheusConfig
-import io.micrometer.prometheus.PrometheusMeterRegistry
-import io.prometheus.client.CollectorRegistry
+import io.prometheus.client.hotspot.DefaultExports
 import kotlinx.coroutines.*
 import kotlinx.coroutines.slf4j.MDCContext
 import net.logstash.logback.argument.StructuredArguments
@@ -58,6 +51,8 @@ fun main() = runBlocking(Executors.newFixedThreadPool(4).asCoroutineDispatcher()
     val env = getEnvironment()
     val applicationState = ApplicationState()
 
+    DefaultExports.initialize()
+
     val vaultCredentialService = VaultCredentialService()
     val database = Database(env, vaultCredentialService)
 
@@ -83,17 +78,6 @@ fun main() = runBlocking(Executors.newFixedThreadPool(4).asCoroutineDispatcher()
             host(host = "nais.preprod.local", schemes = listOf("https"), subDomains = listOf("syfooversikt-q1"))
             host(host = "localhost", schemes = listOf("http", "https"))
             allowCredentials = true
-        }
-        install(MicrometerMetrics) {
-            registry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT, CollectorRegistry.defaultRegistry, Clock.SYSTEM)
-            meterBinders = listOf(
-                    ClassLoaderMetrics(),
-                    JvmMemoryMetrics(),
-                    JvmGcMetrics(),
-                    ProcessorMetrics(),
-                    JvmThreadMetrics(),
-                    LogbackMetrics()
-            )
         }
         initRouting(applicationState, database, env)
     }.start(wait = false)
