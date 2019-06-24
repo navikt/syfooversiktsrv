@@ -15,7 +15,7 @@ import no.nav.syfo.tilgangskontroll.TilgangskontrollConsumer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-val log: Logger = LoggerFactory.getLogger("no.nav.syfo")
+private val log: Logger = LoggerFactory.getLogger("no.nav.syfo")
 
 fun Route.registerPersonTildelingApi(
         tilgangskontrollConsumer: TilgangskontrollConsumer,
