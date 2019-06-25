@@ -2,6 +2,7 @@ package no.nav.syfo.personstatus
 
 import no.nav.syfo.db.DatabaseInterface
 import no.nav.syfo.db.toList
+import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
 import java.sql.ResultSet
 import java.sql.Timestamp
@@ -9,6 +10,21 @@ import java.time.Instant
 import java.util.*
 
 const val KNYTNING_IKKE_FUNNET = 0L
+
+fun DatabaseInterface.hentPersonerTilknyttetEnhet(enhet: String): List<PersonOversiktStatus> {
+    return connection.use { connection ->
+        connection.prepareStatement(
+                """
+                        SELECT *
+                        FROM PERSON_OVERSIKT_STATUS
+                        WHERE tildelt_enhet = ?
+                """
+        ).use {
+            it.setString(1, enhet)
+            it.executeQuery().toList { toPersonOversiktStatus() }
+        }
+    }
+}
 
 fun DatabaseInterface.hentBrukereTilknyttetVeileder(veileder: String): List<VeilederBrukerKnytning> {
     return connection.use { connection ->
@@ -94,6 +110,13 @@ fun DatabaseInterface.oppdaterEnhetDersomKnytningFinnes(veilederBrukerKnytning: 
 
     return id
 }
+
+fun ResultSet.toPersonOversiktStatus(): PersonOversiktStatus =
+        PersonOversiktStatus(
+                veilederIdent = getString("tildelt_veileder").trim(),
+                fnr = getString("fnr"),
+                enhet = getString("tildelt_enhet")
+        )
 
 fun ResultSet.toVeilederBrukerKnytning(): VeilederBrukerKnytning =
         VeilederBrukerKnytning(

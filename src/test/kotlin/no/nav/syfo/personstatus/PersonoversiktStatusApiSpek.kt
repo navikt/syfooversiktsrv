@@ -6,21 +6,23 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.ktor.application.install
 import io.ktor.client.HttpClient
-import io.ktor.client.engine.mock.*
+import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.respond
 import io.ktor.client.features.json.JacksonSerializer
 import io.ktor.client.features.json.JsonFeature
 import io.ktor.features.ContentNegotiation
 import io.ktor.http.*
 import io.ktor.jackson.jackson
 import io.ktor.routing.routing
-import io.ktor.server.testing.*
+import io.ktor.server.testing.TestApplicationEngine
+import io.ktor.server.testing.handleRequest
 import io.ktor.util.InternalAPI
 import io.mockk.every
 import io.mockk.mockkStatic
 import kotlinx.coroutines.io.ByteReadChannel
-import no.nav.syfo.auth.getTokenFromCookie
 import no.nav.syfo.auth.isInvalidToken
 import no.nav.syfo.getEnvironment
+import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
@@ -41,11 +43,11 @@ private val objectMapper: ObjectMapper = ObjectMapper().apply {
 private val env = getEnvironment()
 
 @InternalAPI
-object PersontildelingApiSpek : Spek({
+object PersonoversiktStatusApiSpek : Spek({
 
     val database = TestDB()
     val cookies = ""
-    val baseUrl = "/api/v1/persontildeling"
+    val baseUrl = "/api/v1/personoversikt"
     val tilgangskontrollConsumer = TilgangskontrollConsumer(
             env.syfotilgangskontrollUrl,
             client
@@ -55,7 +57,7 @@ object PersontildelingApiSpek : Spek({
         database.stop()
     }
 
-    describe("PersontildelingApi") {
+    describe("PersonoversiktApi") {
 
         with(TestApplicationEngine()) {
             start()
@@ -69,7 +71,7 @@ object PersontildelingApiSpek : Spek({
             }
 
             application.routing {
-                registerPersonTildelingApi(tilgangskontrollConsumer, PersonTildelingService(database))
+                registerPersonoversiktApi(tilgangskontrollConsumer, PersonoversiktStatusService(database))
             }
 
             beforeEachTest {
@@ -80,10 +82,10 @@ object PersontildelingApiSpek : Spek({
                 database.connection.dropData()
             }
 
-            describe("Hent veiledertilknytninger") {
-                val url = "$baseUrl/veileder/$VEILEDER_ID"
+            describe("Hent personoversikt for enhet") {
+                val url = "$baseUrl/enhet/$NAV_ENHET"
 
-                it("skal returnere status Unauthorized om bruker ikke gyldig id-token i cookies") {
+                it("skal returnere status Unauthorized uten gyldig id-token i cookies") {
                     every {
                         isInvalidToken(any())
                     } returns true
@@ -95,7 +97,7 @@ object PersontildelingApiSpek : Spek({
                     }
                 }
 
-                it("skal returnere status NoContent om veileder ikke har tilknytninger") {
+                it("skal returnere status NoContent om det ikke er noen personer som er tilknyttet enhet") {
                     every {
                         isInvalidToken(any())
                     } returns false
@@ -107,7 +109,7 @@ object PersontildelingApiSpek : Spek({
                     }
                 }
 
-                it("skal hente veileder sine tilknytninger ") {
+                it("skal hente enhet sine personoversikt ") {
                     every {
                         isInvalidToken(any())
                     } returns false
@@ -120,44 +122,10 @@ object PersontildelingApiSpek : Spek({
                         call.request.cookies[cookies]
                     }) {
                         response.status() shouldEqual HttpStatusCode.OK
-                        val returnertVerdig = objectMapper.readValue<List<VeilederBrukerKnytning>>(response.content!!)[0]
+                        val returnertVerdig = objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!)[0]
                         returnertVerdig.veilederIdent shouldEqual tilknytning.veilederIdent
                         returnertVerdig.fnr shouldEqual tilknytning.fnr
                         returnertVerdig.enhet shouldEqual tilknytning.enhet
-                    }
-                }
-            }
-
-            describe("skal lagre veiledertilknytninger") {
-                val url = "$baseUrl/registrer"
-
-                it("skal returnere status Unauthorized om det ikke er gyldig id-token i cookies") {
-                    every {
-                        isInvalidToken(any())
-                    } returns true
-
-                    with(handleRequest(HttpMethod.Post, url) {
-                        call.request.cookies[cookies]
-                    }) {
-                        response.status() shouldEqual HttpStatusCode.Unauthorized
-                    }
-                }
-
-                it("skal lagre liste med veiledertilknytninger") {
-                    every {
-                        isInvalidToken(any())
-                    } returns false
-                    every {
-                        getTokenFromCookie(any())
-                    } returns "token"
-
-                    with(handleRequest(HttpMethod.Post, url) {
-                        addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
-                        call.request.cookies[cookies]
-                        respondOk()
-                        setBody("{\"tilknytninger\":[{\"veilederIdent\": \"$VEILEDER_ID\",\"fnr\": \"$ARBEIDSTAKER_FNR\",\"enhet\": \"$NAV_ENHET\"}]}")
-                    }) {
-                        response.status() shouldEqual HttpStatusCode.Created
                     }
                 }
             }
@@ -171,7 +139,7 @@ private val client = HttpClient(MockEngine) {
     engine {
         addHandler { request ->
             when (request.url.fullUrl) {
-                "$baseUrl/syfo-tilgangskontroll/api/tilgang/bruker?fnr=$ARBEIDSTAKER_FNR" -> {
+                "$baseUrl/syfo-tilgangskontroll/api/tilgang/enhet?enhet=$NAV_ENHET" -> {
                     val responseHeaders = headersOf("Content-Type" to listOf(ContentType.Application.Json.toString()))
                     respond(ByteReadChannel(("{" +
                             "\"harTilgang\":\"true\",\"begrunnelse\":\"null\"}").toByteArray(Charsets.UTF_8)), HttpStatusCode.OK, responseHeaders)

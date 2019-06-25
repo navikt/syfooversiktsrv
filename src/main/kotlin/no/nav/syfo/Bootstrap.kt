@@ -31,8 +31,7 @@ import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.api.getWellKnown
 import no.nav.syfo.api.registerNaisApi
 import no.nav.syfo.db.*
-import no.nav.syfo.personstatus.PersonTildelingService
-import no.nav.syfo.personstatus.registerPersonTildelingApi
+import no.nav.syfo.personstatus.*
 import no.nav.syfo.tilgangskontroll.TilgangskontrollConsumer
 import no.nav.syfo.vault.Vault
 import org.slf4j.LoggerFactory
@@ -155,10 +154,12 @@ fun Application.initRouting(
     val httpClient = HttpClient(Apache, config)
 
     val personTildelingService = PersonTildelingService(database)
+    val personoversiktStatusService = PersonoversiktStatusService(database)
     val tilgangskontrollConsumer = TilgangskontrollConsumer(env.syfotilgangskontrollUrl, httpClient)
 
     routing {
         registerNaisApi(applicationState)
+        registerPersonoversiktApi(tilgangskontrollConsumer, personoversiktStatusService)
         registerPersonTildelingApi(tilgangskontrollConsumer, personTildelingService)
     }
 }
