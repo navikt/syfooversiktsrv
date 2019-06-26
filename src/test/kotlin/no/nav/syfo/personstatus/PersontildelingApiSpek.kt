@@ -157,7 +157,7 @@ object PersontildelingApiSpek : Spek({
                         respondOk()
                         setBody("{\"tilknytninger\":[{\"veilederIdent\": \"$VEILEDER_ID\",\"fnr\": \"$ARBEIDSTAKER_FNR\",\"enhet\": \"$NAV_ENHET\"}]}")
                     }) {
-                        response.status() shouldEqual HttpStatusCode.Created
+                        response.status() shouldEqual HttpStatusCode.OK
                     }
                 }
             }
