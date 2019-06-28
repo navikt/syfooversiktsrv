@@ -1,6 +1,7 @@
 package no.nav.syfo.db
 
 import com.zaxxer.hikari.HikariConfig
+
 import com.zaxxer.hikari.HikariDataSource
 import no.nav.syfo.Environment
 import org.flywaydb.core.Flyway
@@ -9,53 +10,77 @@ import java.sql.ResultSet
 
 enum class Role {
     ADMIN, USER, READONLY;
-
     override fun toString() = name.toLowerCase()
 }
 
-class Database(private val env: Environment, private val vaultCredentialService: VaultCredentialService) : DatabaseInterface {
-    private val dataSource: HikariDataSource
+data class DaoConfig(val jdbcUrl: String, val password: String, val username: String, val databaseName: String) {
+    var poolSize: Int
+        get() = 3
+        set(size) {
+            this.poolSize = size
+        }
 
-    override val connection: Connection
-        get() = dataSource.connection
+}
+
+
+class DevDatabase(daoConfig: DaoConfig) : Dao(daoConfig, null) {
+
+    override fun runFlywayMigrations() = Flyway.configure().run {
+            dataSource(daoConfig.jdbcUrl, daoConfig.username, daoConfig.password)
+            load().migrate()
+    }
+}
+
+class ProdDatabase(daoConfig: DaoConfig, initBlock: (context: Dao) -> Unit) : Dao(daoConfig, initBlock) {
+
+    override fun runFlywayMigrations() = Flyway.configure().run {
+        dataSource(daoConfig.jdbcUrl, daoConfig.username, daoConfig.password)
+        initSql("SET ROLE \"${daoConfig.databaseName}-${Role.ADMIN}\"") // required for assigning proper owners for the tables
+        load().migrate()
+    }
+}
+
+/**
+ * Base Database implementation.
+ * Hooks up the database with the provided configuration/credentials
+ */
+abstract class Dao(val daoConfig: DaoConfig, private val initBlock: ((context: Dao) -> Unit)?) : DatabaseInterface {
+
+    var dataSource: HikariDataSource
 
     init {
         runFlywayMigrations()
 
-        val initialCredentials = vaultCredentialService.getNewCredentials(
-            mountPath = env.mountPathVault,
-            databaseName = env.databaseName,
-            role = Role.USER
-        )
         dataSource = HikariDataSource(HikariConfig().apply {
-            jdbcUrl = env.syfooversiktsrvDBURL
-            username = initialCredentials.username
-            password = initialCredentials.password
-            maximumPoolSize = 3
+            jdbcUrl = daoConfig.jdbcUrl
+            username = daoConfig.username
+            password = daoConfig.password
+            maximumPoolSize = daoConfig.poolSize
             isAutoCommit = false
             transactionIsolation = "TRANSACTION_REPEATABLE_READ"
-            validate()
-        })
+        }).also { it.validate() }
 
-        vaultCredentialService.renewCredentialsTaskData = RenewCredentialsTaskData(
-            dataSource = dataSource,
-            mountPath = env.mountPathVault,
-            databaseName = env.databaseName,
-            role = Role.USER
-        )
+        afterInit()
     }
 
-    private fun runFlywayMigrations() = Flyway.configure().run {
-        val credentials = vaultCredentialService.getNewCredentials(
-            mountPath = env.mountPathVault,
-            databaseName = env.databaseName,
-            role = Role.ADMIN
-        )
-        dataSource(env.syfooversiktsrvDBURL, credentials.username, credentials.password)
-        initSql("SET ROLE \"${env.databaseName}-${Role.ADMIN}\"") // required for assigning proper owners for the tables
-        load().migrate()
+
+    fun updateCredentials(username: String, password: String) {
+        dataSource.apply {
+            hikariConfigMXBean.setPassword(password)
+            hikariConfigMXBean.setUsername(username)
+            hikariPoolMXBean.softEvictConnections()
+        }
     }
+
+    override val connection: Connection
+        get() = dataSource.connection
+
+    private fun afterInit() = initBlock?.let { run(it) }
+
+    abstract fun runFlywayMigrations(): Int
+
 }
+
 
 fun <T> ResultSet.toList(mapper: ResultSet.() -> T) = mutableListOf<T>().apply {
     while (next()) {

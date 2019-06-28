@@ -46,30 +46,14 @@ val log: org.slf4j.Logger = LoggerFactory.getLogger("no.nav.syfo")
 
 val backgroundTasksContext = Executors.newFixedThreadPool(4).asCoroutineDispatcher() + MDCContext()
 
-fun main() = runBlocking(Executors.newFixedThreadPool(4).asCoroutineDispatcher()) {
+fun main2() = runBlocking(Executors.newFixedThreadPool(4).asCoroutineDispatcher()) {
+
     val env = getEnvironment()
     val applicationState = ApplicationState()
 
     DefaultExports.initialize()
 
-    val vaultCredentialService = VaultCredentialService()
-    val database = Database(env, vaultCredentialService)
 
-    launch(backgroundTasksContext) {
-        try {
-            Vault.renewVaultTokenTask(applicationState)
-        } finally {
-            applicationState.running = false
-        }
-    }
-
-    launch(backgroundTasksContext) {
-        try {
-            vaultCredentialService.runRenewCredentialsTask { applicationState.running }
-        } finally {
-            applicationState.running = false
-        }
-    }
 
     val applicationServer = embeddedServer(Netty, env.applicationPort) {
         install(CORS) {
@@ -78,7 +62,28 @@ fun main() = runBlocking(Executors.newFixedThreadPool(4).asCoroutineDispatcher()
             host(host = "localhost", schemes = listOf("http", "https"))
             allowCredentials = true
         }
+
+
+        val vaultCredentialService = VaultCredentialService()
+
+        launch(backgroundTasksContext) {
+            try {
+                Vault.renewVaultTokenTask(applicationState)
+            } finally {
+                applicationState.running = false
+            }
+        }
+
+        launch(backgroundTasksContext) {
+            try {
+                vaultCredentialService.runRenewCredentialsTask { applicationState.running }
+            } finally {
+                applicationState.running = false
+            }
+        }
+
         initRouting(applicationState, database, env)
+
     }.start(wait = false)
 
     Runtime.getRuntime().addShutdownHook(Thread {
@@ -87,6 +92,7 @@ fun main() = runBlocking(Executors.newFixedThreadPool(4).asCoroutineDispatcher()
 
     applicationState.initialized = true
 }
+
 
 fun Application.initRouting(
         applicationState: ApplicationState,

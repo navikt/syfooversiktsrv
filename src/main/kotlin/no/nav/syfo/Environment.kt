@@ -6,7 +6,7 @@ import java.io.File
 
 const val vaultApplicationPropertiesPath = "/var/run/secrets/nais.io/vault/credentials.json"
 const val localEnvironmentPropertiesPath = "./src/main/resources/localEnv.json"
-const val defaultlocalEnvironmentPropertiesPath = "./src/main/resources/localEnvForTests.json"
+const val defaultlocalEnvironmentPropertiesPath = "./src/main/resources/localEnv.json"
 private val objectMapper: ObjectMapper = ObjectMapper()
 
 fun getEnvironment(): Environment {

@@ -26,7 +26,7 @@ plugins {
 group 'no.nav.syfo'
 version '1.0-SNAPSHOT'
 
-jar.manifest.attributes("Main-Class" : "no.nav.syfo.BootstrapKt")
+jar.manifest.attributes("Main-Class" : "no.nav.syfo.SyfooversiktApplicationKt")
 
 repositories {
     mavenCentral()
