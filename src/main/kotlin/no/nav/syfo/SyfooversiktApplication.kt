@@ -56,6 +56,8 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 
+data class ApplicationState(var running: Boolean = true, var initialized: Boolean = false)
+
 val LOG = LoggerFactory.getLogger("no.nav.syfo.SyfooversiktApplicationKt")
 
 val backgroundTasksContext = Executors.newFixedThreadPool(4).asCoroutineDispatcher() + MDCContext()
@@ -118,7 +120,6 @@ fun Application.init() {
             // post init block
             // after successfully connecting to db
             // start a new renew-task and update credentials in the background
-
             vaultCredentialService.renewCredentialsTaskData = RenewCredentialsTaskData(env.mountPathVault, env.databaseName, Role.USER) {
                 prodDatabase.updateCredentials(username = it.username, password = it.password)
             }
