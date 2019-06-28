@@ -51,7 +51,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 
-val LOG = LoggerFactory.getLogger("no.nav.syfo.SyfooversiktApplication")
+val LOG = LoggerFactory.getLogger("no.nav.syfo.SyfooversiktApplicationKt")
 
 /**
  * Main method to run the server
@@ -76,14 +76,15 @@ fun main() {
     server.start(true)
 }
 
+
 lateinit var database: DatabaseInterface
-lateinit var state: ApplicationState
+
+val state: ApplicationState = ApplicationState(running = false, initialized = false)
 
 val Application.env: Environment
     get() = getEnvironment()
 
 fun Application.init() {
-    state = ApplicationState(running = false, initialized = false)
 
     isDev {
         database = DevDatabase(DaoConfig(
