@@ -54,15 +54,15 @@ import java.util.concurrent.TimeUnit
 val LOG = LoggerFactory.getLogger("no.nav.syfo.SyfooversiktApplicationKt")
 
 /**
- * Main method to run the server
+ * Application entry point
  */
 fun main() {
-    val server= embeddedServer(Netty, applicationEngineEnvironment {
+    val server = embeddedServer(Netty, applicationEngineEnvironment {
         log = LoggerFactory.getLogger("ktor.application")
         config = HoconApplicationConfig(ConfigFactory.load())
 
         connector {
-            port = 8081
+            port = env.applicationPort
         }
 
         module {
@@ -78,18 +78,18 @@ fun main() {
 
 
 lateinit var database: DatabaseInterface
-
 val state: ApplicationState = ApplicationState(running = false, initialized = false)
+val env: Environment = getEnvironment()
 
-val Application.env: Environment
-    get() = getEnvironment()
-
+/**
+ * Init module, setup a database connection and initialize
+ */
 fun Application.init() {
 
     isDev {
         database = DevDatabase(DaoConfig(
                 jdbcUrl = "jdbc:postgresql://localhost:5432/",
-                databaseName = "test",
+                databaseName = "syfooversiktsrv_dev",
                 password = "password",
                 username = "username")
         )
@@ -122,8 +122,8 @@ fun Application.init() {
 
 
 /**
- * Application main module. Loaded through the application.conf
- * located in: resources/application.conf
+ * Application main module, setting up all Features and routing for the application.
+ * Loaded after the init-module (@see [Application.init])
  */
 fun Application.mainModule() {
 
@@ -190,6 +190,7 @@ fun Application.mainModule() {
     isProd {
         LOG.info("Running in production mode")
     }
+
     val config: HttpClientConfig<ApacheEngineConfig>.() -> Unit = {
         install(JsonFeature) {
             serializer = JacksonSerializer {
