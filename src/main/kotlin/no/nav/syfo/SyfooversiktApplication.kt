@@ -36,6 +36,9 @@ import io.ktor.server.engine.applicationEngineEnvironment
 import io.ktor.server.engine.connector
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.slf4j.MDCContext
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.api.getWellKnown
 import no.nav.syfo.api.registerNaisApi
@@ -45,13 +48,17 @@ import no.nav.syfo.personstatus.PersonoversiktStatusService
 import no.nav.syfo.personstatus.registerPersonTildelingApi
 import no.nav.syfo.personstatus.registerPersonoversiktApi
 import no.nav.syfo.tilgangskontroll.TilgangskontrollConsumer
+import no.nav.syfo.vault.Vault
 import org.slf4j.LoggerFactory
 import java.net.URL
 import java.util.*
+import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 
 val LOG = LoggerFactory.getLogger("no.nav.syfo.SyfooversiktApplicationKt")
+
+val backgroundTasksContext = Executors.newFixedThreadPool(4).asCoroutineDispatcher() + MDCContext()
 
 /**
  * Application entry point
@@ -110,13 +117,32 @@ fun Application.init() {
                 databaseName = env.databaseName)) { prodDatabase->
             // post init block
             // after successfully connecting to db
-            // start a new renew-task and update credentials
+            // start a new renew-task and update credentials in the background
+
             vaultCredentialService.renewCredentialsTaskData = RenewCredentialsTaskData(env.mountPathVault, env.databaseName, Role.USER) {
                 prodDatabase.updateCredentials(username = it.username, password = it.password)
             }
+
             state.initialized = true
             state.running = true
         }
+
+        launch(backgroundTasksContext) {
+            try {
+                Vault.renewVaultTokenTask(state)
+            } finally {
+                state.running = false
+            }
+        }
+
+        launch(backgroundTasksContext) {
+            try {
+                vaultCredentialService.runRenewCredentialsTask { state.running }
+            } finally {
+                state.running = false
+            }
+        }
+
     }
 }
 

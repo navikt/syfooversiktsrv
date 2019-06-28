@@ -44,7 +44,7 @@ data class ApplicationState(var running: Boolean = true, var initialized: Boolea
 
 val log: org.slf4j.Logger = LoggerFactory.getLogger("no.nav.syfo")
 
-val backgroundTasksContext = Executors.newFixedThreadPool(4).asCoroutineDispatcher() + MDCContext()
+//val backgroundTasksContext = Executors.newFixedThreadPool(4).asCoroutineDispatcher() + MDCContext()
 
 fun main2() = runBlocking(Executors.newFixedThreadPool(4).asCoroutineDispatcher()) {
 
