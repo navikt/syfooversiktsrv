@@ -65,7 +65,7 @@ fun Route.registerPersonTildelingApi(
 
                     COUNT_PERSONTILDELING_TILDELT.inc(veilederBrukerKnytninger.size.toDouble())
 
-                    call.respond(HttpStatusCode.Created)
+                    call.respond(HttpStatusCode.OK)
                 }
             }
         }
