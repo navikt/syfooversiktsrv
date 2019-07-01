@@ -23,18 +23,18 @@ data class DaoConfig(val jdbcUrl: String, val password: String, val username: St
 }
 
 
-class DevDatabase(daoConfig: DaoConfig) : Dao(daoConfig, null) {
+class DevDatabase(daoConfig: DaoConfig) : Dao(daoConfig, { it.runFlywayMigrations(daoConfig.jdbcUrl, daoConfig.username, daoConfig.password) }) {
 
-    override fun runFlywayMigrations() = Flyway.configure().run {
-            dataSource(daoConfig.jdbcUrl, daoConfig.username, daoConfig.password)
+    override fun runFlywayMigrations(jdbcUrl: String, username: String, password: String) = Flyway.configure().run {
+            dataSource(jdbcUrl, username, password)
             load().migrate()
     }
 }
 
 class ProdDatabase(daoConfig: DaoConfig, initBlock: (context: Dao) -> Unit) : Dao(daoConfig, initBlock) {
 
-    override fun runFlywayMigrations() = Flyway.configure().run {
-        dataSource(daoConfig.jdbcUrl, daoConfig.username, daoConfig.password)
+    override fun runFlywayMigrations(jdbcUrl: String, username: String, password: String) = Flyway.configure().run {
+        dataSource(jdbcUrl, username, password)
         initSql("SET ROLE \"${daoConfig.databaseName}-${Role.ADMIN}\"") // required for assigning proper owners for the tables
         load().migrate()
     }
@@ -59,8 +59,6 @@ abstract class Dao(val daoConfig: DaoConfig, private val initBlock: ((context: D
             transactionIsolation = "TRANSACTION_REPEATABLE_READ"
         }).also { it.validate() }
 
-        runFlywayMigrations()
-
         afterInit()
     }
 
@@ -78,7 +76,7 @@ abstract class Dao(val daoConfig: DaoConfig, private val initBlock: ((context: D
 
     private fun afterInit() = initBlock?.let { run(it) }
 
-    abstract fun runFlywayMigrations(): Int
+    abstract fun runFlywayMigrations(jdbcUrl: String, username: String, password: String): Int
 
 }
 

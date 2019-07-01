@@ -120,6 +120,12 @@ fun Application.init() {
                 databaseName = env.databaseName)) { prodDatabase->
             // post init block
             // after successfully connecting to db
+
+            // grab admin-role credentials to run flyway migrations
+            vaultCredentialService.getNewCredentials(env.mountPathVault, env.databaseName, Role.ADMIN)
+                    .let { prodDatabase.runFlywayMigrations(env.syfooversiktsrvDBURL, it.username, it.password) }
+
+
             // start a new renew-task and update credentials in the background
             vaultCredentialService.renewCredentialsTaskData = RenewCredentialsTaskData(env.mountPathVault, env.databaseName, Role.USER) {
                 prodDatabase.updateCredentials(username = it.username, password = it.password)
