@@ -1,8 +1,9 @@
 package no.nav.syfo
 
 import com.auth0.jwk.JwkProviderBuilder
-import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.databind.*
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.ktor.application.*
 import io.ktor.auth.Authentication
@@ -24,6 +25,8 @@ import io.ktor.response.respond
 import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
+import io.ktor.util.KtorExperimentalAPI
+import io.netty.util.internal.StringUtil.isNullOrEmpty
 import io.prometheus.client.hotspot.DefaultExports
 import kotlinx.coroutines.*
 import kotlinx.coroutines.slf4j.MDCContext
@@ -31,26 +34,50 @@ import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.api.getWellKnown
 import no.nav.syfo.api.registerNaisApi
 import no.nav.syfo.db.*
+import no.nav.syfo.kafka.*
+import no.nav.syfo.metric.COUNT_OVERSIKTHENDELSE_MOTEBEHOVSSVAR_MOTTATT
 import no.nav.syfo.personstatus.*
+import no.nav.syfo.personstatus.domain.KOversikthendelse
 import no.nav.syfo.tilgangskontroll.TilgangskontrollConsumer
 import no.nav.syfo.vault.Vault
+import org.apache.kafka.clients.consumer.KafkaConsumer
+import org.apache.kafka.common.serialization.StringDeserializer
 import org.slf4j.LoggerFactory
 import java.net.URL
+import java.nio.file.Paths
+import java.time.Duration
 import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 data class ApplicationState(var running: Boolean = true, var initialized: Boolean = false)
 
+private val objectMapper: ObjectMapper = ObjectMapper().apply {
+    registerKotlinModule()
+    registerModule(JavaTimeModule())
+    configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+    configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+}
+
 val log: org.slf4j.Logger = LoggerFactory.getLogger("no.nav.syfo")
 
 val backgroundTasksContext = Executors.newFixedThreadPool(4).asCoroutineDispatcher() + MDCContext()
 
+
 fun main() = runBlocking(Executors.newFixedThreadPool(4).asCoroutineDispatcher()) {
     val env = getEnvironment()
+    val vaultSecrets =
+            objectMapper.readValue<VaultSecrets>(Paths.get("/var/run/secrets/nais.io/vault/credentials.json").toFile())
     val applicationState = ApplicationState()
 
     DefaultExports.initialize()
+
+    // Kafka
+    val kafkaBaseConfig = loadBaseConfig(env, vaultSecrets)
+            .envOverrides()
+    val consumerProperties = kafkaBaseConfig.toConsumerConfig(
+            "${env.applicationName}-consumer", valueDeserializer = StringDeserializer::class
+    )
 
     val vaultCredentialService = VaultCredentialService()
     val database = Database(env, vaultCredentialService)
@@ -80,6 +107,10 @@ fun main() = runBlocking(Executors.newFixedThreadPool(4).asCoroutineDispatcher()
         }
         initRouting(applicationState, database, env)
     }.start(wait = false)
+
+    val oversiktHendelseService = OversiktHendelseService(database)
+
+    launchListeners(consumerProperties, applicationState, oversiktHendelseService)
 
     Runtime.getRuntime().addShutdownHook(Thread {
         applicationServer.stop(10, 10, TimeUnit.SECONDS)
@@ -161,6 +192,71 @@ fun Application.initRouting(
         registerNaisApi(applicationState)
         registerPersonoversiktApi(tilgangskontrollConsumer, personoversiktStatusService)
         registerPersonTildelingApi(tilgangskontrollConsumer, personTildelingService)
+    }
+}
+
+fun CoroutineScope.createListener(applicationState: ApplicationState, action: suspend CoroutineScope.() -> Unit): Job =
+        launch {
+            try {
+                action()
+            } finally {
+                applicationState.running = false
+            }
+        }
+
+@KtorExperimentalAPI
+suspend fun CoroutineScope.launchListeners(
+        consumerProperties: Properties,
+        applicationState: ApplicationState,
+        oversiktHendelseService: OversiktHendelseService
+) {
+
+    val kafkaconsumerOppgave = KafkaConsumer<String, String>(consumerProperties)
+
+    kafkaconsumerOppgave.subscribe(
+            listOf("aapen-syfo-oversikthendelse-v1")
+    )
+    createListener(applicationState) {
+        blockingApplicationLogic(applicationState, kafkaconsumerOppgave, oversiktHendelseService)
+    }
+
+    applicationState.initialized = true
+}
+
+@KtorExperimentalAPI
+suspend fun blockingApplicationLogic(
+        applicationState: ApplicationState,
+        kafkaConsumer: KafkaConsumer<String, String>,
+        oversiktHendelseService: OversiktHendelseService
+) {
+    while (applicationState.running) {
+        var logValues = arrayOf(
+                StructuredArguments.keyValue("oversikthendelseId", "missing"),
+                StructuredArguments.keyValue("Harfnr", "missing"),
+                StructuredArguments.keyValue("enhetId", "missing"),
+                StructuredArguments.keyValue("hendelseId", "missing")
+        )
+
+        val logKeys = logValues.joinToString(prefix = "(", postfix = ")", separator = ",") {
+            "{}"
+        }
+
+        kafkaConsumer.poll(Duration.ofMillis(0)).forEach {
+            val oversiktHendelse: KOversikthendelse =
+                    objectMapper.readValue(it.value())
+            logValues = arrayOf(
+                    StructuredArguments.keyValue("oversikthendelseId", it.key()),
+                    StructuredArguments.keyValue("harFnr", (!isNullOrEmpty(oversiktHendelse.fnr)).toString()),
+                    StructuredArguments.keyValue("enhetId", oversiktHendelse.enhetId),
+                    StructuredArguments.keyValue("hendelseId", oversiktHendelse.hendelseId)
+            )
+            log.info("Mottatt oversikthendelse, klar for oppdatering, $logKeys", *logValues)
+
+            oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
+
+            COUNT_OVERSIKTHENDELSE_MOTEBEHOVSSVAR_MOTTATT.inc()
+        }
+        delay(100)
     }
 }
 
