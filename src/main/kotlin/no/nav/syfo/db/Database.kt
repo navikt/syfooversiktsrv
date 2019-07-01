@@ -49,7 +49,6 @@ abstract class Dao(val daoConfig: DaoConfig, private val initBlock: ((context: D
     var dataSource: HikariDataSource
 
     init {
-        runFlywayMigrations()
 
         dataSource = HikariDataSource(HikariConfig().apply {
             jdbcUrl = daoConfig.jdbcUrl
@@ -59,6 +58,8 @@ abstract class Dao(val daoConfig: DaoConfig, private val initBlock: ((context: D
             isAutoCommit = false
             transactionIsolation = "TRANSACTION_REPEATABLE_READ"
         }).also { it.validate() }
+
+        runFlywayMigrations()
 
         afterInit()
     }
