@@ -5,6 +5,6 @@ services:
     ports:
     - "5432:5432"
     environment:
-    - POSTGRES_DB=syfooversiktsrv
-    - POSTGRES_USER=syfooversiktsrv-admin
-    - POSTGRES_PASSWORD=testpassword123
+#    - POSTGRES_DB=syfooversiktsrv
+    - POSTGRES_USER=username
+    - POSTGRES_PASSWORD=password
