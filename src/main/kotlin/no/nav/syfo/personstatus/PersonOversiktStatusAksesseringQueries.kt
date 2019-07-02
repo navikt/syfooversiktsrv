@@ -4,12 +4,17 @@ import no.nav.syfo.db.DatabaseInterface
 import no.nav.syfo.db.toList
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.sql.ResultSet
 import java.sql.Timestamp
 import java.time.Instant
 import java.util.*
 
 const val KNYTNING_IKKE_FUNNET = 0L
+
+val DatabaseInterface.LOG: Logger
+    get() = LoggerFactory.getLogger("no.nav.syfo.DatabaseInterface")
 
 fun DatabaseInterface.hentPersonerTilknyttetEnhet(enhet: String): List<PersonOversiktStatus> {
     return connection.use { connection ->
@@ -58,16 +63,17 @@ fun DatabaseInterface.lagreBrukerKnytningPaEnhet(veilederBrukerKnytning: Veilede
             sist_endret) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?)"""
 
         connection.use { connection ->
-            connection.prepareStatement(query).use {
+            val use = connection.prepareStatement(query).use {
                 it.setString(1, uuid)
                 it.setString(2, veilederBrukerKnytning.fnr)
                 it.setString(3, veilederBrukerKnytning.veilederIdent)
                 it.setString(4, veilederBrukerKnytning.enhet)
                 it.setTimestamp(5, tidspunkt)
                 it.setTimestamp(6, tidspunkt)
-                it.execute().toString()
+                return@use it.execute().toString()
             }
             connection.commit()
+            LOG.info("Lagret bruker knytning på enhet", use)
         }
     }
 }

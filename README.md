@@ -11,6 +11,32 @@ Denne appen er en backend-tjenste for Syfooversikt
 
 ## Buil and run local
 
+* First start the database:
+```console
+$ docker-compose up
+```
+
+* Run the `main()` function in `SyfooversiktApplication.kt`
+
+
+### Connect to the db from terminal:
+
+To connect and run queries directly against the db run:
+```console
+$ docker-compose exec -it db bash
+
+//in the docker bash run the following
+$ psql -U username syfooversiktsrv_dev
+```
+
+Some sample commands/queries:
+```console
+// list tables
+$ \dt
+
+// sample query
+$ select * from person_oversikt_status;
+```
 
 #### Build
 Run `./gradlew clean shadowJar`

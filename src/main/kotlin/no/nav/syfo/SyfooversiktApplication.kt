@@ -38,16 +38,15 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.slf4j.MDCContext
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.api.getWellKnown
 import no.nav.syfo.api.registerNaisApi
 import no.nav.syfo.db.*
-import no.nav.syfo.personstatus.PersonTildelingService
-import no.nav.syfo.personstatus.PersonoversiktStatusService
-import no.nav.syfo.personstatus.registerPersonTildelingApi
-import no.nav.syfo.personstatus.registerPersonoversiktApi
+import no.nav.syfo.personstatus.*
+import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
 import no.nav.syfo.tilgangskontroll.TilgangskontrollConsumer
 import no.nav.syfo.vault.Vault
 import org.slf4j.LoggerFactory
@@ -83,7 +82,8 @@ fun main() {
     Runtime.getRuntime().addShutdownHook(Thread {
         server.stop(10, 10, TimeUnit.SECONDS)
     })
-    server.start(true)
+
+    server.start(wait = true)
 }
 
 
@@ -106,6 +106,13 @@ fun Application.init() {
 
         state.initialized = true
         state.running = true
+
+        launch {
+            database.lagreBrukerKnytningPaEnhet(VeilederBrukerKnytning("999999", "fnr1", "0315"))
+            database.lagreBrukerKnytningPaEnhet(VeilederBrukerKnytning("999999", "fnr2", "0315"))
+            database.lagreBrukerKnytningPaEnhet(VeilederBrukerKnytning("999999", "fnr3", "0315"))
+            database.lagreBrukerKnytningPaEnhet(VeilederBrukerKnytning("999999", "fnr4", "0315"))
+        }
     }
 
     isProd {
@@ -219,10 +226,12 @@ fun Application.mainModule() {
 
     isDev {
         LOG.info("Running in development mode")
+
     }
 
     isProd {
         LOG.info("Running in production mode")
+
     }
 
     val config: HttpClientConfig<ApacheEngineConfig>.() -> Unit = {
@@ -257,6 +266,7 @@ val Application.envKind get() = environment.config.property("ktor.environment").
 fun Application.isDev(block: () -> Unit) {
     if (envKind == "dev") block()
 }
+
 fun Application.isProd(block: () -> Unit) {
     if (envKind != "dev") {
         block()

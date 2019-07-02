@@ -13,13 +13,7 @@ enum class Role {
     override fun toString() = name.toLowerCase()
 }
 
-data class DaoConfig(val jdbcUrl: String, val password: String, val username: String, val databaseName: String) {
-    var poolSize: Int
-        get() = 3
-        set(size) {
-            this.poolSize = size
-        }
-
+data class DaoConfig(val jdbcUrl: String, val password: String, val username: String, val databaseName: String, val poolSize: Int = 10) {
 }
 
 
@@ -59,7 +53,8 @@ abstract class Dao(val daoConfig: DaoConfig, private val initBlock: ((context: D
             maximumPoolSize = daoConfig.poolSize
             isAutoCommit = false
             transactionIsolation = "TRANSACTION_REPEATABLE_READ"
-        }).also { it.validate() }
+            validate()
+        })
 
         afterInit()
     }
