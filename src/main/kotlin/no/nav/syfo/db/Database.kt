@@ -26,7 +26,7 @@ data class DaoConfig(val jdbcUrl: String, val password: String, val username: St
 class DevDatabase(daoConfig: DaoConfig) : Dao(daoConfig, { it.runFlywayMigrations(daoConfig.jdbcUrl, daoConfig.username, daoConfig.password) }) {
 
     override fun runFlywayMigrations(jdbcUrl: String, username: String, password: String) = Flyway.configure().run {
-            dataSource(jdbcUrl, username, password)
+            dataSource(dbUrl, username, password)
             load().migrate()
     }
 }
@@ -48,10 +48,12 @@ abstract class Dao(val daoConfig: DaoConfig, private val initBlock: ((context: D
 
     var dataSource: HikariDataSource
 
+    val dbUrl = daoConfig.jdbcUrl + daoConfig.databaseName
+
     init {
 
         dataSource = HikariDataSource(HikariConfig().apply {
-            jdbcUrl = daoConfig.jdbcUrl
+            jdbcUrl = dbUrl
             username = daoConfig.username
             password = daoConfig.password
             maximumPoolSize = daoConfig.poolSize
