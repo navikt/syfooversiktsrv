@@ -18,7 +18,8 @@ data class DaoConfig(
         val password: String,
         val username: String,
         val databaseName: String,
-        val poolSize: Int = 10
+        val poolSize: Int = 10,
+        val runMigrationsOninit: Boolean = true
 )
 
 class DevDatabase(daoConfig: DaoConfig) : Dao(daoConfig, null)
@@ -67,7 +68,12 @@ abstract class Dao(val daoConfig: DaoConfig, private val initBlock: ((context: D
     override val connection: Connection
         get() = dataSource.connection
 
-    private fun afterInit() = runFlywayMigrations(daoConfig.jdbcUrl, daoConfig.username, daoConfig.password).also { initBlock?.let { run(it) } }
+    private fun afterInit() {
+        if (daoConfig.runMigrationsOninit) {
+            runFlywayMigrations(daoConfig.jdbcUrl, daoConfig.username, daoConfig.password)
+        }
+        initBlock?.let { run(it) }
+    }
 
     open fun runFlywayMigrations(jdbcUrl: String, username: String, password: String) = Flyway.configure().run {
         dataSource(jdbcUrl, username, password)
