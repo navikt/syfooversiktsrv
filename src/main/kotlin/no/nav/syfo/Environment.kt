@@ -2,6 +2,8 @@ package no.nav.syfo
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import no.nav.syfo.kafka.KafkaConfig
+import no.nav.syfo.kafka.KafkaCredentials
 import java.io.File
 
 const val vaultApplicationPropertiesPath = "/var/run/secrets/nais.io/vault/credentials.json"
@@ -16,7 +18,8 @@ fun getEnvironment(): Environment {
     } else {
         Environment(
                 getEnvVar("APPLICATION_PORT", "8080").toInt(),
-                getEnvVar("APPLICATION_THREADS", "4").toInt(),
+                getEnvVar("APPLICATION_THREADS", "1").toInt(),
+                getEnvVar("APPLICATION_NAME", "syfooversiktsrv"),
                 getEnvVar("AADDISCOVERY_URL"),
                 getEnvVar("JWKKEYS_URL", "https://login.microsoftonline.com/common/discovery/keys"),
                 getEnvVar("JWT_ISSUER"),
@@ -24,6 +27,8 @@ fun getEnvironment(): Environment {
                 getEnvVar("DATABASE_NAME", "syfooversiktsrv"),
                 getEnvVar("SYFOOVERSIKTSRV_DB_URL"),
                 getEnvVar("MOUNT_PATH_VAULT"),
+                getEnvVar("KAFKA_OVERSIKT_HENDELSE_V1_TOPIC", "privat-syfo-sm2013-register"),
+                getEnvVar("KAFKA_BOOTSTRAP_SERVERS_URL"),
                 getEnvVar("CLIENT_ID")
         )
     }
@@ -34,6 +39,7 @@ val appIsRunningLocally: Boolean = System.getenv("NAIS_CLUSTER_NAME").isNullOrEm
 data class Environment(
         val applicationPort: Int,
         val applicationThreads: Int,
+        val applicationName: String,
         val aadDiscoveryUrl: String,
         val jwkKeysUrl: String,
         val jwtIssuer: String,
@@ -41,8 +47,18 @@ data class Environment(
         val databaseName: String,
         val syfooversiktsrvDBURL: String,
         val mountPathVault: String,
+        val oversiktHendelseTopic: String,
+        override val kafkaBootstrapServers: String,
         val clientid: String
-)
+) : KafkaConfig
+
+data class VaultSecrets(
+        val serviceuserUsername: String,
+        val serviceuserPassword: String
+) : KafkaCredentials {
+    override val kafkaUsername: String = serviceuserUsername
+    override val kafkaPassword: String = serviceuserPassword
+}
 
 fun getEnvVar(varName: String, defaultValue: String? = null) =
         System.getenv(varName) ?: defaultValue ?: throw RuntimeException("Missing required variable \"$varName\"")
