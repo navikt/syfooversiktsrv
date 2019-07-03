@@ -30,12 +30,12 @@ class OversiktHendelseService(private val database: DatabaseInterface) {
             erPersonsEnhetOppdatert(person, oversiktHendelse) -> {
                 database.oppdaterPersonMedMotebehovMottattNyEnhet(oversiktHendelse)
                 log.info("Oppdatert person basert pa oversikthendelse med motebehovsvar mottatt med ny enhet")
-                COUNT_OVERSIKTHENDELSE_MOTEBEHOVSSVAR_MOTTATT_OPPDATER.inc()
+                COUNT_OVERSIKTHENDELSE_MOTEBEHOVSSVAR_MOTTATT_OPPDATER_ENHET.inc()
             }
             else -> {
                 database.oppdaterPersonMedMotebehovMottatt(oversiktHendelse)
                 log.info("Oppdatert person basert pa oversikthendelse med motebehovsvar mottatt")
-                COUNT_OVERSIKTHENDELSE_MOTEBEHOVSSVAR_MOTTATT_OPPDATER_ENHET.inc()
+                COUNT_OVERSIKTHENDELSE_MOTEBEHOVSSVAR_MOTTATT_OPPDATER.inc()
             }
         }
     }
