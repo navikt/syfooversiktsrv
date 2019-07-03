@@ -33,7 +33,7 @@ private val objectMapper: ObjectMapper = ObjectMapper().apply {
 
 private val LOG: Logger = LoggerFactory.getLogger("no.nav.syfo.Kafka")
 
-fun setupKafka(vaultSecrets: KafkaCredentials, oversiktHendelseService: OversiktHendelseService) = runBlocking {
+suspend fun CoroutineScope.setupKafka(vaultSecrets: KafkaCredentials, oversiktHendelseService: OversiktHendelseService) {
 
     LOG.info("Setting up kafka consumer")
 

@@ -165,10 +165,13 @@ fun Application.init() {
 
 fun Application.kafkaModule() {
     isProd {
-        launch {
+
+        val oversiktHendelseService = OversiktHendelseService(database)
+
+        launch(backgroundTasksContext) {
             val vaultSecrets =
                     objectMapper.readValue<VaultSecrets>(Paths.get("/var/run/secrets/nais.io/vault/credentials.json").toFile())
-            setupKafka(vaultSecrets, OversiktHendelseService(database))
+            setupKafka(vaultSecrets, oversiktHendelseService)
         }
     }
 }
