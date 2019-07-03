@@ -112,6 +112,8 @@ fun Application.init() {
                 password = "password",
                 username = "username")
         )
+
+        state.running = true
     }
 
     isProd {
@@ -266,6 +268,8 @@ fun Application.serverModule() {
         registerPersonoversiktApi(tilgangskontrollConsumer, personoversiktStatusService)
         registerPersonTildelingApi(tilgangskontrollConsumer, personTildelingService)
     }
+
+    state.initialized = true
 }
 
 
