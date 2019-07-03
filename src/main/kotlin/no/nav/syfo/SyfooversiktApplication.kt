@@ -39,7 +39,6 @@ import io.ktor.server.engine.applicationEngineEnvironment
 import io.ktor.server.engine.connector
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
-import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.*
 import kotlinx.coroutines.slf4j.MDCContext
 import net.logstash.logback.argument.StructuredArguments
@@ -50,7 +49,6 @@ import no.nav.syfo.kafka.setupKafka
 import no.nav.syfo.personstatus.*
 import no.nav.syfo.tilgangskontroll.TilgangskontrollConsumer
 import no.nav.syfo.vault.Vault
-import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.slf4j.LoggerFactory
 import java.net.URL
 import java.nio.file.Paths
@@ -86,7 +84,8 @@ fun main() {
 
         module {
             init()
-            mainModule()
+            kafkaModule()
+            serverModule()
         }
     })
     Runtime.getRuntime().addShutdownHook(Thread {
@@ -100,6 +99,7 @@ fun main() {
 lateinit var database: DatabaseInterface
 val state: ApplicationState = ApplicationState(running = false, initialized = false)
 val env: Environment = getEnvironment()
+
 
 /**
  * Init module, setup a database connection and initialize
@@ -156,14 +156,15 @@ fun Application.init() {
                 state.running = false
             }
         }
+    }
 
-        val oversiktHendelseService = OversiktHendelseService(database)
+}
 
-        launch {
-            val vaultSecrets =
-                    objectMapper.readValue<VaultSecrets>(Paths.get("/var/run/secrets/nais.io/vault/credentials.json").toFile())
-            setupKafka(vaultSecrets, oversiktHendelseService)
-        }
+fun Application.kafkaModule() {
+    launch {
+        val vaultSecrets =
+                objectMapper.readValue<VaultSecrets>(Paths.get("/var/run/secrets/nais.io/vault/credentials.json").toFile())
+        setupKafka(vaultSecrets, OversiktHendelseService(database))
     }
 }
 
@@ -172,7 +173,7 @@ fun Application.init() {
  * Application main module, setting up all Features and routing for the application.
  * Loaded after the init-module (@see [Application.init])
  */
-fun Application.mainModule() {
+fun Application.serverModule() {
 
     val env = getEnvironment()
 
