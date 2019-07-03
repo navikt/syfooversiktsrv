@@ -123,7 +123,8 @@ fun Application.init() {
                 jdbcUrl = env.syfooversiktsrvDBURL,
                 username = newCredentials.username,
                 password = newCredentials.password,
-                databaseName = env.databaseName)) { prodDatabase->
+                databaseName = env.databaseName,
+                runMigrationsOninit = false)) { prodDatabase->
 
             // post init block
             // after successfully connecting to db
