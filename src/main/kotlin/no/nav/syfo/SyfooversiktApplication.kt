@@ -106,13 +106,6 @@ fun Application.init() {
 
         state.initialized = true
         state.running = true
-
-        launch {
-            database.lagreBrukerKnytningPaEnhet(VeilederBrukerKnytning("999999", "fnr1", "0315"))
-            database.lagreBrukerKnytningPaEnhet(VeilederBrukerKnytning("999999", "fnr2", "0315"))
-            database.lagreBrukerKnytningPaEnhet(VeilederBrukerKnytning("999999", "fnr3", "0315"))
-            database.lagreBrukerKnytningPaEnhet(VeilederBrukerKnytning("999999", "fnr4", "0315"))
-        }
     }
 
     isProd {
@@ -125,13 +118,13 @@ fun Application.init() {
                 username = newCredentials.username,
                 password = newCredentials.password,
                 databaseName = env.databaseName)) { prodDatabase->
+
             // post init block
             // after successfully connecting to db
-
             // grab admin-role credentials to run flyway migrations
-            vaultCredentialService.getNewCredentials(env.mountPathVault, env.databaseName, Role.ADMIN)
-                    .let { prodDatabase.runFlywayMigrations(env.syfooversiktsrvDBURL, it.username, it.password) }
-
+            vaultCredentialService.getNewCredentials(env.mountPathVault, env.databaseName, Role.ADMIN).let {
+                        prodDatabase.runFlywayMigrations(env.syfooversiktsrvDBURL, it.username, it.password)
+                    }
 
             // start a new renew-task and update credentials in the background
             vaultCredentialService.renewCredentialsTaskData = RenewCredentialsTaskData(env.mountPathVault, env.databaseName, Role.USER) {
@@ -226,12 +219,10 @@ fun Application.mainModule() {
 
     isDev {
         LOG.info("Running in development mode")
-
     }
 
     isProd {
         LOG.info("Running in production mode")
-
     }
 
     val config: HttpClientConfig<ApacheEngineConfig>.() -> Unit = {
