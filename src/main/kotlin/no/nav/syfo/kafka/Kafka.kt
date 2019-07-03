@@ -18,6 +18,8 @@ import no.nav.syfo.personstatus.OversiktHendelseService
 import no.nav.syfo.personstatus.domain.KOversikthendelse
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.serialization.StringDeserializer
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.time.Duration
 import java.util.*
 
@@ -29,7 +31,11 @@ private val objectMapper: ObjectMapper = ObjectMapper().apply {
 }
 
 
+private val LOG: Logger = LoggerFactory.getLogger("no.nav.syfo.Kafka")
+
 fun setupKafka(vaultSecrets: KafkaCredentials, oversiktHendelseService: OversiktHendelseService) = runBlocking {
+
+    LOG.info("Setting up kafka consumer")
 
     // Kafka
     val kafkaBaseConfig = loadBaseConfig(env, vaultSecrets)
@@ -87,10 +93,10 @@ suspend fun CoroutineScope.launchListeners(
 ) {
 
     val kafkaconsumerOppgave = KafkaConsumer<String, String>(consumerProperties)
-
     kafkaconsumerOppgave.subscribe(
             listOf("aapen-syfo-oversikthendelse-v1")
     )
+
     createListener(applicationState) {
         blockingApplicationLogic(applicationState, kafkaconsumerOppgave, oversiktHendelseService)
     }
