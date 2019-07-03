@@ -50,13 +50,12 @@ fun Route.registerPersonTildelingApi(
             } else {
                 COUNT_PERSONTILDELING_TILDEL.inc()
 
+                val token = getTokenFromCookie(call.request.cookies)
+
                 val veilederBrukerKnytningerListe: VeilederBrukerKnytningListe = call.receive()
 
                 val veilederBrukerKnytninger: List<VeilederBrukerKnytning> = veilederBrukerKnytningerListe.tilknytninger
-
-                val token = getTokenFromCookie(call.request.cookies)
-
-                veilederBrukerKnytninger.filter { tilgangskontrollConsumer.harVeilederTilgangTilPerson(it.fnr, token) }
+                        .filter { tilgangskontrollConsumer.harVeilederTilgangTilPerson(it.fnr, token) }
 
                 if (veilederBrukerKnytninger.isEmpty()) {
                     call.respond(HttpStatusCode.Forbidden)

@@ -26,6 +26,8 @@ fun Route.registerPersonoversiktApi(
                 call.respond(HttpStatusCode.Unauthorized)
             } else {
                 try {
+                    val token = getTokenFromCookie(call.request.cookies)
+
                     val enhet: String = call.parameters["enhet"]?.takeIf { validateEnhet(it) }
                             ?: throw IllegalArgumentException("Enhet mangler")
 
@@ -33,6 +35,7 @@ fun Route.registerPersonoversiktApi(
 
                     if (harTilgangTilEnhet) {
                         val personListe: List<PersonOversiktStatus> = personoversiktStatusService.hentPersonoversiktStatusTilknyttetEnhet(enhet)
+                                .filter { tilgangskontrollConsumer.harVeilederTilgangTilPerson(it.fnr, token) }
 
                         when {
                             personListe.isNotEmpty() -> call.respond(personListe)
