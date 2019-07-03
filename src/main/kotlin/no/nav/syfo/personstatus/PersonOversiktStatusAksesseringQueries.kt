@@ -16,15 +16,28 @@ const val KNYTNING_IKKE_FUNNET = 0L
 val DatabaseInterface.LOG: Logger
     get() = LoggerFactory.getLogger("no.nav.syfo.DatabaseInterface")
 
-fun DatabaseInterface.hentPersonerTilknyttetEnhet(enhet: String): List<PersonOversiktStatus> {
-    return connection.use { connection ->
-        connection.prepareStatement(
+fun DatabaseInterface.hentPersonResultat(fnr: String): List<PersonOversiktStatus> {
+    val query = """
+                         SELECT *
+                         FROM PERSON_OVERSIKT_STATUS
+                         WHERE fnr=?
                 """
+    return connection.use { connection ->
+        connection.prepareStatement(query).use {
+            it.setString(1, fnr)
+            it.executeQuery().toList { toPersonOversiktStatus() }
+        }
+    }
+}
+
+const val queryHentPersonerTilknyttetEnhet = """
                         SELECT *
                         FROM PERSON_OVERSIKT_STATUS
                         WHERE tildelt_enhet = ?
                 """
-        ).use {
+fun DatabaseInterface.hentPersonerTilknyttetEnhet(enhet: String): List<PersonOversiktStatus> {
+    return connection.use { connection ->
+        connection.prepareStatement(queryHentPersonerTilknyttetEnhet).use {
             it.setString(1, enhet)
             it.executeQuery().toList { toPersonOversiktStatus() }
         }
@@ -32,28 +45,21 @@ fun DatabaseInterface.hentPersonerTilknyttetEnhet(enhet: String): List<PersonOve
 }
 
 fun DatabaseInterface.hentBrukereTilknyttetVeileder(veileder: String): List<VeilederBrukerKnytning> {
-    return connection.use { connection ->
-        connection.prepareStatement(
-                """
+    val query = """
                         SELECT *
                         FROM PERSON_OVERSIKT_STATUS
                         WHERE tildelt_veileder = ?
                 """
-        ).use {
+    return connection.use { connection ->
+        connection.prepareStatement(query).use {
             it.setString(1, veileder)
             it.executeQuery().toList { toVeilederBrukerKnytning() }
         }
     }
 }
 
-fun DatabaseInterface.lagreBrukerKnytningPaEnhet(veilederBrukerKnytning: VeilederBrukerKnytning) {
-    val id = oppdaterEnhetDersomKnytningFinnes(veilederBrukerKnytning)
 
-    if (id == KNYTNING_IKKE_FUNNET) {
-        val uuid = UUID.randomUUID().toString()
-        val tidspunkt = Timestamp.from(Instant.now())
-
-        val query = """INSERT INTO PERSON_OVERSIKT_STATUS (
+const val queryLagreBrukerKnytningPaEnhet = """INSERT INTO PERSON_OVERSIKT_STATUS (
             id,
             uuid,
             fnr,
@@ -62,18 +68,26 @@ fun DatabaseInterface.lagreBrukerKnytningPaEnhet(veilederBrukerKnytning: Veilede
             opprettet,
             sist_endret) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?)"""
 
+fun DatabaseInterface.lagreBrukerKnytningPaEnhet(veilederBrukerKnytning: VeilederBrukerKnytning) {
+    val id = oppdaterEnhetDersomKnytningFinnes(veilederBrukerKnytning)
+
+    if (id == KNYTNING_IKKE_FUNNET) {
+        val uuid = UUID.randomUUID().toString()
+        val tidspunkt = Timestamp.from(Instant.now())
+
         connection.use { connection ->
-            val use = connection.prepareStatement(query).use {
+
+            connection.prepareStatement(queryLagreBrukerKnytningPaEnhet).use {
                 it.setString(1, uuid)
                 it.setString(2, veilederBrukerKnytning.fnr)
-                it.setString(3, veilederBrukerKnytning.veilederIdent)
+                it.setString(3, veilederBrukerKnytning.veilederIdent.trim())
                 it.setString(4, veilederBrukerKnytning.enhet)
                 it.setTimestamp(5, tidspunkt)
                 it.setTimestamp(6, tidspunkt)
-                return@use it.execute().toString()
+
+                it.execute()
             }
             connection.commit()
-            LOG.info("Lagret bruker knytning på enhet", use)
         }
     }
 }
@@ -81,14 +95,14 @@ fun DatabaseInterface.lagreBrukerKnytningPaEnhet(veilederBrukerKnytning: Veilede
 fun DatabaseInterface.oppdaterEnhetDersomKnytningFinnes(veilederBrukerKnytning: VeilederBrukerKnytning): Long {
     var id = KNYTNING_IKKE_FUNNET
 
-    val knytningerPaVeileder = connection.use { connection ->
-        connection.prepareStatement(
-                """
+    val selectQuery = """
                          SELECT id
                          FROM PERSON_OVERSIKT_STATUS
                          WHERE fnr=?
                 """
-        ).use {
+
+    val knytningerPaVeileder = connection.use { connection ->
+        connection.prepareStatement(selectQuery).use {
             it.setString(1, veilederBrukerKnytning.fnr)
             it.executeQuery().toList { getLong("id") }
         }
@@ -96,17 +110,15 @@ fun DatabaseInterface.oppdaterEnhetDersomKnytningFinnes(veilederBrukerKnytning: 
 
     if (knytningerPaVeileder.isNotEmpty()) {
         id = knytningerPaVeileder[0]
-        connection.use { connection ->
-            connection.prepareStatement(
-                    """
+        val updateQuery = """
                          UPDATE PERSON_OVERSIKT_STATUS
-                         SET tildelt_veileder = ?, tildelt_enhet = ?
+                         SET tildelt_veileder = ?
                          WHERE id = ?
                 """
-            ).use {
+        connection.use { connection ->
+            connection.prepareStatement(updateQuery).use {
                 it.setString(1, veilederBrukerKnytning.veilederIdent)
-                it.setString(2, veilederBrukerKnytning.enhet)
-                it.setLong(3, id)
+                it.setLong(2, id)
                 it.executeUpdate()
             }
             connection.commit()
@@ -119,14 +131,15 @@ fun DatabaseInterface.oppdaterEnhetDersomKnytningFinnes(veilederBrukerKnytning: 
 
 fun ResultSet.toPersonOversiktStatus(): PersonOversiktStatus =
         PersonOversiktStatus(
-                veilederIdent = getString("tildelt_veileder").trim(),
+                veilederIdent = getString("tildelt_veileder"),
                 fnr = getString("fnr"),
-                enhet = getString("tildelt_enhet")
+                enhet = getString("tildelt_enhet"),
+                motebehovUbehandlet = getBoolean("motebehov_ubehandlet")
         )
 
 fun ResultSet.toVeilederBrukerKnytning(): VeilederBrukerKnytning =
         VeilederBrukerKnytning(
-                veilederIdent = getString("tildelt_veileder").trim(),
+                veilederIdent = getString("tildelt_veileder"),
                 fnr = getString("fnr"),
                 enhet = getString("tildelt_enhet")
         )

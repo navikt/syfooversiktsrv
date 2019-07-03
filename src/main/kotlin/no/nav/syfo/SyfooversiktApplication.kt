@@ -1,8 +1,11 @@
 package no.nav.syfo
 
 import com.auth0.jwk.JwkProviderBuilder
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.typesafe.config.ConfigFactory
 import io.ktor.application.Application
@@ -36,21 +39,21 @@ import io.ktor.server.engine.applicationEngineEnvironment
 import io.ktor.server.engine.connector
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import io.ktor.util.KtorExperimentalAPI
+import kotlinx.coroutines.*
 import kotlinx.coroutines.slf4j.MDCContext
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.api.getWellKnown
 import no.nav.syfo.api.registerNaisApi
 import no.nav.syfo.db.*
+import no.nav.syfo.kafka.setupKafka
 import no.nav.syfo.personstatus.*
-import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
 import no.nav.syfo.tilgangskontroll.TilgangskontrollConsumer
 import no.nav.syfo.vault.Vault
+import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.slf4j.LoggerFactory
 import java.net.URL
+import java.nio.file.Paths
 import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -58,7 +61,14 @@ import java.util.concurrent.TimeUnit
 
 data class ApplicationState(var running: Boolean = true, var initialized: Boolean = false)
 
-val LOG = LoggerFactory.getLogger("no.nav.syfo.SyfooversiktApplicationKt")
+val LOG: org.slf4j.Logger = LoggerFactory.getLogger("no.nav.syfo.SyfooversiktApplicationKt")
+
+private val objectMapper: ObjectMapper = ObjectMapper().apply {
+    registerKotlinModule()
+    registerModule(JavaTimeModule())
+    configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+    configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+}
 
 val backgroundTasksContext = Executors.newFixedThreadPool(4).asCoroutineDispatcher() + MDCContext()
 
@@ -95,17 +105,13 @@ val env: Environment = getEnvironment()
  * Init module, setup a database connection and initialize
  */
 fun Application.init() {
-
     isDev {
         database = DevDatabase(DaoConfig(
-                jdbcUrl = "jdbc:postgresql://localhost:5432/",
+                jdbcUrl = "jdbc:postgresql://localhost:5432/syfooversiktsrv_dev",
                 databaseName = "syfooversiktsrv_dev",
                 password = "password",
                 username = "username")
         )
-
-        state.initialized = true
-        state.running = true
     }
 
     isProd {
@@ -131,7 +137,7 @@ fun Application.init() {
                 prodDatabase.updateCredentials(username = it.username, password = it.password)
             }
 
-            state.initialized = true
+
             state.running = true
         }
 
@@ -151,6 +157,13 @@ fun Application.init() {
             }
         }
 
+        val oversiktHendelseService = OversiktHendelseService(database)
+
+        launch {
+            val vaultSecrets =
+                    objectMapper.readValue<VaultSecrets>(Paths.get("/var/run/secrets/nais.io/vault/credentials.json").toFile())
+            setupKafka(vaultSecrets, oversiktHendelseService)
+        }
     }
 }
 
@@ -250,6 +263,16 @@ fun Application.mainModule() {
         registerPersonTildelingApi(tilgangskontrollConsumer, personTildelingService)
     }
 }
+
+
+fun CoroutineScope.createListener(applicationState: ApplicationState, action: suspend CoroutineScope.() -> Unit): Job =
+        launch {
+            try {
+                action()
+            } finally {
+                applicationState.running = false
+            }
+        }
 
 
 

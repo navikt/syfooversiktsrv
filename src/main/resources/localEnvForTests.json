@@ -1,6 +1,7 @@
 {
     "applicationPort": "8081",
-    "applicationThreads": "4",
+    "applicationThreads": "1",
+    "applicationName": "syfooversiktsrv",
     "aadDiscoveryUrl": "https://login.microsoftonline.com/navq.onmicrosoft.com/.well-known/openid-configuration",
     "jwkKeysUrl": "https://login.microsoftonline.com/common/discovery/keys",
     "jwtIssuer": "https://sts.windows.net/XXXXXXXX/",
@@ -8,5 +9,7 @@
     "databaseName": "syfooversiktsrv",
     "syfooversiktsrvDBURL": "url",
     "mountPathVault": "mountpath",
+    "kafkaBootstrapServers": "kafkaurl",
+    "oversiktHendelseTopic": "topic",
     "clientid": "999999"
 }

@@ -13,21 +13,19 @@ enum class Role {
     override fun toString() = name.toLowerCase()
 }
 
-data class DaoConfig(val jdbcUrl: String, val password: String, val username: String, val databaseName: String, val poolSize: Int = 10) {
-}
+data class DaoConfig(
+        val jdbcUrl: String,
+        val password: String,
+        val username: String,
+        val databaseName: String,
+        val poolSize: Int = 10
+)
 
-
-class DevDatabase(daoConfig: DaoConfig) : Dao(daoConfig, { it.runFlywayMigrations(daoConfig.jdbcUrl, daoConfig.username, daoConfig.password) }) {
-
-    override fun runFlywayMigrations(jdbcUrl: String, username: String, password: String) = Flyway.configure().run {
-            dataSource(dbUrl, username, password)
-            load().migrate()
-    }
-}
+class DevDatabase(daoConfig: DaoConfig) : Dao(daoConfig, null)
 
 class ProdDatabase(daoConfig: DaoConfig, initBlock: (context: Dao) -> Unit) : Dao(daoConfig, initBlock) {
 
-    override fun runFlywayMigrations(jdbcUrl: String, username: String, password: String) = Flyway.configure().run {
+    override fun runFlywayMigrations(jdbcUrl: String, username: String, password: String): Int = Flyway.configure().run {
         dataSource(jdbcUrl, username, password)
         initSql("SET ROLE \"${daoConfig.databaseName}-${Role.ADMIN}\"") // required for assigning proper owners for the tables
         load().migrate()
@@ -42,12 +40,10 @@ abstract class Dao(val daoConfig: DaoConfig, private val initBlock: ((context: D
 
     var dataSource: HikariDataSource
 
-    val dbUrl = daoConfig.jdbcUrl + daoConfig.databaseName
-
     init {
 
         dataSource = HikariDataSource(HikariConfig().apply {
-            jdbcUrl = dbUrl
+            jdbcUrl = daoConfig.jdbcUrl
             username = daoConfig.username
             password = daoConfig.password
             maximumPoolSize = daoConfig.poolSize
@@ -71,9 +67,12 @@ abstract class Dao(val daoConfig: DaoConfig, private val initBlock: ((context: D
     override val connection: Connection
         get() = dataSource.connection
 
-    private fun afterInit() = initBlock?.let { run(it) }
+    private fun afterInit() = runFlywayMigrations(daoConfig.jdbcUrl, daoConfig.username, daoConfig.password).also { initBlock?.let { run(it) } }
 
-    abstract fun runFlywayMigrations(jdbcUrl: String, username: String, password: String): Int
+    open fun runFlywayMigrations(jdbcUrl: String, username: String, password: String) = Flyway.configure().run {
+        dataSource(jdbcUrl, username, password)
+        load().migrate()
+    }
 
 }
 

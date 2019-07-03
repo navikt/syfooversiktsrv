@@ -20,6 +20,7 @@ import io.ktor.util.InternalAPI
 import io.mockk.every
 import io.mockk.mockkStatic
 import kotlinx.coroutines.io.ByteReadChannel
+import no.nav.syfo.auth.getTokenFromCookie
 import no.nav.syfo.auth.isInvalidToken
 import no.nav.syfo.getEnvironment
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
@@ -109,10 +110,13 @@ object PersonoversiktStatusApiSpek : Spek({
                     }
                 }
 
-                it("skal hente enhet sine personoversikt ") {
+                it("skal hente enhet sin personoversikt ") {
                     every {
                         isInvalidToken(any())
                     } returns false
+                    every {
+                        getTokenFromCookie(any())
+                    } returns "token"
 
                     val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
 
@@ -140,6 +144,11 @@ private val client = HttpClient(MockEngine) {
         addHandler { request ->
             when (request.url.fullUrl) {
                 "$baseUrl/syfo-tilgangskontroll/api/tilgang/enhet?enhet=$NAV_ENHET" -> {
+                    val responseHeaders = headersOf("Content-Type" to listOf(ContentType.Application.Json.toString()))
+                    respond(ByteReadChannel(("{" +
+                            "\"harTilgang\":\"true\",\"begrunnelse\":\"null\"}").toByteArray(Charsets.UTF_8)), HttpStatusCode.OK, responseHeaders)
+                }
+                "$baseUrl/syfo-tilgangskontroll/api/tilgang/bruker?fnr=$ARBEIDSTAKER_FNR" -> {
                     val responseHeaders = headersOf("Content-Type" to listOf(ContentType.Application.Json.toString()))
                     respond(ByteReadChannel(("{" +
                             "\"harTilgang\":\"true\",\"begrunnelse\":\"null\"}").toByteArray(Charsets.UTF_8)), HttpStatusCode.OK, responseHeaders)
