@@ -28,8 +28,6 @@ class TestDB : DatabaseInterface {
     init {
         container.start()
         db = DevDatabase(DaoConfig(jdbcUrl = container.jdbcUrl, username = "username", password = "password", databaseName = "db_test"))
-//        pg = EmbeddedPostgres.builder().setDataDirectory("/var/tmp/syfooversikt_test_data").start()
-
     }
 
     fun stop() {
