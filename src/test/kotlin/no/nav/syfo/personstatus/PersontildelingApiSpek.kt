@@ -43,29 +43,6 @@ private val env = getEnvironment()
 @InternalAPI
 object PersontildelingApiSpek : Spek({
 
-    val client = HttpClient(MockEngine) {
-        val baseUrl = "http://localhost:8080"
-        engine {
-            addHandler { request ->
-                when (request.url.fullUrl) {
-                    "$baseUrl/syfo-tilgangskontroll/api/tilgang/bruker?fnr=$ARBEIDSTAKER_FNR" -> {
-                        val responseHeaders = headersOf("Content-Type" to listOf(ContentType.Application.Json.toString()))
-                        respond(ByteReadChannel(("{" +
-                                "\"harTilgang\":\"true\",\"begrunnelse\":\"null\"}").toByteArray(Charsets.UTF_8)), HttpStatusCode.OK, responseHeaders)
-                    }
-                    else -> error("Unhandled ${request.url.fullUrl}")
-                }
-            }
-        }
-        install(JsonFeature) {
-            serializer = JacksonSerializer {
-                registerKotlinModule()
-                registerModule(JavaTimeModule())
-                configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-            }
-        }
-    }
-
     val database by lazy { TestDB() }
     val cookies = ""
     val baseUrl = "/api/v1/persontildeling"
@@ -188,6 +165,29 @@ object PersontildelingApiSpek : Spek({
     }
 })
 
+@InternalAPI
+private val client = HttpClient(MockEngine) {
+    val baseUrl = "http://localhost:8080"
+    engine {
+        addHandler { request ->
+            when (request.url.fullUrl) {
+                "$baseUrl/syfo-tilgangskontroll/api/tilgang/bruker?fnr=$ARBEIDSTAKER_FNR" -> {
+                    val responseHeaders = headersOf("Content-Type" to listOf(ContentType.Application.Json.toString()))
+                    respond(ByteReadChannel(("{" +
+                            "\"harTilgang\":\"true\",\"begrunnelse\":\"null\"}").toByteArray(Charsets.UTF_8)), HttpStatusCode.OK, responseHeaders)
+                }
+                else -> error("Unhandled ${request.url.fullUrl}")
+            }
+        }
+    }
+    install(JsonFeature) {
+        serializer = JacksonSerializer {
+            registerKotlinModule()
+            registerModule(JavaTimeModule())
+            configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+        }
+    }
+}
 
 private val Url.hostWithPortIfRequired: String get() = if (port == protocol.defaultPort) host else hostWithPort
 private val Url.fullUrl: String get() = "${protocol.name}://$hostWithPortIfRequired$fullPath"
