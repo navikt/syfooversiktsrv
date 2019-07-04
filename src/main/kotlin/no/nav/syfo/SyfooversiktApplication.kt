@@ -45,6 +45,7 @@ import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.api.getWellKnown
 import no.nav.syfo.api.registerNaisApi
 import no.nav.syfo.db.*
+import no.nav.syfo.kafka.KafkaCredentials
 import no.nav.syfo.kafka.setupKafka
 import no.nav.syfo.personstatus.*
 import no.nav.syfo.tilgangskontroll.TilgangskontrollConsumer
@@ -92,7 +93,7 @@ fun main() {
         server.stop(10, 10, TimeUnit.SECONDS)
     })
 
-    server.start(wait = true)
+    server.start(wait = false)
 }
 
 
@@ -164,6 +165,10 @@ fun Application.init() {
 }
 
 fun Application.kafkaModule() {
+
+    isDev {
+    }
+
     isProd {
 
         val oversiktHendelseService = OversiktHendelseService(database)

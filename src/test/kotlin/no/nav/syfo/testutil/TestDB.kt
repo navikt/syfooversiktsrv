@@ -1,9 +1,7 @@
 package no.nav.syfo.testutil
 
-import kotlinx.coroutines.awaitAll
 import no.nav.syfo.db.*
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
-import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.PostgreSQLContainer
 import no.nav.syfo.personstatus.*
 import no.nav.syfo.personstatus.domain.*
@@ -12,7 +10,6 @@ import java.sql.Connection
 import java.sql.Timestamp
 import java.time.Instant
 import java.util.*
-
 
 
 

@@ -102,7 +102,5 @@ suspend fun CoroutineScope.launchListeners(
     }
 
 
-    launchListeners(consumerProperties, applicationState, oversiktHendelseService)
-
     applicationState.initialized = true
 }
