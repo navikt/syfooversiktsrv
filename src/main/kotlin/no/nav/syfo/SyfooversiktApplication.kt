@@ -298,7 +298,7 @@ fun Application.isDev(block: () -> Unit) {
 }
 
 fun Application.isProd(block: () -> Unit) {
-    if (envKind != "dev") {
+    if (envKind == "production") {
         block()
     }
 }
