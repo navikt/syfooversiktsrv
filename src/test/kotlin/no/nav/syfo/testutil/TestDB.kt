@@ -80,3 +80,18 @@ fun Connection.opprettPerson(oversiktHendelse: KOversikthendelse) {
         connection.commit()
     }
 }
+
+fun Connection.oppdaterPersonMedMotebehovMottatt(oversiktHendelse: KOversikthendelse) {
+    val tidspunkt = Timestamp.from(Instant.now())
+
+    use { connection ->
+        connection.prepareStatement(queryOppdaterPersonMedMotebehovMottatt).use {
+            it.setBoolean(1, true)
+            it.setString(2, oversiktHendelse.enhetId)
+            it.setTimestamp(3, tidspunkt)
+            it.setString(4, oversiktHendelse.fnr)
+            it.execute()
+        }
+        connection.commit()
+    }
+}
