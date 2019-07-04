@@ -43,7 +43,7 @@ private val env = getEnvironment()
 @InternalAPI
 object PersontildelingApiSpek : Spek({
 
-    val database = TestDB()
+    val database by lazy { TestDB() }
     val cookies = ""
     val baseUrl = "/api/v1/persontildeling"
     val tilgangskontrollConsumer = TilgangskontrollConsumer(
