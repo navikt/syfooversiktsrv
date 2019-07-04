@@ -47,7 +47,7 @@ object PersontildelingApiSpek : Spek({
     val cookies = ""
     val baseUrl = "/api/v1/persontildeling"
     val tilgangskontrollConsumer = TilgangskontrollConsumer(
-            env.syfotilgangskontrollUrl,
+            "http://localhost:8080",
             client
     )
 
@@ -167,7 +167,7 @@ object PersontildelingApiSpek : Spek({
 
 @InternalAPI
 private val client = HttpClient(MockEngine) {
-    val baseUrl = env.syfotilgangskontrollUrl
+    val baseUrl = "http://localhost:8080"
     engine {
         addHandler { request ->
             when (request.url.fullUrl) {
