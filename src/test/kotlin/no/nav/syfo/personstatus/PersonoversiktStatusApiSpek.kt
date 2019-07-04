@@ -46,7 +46,7 @@ private val env = getEnvironment()
 @InternalAPI
 object PersonoversiktStatusApiSpek : Spek({
 
-    
+
     describe("PersonoversiktApi") {
 
         val database by lazy { TestDB() }
