@@ -35,7 +35,7 @@ import no.nav.syfo.api.getWellKnown
 import no.nav.syfo.api.registerNaisApi
 import no.nav.syfo.db.*
 import no.nav.syfo.kafka.*
-import no.nav.syfo.metric.COUNT_OVERSIKTHENDELSE_MOTEBEHOVSSVAR_MOTTATT
+import no.nav.syfo.metric.COUNT_OVERSIKTHENDELSE_MOTEBEHOV_SVAR_MOTTATT
 import no.nav.syfo.personstatus.*
 import no.nav.syfo.personstatus.domain.KOversikthendelse
 import no.nav.syfo.tilgangskontroll.TilgangskontrollConsumer
@@ -254,7 +254,7 @@ suspend fun blockingApplicationLogic(
 
             oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
-            COUNT_OVERSIKTHENDELSE_MOTEBEHOVSSVAR_MOTTATT.inc()
+            COUNT_OVERSIKTHENDELSE_MOTEBEHOV_SVAR_MOTTATT.inc()
         }
         delay(100)
     }
