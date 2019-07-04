@@ -46,20 +46,20 @@ private val env = getEnvironment()
 @InternalAPI
 object PersonoversiktStatusApiSpek : Spek({
 
-
-    val database by lazy { TestDB() }
-    val cookies = ""
-    val baseUrl = "/api/v1/personoversikt"
-    val tilgangskontrollConsumer = TilgangskontrollConsumer(
-            env.syfotilgangskontrollUrl,
-            client
-    )
-
-    afterGroup {
-        database.stop()
-    }
-
+    
     describe("PersonoversiktApi") {
+
+        val database by lazy { TestDB() }
+        val cookies = ""
+        val baseUrl = "/api/v1/personoversikt"
+        val tilgangskontrollConsumer = TilgangskontrollConsumer(
+                env.syfotilgangskontrollUrl,
+                client
+        )
+
+        afterGroup {
+            database.stop()
+        }
 
         with(TestApplicationEngine()) {
             start()
