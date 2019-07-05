@@ -27,7 +27,7 @@ class TestDB : DatabaseInterface {
 
     init {
         container.start()
-        db = DevDatabase(DaoConfig(jdbcUrl = container.jdbcUrl, username = "username", password = "password", databaseName = "db_test"))
+        db = DevDatabase(DbConfig(jdbcUrl = container.jdbcUrl, username = "username", password = "password", databaseName = "db_test"))
     }
 
     fun stop() {

@@ -1,17 +1,12 @@
 package no.nav.syfo
 
 import com.auth0.jwk.JwkProviderBuilder
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.databind.*
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.typesafe.config.ConfigFactory
-import io.ktor.application.Application
-import io.ktor.application.call
-import io.ktor.application.install
-import io.ktor.application.log
+import io.ktor.application.*
 import io.ktor.auth.Authentication
 import io.ktor.auth.jwt.JWTPrincipal
 import io.ktor.auth.jwt.jwt
@@ -21,23 +16,15 @@ import io.ktor.client.engine.apache.Apache
 import io.ktor.client.engine.apache.ApacheEngineConfig
 import io.ktor.client.features.json.JacksonSerializer
 import io.ktor.client.features.json.JsonFeature
-import io.ktor.client.features.logging.DEFAULT
-import io.ktor.client.features.logging.LogLevel
-import io.ktor.client.features.logging.Logger
-import io.ktor.client.features.logging.Logging
+import io.ktor.client.features.logging.*
 import io.ktor.config.HoconApplicationConfig
-import io.ktor.features.CORS
-import io.ktor.features.CallId
-import io.ktor.features.ContentNegotiation
-import io.ktor.features.StatusPages
+import io.ktor.features.*
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.jackson.jackson
 import io.ktor.response.respond
 import io.ktor.routing.routing
-import io.ktor.server.engine.applicationEngineEnvironment
-import io.ktor.server.engine.connector
-import io.ktor.server.engine.embeddedServer
+import io.ktor.server.engine.*
 import io.ktor.server.netty.Netty
 import kotlinx.coroutines.*
 import kotlinx.coroutines.slf4j.MDCContext
@@ -45,7 +32,6 @@ import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.api.getWellKnown
 import no.nav.syfo.api.registerNaisApi
 import no.nav.syfo.db.*
-import no.nav.syfo.kafka.KafkaCredentials
 import no.nav.syfo.kafka.setupKafka
 import no.nav.syfo.personstatus.*
 import no.nav.syfo.tilgangskontroll.TilgangskontrollConsumer
@@ -71,9 +57,6 @@ private val objectMapper: ObjectMapper = ObjectMapper().apply {
 
 val backgroundTasksContext = Executors.newFixedThreadPool(4).asCoroutineDispatcher() + MDCContext()
 
-/**
- * Application entry point
- */
 fun main() {
     val server = embeddedServer(Netty, applicationEngineEnvironment {
         log = LoggerFactory.getLogger("ktor.application")
@@ -102,12 +85,9 @@ val state: ApplicationState = ApplicationState(running = false, initialized = fa
 val env: Environment = getEnvironment()
 
 
-/**
- * Init module, setup a database connection and initialize
- */
 fun Application.init() {
     isDev {
-        database = DevDatabase(DaoConfig(
+        database = DevDatabase(DbConfig(
                 jdbcUrl = "jdbc:postgresql://localhost:5432/syfooversiktsrv_dev",
                 databaseName = "syfooversiktsrv_dev",
                 password = "password",
@@ -122,21 +102,19 @@ fun Application.init() {
 
         val newCredentials = vaultCredentialService.getNewCredentials(env.mountPathVault, env.databaseName, Role.USER)
 
-        database = ProdDatabase(DaoConfig(
+        database = ProdDatabase(DbConfig(
                 jdbcUrl = env.syfooversiktsrvDBURL,
                 username = newCredentials.username,
                 password = newCredentials.password,
                 databaseName = env.databaseName,
                 runMigrationsOninit = false)) { prodDatabase->
 
-            // post init block
-            // after successfully connecting to db
-            // grab admin-role credentials to run flyway migrations
+            // i prod må vi kjøre flyway migrations med et eget sett brukernavn/passord
+            // databasen kjøres derfor
             vaultCredentialService.getNewCredentials(env.mountPathVault, env.databaseName, Role.ADMIN).let {
                         prodDatabase.runFlywayMigrations(env.syfooversiktsrvDBURL, it.username, it.password)
                     }
 
-            // start a new renew-task and update credentials in the background
             vaultCredentialService.renewCredentialsTaskData = RenewCredentialsTaskData(env.mountPathVault, env.databaseName, Role.USER) {
                 prodDatabase.updateCredentials(username = it.username, password = it.password)
             }
@@ -182,10 +160,6 @@ fun Application.kafkaModule() {
 }
 
 
-/**
- * Application main module, setting up all Features and routing for the application.
- * Loaded after the init-module (@see [Application.init])
- */
 fun Application.serverModule() {
 
     val env = getEnvironment()
@@ -204,7 +178,6 @@ fun Application.serverModule() {
             configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
         }
     }
-
 
     install(Authentication) {
         val wellKnown = getWellKnown(env.aadDiscoveryUrl)
@@ -229,6 +202,7 @@ fun Application.serverModule() {
             }
         }
     }
+
     install(CallId) {
         generate { UUID.randomUUID().toString() }
         verify { callId: String -> callId.isNotEmpty() }

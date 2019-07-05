@@ -3,7 +3,6 @@ package no.nav.syfo.db
 import com.zaxxer.hikari.HikariConfig
 
 import com.zaxxer.hikari.HikariDataSource
-import no.nav.syfo.Environment
 import org.flywaydb.core.Flyway
 import java.sql.Connection
 import java.sql.ResultSet
@@ -13,7 +12,7 @@ enum class Role {
     override fun toString() = name.toLowerCase()
 }
 
-data class DaoConfig(
+data class DbConfig(
         val jdbcUrl: String,
         val password: String,
         val username: String,
@@ -22,9 +21,9 @@ data class DaoConfig(
         val runMigrationsOninit: Boolean = true
 )
 
-class DevDatabase(daoConfig: DaoConfig) : Dao(daoConfig, null)
+class DevDatabase(daoConfig: DbConfig) : Database(daoConfig, null)
 
-class ProdDatabase(daoConfig: DaoConfig, initBlock: (context: Dao) -> Unit) : Dao(daoConfig, initBlock) {
+class ProdDatabase(daoConfig: DbConfig, initBlock: (context: Database) -> Unit) : Database(daoConfig, initBlock) {
 
     override fun runFlywayMigrations(jdbcUrl: String, username: String, password: String): Int = Flyway.configure().run {
         dataSource(jdbcUrl, username, password)
@@ -37,7 +36,7 @@ class ProdDatabase(daoConfig: DaoConfig, initBlock: (context: Dao) -> Unit) : Da
  * Base Database implementation.
  * Hooks up the database with the provided configuration/credentials
  */
-abstract class Dao(val daoConfig: DaoConfig, private val initBlock: ((context: Dao) -> Unit)?) : DatabaseInterface {
+abstract class Database(val daoConfig: DbConfig, private val initBlock: ((context: Database) -> Unit)?) : DatabaseInterface {
 
     var dataSource: HikariDataSource
 
