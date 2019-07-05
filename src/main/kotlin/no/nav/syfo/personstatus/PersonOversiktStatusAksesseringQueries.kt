@@ -4,12 +4,17 @@ import no.nav.syfo.db.DatabaseInterface
 import no.nav.syfo.db.toList
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.sql.ResultSet
 import java.sql.Timestamp
 import java.time.Instant
 import java.util.*
 
 const val KNYTNING_IKKE_FUNNET = 0L
+
+val DatabaseInterface.LOG: Logger
+    get() = LoggerFactory.getLogger("no.nav.syfo.DatabaseInterface")
 
 fun DatabaseInterface.hentPersonResultat(fnr: String): List<PersonOversiktStatus> {
     val query = """
@@ -71,6 +76,7 @@ fun DatabaseInterface.lagreBrukerKnytningPaEnhet(veilederBrukerKnytning: Veilede
         val tidspunkt = Timestamp.from(Instant.now())
 
         connection.use { connection ->
+
             connection.prepareStatement(queryLagreBrukerKnytningPaEnhet).use {
                 it.setString(1, uuid)
                 it.setString(2, veilederBrukerKnytning.fnr)
@@ -78,6 +84,7 @@ fun DatabaseInterface.lagreBrukerKnytningPaEnhet(veilederBrukerKnytning: Veilede
                 it.setString(4, veilederBrukerKnytning.enhet)
                 it.setTimestamp(5, tidspunkt)
                 it.setTimestamp(6, tidspunkt)
+
                 it.execute()
             }
             connection.commit()

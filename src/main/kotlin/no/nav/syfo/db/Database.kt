@@ -1,61 +1,85 @@
 package no.nav.syfo.db
 
 import com.zaxxer.hikari.HikariConfig
+
 import com.zaxxer.hikari.HikariDataSource
-import no.nav.syfo.Environment
 import org.flywaydb.core.Flyway
 import java.sql.Connection
 import java.sql.ResultSet
 
 enum class Role {
     ADMIN, USER, READONLY;
-
     override fun toString() = name.toLowerCase()
 }
 
-class Database(private val env: Environment, private val vaultCredentialService: VaultCredentialService) : DatabaseInterface {
-    private val dataSource: HikariDataSource
+data class DbConfig(
+        val jdbcUrl: String,
+        val password: String,
+        val username: String,
+        val databaseName: String,
+        val poolSize: Int = 10,
+        val runMigrationsOninit: Boolean = true
+)
 
-    override val connection: Connection
-        get() = dataSource.connection
+class DevDatabase(daoConfig: DbConfig) : Database(daoConfig, null)
+
+class ProdDatabase(daoConfig: DbConfig, initBlock: (context: Database) -> Unit) : Database(daoConfig, initBlock) {
+
+    override fun runFlywayMigrations(jdbcUrl: String, username: String, password: String): Int = Flyway.configure().run {
+        dataSource(jdbcUrl, username, password)
+        initSql("SET ROLE \"${daoConfig.databaseName}-${Role.ADMIN}\"") // required for assigning proper owners for the tables
+        load().migrate()
+    }
+}
+
+/**
+ * Base Database implementation.
+ * Hooks up the database with the provided configuration/credentials
+ */
+abstract class Database(val daoConfig: DbConfig, private val initBlock: ((context: Database) -> Unit)?) : DatabaseInterface {
+
+    var dataSource: HikariDataSource
 
     init {
-        runFlywayMigrations()
 
-        val initialCredentials = vaultCredentialService.getNewCredentials(
-            mountPath = env.mountPathVault,
-            databaseName = env.databaseName,
-            role = Role.USER
-        )
         dataSource = HikariDataSource(HikariConfig().apply {
-            jdbcUrl = env.syfooversiktsrvDBURL
-            username = initialCredentials.username
-            password = initialCredentials.password
-            maximumPoolSize = 3
+            jdbcUrl = daoConfig.jdbcUrl
+            username = daoConfig.username
+            password = daoConfig.password
+            maximumPoolSize = daoConfig.poolSize
             isAutoCommit = false
             transactionIsolation = "TRANSACTION_REPEATABLE_READ"
             validate()
         })
 
-        vaultCredentialService.renewCredentialsTaskData = RenewCredentialsTaskData(
-            dataSource = dataSource,
-            mountPath = env.mountPathVault,
-            databaseName = env.databaseName,
-            role = Role.USER
-        )
+        afterInit()
     }
 
-    private fun runFlywayMigrations() = Flyway.configure().run {
-        val credentials = vaultCredentialService.getNewCredentials(
-            mountPath = env.mountPathVault,
-            databaseName = env.databaseName,
-            role = Role.ADMIN
-        )
-        dataSource(env.syfooversiktsrvDBURL, credentials.username, credentials.password)
-        initSql("SET ROLE \"${env.databaseName}-${Role.ADMIN}\"") // required for assigning proper owners for the tables
+    fun updateCredentials(username: String, password: String) {
+        dataSource.apply {
+            hikariConfigMXBean.setPassword(password)
+            hikariConfigMXBean.setUsername(username)
+            hikariPoolMXBean.softEvictConnections()
+        }
+    }
+
+    override val connection: Connection
+        get() = dataSource.connection
+
+    private fun afterInit() {
+        if (daoConfig.runMigrationsOninit) {
+            runFlywayMigrations(daoConfig.jdbcUrl, daoConfig.username, daoConfig.password)
+        }
+        initBlock?.let { run(it) }
+    }
+
+    open fun runFlywayMigrations(jdbcUrl: String, username: String, password: String) = Flyway.configure().run {
+        dataSource(jdbcUrl, username, password)
         load().migrate()
     }
+
 }
+
 
 fun <T> ResultSet.toList(mapper: ResultSet.() -> T) = mutableListOf<T>().apply {
     while (next()) {

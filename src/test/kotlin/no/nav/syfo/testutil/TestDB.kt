@@ -1,30 +1,37 @@
 package no.nav.syfo.testutil
 
-import com.opentable.db.postgres.embedded.EmbeddedPostgres
-import no.nav.syfo.db.DatabaseInterface
-import no.nav.syfo.db.toList
+import no.nav.syfo.db.*
+import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
+import org.testcontainers.containers.PostgreSQLContainer
 import no.nav.syfo.personstatus.*
 import no.nav.syfo.personstatus.domain.*
-import org.flywaydb.core.Flyway
+
 import java.sql.Connection
 import java.sql.Timestamp
 import java.time.Instant
 import java.util.*
 
+
+
 class TestDB : DatabaseInterface {
-    private var pg: EmbeddedPostgres? = null
+
+    val container = PostgreSQLContainer<Nothing>("postgres:11.1").apply {
+        withDatabaseName("db_test")
+        withUsername("username")
+        withPassword("password")
+    }
+
+    private var db: DatabaseInterface
     override val connection: Connection
-        get() = pg!!.postgresDatabase.connection.apply { autoCommit = false }
+        get() = db.connection.apply { autoCommit = false }
 
     init {
-        pg = EmbeddedPostgres.start()
-        Flyway.configure().run {
-            dataSource(pg?.postgresDatabase).load().migrate()
-        }
+        container.start()
+        db = DevDatabase(DbConfig(jdbcUrl = container.jdbcUrl, username = "username", password = "password", databaseName = "db_test"))
     }
 
     fun stop() {
-        pg?.close()
+        container.stop()
     }
 }
 

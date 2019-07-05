@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory
 
 private val log = LoggerFactory.getLogger("no.nav.syfo.db")
 
-class VaultCredentialService() {
+class VaultCredentialService {
     var leaseDuration: Long = 0
     var renewCredentialsTaskData: RenewCredentialsTaskData? = null
 
@@ -21,11 +21,8 @@ class VaultCredentialService() {
                     databaseName,
                     role
                 )
-                dataSource.apply {
-                    hikariConfigMXBean.setUsername(credentials.username)
-                    hikariConfigMXBean.setPassword(credentials.password)
-                    hikariPoolMXBean.softEvictConnections()
-                }
+
+                cb(credentials)
             }
             delay(Vault.suggestedRefreshIntervalInMillis(leaseDuration * 1000))
         }
@@ -52,10 +49,10 @@ class VaultCredentialService() {
 }
 
 data class RenewCredentialsTaskData(
-    val dataSource: HikariDataSource,
     val mountPath: String,
     val databaseName: String,
-    val role: Role
+    val role: Role,
+    val cb: (credentials: VaultCredentials) -> Unit
 )
 
 data class VaultCredentials(

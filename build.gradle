@@ -29,7 +29,7 @@ plugins {
 group 'no.nav.syfo'
 version '1.0-SNAPSHOT'
 
-jar.manifest.attributes("Main-Class" : "no.nav.syfo.BootstrapKt")
+jar.manifest.attributes("Main-Class" : "no.nav.syfo.SyfooversiktApplicationKt")
 
 repositories {
     mavenCentral()
@@ -92,8 +92,8 @@ dependencies {
     testImplementation "org.spekframework.spek2:spek-dsl-jvm:$spek_version"
     testImplementation "io.ktor:ktor-server-test-host:$ktor_version"
     testImplementation("io.mockk:mockk:$mockk_version")
-    testImplementation("com.opentable.components:otj-pg-embedded:$postgres_embedded_version")
-
+//    testImplementation("com.opentable.components:otj-pg-embedded:$postgres_embedded_version")
+    testImplementation "org.testcontainers:postgresql:1.11.3"
     testRuntimeOnly "org.spekframework.spek2:spek-runtime-jvm:$spek_version"
     testRuntimeOnly "org.spekframework.spek2:spek-runner-junit5:$spek_version"
 

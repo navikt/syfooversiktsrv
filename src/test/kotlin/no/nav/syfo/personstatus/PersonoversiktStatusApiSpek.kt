@@ -46,6 +46,7 @@ private val env = getEnvironment()
 @InternalAPI
 object PersonoversiktStatusApiSpek : Spek({
 
+
     val database = TestDB()
     val cookies = ""
     val baseUrl = "/api/v1/personoversikt"

@@ -23,14 +23,15 @@ import java.time.LocalDateTime
 @InternalAPI
 object OversiktHendelseServiceSpek : Spek({
 
-    val database = TestDB()
-    val oversiktHendelseService = OversiktHendelseService(database)
-
-    afterGroup {
-        database.stop()
-    }
 
     describe("OversiktHendelseService") {
+
+        val database by lazy { TestDB() }
+        val oversiktHendelseService = OversiktHendelseService(database)
+
+        afterGroup {
+            database.stop()
+        }
 
         with(TestApplicationEngine()) {
             start()

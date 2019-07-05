@@ -52,5 +52,6 @@ fun Route.registerPersonoversiktApi(
                 }
             }
         }
+
     }
 }
