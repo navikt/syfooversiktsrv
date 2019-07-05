@@ -43,11 +43,11 @@ private val env = getEnvironment()
 @InternalAPI
 object PersontildelingApiSpek : Spek({
 
-    val database by lazy { TestDB() }
+    val database = TestDB()
     val cookies = ""
     val baseUrl = "/api/v1/persontildeling"
     val tilgangskontrollConsumer = TilgangskontrollConsumer(
-            "http://localhost:8080",
+            env.syfotilgangskontrollUrl,
             client
     )
 
@@ -167,7 +167,7 @@ object PersontildelingApiSpek : Spek({
 
 @InternalAPI
 private val client = HttpClient(MockEngine) {
-    val baseUrl = "http://localhost:8080"
+    val baseUrl = env.syfotilgangskontrollUrl
     engine {
         addHandler { request ->
             when (request.url.fullUrl) {
