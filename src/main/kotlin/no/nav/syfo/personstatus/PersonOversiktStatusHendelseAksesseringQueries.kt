@@ -7,6 +7,44 @@ import java.sql.Types.NULL
 import java.time.Instant
 import java.util.*
 
+fun DatabaseInterface.oppdaterPersonMedMotebehovBehandlet(oversiktHendelse: KOversikthendelse) {
+    val tidspunkt = Timestamp.from(Instant.now())
+    val query = """
+                        UPDATE PERSON_OVERSIKT_STATUS
+                        SET motebehov_ubehandlet = ?, sist_endret = ?
+                        WHERE fnr = ?
+                """
+    connection.use { connection ->
+        connection.prepareStatement(query).use {
+            it.setBoolean(1, false)
+            it.setTimestamp(2, tidspunkt)
+            it.setString(3, oversiktHendelse.fnr)
+            it.execute()
+        }
+        connection.commit()
+    }
+}
+
+fun DatabaseInterface.oppdaterPersonMedMotebehovBehandletNyEnhet(oversiktHendelse: KOversikthendelse) {
+    val tidspunkt = Timestamp.from(Instant.now())
+    val query = """
+                        UPDATE PERSON_OVERSIKT_STATUS
+                        SET tildelt_veileder = ?, motebehov_ubehandlet = ?, tildelt_enhet = ?, sist_endret = ?
+                        WHERE fnr = ?
+                """
+    connection.use { connection ->
+        connection.prepareStatement(query).use {
+            it.setNull(1, NULL)
+            it.setBoolean(2, false)
+            it.setString(3, oversiktHendelse.enhetId)
+            it.setTimestamp(4, tidspunkt)
+            it.setString(5, oversiktHendelse.fnr)
+            it.execute()
+        }
+        connection.commit()
+    }
+}
+
 fun DatabaseInterface.oppdaterPersonMedMotebehovMottattNyEnhet(oversiktHendelse: KOversikthendelse) {
     val tidspunkt = Timestamp.from(Instant.now())
     val query = """
@@ -27,16 +65,16 @@ fun DatabaseInterface.oppdaterPersonMedMotebehovMottattNyEnhet(oversiktHendelse:
     }
 }
 
-fun DatabaseInterface.oppdaterPersonMedMotebehovMottatt(oversiktHendelse: KOversikthendelse) {
-    val tidspunkt = Timestamp.from(Instant.now())
-
-    val query = """
+const val queryOppdaterPersonMedMotebehovMottatt = """
                         UPDATE PERSON_OVERSIKT_STATUS
                         SET motebehov_ubehandlet = ?, tildelt_enhet = ?, sist_endret = ?
                         WHERE fnr = ?
                 """
+
+fun DatabaseInterface.oppdaterPersonMedMotebehovMottatt(oversiktHendelse: KOversikthendelse) {
+    val tidspunkt = Timestamp.from(Instant.now())
     connection.use { connection ->
-        connection.prepareStatement(query).use {
+        connection.prepareStatement(queryOppdaterPersonMedMotebehovMottatt).use {
             it.setBoolean(1, true)
             it.setString(2, oversiktHendelse.enhetId)
             it.setTimestamp(3, tidspunkt)
