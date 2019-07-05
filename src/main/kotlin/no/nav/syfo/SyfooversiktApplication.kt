@@ -110,7 +110,6 @@ fun Application.init() {
                 runMigrationsOninit = false)) { prodDatabase->
 
             // i prod må vi kjøre flyway migrations med et eget sett brukernavn/passord
-            // databasen kjøres derfor
             vaultCredentialService.getNewCredentials(env.mountPathVault, env.databaseName, Role.ADMIN).let {
                         prodDatabase.runFlywayMigrations(env.syfooversiktsrvDBURL, it.username, it.password)
                     }
@@ -267,12 +266,11 @@ fun CoroutineScope.createListener(applicationState: ApplicationState, action: su
 
 
 val Application.envKind get() = environment.config.property("ktor.environment").getString()
+
 fun Application.isDev(block: () -> Unit) {
     if (envKind == "dev") block()
 }
 
 fun Application.isProd(block: () -> Unit) {
-    if (envKind == "production") {
-        block()
-    }
+    if (envKind == "production") block()
 }

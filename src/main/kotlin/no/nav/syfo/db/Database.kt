@@ -55,7 +55,6 @@ abstract class Database(val daoConfig: DbConfig, private val initBlock: ((contex
         afterInit()
     }
 
-
     fun updateCredentials(username: String, password: String) {
         dataSource.apply {
             hikariConfigMXBean.setPassword(password)
