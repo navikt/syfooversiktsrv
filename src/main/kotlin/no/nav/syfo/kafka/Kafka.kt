@@ -10,7 +10,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.*
-import no.nav.syfo.metric.COUNT_OVERSIKTHENDELSE_MOTEBEHOV_SVAR_MOTTATT
 import no.nav.syfo.personstatus.OversiktHendelseService
 import no.nav.syfo.personstatus.domain.KOversikthendelse
 import org.apache.kafka.clients.consumer.KafkaConsumer
@@ -75,8 +74,6 @@ suspend fun blockingApplicationLogic(
             LOG.info("Mottatt oversikthendelse, klar for oppdatering, $logKeys", *logValues)
 
             oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
-
-            COUNT_OVERSIKTHENDELSE_MOTEBEHOV_SVAR_MOTTATT.inc()
         }
         delay(100)
     }

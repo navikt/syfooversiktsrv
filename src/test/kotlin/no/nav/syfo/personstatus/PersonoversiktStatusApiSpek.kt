@@ -132,6 +132,7 @@ object PersonoversiktStatusApiSpek : Spek({
                         returnertVerdig.fnr shouldEqual tilknytning.fnr
                         returnertVerdig.enhet shouldEqual tilknytning.enhet
                         returnertVerdig.motebehovUbehandlet shouldEqual null
+                        returnertVerdig.moteplanleggerUbehandlet shouldEqual null
                     }
                 }
             }

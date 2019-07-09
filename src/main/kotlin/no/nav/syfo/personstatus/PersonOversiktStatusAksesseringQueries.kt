@@ -135,7 +135,8 @@ fun ResultSet.toPersonOversiktStatus(): PersonOversiktStatus =
                 veilederIdent = getString("tildelt_veileder"),
                 fnr = getString("fnr"),
                 enhet = getString("tildelt_enhet"),
-                motebehovUbehandlet = getObject("motebehov_ubehandlet") as Boolean?
+                motebehovUbehandlet = getObject("motebehov_ubehandlet") as Boolean?,
+                moteplanleggerUbehandlet = getObject("moteplanlegger_ubehandlet") as Boolean?
         )
 
 fun ResultSet.toVeilederBrukerKnytning(): VeilederBrukerKnytning =
