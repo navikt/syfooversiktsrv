@@ -35,6 +35,7 @@ const val queryHentPersonerTilknyttetEnhet = """
                         FROM PERSON_OVERSIKT_STATUS
                         WHERE tildelt_enhet = ?
                 """
+
 fun DatabaseInterface.hentPersonerTilknyttetEnhet(enhet: String): List<PersonOversiktStatus> {
     return connection.use { connection ->
         connection.prepareStatement(queryHentPersonerTilknyttetEnhet).use {
@@ -134,7 +135,7 @@ fun ResultSet.toPersonOversiktStatus(): PersonOversiktStatus =
                 veilederIdent = getString("tildelt_veileder"),
                 fnr = getString("fnr"),
                 enhet = getString("tildelt_enhet"),
-                motebehovUbehandlet = getBoolean("motebehov_ubehandlet")
+                motebehovUbehandlet = getObject("motebehov_ubehandlet") as Boolean?
         )
 
 fun ResultSet.toVeilederBrukerKnytning(): VeilederBrukerKnytning =
