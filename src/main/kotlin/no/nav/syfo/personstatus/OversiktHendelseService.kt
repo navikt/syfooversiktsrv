@@ -24,7 +24,7 @@ class OversiktHendelseService(private val database: DatabaseInterface) {
         val person = database.hentPersonResultat(oversiktHendelse.fnr)
         when {
             person.isEmpty() -> {
-                log.error("Fant ikke person som skal oppdateres")
+                log.error("Fant ikke person som skal oppdateres med hendelse {}, for enhet {}", oversiktHendelse.hendelseId, oversiktHendelse.enhetId)
                 COUNT_OVERSIKTHENDELSE_MOTEBEHOVSSVAR_BEHANDLET_FEILET.inc()
             }
             erPersonsEnhetOppdatert(person, oversiktHendelse) -> {
