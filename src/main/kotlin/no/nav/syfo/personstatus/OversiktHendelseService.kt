@@ -13,9 +13,31 @@ class OversiktHendelseService(private val database: DatabaseInterface) {
         when (oversiktHendelse.hendelseId) {
             OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.toString() -> oppdaterPersonMedHendelseMotebehovMottatt(oversiktHendelse)
             OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET.toString() -> oppdaterPersonMedHendelseMotebehovBehandlet(oversiktHendelse)
+            OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.toString() -> oppdaterPersonMedHendelseMoteplanleggerSvarMottat(oversiktHendelse)
             else -> {
                 log.error("Mottatt oversikthendelse med ukjent type, ${oversiktHendelse.hendelseId}")
                 COUNT_OVERSIKTHENDELSE_UKJENT_MOTTATT.inc()
+            }
+        }
+    }
+
+    private fun oppdaterPersonMedHendelseMoteplanleggerSvarMottat(oversiktHendelse: KOversikthendelse) {
+        val person = database.hentPersonResultat(oversiktHendelse.fnr)
+        when {
+            person.isEmpty() -> {
+                database.opprettPersonMedMoteplanleggerAlleSvarMottatt(oversiktHendelse)
+                log.info("Opprettet person basert pa oversikthendelse med moteplanlegger alle svar mottatt")
+                COUNT_OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_MOTTATT_OPPRETT.inc()
+            }
+            erPersonsEnhetOppdatert(person, oversiktHendelse) -> {
+                database.oppdaterPersonMedMoteplanleggerAlleSvarNyEnhet(oversiktHendelse)
+                log.info("Oppdatert person basert pa oversikthendelse med moteplanlegger alle svar mottatt med ny enhet")
+                COUNT_OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_MOTTATT_OPPDATER_ENHET.inc()
+            }
+            else -> {
+                database.oppdaterPersonMedMoteplanleggerAlleSvarMottatt(oversiktHendelse)
+                log.info("Oppdatert person basert pa oversikthendelse med moteplanlegger alle svar mottatt")
+                COUNT_OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_MOTTATT_OPPDATER.inc()
             }
         }
     }

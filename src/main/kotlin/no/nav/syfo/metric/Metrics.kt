@@ -9,7 +9,6 @@ const val METRIC_NAME_PERSONTILDELING_TILDELT = "success_persontildeling_tildelt
 
 const val PERSONOVERSIKTSTATUS_ENHET_HENTET = "success_personoversikt_hentet_count"
 
-const val OVERSIKTHENDELSE_MOTEBEHOV_SVAR_MOTTATT = "oversikthendelse_motebehov_svar_mottatt_count"
 const val OVERSIKTHENDELSE_MOTEBEHOV_SVAR_MOTTATT_OPPRETT = "oversikthendelse_motebehov_svar_mottatt_opprett_count"
 const val OVERSIKTHENDELSE_MOTEBEHOV_SVAR_MOTTATT_OPPDATER = "oversikthendelse_motebehov_svar_mottatt_oppdater_count"
 const val OVERSIKTHENDELSE_MOTEBEHOV_SVAR_MOTTATT_OPPDATER_ENHET = "oversikthendelse_motebehov_svar_mottatt_oppdater_enhet_count"
@@ -17,6 +16,10 @@ const val OVERSIKTHENDELSE_MOTEBEHOV_SVAR_MOTTATT_OPPDATER_ENHET = "oversikthend
 const val OVERSIKTHENDELSE_MOTEBEHOV_SVAR_BEHANDLET = "oversikthendelse_motebehov_svar_behandlet_count"
 const val OVERSIKTHENDELSE_MOTEBEHOV_SVAR_BEHANDLET_OPPDATER_ENHET = "oversikthendelse_motebehov_svar_behandlet_oppdater_enhet_count"
 const val OVERSIKTHENDELSE_MOTEBEHOV_SVAR_BEHANDLET_FEILET = "oversikthendelse_motebehov_svar_behandlet_feilet_count"
+
+const val OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_MOTTATT_OPPRETT = "oversikthendelse_moteplanlegger_alle_svar_mottatt_opprett_count"
+const val OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_MOTTATT_OPPDATER = "oversikthendelse_moteplanlegger_alle_svar_mottatt_oppdater_count"
+const val OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_MOTTATT_OPPDATER_ENHET = "oversikthendelse_moteplanlegger_alle_svar_mottatt_oppdater_enhet_count"
 
 const val OVERSIKTHENDELSE_UKJENT_MOTTATT = "oversikthendelse_ukjent_count"
 
@@ -36,12 +39,6 @@ val COUNT_PERSONOVERSIKTSTATUS_ENHET_HENTET: Counter = Counter.build()
         .namespace(METRICS_NS)
         .name(PERSONOVERSIKTSTATUS_ENHET_HENTET)
         .help("Counts database.oppdaterPersonMedMotebehovBehandlet(oversiktHendelse) the number of completed calls to personoversikt/enhet/{enhet}")
-        .register()
-
-val COUNT_OVERSIKTHENDELSE_MOTEBEHOV_SVAR_MOTTATT: Counter = Counter.build()
-        .namespace(METRICS_NS)
-        .name(OVERSIKTHENDELSE_MOTEBEHOV_SVAR_MOTTATT)
-        .help("Counts the number of oversikthendelse of type motebehovsvar-mottatt}")
         .register()
 
 val COUNT_OVERSIKTHENDELSE_MOTEBEHOV_SVAR_MOTTATT_OPPRETT: Counter = Counter.build()
@@ -84,4 +81,21 @@ val COUNT_OVERSIKTHENDELSE_UKJENT_MOTTATT: Counter = Counter.build()
         .namespace(METRICS_NS)
         .name(OVERSIKTHENDELSE_UKJENT_MOTTATT)
         .help("Counts the number of oversikthendelse of unknown type received}")
+        .register()
+
+
+val COUNT_OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_MOTTATT_OPPRETT: Counter = Counter.build()
+        .namespace(METRICS_NS)
+        .name(OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_MOTTATT_OPPRETT)
+        .help("Counts the number of oversikthendelse of type moteplanlegger-alle-svar-mottatt resulting in create}")
+        .register()
+val COUNT_OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_MOTTATT_OPPDATER: Counter = Counter.build()
+        .namespace(METRICS_NS)
+        .name(OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_MOTTATT_OPPDATER)
+        .help("Counts the number of oversikthendelse of type moteplanlegger-alle-svar-mottatt resulting in update}")
+        .register()
+val COUNT_OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_MOTTATT_OPPDATER_ENHET: Counter = Counter.build()
+        .namespace(METRICS_NS)
+        .name(OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_MOTTATT_OPPDATER_ENHET)
+        .help("Counts the number of oversikthendelse of type moteplanlegger-alle-svar-mottatt resulting in update with new enhetId}")
         .register()

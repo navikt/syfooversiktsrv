@@ -199,6 +199,84 @@ object OversiktHendelseServiceSpek : Spek({
                     personListe[0].motebehovUbehandlet shouldEqual false
                 }
             }
+
+            describe("Oppdater person basert paa hendelse ${OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name}") {
+
+                it("skal opprette person, om person ikke eksisterer i oversikt") {
+                    val oversiktHendelse = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
+
+                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
+
+                    val personListe = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET)
+
+                    personListe.size shouldBe 1
+                    personListe[0].fnr shouldEqual oversiktHendelse.fnr
+                    personListe[0].veilederIdent shouldEqual null
+                    personListe[0].enhet shouldEqual oversiktHendelse.enhetId
+                    personListe[0].motebehovUbehandlet shouldEqual null
+                    personListe[0].moteplanleggerUbehandlet shouldEqual true
+                }
+
+                it("skal oppdatere person, om person eksisterer i oversikt") {
+                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
+                    val oversiktHendelse = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
+
+                    database.connection.opprettVeilederBrukerKnytning(tilknytning)
+
+                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
+
+                    val personListe = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET)
+
+                    personListe.size shouldBe 1
+                    personListe[0].fnr shouldEqual oversiktHendelse.fnr
+                    personListe[0].veilederIdent shouldEqual tilknytning.veilederIdent
+                    personListe[0].enhet shouldEqual oversiktHendelse.enhetId
+                    personListe[0].motebehovUbehandlet shouldEqual null
+                    personListe[0].moteplanleggerUbehandlet shouldEqual true
+                }
+
+                it("skal oppdatere person, om person eksisterer i oversikt med moteplanlegger_svar_mottatt-hendelse") {
+                    val oversiktHendelse = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
+
+                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
+
+                    val oversiktHendelseNy = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name, NAV_ENHET_2, LocalDateTime.now())
+
+                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseNy)
+
+                    val personListeEnhetTidligere = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET)
+
+                    personListeEnhetTidligere.size shouldBe 0
+
+                    val personListe = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET_2)
+
+                    personListe.size shouldBe 1
+                    personListe[0].fnr shouldEqual oversiktHendelseNy.fnr
+                    personListe[0].veilederIdent shouldEqual null
+                    personListe[0].enhet shouldEqual oversiktHendelseNy.enhetId
+                    personListe[0].motebehovUbehandlet shouldEqual null
+                    personListe[0].moteplanleggerUbehandlet shouldEqual true
+                }
+
+                it("skal oppdatere person og nullstille tildelt veileder, om person eksisterer i oversikt og enhet er endret") {
+                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
+
+                    database.connection.opprettVeilederBrukerKnytning(tilknytning)
+
+                    val oversiktHendelse = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name, NAV_ENHET_2, LocalDateTime.now())
+
+                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
+
+                    val personListe = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET_2)
+
+                    personListe.size shouldBe 1
+                    personListe[0].fnr shouldEqual oversiktHendelse.fnr
+                    personListe[0].veilederIdent shouldEqual null
+                    personListe[0].enhet shouldEqual oversiktHendelse.enhetId
+                    personListe[0].motebehovUbehandlet shouldEqual null
+                    personListe[0].moteplanleggerUbehandlet shouldEqual true
+                }
+            }
         }
     }
 })
