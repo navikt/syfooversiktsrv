@@ -61,6 +61,23 @@ fun Connection.opprettVeilederBrukerKnytning(veilederBrukerKnytning: VeilederBru
     }
 }
 
+
+fun Connection.tildelVeilederTilPerson(veilederBrukerKnytning: VeilederBrukerKnytning) {
+    val updateQuery = """
+                         UPDATE PERSON_OVERSIKT_STATUS
+                         SET tildelt_veileder = ?
+                         WHERE fnr = ?
+                """
+    use { connection ->
+        connection.prepareStatement(updateQuery).use {
+            it.setString(1, veilederBrukerKnytning.veilederIdent)
+            it.setString(2, veilederBrukerKnytning.fnr)
+            it.executeUpdate()
+        }
+        connection.commit()
+    }
+}
+
 fun Connection.hentPersonerTilknyttetEnhet(enhet: String): List<PersonOversiktStatus> {
     return use { connection ->
         connection.prepareStatement(queryHentPersonerTilknyttetEnhet).use {
@@ -88,6 +105,24 @@ fun Connection.opprettPerson(oversiktHendelse: KOversikthendelse) {
     }
 }
 
+fun Connection.opprettPersonMedMoteplanleggerAlleSvarMottatt(oversiktHendelse: KOversikthendelse) {
+    val uuid = UUID.randomUUID().toString()
+    val tidspunkt = Timestamp.from(Instant.now())
+
+    use { connection ->
+        connection.prepareStatement(queryOpprettPersonMedMoteplanleggerAlleSvar).use {
+            it.setString(1, uuid)
+            it.setString(2, oversiktHendelse.fnr)
+            it.setString(3, oversiktHendelse.enhetId)
+            it.setBoolean(4, true)
+            it.setTimestamp(5, tidspunkt)
+            it.setTimestamp(6, tidspunkt)
+            it.execute()
+        }
+        connection.commit()
+    }
+}
+
 fun Connection.oppdaterPersonMedMotebehovMottatt(oversiktHendelse: KOversikthendelse) {
     val tidspunkt = Timestamp.from(Instant.now())
 
@@ -97,6 +132,19 @@ fun Connection.oppdaterPersonMedMotebehovMottatt(oversiktHendelse: KOversikthend
             it.setString(2, oversiktHendelse.enhetId)
             it.setTimestamp(3, tidspunkt)
             it.setString(4, oversiktHendelse.fnr)
+            it.execute()
+        }
+        connection.commit()
+    }
+}
+
+fun Connection.oppdaterPersonMedMotebehovBehandlet(oversiktHendelse: KOversikthendelse) {
+    val tidspunkt = Timestamp.from(Instant.now())
+    use { connection ->
+        connection.prepareStatement(queryOppdaterPersonMedMotebehovBehandlet).use {
+            it.setBoolean(1, false)
+            it.setTimestamp(2, tidspunkt)
+            it.setString(3, oversiktHendelse.fnr)
             it.execute()
         }
         connection.commit()
