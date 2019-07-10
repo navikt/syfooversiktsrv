@@ -120,7 +120,7 @@ object PersonoversiktStatusApiSpek : Spek({
                     } returns "token"
 
                     val oversiktHendelse = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
-                    database.connection.opprettPerson(oversiktHendelse)
+                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
                     val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
                     database.connection.tildelVeilederTilPerson(tilknytning)
@@ -147,7 +147,7 @@ object PersonoversiktStatusApiSpek : Spek({
                     } returns "token"
 
                     val oversiktHendelse = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
-                    database.connection.opprettPersonMedMoteplanleggerAlleSvarMottatt(oversiktHendelse)
+                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
                     val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
                     database.connection.tildelVeilederTilPerson(tilknytning)

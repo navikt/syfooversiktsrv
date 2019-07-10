@@ -11,8 +11,6 @@ import java.sql.Timestamp
 import java.time.Instant
 import java.util.*
 
-
-
 class TestDB : DatabaseInterface {
 
     val container = PostgreSQLContainer<Nothing>("postgres:11.1").apply {
