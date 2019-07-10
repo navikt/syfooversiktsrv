@@ -46,7 +46,6 @@ private val env = getEnvironment()
 @InternalAPI
 object PersonoversiktStatusApiSpek : Spek({
 
-
     val database = TestDB()
     val cookies = ""
     val baseUrl = "/api/v1/personoversikt"
@@ -54,6 +53,7 @@ object PersonoversiktStatusApiSpek : Spek({
             env.syfotilgangskontrollUrl,
             client
     )
+    val oversiktHendelseService = OversiktHendelseService(database)
 
     afterGroup {
         database.stop()
@@ -174,13 +174,19 @@ object PersonoversiktStatusApiSpek : Spek({
                     } returns "token"
 
                     val oversiktHendelse = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
-                    database.connection.opprettPerson(oversiktHendelse)
+                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
                     val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
                     database.connection.tildelVeilederTilPerson(tilknytning)
 
                     val oversiktHendelseNy = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET.name, NAV_ENHET, LocalDateTime.now())
-                    database.connection.oppdaterPersonMedMotebehovBehandlet(oversiktHendelseNy)
+                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseNy)
+
+                    val oversiktHendelseMoteplanleggerMottatt = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
+                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerMottatt)
+
+                    val oversiktHendelseMoteplanleggerBehandlet = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_BEHANDLET.name, NAV_ENHET, LocalDateTime.now())
+                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerBehandlet)
 
                     with(handleRequest(HttpMethod.Get, url) {
                         call.request.cookies[cookies]
