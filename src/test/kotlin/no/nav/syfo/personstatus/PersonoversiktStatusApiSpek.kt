@@ -23,8 +23,7 @@ import kotlinx.coroutines.io.ByteReadChannel
 import no.nav.syfo.auth.getTokenFromCookie
 import no.nav.syfo.auth.isInvalidToken
 import no.nav.syfo.getEnvironment
-import no.nav.syfo.personstatus.domain.PersonOversiktStatus
-import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
+import no.nav.syfo.personstatus.domain.*
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testutil.UserConstants.NAV_ENHET
@@ -33,6 +32,7 @@ import no.nav.syfo.tilgangskontroll.TilgangskontrollConsumer
 import org.amshove.kluent.shouldEqual
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
+import java.time.LocalDateTime
 
 private val objectMapper: ObjectMapper = ObjectMapper().apply {
     registerKotlinModule()
@@ -111,7 +111,7 @@ object PersonoversiktStatusApiSpek : Spek({
                     }
                 }
 
-                it("skal hente enhet sin personoversikt ") {
+                it("skal hente enhet sin personoversikt med ubehandlet motebehovsvar") {
                     every {
                         isInvalidToken(any())
                     } returns false
@@ -119,9 +119,11 @@ object PersonoversiktStatusApiSpek : Spek({
                         getTokenFromCookie(any())
                     } returns "token"
 
-                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
+                    val oversiktHendelse = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
+                    database.connection.opprettPerson(oversiktHendelse)
 
-                    database.connection.opprettVeilederBrukerKnytning(tilknytning)
+                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
+                    database.connection.tildelVeilederTilPerson(tilknytning)
 
                     with(handleRequest(HttpMethod.Get, url) {
                         call.request.cookies[cookies]
@@ -129,10 +131,61 @@ object PersonoversiktStatusApiSpek : Spek({
                         response.status() shouldEqual HttpStatusCode.OK
                         val returnertVerdig = objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!)[0]
                         returnertVerdig.veilederIdent shouldEqual tilknytning.veilederIdent
-                        returnertVerdig.fnr shouldEqual tilknytning.fnr
-                        returnertVerdig.enhet shouldEqual tilknytning.enhet
-                        returnertVerdig.motebehovUbehandlet shouldEqual null
+                        returnertVerdig.fnr shouldEqual oversiktHendelse.fnr
+                        returnertVerdig.enhet shouldEqual oversiktHendelse.enhetId
+                        returnertVerdig.motebehovUbehandlet shouldEqual true
                         returnertVerdig.moteplanleggerUbehandlet shouldEqual null
+                    }
+                }
+
+                it("skal hente enhet sin personoversikt med ubehandlet moteplanleggersvar") {
+                    every {
+                        isInvalidToken(any())
+                    } returns false
+                    every {
+                        getTokenFromCookie(any())
+                    } returns "token"
+
+                    val oversiktHendelse = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
+                    database.connection.opprettPersonMedMoteplanleggerAlleSvarMottatt(oversiktHendelse)
+
+                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
+                    database.connection.tildelVeilederTilPerson(tilknytning)
+
+                    with(handleRequest(HttpMethod.Get, url) {
+                        call.request.cookies[cookies]
+                    }) {
+                        response.status() shouldEqual HttpStatusCode.OK
+                        val returnertVerdig = objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!)[0]
+                        returnertVerdig.veilederIdent shouldEqual tilknytning.veilederIdent
+                        returnertVerdig.fnr shouldEqual oversiktHendelse.fnr
+                        returnertVerdig.enhet shouldEqual oversiktHendelse.enhetId
+                        returnertVerdig.motebehovUbehandlet shouldEqual null
+                        returnertVerdig.moteplanleggerUbehandlet shouldEqual true
+                    }
+                }
+
+                it("skal hente returnere NoContent, om alle personer i personoversikt er behandlet") {
+                    every {
+                        isInvalidToken(any())
+                    } returns false
+                    every {
+                        getTokenFromCookie(any())
+                    } returns "token"
+
+                    val oversiktHendelse = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
+                    database.connection.opprettPerson(oversiktHendelse)
+
+                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
+                    database.connection.tildelVeilederTilPerson(tilknytning)
+
+                    val oversiktHendelseNy = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET.name, NAV_ENHET, LocalDateTime.now())
+                    database.connection.oppdaterPersonMedMotebehovBehandlet(oversiktHendelseNy)
+
+                    with(handleRequest(HttpMethod.Get, url) {
+                        call.request.cookies[cookies]
+                    }) {
+                        response.status() shouldEqual HttpStatusCode.NoContent
                     }
                 }
             }

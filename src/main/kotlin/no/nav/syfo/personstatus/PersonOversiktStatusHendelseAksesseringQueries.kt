@@ -7,15 +7,16 @@ import java.sql.Types.NULL
 import java.time.Instant
 import java.util.*
 
-fun DatabaseInterface.oppdaterPersonMedMotebehovBehandlet(oversiktHendelse: KOversikthendelse) {
-    val tidspunkt = Timestamp.from(Instant.now())
-    val query = """
+const val queryOppdaterPersonMedMotebehovBehandlet = """
                         UPDATE PERSON_OVERSIKT_STATUS
                         SET motebehov_ubehandlet = ?, sist_endret = ?
                         WHERE fnr = ?
                 """
+
+fun DatabaseInterface.oppdaterPersonMedMotebehovBehandlet(oversiktHendelse: KOversikthendelse) {
+    val tidspunkt = Timestamp.from(Instant.now())
     connection.use { connection ->
-        connection.prepareStatement(query).use {
+        connection.prepareStatement(queryOppdaterPersonMedMotebehovBehandlet).use {
             it.setBoolean(1, false)
             it.setTimestamp(2, tidspunkt)
             it.setString(3, oversiktHendelse.fnr)
