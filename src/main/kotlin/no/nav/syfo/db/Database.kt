@@ -17,7 +17,7 @@ data class DbConfig(
         val password: String,
         val username: String,
         val databaseName: String,
-        val poolSize: Int = 10,
+        val poolSize: Int = 2,
         val runMigrationsOninit: Boolean = true
 )
 
@@ -47,6 +47,7 @@ abstract class Database(val daoConfig: DbConfig, private val initBlock: ((contex
             username = daoConfig.username
             password = daoConfig.password
             maximumPoolSize = daoConfig.poolSize
+            minimumIdle = 1
             isAutoCommit = false
             transactionIsolation = "TRANSACTION_REPEATABLE_READ"
             validate()
