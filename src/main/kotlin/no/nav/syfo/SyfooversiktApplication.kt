@@ -165,7 +165,7 @@ fun Application.serverModule() {
 
     install(CORS) {
         host(host = "nais.adeo.no", schemes = listOf("https"), subDomains = listOf("syfooversikt"))
-        host(host = "nais.preprod.local", schemes = listOf("https"), subDomains = listOf("syfooversikt-q1"))
+        host(host = "nais.preprod.local", schemes = listOf("https"), subDomains = listOf("syfooversikt"))
         host(host = "localhost", schemes = listOf("http", "https"))
         allowCredentials = true
     }
