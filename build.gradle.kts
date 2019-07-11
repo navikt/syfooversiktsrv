@@ -21,7 +21,7 @@ val vaultJavaDriveVersion = "3.1.0"
 val mockkVersion = "1.9"
 val kafkaVersion = "2.0.0"
 val kafkaEmbeddedVersion = "2.0.2"
-val smCommonVersion = "1.0.19"
+val smCommonVersion = "1.0.22"
 
 tasks.withType<Jar> {
     manifest.attributes["Main-Class"] = "no.nav.syfo.SyfooversiktApplicationKt"
