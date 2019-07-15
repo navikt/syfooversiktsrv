@@ -205,12 +205,12 @@ private val client = HttpClient(MockEngine) {
     engine {
         addHandler { request ->
             when (request.url.fullUrl) {
-                "$baseUrl/syfo-tilgangskontroll/api/tilgang/enhet?enhet=$NAV_ENHET" -> {
+                "$baseUrl/syfo-tilgangskontroll/api/auth/enhet?enhet=$NAV_ENHET" -> {
                     val responseHeaders = headersOf("Content-Type" to listOf(ContentType.Application.Json.toString()))
                     respond(ByteReadChannel(("{" +
                             "\"harTilgang\":\"true\",\"begrunnelse\":\"null\"}").toByteArray(Charsets.UTF_8)), HttpStatusCode.OK, responseHeaders)
                 }
-                "$baseUrl/syfo-tilgangskontroll/api/tilgang/bruker?fnr=$ARBEIDSTAKER_FNR" -> {
+                "$baseUrl/syfo-tilgangskontroll/api/auth/bruker?fnr=$ARBEIDSTAKER_FNR" -> {
                     val responseHeaders = headersOf("Content-Type" to listOf(ContentType.Application.Json.toString()))
                     respond(ByteReadChannel(("{" +
                             "\"harTilgang\":\"true\",\"begrunnelse\":\"null\"}").toByteArray(Charsets.UTF_8)), HttpStatusCode.OK, responseHeaders)

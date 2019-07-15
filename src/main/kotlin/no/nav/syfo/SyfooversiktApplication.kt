@@ -223,6 +223,7 @@ fun Application.serverModule() {
 
     isProd {
         LOG.info("Running in production mode")
+
     }
 
     val config: HttpClientConfig<ApacheEngineConfig>.() -> Unit = {
