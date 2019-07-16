@@ -265,7 +265,6 @@ fun Application.serverModule() {
     val tilgangskontrollConsumer = TilgangskontrollConsumer(env.syfotilgangskontrollUrl, httpClient)
 
     routing {
-        this.intercept()
         registerNaisApi(state)
         registerPersonoversiktApi(tilgangskontrollConsumer, personoversiktStatusService)
         registerPersonTildelingApi(tilgangskontrollConsumer, personTildelingService)
