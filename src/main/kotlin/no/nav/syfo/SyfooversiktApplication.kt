@@ -35,6 +35,7 @@ import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.api.getWellKnown
 import no.nav.syfo.api.registerNaisApi
 import no.nav.syfo.auth.getTokenFromCookie
+import no.nav.syfo.auth.isInvalidToken
 import no.nav.syfo.db.*
 import no.nav.syfo.kafka.setupKafka
 import no.nav.syfo.personstatus.*
@@ -235,11 +236,16 @@ fun Application.serverModule() {
                 proceed()
                 return@intercept
             }
-            if (tilgangsSjekk.harTilgang(getTokenFromCookie(call.request.cookies))) {
-                proceed()
-            } else {
-                call.respond(HttpStatusCode.Unauthorized, "Denne identen har ikke tilgang til applikasjonen")
+            val cookies = call.request.cookies
+
+            if (isInvalidToken(cookies)) {
+                call.respond(HttpStatusCode.Forbidden, "Ugyldig token")
                 finish()
+            } else if (!tilgangsSjekk.harTilgang(getTokenFromCookie(cookies))) {
+                call.respond(HttpStatusCode.Forbidden, "Denne identen har ikke tilgang til applikasjonen")
+                finish()
+            } else {
+                proceed()
             }
         }
 
