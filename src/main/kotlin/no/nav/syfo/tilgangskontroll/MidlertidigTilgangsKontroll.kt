@@ -4,7 +4,7 @@ import no.nav.syfo.auth.getTokenPayload
 import java.util.*
 
 val veilederIdenterMedTilgang = Arrays.asList(
-        "Z991598","Z992668"
+        "Z991598"
 ).map { it.toUpperCase() }
 
 class TilgangsSjekk(private val tilgangListe: List<String> = veilederIdenterMedTilgang) {
