@@ -4,6 +4,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.request.*
 import io.ktor.http.ContentType
 import no.nav.syfo.auth.getTokenPayload
+import java.lang.Exception
 
 class TilgangskontrollConsumer(
         private val endpointUrl: String,
@@ -15,14 +16,18 @@ class TilgangskontrollConsumer(
     private val pathTilgangTilEnhet = "/enhet"
 
     suspend fun harVeilederTilgangTilPerson(fnr: String, token: String): Boolean {
-        val response = client.get<Tilgang>(getTilgangskontrollUrl(pathTilgangTilBruker)) {
-            accept(ContentType.Application.Json)
-            headers {
-                append("Authorization", "Bearer $token")
+        return try {
+            val response = client.get<Tilgang>(getTilgangskontrollUrl(pathTilgangTilBruker)) {
+                accept(ContentType.Application.Json)
+                headers {
+                    append("Authorization", "Bearer $token")
+                }
+                parameter(paramFnr, fnr)
             }
-            parameter(paramFnr, fnr)
+            response.harTilgang
+        } catch (e: Exception) {
+            false
         }
-        return response.harTilgang
     }
 
     suspend fun harVeilederTilgangTilEnhet(enhet: String, token: String): Boolean {
