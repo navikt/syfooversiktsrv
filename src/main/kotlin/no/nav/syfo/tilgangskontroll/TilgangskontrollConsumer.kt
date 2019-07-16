@@ -3,7 +3,6 @@ package no.nav.syfo.tilgangskontroll
 import io.ktor.client.HttpClient
 import io.ktor.client.request.*
 import io.ktor.http.ContentType
-import no.nav.syfo.auth.TilgangsSjekk
 import no.nav.syfo.auth.getTokenPayload
 
 class TilgangskontrollConsumer(
@@ -14,11 +13,6 @@ class TilgangskontrollConsumer(
     private val paramEnhet = "enhet"
     private val pathTilgangTilBruker = "/bruker"
     private val pathTilgangTilEnhet = "/enhet"
-
-
-    fun harVeilederTilgangTilApplikasjon(token: String): Boolean {
-        return TilgangsSjekk.harTilgang(getTokenPayload(token))
-    }
 
     suspend fun harVeilederTilgangTilPerson(fnr: String, token: String): Boolean {
         val response = client.get<Tilgang>(getTilgangskontrollUrl(pathTilgangTilBruker)) {

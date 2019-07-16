@@ -14,9 +14,11 @@ import io.ktor.client.HttpClient
 import io.ktor.client.HttpClientConfig
 import io.ktor.client.engine.apache.Apache
 import io.ktor.client.engine.apache.ApacheEngineConfig
+import io.ktor.client.engine.mock.respond
 import io.ktor.client.features.json.JacksonSerializer
 import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.features.logging.*
+import io.ktor.client.request.request
 import io.ktor.config.HoconApplicationConfig
 import io.ktor.features.*
 import io.ktor.http.HttpHeaders
@@ -31,10 +33,13 @@ import kotlinx.coroutines.slf4j.MDCContext
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.api.getWellKnown
 import no.nav.syfo.api.registerNaisApi
+import no.nav.syfo.auth.getTokenFromCookie
 import no.nav.syfo.db.*
 import no.nav.syfo.kafka.setupKafka
 import no.nav.syfo.personstatus.*
+import no.nav.syfo.tilgangskontroll.TilgangsSjekk
 import no.nav.syfo.tilgangskontroll.TilgangskontrollConsumer
+import no.nav.syfo.tilgangskontroll.veilederIdenterMedTilgang
 import no.nav.syfo.vault.Vault
 import org.slf4j.LoggerFactory
 import java.net.URL
@@ -223,6 +228,15 @@ fun Application.serverModule() {
 
     isProd {
         LOG.info("Running in production mode")
+        val tilgangsSjekk = TilgangsSjekk()
+        intercept(ApplicationCallPipeline.Call) {
+            if (tilgangsSjekk.harTilgang(getTokenFromCookie(call.request.cookies))) {
+                proceed()
+            } else {
+                call.respond(HttpStatusCode.Unauthorized, "Denne identen har ikke tilgang til applikasjonen")
+                finish()
+            }
+        }
 
     }
 
