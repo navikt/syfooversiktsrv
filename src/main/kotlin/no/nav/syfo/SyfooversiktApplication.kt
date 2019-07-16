@@ -24,6 +24,7 @@ import io.ktor.features.*
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.jackson.jackson
+import io.ktor.request.uri
 import io.ktor.response.respond
 import io.ktor.routing.routing
 import io.ktor.server.engine.*
@@ -230,6 +231,10 @@ fun Application.serverModule() {
         LOG.info("Running in production mode")
         val tilgangsSjekk = TilgangsSjekk()
         intercept(ApplicationCallPipeline.Call) {
+            if (call.request.uri.contains(Regex("is_alive|is_ready|prometheus"))) {
+                proceed()
+                return@intercept
+            }
             if (tilgangsSjekk.harTilgang(getTokenFromCookie(call.request.cookies))) {
                 proceed()
             } else {
