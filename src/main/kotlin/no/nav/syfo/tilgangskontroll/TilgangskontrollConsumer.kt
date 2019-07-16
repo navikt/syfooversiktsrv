@@ -37,6 +37,6 @@ class TilgangskontrollConsumer(
     }
 
     private fun getTilgangskontrollUrl(path: String): String {
-        return "$endpointUrl/syfo-tilgangskontroll/api/auth$path"
+        return "$endpointUrl/syfo-tilgangskontroll/api/tilgang$path"
     }
 }
