@@ -14,11 +14,9 @@ import io.ktor.client.HttpClient
 import io.ktor.client.HttpClientConfig
 import io.ktor.client.engine.apache.Apache
 import io.ktor.client.engine.apache.ApacheEngineConfig
-import io.ktor.client.engine.mock.respond
 import io.ktor.client.features.json.JacksonSerializer
 import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.features.logging.*
-import io.ktor.client.request.request
 import io.ktor.config.HoconApplicationConfig
 import io.ktor.features.*
 import io.ktor.http.HttpHeaders
@@ -39,9 +37,8 @@ import no.nav.syfo.auth.isInvalidToken
 import no.nav.syfo.db.*
 import no.nav.syfo.kafka.setupKafka
 import no.nav.syfo.personstatus.*
-import no.nav.syfo.tilgangskontroll.TilgangsSjekk
+import no.nav.syfo.tilgangskontroll.MidlertidigTilgangsSjekk
 import no.nav.syfo.tilgangskontroll.TilgangskontrollConsumer
-import no.nav.syfo.tilgangskontroll.veilederIdenterMedTilgang
 import no.nav.syfo.vault.Vault
 import org.slf4j.LoggerFactory
 import java.net.URL
@@ -230,7 +227,7 @@ fun Application.serverModule() {
 
     isProd {
         LOG.info("Running in production mode")
-        val tilgangsSjekk = TilgangsSjekk()
+        val tilgangsSjekk = MidlertidigTilgangsSjekk()
         intercept(ApplicationCallPipeline.Call) {
             if (call.request.uri.contains(Regex("is_alive|is_ready|prometheus"))) {
                 proceed()
@@ -300,3 +297,5 @@ fun Application.isDev(block: () -> Unit) {
 fun Application.isProd(block: () -> Unit) {
     if (envKind == "production") block()
 }
+
+fun isPreProd(): Boolean = getEnvVar("NAIS_CLUSTER_NAME", "dev-fss") == "dev-fss"
