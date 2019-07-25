@@ -49,8 +49,8 @@ fun getTokenPayload(token: String): VeilederTokenPayload {
     val decodedJWT = JWT.decode(token)
 
     val navIdent: String = decodedJWT.claims["NAVident"]?.asString() ?: throw Error("Missing NAVident in private claims")
-    val navn: String = decodedJWT.claims["name"]?.asString() ?:         throw Error("Missing name in private claims")
-    val email = decodedJWT.claims["unique_name"]?.asString() ?:         throw Error("Missing unique_name in private claims")
+    val navn: String = decodedJWT.claims["name"]?.asString() ?: throw Error("Missing name in private claims")
+    val email = decodedJWT.claims["unique_name"]?.asString() ?: throw Error("Missing unique_name in private claims")
     return VeilederTokenPayload(navIdent, navn, email)
 }
 
