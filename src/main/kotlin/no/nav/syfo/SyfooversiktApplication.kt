@@ -236,7 +236,7 @@ fun Application.serverModule() {
             val cookies = call.request.cookies
 
             if (isInvalidToken(cookies)) {
-                call.respond(HttpStatusCode.Forbidden, "Ugyldig token")
+                call.respond(HttpStatusCode.Unauthorized, "Ugyldig token")
                 finish()
             } else if (!tilgangsSjekk.harTilgang(getTokenFromCookie(cookies))) {
                 call.respond(HttpStatusCode.Forbidden, "Denne identen har ikke tilgang til applikasjonen")

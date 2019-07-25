@@ -16,18 +16,14 @@ class TilgangskontrollConsumer(
     private val pathTilgangTilEnhet = "/enhet"
 
     suspend fun harVeilederTilgangTilPerson(fnr: String, token: String): Boolean {
-        return try {
-            val response = client.get<Tilgang>(getTilgangskontrollUrl(pathTilgangTilBruker)) {
-                accept(ContentType.Application.Json)
-                headers {
-                    append("Authorization", "Bearer $token")
-                }
-                parameter(paramFnr, fnr)
+        val response = client.get<Tilgang>(getTilgangskontrollUrl(pathTilgangTilBruker)) {
+            accept(ContentType.Application.Json)
+            headers {
+                append("Authorization", "Bearer $token")
             }
-            response.harTilgang
-        } catch (e: Exception) {
-            false
+            parameter(paramFnr, fnr)
         }
+        return response.harTilgang
     }
 
     suspend fun harVeilederTilgangTilEnhet(enhet: String, token: String): Boolean {
