@@ -1,6 +1,6 @@
 package no.nav.syfo.tilgangskontroll
 
-import no.nav.syfo.auth.getTokenPayload
+import no.nav.syfo.auth.getVeilederTokenPayload
 import no.nav.syfo.isPreProd
 import no.nav.syfo.util.allToUpperCase
 
@@ -42,5 +42,5 @@ class MidlertidigTilgangsSjekk(private var tilgangListe: List<String> = veileder
         }
     }
 
-    fun harTilgang(token: String): Boolean = getTokenPayload(token).let { tilgangListe.contains(it.navIdent.toUpperCase()) }
+    fun harTilgang(token: String): Boolean = getVeilederTokenPayload(token).let { tilgangListe.contains(it.navIdent.toUpperCase()) }
 }

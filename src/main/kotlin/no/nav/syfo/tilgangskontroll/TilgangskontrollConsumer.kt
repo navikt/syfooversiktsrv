@@ -3,7 +3,6 @@ package no.nav.syfo.tilgangskontroll
 import io.ktor.client.HttpClient
 import io.ktor.client.request.*
 import io.ktor.http.ContentType
-import no.nav.syfo.auth.getTokenPayload
 import java.lang.Exception
 
 class TilgangskontrollConsumer(

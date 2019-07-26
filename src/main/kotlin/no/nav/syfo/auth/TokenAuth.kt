@@ -45,7 +45,7 @@ data class VeilederTokenPayload(
         val epost: String
 )
 
-fun getTokenPayload(token: String): VeilederTokenPayload {
+fun getVeilederTokenPayload(token: String): VeilederTokenPayload {
     val decodedJWT = JWT.decode(token)
 
     val navIdent: String = decodedJWT.claims["NAVident"]?.asString() ?: throw Error("Missing NAVident in private claims")

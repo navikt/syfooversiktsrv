@@ -9,11 +9,11 @@ import org.spekframework.spek2.style.specification.describe
 object AuthTokenSpek : Spek({
 
 
-    describe("#getTokenPayload") {
+    describe("#getVeilederTokenPayload") {
 
         it("Skal parse og returnere gyldig payload") {
 
-            val tokenPayload = getTokenPayload(mockToken)
+            val tokenPayload = getVeilederTokenPayload(mockToken)
 
             tokenPayload.navIdent shouldEqual "Z991598"
             tokenPayload.epost shouldEqual "F_Z991598.E_Z991598@trygdeetaten.no"
