@@ -14,7 +14,7 @@ class TilgangskontrollConsumer(
     private val pathTilgangTilBruker = "/bruker"
     private val pathTilgangTilEnhet = "/enhet"
 
-    suspend fun harVeilederTilgangTilPerson(fnr: String, token: String) {
+    suspend fun harVeilederTilgangTilPerson(fnr: String, token: String): Boolean {
             val response = client.get<Tilgang>(getTilgangskontrollUrl(pathTilgangTilBruker)) {
                 accept(ContentType.Application.Json)
                 headers {
@@ -22,7 +22,7 @@ class TilgangskontrollConsumer(
                 }
                 parameter(paramFnr, fnr)
             }
-            response.harTilgang
+            return response.harTilgang
     }
 
     suspend fun harVeilederTilgangTilEnhet(enhet: String, token: String): Boolean {
