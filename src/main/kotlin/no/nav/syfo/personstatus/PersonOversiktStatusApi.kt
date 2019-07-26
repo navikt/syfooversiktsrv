@@ -34,10 +34,9 @@ fun Route.registerPersonoversiktApi(
                     val harTilgangTilEnhet = tilgangskontrollConsumer.harVeilederTilgangTilEnhet(enhet, getTokenFromCookie(call.request.cookies))
 
                     if (harTilgangTilEnhet) {
-                        val personListe: List<PersonOversiktStatus> = personoversiktStatusService.hentPersonoversiktStatusTilknyttetEnhet(enhet)
-                                .filter {
-                                    tilgangskontrollConsumer.harVeilederTilgangTilPerson(it.fnr, token)
-                                }
+                        val personListe: List<PersonOversiktStatus> = personoversiktStatusService
+                                .hentPersonoversiktStatusTilknyttetEnhet(enhet)
+                                .filter { tilgangskontrollConsumer.harVeilederTilgangTilPerson(it.fnr, token) }
 
                         when {
                             personListe.isNotEmpty() -> call.respond(personListe)
