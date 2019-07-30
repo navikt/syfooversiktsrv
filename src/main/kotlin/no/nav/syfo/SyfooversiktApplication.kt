@@ -22,6 +22,7 @@ import io.ktor.features.*
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.jackson.jackson
+import io.ktor.request.uri
 import io.ktor.response.respond
 import io.ktor.routing.routing
 import io.ktor.server.engine.*
@@ -31,9 +32,12 @@ import kotlinx.coroutines.slf4j.MDCContext
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.api.getWellKnown
 import no.nav.syfo.api.registerNaisApi
+import no.nav.syfo.auth.getTokenFromCookie
+import no.nav.syfo.auth.isInvalidToken
 import no.nav.syfo.db.*
 import no.nav.syfo.kafka.setupKafka
 import no.nav.syfo.personstatus.*
+import no.nav.syfo.tilgangskontroll.MidlertidigTilgangsSjekk
 import no.nav.syfo.tilgangskontroll.TilgangskontrollConsumer
 import no.nav.syfo.vault.Vault
 import org.slf4j.LoggerFactory
@@ -223,6 +227,25 @@ fun Application.serverModule() {
 
     isProd {
         LOG.info("Running in production mode")
+        val tilgangsSjekk = MidlertidigTilgangsSjekk()
+        intercept(ApplicationCallPipeline.Call) {
+            if (call.request.uri.contains(Regex("is_alive|is_ready|prometheus"))) {
+                proceed()
+                return@intercept
+            }
+            val cookies = call.request.cookies
+
+            if (isInvalidToken(cookies)) {
+                call.respond(HttpStatusCode.Unauthorized, "Ugyldig token")
+                finish()
+            } else if (!tilgangsSjekk.harTilgang(getTokenFromCookie(cookies))) {
+                call.respond(HttpStatusCode.Forbidden, "Denne identen har ikke tilgang til applikasjonen")
+                finish()
+            } else {
+                proceed()
+            }
+        }
+
     }
 
     val config: HttpClientConfig<ApacheEngineConfig>.() -> Unit = {
@@ -274,3 +297,5 @@ fun Application.isDev(block: () -> Unit) {
 fun Application.isProd(block: () -> Unit) {
     if (envKind == "production") block()
 }
+
+fun isPreProd(): Boolean = getEnvVar("NAIS_CLUSTER_NAME", "dev-fss") == "dev-fss"
