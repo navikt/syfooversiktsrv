@@ -48,7 +48,7 @@ class OversiktHendelseService(private val database: DatabaseInterface) {
         when {
             person.isEmpty() -> {
                 log.error("Fant ikke person som skal oppdateres med hendelse {}, for enhet {}", oversiktHendelse.hendelseId, oversiktHendelse.enhetId)
-                COUNT_OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_BEHANDLET_OPPDATER.inc()
+                COUNT_OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_BEHANDLET_FEILET.inc()
             }
             erPersonsEnhetOppdatert(person, oversiktHendelse) -> {
                 database.oppdaterPersonMedMoteplanleggerAlleSvarBehandletNyEnhet(oversiktHendelse)
@@ -58,7 +58,7 @@ class OversiktHendelseService(private val database: DatabaseInterface) {
             else -> {
                 database.oppdaterPersonMedMoteplanleggerAlleSvarBehandlet(oversiktHendelse)
                 log.info("Oppdatert person basert pa oversikthendelse med moteplanleggersvar behandlet")
-                COUNT_OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_BEHANDLET_FEILET.inc()
+                COUNT_OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_BEHANDLET_OPPDATER.inc()
             }
         }
     }
