@@ -27,7 +27,6 @@ const val OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_BEHANDLET_FEILET = "oversikt
 
 const val OVERSIKTHENDELSE_UKJENT_MOTTATT = "oversikthendelse_ukjent_count"
 
-
 val COUNT_PERSONTILDELING_TILDEL: Counter = Counter.build()
         .namespace(METRICS_NS)
         .name(METRIC_NAME_PERSONTILDELING_TILDEL)
