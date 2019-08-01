@@ -142,7 +142,6 @@ fun Application.init() {
             }
         }
     }
-
 }
 
 fun Application.kafkaModule() {
