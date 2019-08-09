@@ -42,8 +42,8 @@ $ select * from person_oversikt_status;
 Run `./gradlew clean shadowJar`
    
 #### Local Env variables
-Make a copy of `localEnvForTests.json` with the name `localEnv.json` and set the variables. This file ignored by giti. 
-Rememeber to set the correct path in Environment.kt: `const val localEnvironmentPropertiesPath = "./src/main/resources/localEnv.json"`
+Make a copy of `localEnvForTests.json` with the name `localEnv.json` and set the variables. This file ignored by git.
+Remember to set the correct path in Environment.kt: `const val localEnvironmentPropertiesPath = "./src/main/resources/localEnv.json"`
 
 #### Creating a docker image
 Creating a docker image should be as simple as `docker build -t syfooversiktsrv .`
