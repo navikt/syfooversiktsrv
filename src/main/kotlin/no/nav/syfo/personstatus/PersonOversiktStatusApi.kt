@@ -35,7 +35,7 @@ fun Route.registerPersonoversiktApi(
 
                     if (harTilgangTilEnhet) {
                         val personListe: List<PersonOversiktStatus> = personoversiktStatusService
-                                .hentPersonoversiktStatusTilknyttetEnhet(enhet)
+                                .hentPersonoversiktStatusTilknyttetEnhet(enhet, token)
                                 .filter { tilgangskontrollConsumer.harVeilederTilgangTilPerson(it.fnr, token) }
 
                         when {
