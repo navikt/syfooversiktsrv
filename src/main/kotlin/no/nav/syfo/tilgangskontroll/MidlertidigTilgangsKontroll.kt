@@ -33,7 +33,8 @@ val veilederIdenterMedTilgang = arrayListOf(
 val utviklereMedTilgangIPreProd = arrayListOf(
         "Z990197", // - John Martin
         "Z992300", // - Erik
-        "Z992668"  // - Kristian
+        "Z992668", // - Kristian
+        "Z990243"  // - June
 ).allToUpperCase()
 
 class MidlertidigTilgangsSjekk(private var tilgangListe: List<String> = veilederIdenterMedTilgang) {
