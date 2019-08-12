@@ -1,5 +1,4 @@
 version: 2.1
-executorType: machine
 orbs:
   barkendeploy: navikt/barkendeploy@dev:master
   slack: circleci/slack@3.2.0
@@ -31,8 +30,7 @@ jobs:
       - barkendeploy/docker-login
       - barkendeploy/docker-push
   run_tests:
-    docker:
-      - image: "circleci/openjdk:11-jdk"
+    machine: true
     steps:
       - checkout
       - setup_remote_docker
