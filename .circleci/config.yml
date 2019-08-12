@@ -30,11 +30,11 @@ jobs:
       - barkendeploy/docker-login
       - barkendeploy/docker-push
   run_tests:
-    docker:
-      - image: "circleci/openjdk:11-jdk"
+    machine:
+      image: circleci/classic:201808-01
+      docker_layer_caching: true
     steps:
       - checkout
-      - setup_remote_docker
       - barkendeploy/init
       - barkendeploy/gradle-cache-restore
       - run:
