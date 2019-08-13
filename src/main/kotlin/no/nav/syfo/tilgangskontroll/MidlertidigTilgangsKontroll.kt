@@ -30,7 +30,7 @@ private const val vaultFile = "/var/run/secrets/nais.io/vault/tilganger.json"
 class MidlertidigTilgangsSjekk(pathTilTilgangsfil: String = vaultFile) {
 
     var tilgangListe = arrayListOf<String>()
-
+    
     init {
         val tilgangsFil = lesTilgangsFil(pathTilTilgangsfil)
         tilgangListe.addAll(tilgangsFil.identer.allToUpperCase())

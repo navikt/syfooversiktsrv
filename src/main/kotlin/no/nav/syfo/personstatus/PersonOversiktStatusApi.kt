@@ -31,11 +31,11 @@ fun Route.registerPersonoversiktApi(
                     val enhet: String = call.parameters["enhet"]?.takeIf { validateEnhet(it) }
                             ?: throw IllegalArgumentException("Enhet mangler")
 
-                    val harTilgangTilEnhet = tilgangskontrollConsumer.harVeilederTilgangTilEnhet(enhet, getTokenFromCookie(call.request.cookies))
+                    val harTilgangTilEnhet = tilgangskontrollConsumer.harVeilederTilgangTilEnhet(enhet, token)
 
                     if (harTilgangTilEnhet) {
                         val personListe: List<PersonOversiktStatus> = personoversiktStatusService
-                                .hentPersonoversiktStatusTilknyttetEnhet(enhet)
+                                .hentPersonoversiktStatusTilknyttetEnhet(enhet, token)
                                 .filter { tilgangskontrollConsumer.harVeilederTilgangTilPerson(it.fnr, token) }
 
                         when {
