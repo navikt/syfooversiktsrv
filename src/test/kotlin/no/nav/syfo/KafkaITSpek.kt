@@ -42,7 +42,8 @@ object KafkaITSpek : Spek({
             jwtIssuer = "",
             aadDiscoveryUrl = "",
             syfotilgangskontrollUrl = "",
-            clientid = ""
+            clientid = "",
+            syfoveilederUrl = ""
             )
 
     fun Properties.overrideForTest(): Properties = apply {

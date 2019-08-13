@@ -6,6 +6,7 @@
     "jwkKeysUrl": "https://login.microsoftonline.com/common/discovery/keys",
     "jwtIssuer": "https://sts.windows.net/XXXXXXXX/",
     "syfotilgangskontrollUrl": "http://localhost:8080",
+    "syfoveilederUrl": "http://localhost:8080",
     "databaseName": "syfooversiktsrv",
     "syfooversiktsrvDBURL": "url",
     "mountPathVault": "mountpath",

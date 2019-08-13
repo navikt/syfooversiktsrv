@@ -27,6 +27,8 @@ import no.nav.syfo.personstatus.domain.*
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testutil.UserConstants.NAV_ENHET
+import no.nav.syfo.testutil.UserConstants.VEILEDER_ETTERNAVN
+import no.nav.syfo.testutil.UserConstants.VEILEDER_FORNAVN
 import no.nav.syfo.testutil.UserConstants.VEILEDER_ID
 import no.nav.syfo.tilgangskontroll.TilgangskontrollConsumer
 import org.amshove.kluent.shouldEqual
@@ -54,6 +56,10 @@ object PersonoversiktStatusApiSpek : Spek({
             client
     )
     val oversiktHendelseService = OversiktHendelseService(database)
+    val veilederConsumer = VeilederConsumer(
+            env.syfoveilederUrl,
+            clientVeileder
+    )
 
     afterGroup {
         database.stop()
@@ -73,7 +79,7 @@ object PersonoversiktStatusApiSpek : Spek({
             }
 
             application.routing {
-                registerPersonoversiktApi(tilgangskontrollConsumer, PersonoversiktStatusService(database))
+                registerPersonoversiktApi(tilgangskontrollConsumer, PersonoversiktStatusService(database, veilederConsumer))
             }
 
             beforeEachTest {
@@ -129,12 +135,14 @@ object PersonoversiktStatusApiSpek : Spek({
                         call.request.cookies[cookies]
                     }) {
                         response.status() shouldEqual HttpStatusCode.OK
-                        val returnertVerdig = objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!)[0]
-                        returnertVerdig.veilederIdent shouldEqual tilknytning.veilederIdent
-                        returnertVerdig.fnr shouldEqual oversiktHendelse.fnr
-                        returnertVerdig.enhet shouldEqual oversiktHendelse.enhetId
-                        returnertVerdig.motebehovUbehandlet shouldEqual true
-                        returnertVerdig.moteplanleggerUbehandlet shouldEqual null
+                        val personOversiktStatus = objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!)[0]
+                        personOversiktStatus.veilederIdent shouldEqual tilknytning.veilederIdent
+                        personOversiktStatus.fnr shouldEqual oversiktHendelse.fnr
+                        personOversiktStatus.enhet shouldEqual oversiktHendelse.enhetId
+                        personOversiktStatus.motebehovUbehandlet shouldEqual true
+                        personOversiktStatus.moteplanleggerUbehandlet shouldEqual null
+                        personOversiktStatus.veileder?.fornavn shouldEqual VEILEDER_FORNAVN
+                        personOversiktStatus.veileder?.etternavn shouldEqual VEILEDER_ETTERNAVN
                     }
                 }
 
@@ -156,12 +164,14 @@ object PersonoversiktStatusApiSpek : Spek({
                         call.request.cookies[cookies]
                     }) {
                         response.status() shouldEqual HttpStatusCode.OK
-                        val returnertVerdig = objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!)[0]
-                        returnertVerdig.veilederIdent shouldEqual tilknytning.veilederIdent
-                        returnertVerdig.fnr shouldEqual oversiktHendelse.fnr
-                        returnertVerdig.enhet shouldEqual oversiktHendelse.enhetId
-                        returnertVerdig.motebehovUbehandlet shouldEqual null
-                        returnertVerdig.moteplanleggerUbehandlet shouldEqual true
+                        val personOversiktStatus = objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!)[0]
+                        personOversiktStatus.veilederIdent shouldEqual tilknytning.veilederIdent
+                        personOversiktStatus.fnr shouldEqual oversiktHendelse.fnr
+                        personOversiktStatus.enhet shouldEqual oversiktHendelse.enhetId
+                        personOversiktStatus.motebehovUbehandlet shouldEqual null
+                        personOversiktStatus.moteplanleggerUbehandlet shouldEqual true
+                        personOversiktStatus.veileder?.fornavn shouldEqual VEILEDER_FORNAVN
+                        personOversiktStatus.veileder?.etternavn shouldEqual VEILEDER_ETTERNAVN
                     }
                 }
 
@@ -214,6 +224,34 @@ private val client = HttpClient(MockEngine) {
                     val responseHeaders = headersOf("Content-Type" to listOf(ContentType.Application.Json.toString()))
                     respond(ByteReadChannel(("{" +
                             "\"harTilgang\":\"true\",\"begrunnelse\":\"null\"}").toByteArray(Charsets.UTF_8)), HttpStatusCode.OK, responseHeaders)
+                }
+                else -> error("Unhandled ${request.url.fullUrl}")
+            }
+        }
+    }
+    install(JsonFeature) {
+        serializer = JacksonSerializer {
+            registerKotlinModule()
+            registerModule(JavaTimeModule())
+            configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+        }
+    }
+}
+
+@InternalAPI
+private val clientVeileder = HttpClient(MockEngine) {
+    val baseUrl = env.syfoveilederUrl
+    engine {
+        addHandler { request ->
+            when (request.url.fullUrl) {
+                "$baseUrl/syfoveileder/api/veiledere/enhet/$NAV_ENHET" -> {
+                    val responseHeaders = headersOf("Content-Type" to listOf(ContentType.Application.Json.toString()))
+                    respond(ByteReadChannel((
+                            "[{\"ident\":\"Z999999\",\"fornavn\":\"$VEILEDER_FORNAVN\"," +
+                                    "\"etternavn\":\"$VEILEDER_ETTERNAVN\",\"enhetNr\":\"$NAV_ENHET\",\"enhetNavn\":\"NAV X-FILES\"}]"
+
+                            )
+                            .toByteArray(Charsets.UTF_8)), HttpStatusCode.OK, responseHeaders)
                 }
                 else -> error("Unhandled ${request.url.fullUrl}")
             }
