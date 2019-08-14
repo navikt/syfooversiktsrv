@@ -32,8 +32,7 @@ import kotlinx.coroutines.slf4j.MDCContext
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.api.getWellKnown
 import no.nav.syfo.api.registerNaisApi
-import no.nav.syfo.auth.getTokenFromCookie
-import no.nav.syfo.auth.isInvalidToken
+import no.nav.syfo.auth.*
 import no.nav.syfo.db.*
 import no.nav.syfo.kafka.setupKafka
 import no.nav.syfo.personstatus.*
@@ -233,11 +232,10 @@ fun Application.serverModule() {
                 return@intercept
             }
             val cookies = call.request.cookies
-
             if (isInvalidToken(cookies)) {
                 call.respond(HttpStatusCode.Unauthorized, "Ugyldig token")
                 finish()
-            } else if (!tilgangsSjekk.harTilgang(getTokenFromCookie(cookies))) {
+            } else if (!tilgangsSjekk.harTilgang(getVeilederTokenPayload(getTokenFromCookie(cookies)).navIdent)) {
                 call.respond(HttpStatusCode.Forbidden, "Denne identen har ikke tilgang til applikasjonen")
                 finish()
             } else {

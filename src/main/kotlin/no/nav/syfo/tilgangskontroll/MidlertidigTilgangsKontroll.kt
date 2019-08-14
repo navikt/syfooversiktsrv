@@ -1,52 +1,38 @@
 package no.nav.syfo.tilgangskontroll
 
-import no.nav.syfo.auth.getVeilederTokenPayload
-import no.nav.syfo.isPreProd
+import com.fasterxml.jackson.databind.*
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.readValue
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import no.nav.syfo.LOG
 import no.nav.syfo.util.allToUpperCase
+import java.nio.file.Paths
 
-val veilederIdenterMedTilgang = arrayListOf(
-        "Z991598",
-        "T152136",
-        "S139136",
-        "H103404",
-        "L126710",
-        "W126199",
-        "F125384",
-        "H146483",
-        "K105407",
-        "M152421",
-        "H152380",
-        "H148938",
-        "H131999",
-        "V134908",
-        "H139248",
-        "H149140",
-        "B144544",
-        "S113562",
-        "V111088",
-        "F140344",
-        "M106428",
-        "N149853", // - Lisa
-        "R144807"  // - Tor Halle
-).allToUpperCase()
+private val objectMapper: ObjectMapper = ObjectMapper().apply {
+    registerKotlinModule()
+    registerModule(JavaTimeModule())
+}
 
-val utviklereMedTilgangIPreProd = arrayListOf(
-        "Z990197", // - John Martin
-        "Z992300", // - Erik
-        "Z992668", // - Kristian
-        "Z990243", // - June
-        "G153334", // - Solveig-1
-        "Z990573", // - Solveig-2
-        "Z992668"  // - Kristian
-).allToUpperCase()
+data class Tilganger (
+        val identer: List<String>
+)
 
-class MidlertidigTilgangsSjekk(private var tilgangListe: List<String> = veilederIdenterMedTilgang) {
+private fun lesTilgangsfil(path: String): Tilganger {
+    LOG.info("Leser tilgangsfil fra $path")
+    val s = Paths.get(path).toFile().readText()
+    return objectMapper.readValue<Tilganger>(s).also { LOG.info("Leste tilgang fra fil med ${it.identer.size} identer") }
+}
+
+private const val vaultFile = "/var/run/secrets/nais.io/vault/tilganger.json"
+
+class MidlertidigTilgangsSjekk(pathTilTilgangsfil: String = vaultFile) {
+
+    var tilgangListe = arrayListOf<String>()
 
     init {
-        if (isPreProd()) {
-            tilgangListe = tilgangListe.plus(utviklereMedTilgangIPreProd)
-        }
+        val tilgangsFil = lesTilgangsfil(pathTilTilgangsfil)
+        tilgangListe.addAll(tilgangsFil.identer.allToUpperCase())
     }
 
-    fun harTilgang(token: String): Boolean = getVeilederTokenPayload(token).let { tilgangListe.contains(it.navIdent.toUpperCase()) }
+    fun harTilgang(navIdent: String): Boolean = tilgangListe.contains(navIdent.toUpperCase())
 }
