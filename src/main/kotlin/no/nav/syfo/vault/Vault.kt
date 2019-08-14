@@ -61,7 +61,4 @@ object Vault {
         else -> duration - MIN_REFRESH_MARGIN
     }
 
-    fun getSomething() {
-
-    }
 }
