@@ -10,7 +10,7 @@ private val log: org.slf4j.Logger = LoggerFactory.getLogger("no.nav.syfo.persons
 
 class OversiktHendelseService(private val database: DatabaseInterface) {
 
-    fun oppdaterPersonMedHendelse(oversiktHendelse: KOversikthendelse, callId: String) {
+    fun oppdaterPersonMedHendelse(oversiktHendelse: KOversikthendelse, callId: String = "") {
         when (oversiktHendelse.hendelseId) {
             OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.toString() -> oppdaterPersonMedHendelseMotebehovMottatt(oversiktHendelse, callId)
             OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET.toString() -> oppdaterPersonMedHendelseMotebehovBehandlet(oversiktHendelse, callId)
