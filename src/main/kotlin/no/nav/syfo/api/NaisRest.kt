@@ -20,7 +20,6 @@ fun Routing.registerNaisApi(
 ) {
     get("/is_alive") {
         if (applicationState.running) {
-            LOG.info("kafkacallid {}", kafkaCallId())
             call.respondText("I'm alive! :)")
         } else {
             call.respondText("I'm dead x_x", status = HttpStatusCode.InternalServerError)
