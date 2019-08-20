@@ -9,7 +9,10 @@ import io.ktor.routing.Routing
 import io.ktor.routing.get
 import io.prometheus.client.CollectorRegistry
 import io.prometheus.client.exporter.common.TextFormat
+import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.ApplicationState
+import no.nav.syfo.LOG
+import no.nav.syfo.util.kafkaCallId
 
 fun Routing.registerNaisApi(
         applicationState: ApplicationState,
@@ -17,6 +20,7 @@ fun Routing.registerNaisApi(
 ) {
     get("/is_alive") {
         if (applicationState.running) {
+            LOG.info("kafkacallid {}", kafkaCallId())
             call.respondText("I'm alive! :)")
         } else {
             call.respondText("I'm dead x_x", status = HttpStatusCode.InternalServerError)

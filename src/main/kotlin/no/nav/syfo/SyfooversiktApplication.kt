@@ -222,21 +222,24 @@ fun Application.serverModule() {
         }
     }
 
-    val tilgangsSjekk = MidlertidigTilgangsSjekk()
-    intercept(ApplicationCallPipeline.Call) {
-        if (call.request.uri.contains(Regex("is_alive|is_ready|prometheus"))) {
-            proceed()
-            return@intercept
-        }
-        val cookies = call.request.cookies
-        if (isInvalidToken(cookies)) {
-            call.respond(HttpStatusCode.Unauthorized, "Ugyldig token")
-            finish()
-        } else if (!tilgangsSjekk.harTilgang(getVeilederTokenPayload(getTokenFromCookie(cookies)).navIdent)) {
-            call.respond(HttpStatusCode.Forbidden, "Denne identen har ikke tilgang til applikasjonen")
-            finish()
-        } else {
-            proceed()
+
+    isProd {
+        val tilgangsSjekk = MidlertidigTilgangsSjekk()
+        intercept(ApplicationCallPipeline.Call) {
+            if (call.request.uri.contains(Regex("is_alive|is_ready|prometheus"))) {
+                proceed()
+                return@intercept
+            }
+            val cookies = call.request.cookies
+            if (isInvalidToken(cookies)) {
+                call.respond(HttpStatusCode.Unauthorized, "Ugyldig token")
+                finish()
+            } else if (!tilgangsSjekk.harTilgang(getVeilederTokenPayload(getTokenFromCookie(cookies)).navIdent)) {
+                call.respond(HttpStatusCode.Forbidden, "Denne identen har ikke tilgang til applikasjonen")
+                finish()
+            } else {
+                proceed()
+            }
         }
     }
 
