@@ -2,9 +2,9 @@ package no.nav.syfo.tilgangskontroll
 
 import io.ktor.client.HttpClient
 import io.ktor.client.request.*
+import io.ktor.client.response.HttpResponse
 import io.ktor.http.ContentType
 import no.nav.syfo.util.NAV_CALL_ID_HEADER
-import java.lang.Exception
 
 class TilgangskontrollConsumer(
         private val endpointUrl: String,
@@ -16,19 +16,19 @@ class TilgangskontrollConsumer(
     private val pathTilgangTilEnhet = "/enhet"
 
     suspend fun harVeilederTilgangTilPerson(fnr: String, token: String, callId: String): Boolean {
-            val response = client.get<Tilgang>(getTilgangskontrollUrl(pathTilgangTilBruker)) {
-                accept(ContentType.Application.Json)
-                headers {
-                    "Authorization" to "Bearer $token"
-                    NAV_CALL_ID_HEADER to callId
-                }
-                parameter(paramFnr, fnr)
+        val response = client.get<HttpResponse>(getTilgangskontrollUrl(pathTilgangTilBruker)) {
+            accept(ContentType.Application.Json)
+            headers {
+                "Authorization" to "Bearer $token"
+                NAV_CALL_ID_HEADER to callId
             }
-            return response.harTilgang
+            parameter(paramFnr, fnr)
+        }
+        return response.status.value in 200..299
     }
 
     suspend fun harVeilederTilgangTilEnhet(enhet: String, token: String, callId: String): Boolean {
-        val response = client.get<Tilgang>(getTilgangskontrollUrl(pathTilgangTilEnhet)) {
+        val response = client.get<HttpResponse>(getTilgangskontrollUrl(pathTilgangTilEnhet)) {
             accept(ContentType.Application.Json)
             headers {
                 "Authorization" to "Bearer $token"
@@ -36,7 +36,7 @@ class TilgangskontrollConsumer(
             }
             parameter(paramEnhet, enhet)
         }
-        return response.harTilgang
+        return response.status.value in 200..299
     }
 
     private fun getTilgangskontrollUrl(path: String): String {
