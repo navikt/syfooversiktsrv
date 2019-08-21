@@ -24,7 +24,7 @@ class TilgangskontrollConsumer(
         val response = client.get<HttpResponse>(getTilgangskontrollUrl(pathTilgangTilBruker)) {
             accept(ContentType.Application.Json)
             headers {
-                "Authorization" to "Bearer $token"
+                append("Authorization", "Bearer $token")
             }
             parameter(paramFnr, fnr)
         }
@@ -36,7 +36,7 @@ class TilgangskontrollConsumer(
         val response = client.get<HttpResponse>(getTilgangskontrollUrl(pathTilgangTilEnhet)) {
             accept(ContentType.Application.Json)
             headers {
-                "Authorization" to "Bearer $token"
+                append("Authorization", "Bearer $token")
             }
             parameter(paramEnhet, enhet)
 
