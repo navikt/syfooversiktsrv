@@ -207,7 +207,7 @@ fun Application.serverModule() {
     }
 
     install(CallId) {
-        retrieve {it.request.headers["X-Nav-CallId"] }
+        retrieve { it.request.headers["X-Nav-CallId"] }
         retrieve { it.request.headers[HttpHeaders.XCorrelationId] }
         generate { UUID.randomUUID().toString() }
         verify { callId: String -> callId.isNotEmpty() }
