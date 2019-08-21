@@ -42,7 +42,10 @@ fun Route.registerPersonoversiktApi(
 
                             COUNT_PERSONOVERSIKTSTATUS_ENHET_HENTET.inc()
                         }
-                        else -> call.respond(HttpStatusCode.Forbidden)
+                        else -> {
+                            log.error("Veileder mangler tilgang til enhet")
+                            call.respond(HttpStatusCode.Forbidden, "Veileder mangler tilgang til enhet")
+                        }
                     }
                 } catch (e: IllegalArgumentException) {
                     log.warn("Kan ikke hente personoversikt for enhet: {}", e.message, getCallId())
