@@ -20,7 +20,6 @@ class TilgangskontrollConsumer(
             accept(ContentType.Application.Json)
             headers {
                 "Authorization" to "Bearer $token"
-                NAV_CALL_ID_HEADER to callId
             }
             parameter(paramFnr, fnr)
         }
@@ -32,7 +31,6 @@ class TilgangskontrollConsumer(
             accept(ContentType.Application.Json)
             headers {
                 "Authorization" to "Bearer $token"
-                NAV_CALL_ID_HEADER to callId
             }
             parameter(paramEnhet, enhet)
         }
