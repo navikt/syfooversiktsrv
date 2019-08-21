@@ -12,6 +12,8 @@ import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.*
 import no.nav.syfo.personstatus.OversiktHendelseService
 import no.nav.syfo.personstatus.domain.KOversikthendelse
+import no.nav.syfo.util.CallIdArgument
+import no.nav.syfo.util.kafkaCallId
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.slf4j.Logger
@@ -63,6 +65,7 @@ suspend fun blockingApplicationLogic(
         }
 
         kafkaConsumer.poll(Duration.ofMillis(0)).forEach {
+            val callId = kafkaCallId()
             val oversiktHendelse: KOversikthendelse =
                     objectMapper.readValue(it.value())
             logValues = arrayOf(
@@ -71,9 +74,9 @@ suspend fun blockingApplicationLogic(
                     StructuredArguments.keyValue("enhetId", oversiktHendelse.enhetId),
                     StructuredArguments.keyValue("hendelseId", oversiktHendelse.hendelseId)
             )
-            LOG.info("Mottatt oversikthendelse, klar for oppdatering, $logKeys", *logValues)
+            LOG.info("Mottatt oversikthendelse, klar for oppdatering, $logKeys, {}", *logValues, CallIdArgument(callId))
 
-            oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
+            oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse, callId)
         }
         delay(100)
     }

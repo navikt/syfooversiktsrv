@@ -83,18 +83,6 @@ object PersontildelingApiSpek : Spek({
             describe("Hent veiledertilknytninger") {
                 val url = "$baseUrl/veileder/$VEILEDER_ID"
 
-                it("skal returnere status Unauthorized om bruker ikke gyldig id-token i cookies") {
-                    every {
-                        isInvalidToken(any())
-                    } returns true
-
-                    with(handleRequest(HttpMethod.Get, url) {
-                        call.request.cookies[cookies]
-                    }) {
-                        response.status() shouldEqual HttpStatusCode.Unauthorized
-                    }
-                }
-
                 it("skal returnere status NoContent om veileder ikke har tilknytninger") {
                     every {
                         isInvalidToken(any())
@@ -130,18 +118,6 @@ object PersontildelingApiSpek : Spek({
 
             describe("skal lagre veiledertilknytninger") {
                 val url = "$baseUrl/registrer"
-
-                it("skal returnere status Unauthorized om det ikke er gyldig id-token i cookies") {
-                    every {
-                        isInvalidToken(any())
-                    } returns true
-
-                    with(handleRequest(HttpMethod.Post, url) {
-                        call.request.cookies[cookies]
-                    }) {
-                        response.status() shouldEqual HttpStatusCode.Unauthorized
-                    }
-                }
 
                 it("skal lagre liste med veiledertilknytninger") {
                     every {

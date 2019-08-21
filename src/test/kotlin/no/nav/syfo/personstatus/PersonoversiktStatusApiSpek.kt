@@ -93,18 +93,6 @@ object PersonoversiktStatusApiSpek : Spek({
             describe("Hent personoversikt for enhet") {
                 val url = "$baseUrl/enhet/$NAV_ENHET"
 
-                it("skal returnere status Unauthorized uten gyldig id-token i cookies") {
-                    every {
-                        isInvalidToken(any())
-                    } returns true
-
-                    with(handleRequest(HttpMethod.Get, url) {
-                        call.request.cookies[cookies]
-                    }) {
-                        response.status() shouldEqual HttpStatusCode.Unauthorized
-                    }
-                }
-
                 it("skal returnere status NoContent om det ikke er noen personer som er tilknyttet enhet") {
                     every {
                         isInvalidToken(any())

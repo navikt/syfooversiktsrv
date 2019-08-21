@@ -38,6 +38,8 @@ import no.nav.syfo.kafka.setupKafka
 import no.nav.syfo.personstatus.*
 import no.nav.syfo.tilgangskontroll.MidlertidigTilgangsSjekk
 import no.nav.syfo.tilgangskontroll.TilgangskontrollConsumer
+import no.nav.syfo.util.NAV_CALL_ID_HEADER
+import no.nav.syfo.util.getCallId
 import no.nav.syfo.vault.Vault
 import org.slf4j.LoggerFactory
 import java.net.URL
@@ -205,26 +207,23 @@ fun Application.serverModule() {
     }
 
     install(CallId) {
+        retrieve { it.request.headers["X-Nav-CallId"] }
+        retrieve { it.request.headers[HttpHeaders.XCorrelationId] }
         generate { UUID.randomUUID().toString() }
         verify { callId: String -> callId.isNotEmpty() }
-        header(HttpHeaders.XCorrelationId)
+        header(NAV_CALL_ID_HEADER)
     }
 
     install(StatusPages) {
         exception<Throwable> { cause ->
             call.respond(HttpStatusCode.InternalServerError, cause.message ?: "Unknown error")
-
-            log.error("Caught exception", cause)
+            log.error("Caught exception", cause, getCallId())
             throw cause
         }
     }
 
-    isDev {
-        LOG.info("Running in development mode")
-    }
 
     isProd {
-        LOG.info("Running in production mode")
         val tilgangsSjekk = MidlertidigTilgangsSjekk()
         intercept(ApplicationCallPipeline.Call) {
             if (call.request.uri.contains(Regex("is_alive|is_ready|prometheus"))) {
@@ -242,7 +241,6 @@ fun Application.serverModule() {
                 proceed()
             }
         }
-
     }
 
     val config: HttpClientConfig<ApacheEngineConfig>.() -> Unit = {

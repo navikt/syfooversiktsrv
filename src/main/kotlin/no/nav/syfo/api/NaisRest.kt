@@ -9,7 +9,10 @@ import io.ktor.routing.Routing
 import io.ktor.routing.get
 import io.prometheus.client.CollectorRegistry
 import io.prometheus.client.exporter.common.TextFormat
+import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.ApplicationState
+import no.nav.syfo.LOG
+import no.nav.syfo.util.kafkaCallId
 
 fun Routing.registerNaisApi(
         applicationState: ApplicationState,
