@@ -125,8 +125,6 @@ fun DatabaseInterface.oppdaterEnhetDersomKnytningFinnes(veilederBrukerKnytning: 
             connection.commit()
         }
     }
-    connection.commit()
-
     return id
 }
 
