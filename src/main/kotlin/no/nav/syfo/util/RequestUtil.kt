@@ -1,5 +1,6 @@
 package no.nav.syfo.util
 
+import com.fasterxml.jackson.core.JsonGenerator
 import io.ktor.application.ApplicationCall
 import io.ktor.application.call
 import io.ktor.util.pipeline.PipelineContext
