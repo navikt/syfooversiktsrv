@@ -4,7 +4,12 @@ import io.ktor.client.HttpClient
 import io.ktor.client.request.*
 import io.ktor.client.response.HttpResponse
 import io.ktor.http.ContentType
+import no.nav.syfo.auth.log
 import no.nav.syfo.util.NAV_CALL_ID_HEADER
+import org.slf4j.LoggerFactory
+
+
+val log = LoggerFactory.getLogger("no.nav.syfo.oversikt.tilgangskontroll")
 
 class TilgangskontrollConsumer(
         private val endpointUrl: String,
@@ -19,8 +24,8 @@ class TilgangskontrollConsumer(
         val response = client.get<HttpResponse>(getTilgangskontrollUrl(pathTilgangTilBruker)) {
             accept(ContentType.Application.Json)
             headers {
-                "Authorization" to "Bearer $token"
-                NAV_CALL_ID_HEADER to callId
+                append("Authorization", "Bearer $token")
+                append(NAV_CALL_ID_HEADER, callId)
             }
             parameter(paramFnr, fnr)
         }
@@ -31,10 +36,11 @@ class TilgangskontrollConsumer(
         val response = client.get<HttpResponse>(getTilgangskontrollUrl(pathTilgangTilEnhet)) {
             accept(ContentType.Application.Json)
             headers {
-                "Authorization" to "Bearer $token"
-                NAV_CALL_ID_HEADER to callId
+                append("Authorization", "Bearer $token")
+                append(NAV_CALL_ID_HEADER, callId)
             }
             parameter(paramEnhet, enhet)
+
         }
         return response.status.value in 200..299
     }
