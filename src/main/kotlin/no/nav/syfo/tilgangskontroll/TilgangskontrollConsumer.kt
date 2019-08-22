@@ -25,10 +25,10 @@ class TilgangskontrollConsumer(
             accept(ContentType.Application.Json)
             headers {
                 append("Authorization", "Bearer $token")
+                append(NAV_CALL_ID_HEADER, callId)
             }
             parameter(paramFnr, fnr)
         }
-        log.info("harVeilederTilgangTilPerson statusCode=${response.status.value}")
         return response.status.value in 200..299
     }
 
@@ -37,11 +37,11 @@ class TilgangskontrollConsumer(
             accept(ContentType.Application.Json)
             headers {
                 append("Authorization", "Bearer $token")
+                append(NAV_CALL_ID_HEADER, callId)
             }
             parameter(paramEnhet, enhet)
 
         }
-        log.info("harVeilederTilgangTilEnhet statusCode=${response.status.value}")
         return response.status.value in 200..299
     }
 
