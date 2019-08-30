@@ -18,7 +18,6 @@ $ docker-compose up
 
 * Run the `main()` function in `SyfooversiktApplication.kt`
 
-
 ### Connect to the db from terminal:
 
 To connect and run queries directly against the db run:
