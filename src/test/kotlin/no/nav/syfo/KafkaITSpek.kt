@@ -32,7 +32,7 @@ object KafkaITSpek : Spek({
     val env = Environment(
             applicationPort = getRandomPort(),
             applicationThreads = 1,
-            oversiktHendelseTopic = "topic1",
+            oversikthendelseOppfolgingstilfelleTopic = "topic1",
             kafkaBootstrapServers = embeddedEnvironment.brokersURL,
             syfooversiktsrvDBURL = "12314.adeo.no",
             mountPathVault = "vault.adeo.no",

@@ -10,6 +10,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.*
+import no.nav.syfo.oversikthendelsetilfelle.OversikthendelstilfelleService
+import no.nav.syfo.oversikthendelsetilfelle.domain.KOversikthendelsetilfelle
 import no.nav.syfo.personstatus.OversiktHendelseService
 import no.nav.syfo.personstatus.domain.KOversikthendelse
 import no.nav.syfo.util.CallIdArgument
@@ -31,7 +33,11 @@ private val objectMapper: ObjectMapper = ObjectMapper().apply {
 
 private val LOG: Logger = LoggerFactory.getLogger("no.nav.syfo.Kafka")
 
-suspend fun CoroutineScope.setupKafka(vaultSecrets: KafkaCredentials, oversiktHendelseService: OversiktHendelseService) {
+suspend fun CoroutineScope.setupKafka(
+        vaultSecrets: KafkaCredentials,
+        oversiktHendelseService: OversiktHendelseService,
+        oversikthendelstilfelleService: OversikthendelstilfelleService
+) {
 
     LOG.info("Setting up kafka consumer")
 
@@ -42,7 +48,12 @@ suspend fun CoroutineScope.setupKafka(vaultSecrets: KafkaCredentials, oversiktHe
             "${env.applicationName}-consumer", valueDeserializer = StringDeserializer::class
     )
 
-    launchListeners(consumerProperties, state, oversiktHendelseService)
+    launchListeners(
+            consumerProperties,
+            state,
+            oversiktHendelseService,
+            oversikthendelstilfelleService
+    )
 }
 
 
@@ -83,19 +94,83 @@ suspend fun blockingApplicationLogic(
 }
 
 @KtorExperimentalAPI
+suspend fun blockingApplicationLogic(
+        applicationState: ApplicationState,
+        kafkaConsumer: KafkaConsumer<String, String>,
+        oversikthendelstilfelleService: OversikthendelstilfelleService
+) {
+    while (applicationState.running) {
+        var logValues = arrayOf(
+                StructuredArguments.keyValue("oversikthendelsetilfelleId", "missing"),
+                StructuredArguments.keyValue("harFnr", "missing"),
+                StructuredArguments.keyValue("enhetId", "missing"),
+                StructuredArguments.keyValue("virksomhetsnummer", "missing"),
+                StructuredArguments.keyValue("gradert", "missing"),
+                StructuredArguments.keyValue("fom", "missing"),
+                StructuredArguments.keyValue("tom", "missing")
+        )
+
+        val logKeys = logValues.joinToString(prefix = "(", postfix = ")", separator = ",") {
+            "{}"
+        }
+
+        kafkaConsumer.poll(Duration.ofMillis(0)).forEach {
+            val callId = kafkaCallId()
+            val oversikthendelsetilfelle: KOversikthendelsetilfelle =
+                    objectMapper.readValue(it.value())
+            logValues = arrayOf(
+                    StructuredArguments.keyValue("oversikthendelsetilfelleId", it.key()),
+                    StructuredArguments.keyValue("harFnr", (!StringUtil.isNullOrEmpty(oversikthendelsetilfelle.fnr)).toString()),
+                    StructuredArguments.keyValue("enhetId", oversikthendelsetilfelle.enhetId),
+                    StructuredArguments.keyValue("virksomhetsnummer", oversikthendelsetilfelle.virksomhetsnummer),
+                    StructuredArguments.keyValue("gradert", oversikthendelsetilfelle.gradert),
+                    StructuredArguments.keyValue("fom", oversikthendelsetilfelle.fom),
+                    StructuredArguments.keyValue("tom", oversikthendelsetilfelle.tom)
+            )
+            LOG.info("Mottatt oversikthendelsetilfelle, klar for oppdatering, $logKeys, {}", *logValues, CallIdArgument(callId))
+
+            oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelsetilfelle, callId)
+        }
+        delay(100)
+    }
+}
+
+@KtorExperimentalAPI
 suspend fun CoroutineScope.launchListeners(
         consumerProperties: Properties,
         applicationState: ApplicationState,
-        oversiktHendelseService: OversiktHendelseService
+        oversiktHendelseService: OversiktHendelseService,
+        oversikthendelstilfelleService: OversikthendelstilfelleService
 ) {
 
-    val kafkaconsumerOppgave = KafkaConsumer<String, String>(consumerProperties)
-    kafkaconsumerOppgave.subscribe(
-            listOf("aapen-syfo-oversikthendelse-v1")
+    val kafkaconsumerOversikthendelse = KafkaConsumer<String, String>(consumerProperties)
+    kafkaconsumerOversikthendelse.subscribe(
+            listOf(
+                    "aapen-syfo-oversikthendelse-v1"
+            )
+    )
+
+    val kafkaconsumerTilfelle = KafkaConsumer<String, String>(consumerProperties)
+    kafkaconsumerTilfelle.subscribe(
+            listOf(
+                    env.oversikthendelseOppfolgingstilfelleTopic
+            )
     )
 
     createListener(applicationState) {
-        blockingApplicationLogic(applicationState, kafkaconsumerOppgave, oversiktHendelseService)
+        blockingApplicationLogic(
+                applicationState,
+                kafkaconsumerOversikthendelse,
+                oversiktHendelseService
+        )
+    }
+
+    createListener(applicationState) {
+        blockingApplicationLogic(
+                applicationState,
+                kafkaconsumerTilfelle,
+                oversikthendelstilfelleService
+        )
     }
 
 

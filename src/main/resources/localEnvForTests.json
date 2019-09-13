@@ -11,6 +11,6 @@
     "syfooversiktsrvDBURL": "url",
     "mountPathVault": "mountpath",
     "kafkaBootstrapServers": "kafkaurl",
-    "oversiktHendelseTopic": "topic",
+    "oversikthendelseOppfolgingstilfelleTopic": "topic-oversikthendelse-oppfolgingstilfelle",
     "clientid": "999999"
 }
