@@ -25,6 +25,14 @@ const val OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_BEHANDLET_OPPDATER = "oversi
 const val OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_BEHANDLET_OPPDATER_ENHET = "oversikthendelse_moteplanlegger_alle_svar_behandlet_oppdater_enhet_count"
 const val OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_BEHANDLET_FEILET = "oversikthendelse_moteplanlegger_alle_svar_behandlet_feilet_count"
 
+const val OVERSIKTHENDELSETILFELLE_INGEN_AKTIVITET_OPPRETT = "oversikthendelsetilfelle_ingen_aktivitet_opprett_count"
+const val OVERSIKTHENDELSETILFELLE_INGEN_AKTIVITET_OPPDATER = "oversikthendelsetilfelle_ingen_aktivitet_oppdater_count"
+const val OVERSIKTHENDELSETILFELLE_INGEN_AKTIVITET_ENHET = "oversikthendelsetilfelle_ingen_aktivitet_oppdater_enhet_count"
+
+const val OVERSIKTHENDELSETILFELLE_GRADERT_OPPRETT = "oversikthendelsetilfelle_gradert_opprett_count"
+const val OVERSIKTHENDELSETILFELLE_GRADERT_OPPDATER = "oversikthendelsetilfelle_gradert_oppdater_count"
+const val OVERSIKTHENDELSETILFELLE_GRADERT_OPPDATER_ENHET = "oversikthendelsetilfelle_gradert_oppdater_enhet_count"
+
 const val OVERSIKTHENDELSE_UKJENT_MOTTATT = "oversikthendelse_ukjent_count"
 
 val COUNT_PERSONTILDELING_TILDEL: Counter = Counter.build()
@@ -119,4 +127,38 @@ val COUNT_OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_BEHANDLET_FEILET: Counter = 
         .namespace(METRICS_NS)
         .name(OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_BEHANDLET_FEILET)
         .help("Counts the number of oversikthendelse of type moteplanlegger-alle-svar-behandlet that failed to update missing person")
+        .register()
+
+
+val COUNT_OVERSIKTHENDELSETILFELLE_INGEN_AKTIVITET_OPPRETT: Counter = Counter.build()
+        .namespace(METRICS_NS)
+        .name(OVERSIKTHENDELSETILFELLE_INGEN_AKTIVITET_OPPRETT)
+        .help("Counts the number of oversikthendelsetilfeller  with Ingen Aktivitetresulting in creation of PERSON_OVERSIKT_STATUS row")
+        .register()
+val COUNT_OVERSIKTHENDELSETILFELLE_INGEN_AKTIVITET_OPPDATER: Counter = Counter.build()
+        .namespace(METRICS_NS)
+        .name(OVERSIKTHENDELSETILFELLE_INGEN_AKTIVITET_OPPDATER)
+        .help("Counts the number of oversikthendelsetilfeller with Ingen Aktivitet resulting in update}")
+        .register()
+val COUNT_OVERSIKTHENDELSETILFELLE_INGEN_AKTIVITET_OPPDATER_ENHET: Counter = Counter.build()
+        .namespace(METRICS_NS)
+        .name(OVERSIKTHENDELSETILFELLE_INGEN_AKTIVITET_ENHET)
+        .help("Counts the number of oversikthendelsetilfeller  with Ingen Aktivitet resulting in update with new enhetId}")
+        .register()
+
+
+val COUNT_OVERSIKTHENDELSETILFELLE_GRADERT_OPPRETT: Counter = Counter.build()
+        .namespace(METRICS_NS)
+        .name(OVERSIKTHENDELSETILFELLE_GRADERT_OPPRETT)
+        .help("Counts the number of graderte oversikthendelsetilfeller resulting in creation of PERSON_OVERSIKT_STATUS row")
+        .register()
+val COUNT_OVERSIKTHENDELSETILFELLE_GRADERT_OPPDATER: Counter = Counter.build()
+        .namespace(METRICS_NS)
+        .name(OVERSIKTHENDELSETILFELLE_GRADERT_OPPDATER)
+        .help("Counts the number of graderte oversikthendelsetilfeller resulting in update}")
+        .register()
+val COUNT_OVERSIKTHENDELSETILFELLE_GRADERT_OPPDATER_ENHET: Counter = Counter.build()
+        .namespace(METRICS_NS)
+        .name(OVERSIKTHENDELSETILFELLE_GRADERT_OPPDATER_ENHET)
+        .help("Counts the number of graderte oversikthendelsetilfeller resulting in update with new enhetId}")
         .register()

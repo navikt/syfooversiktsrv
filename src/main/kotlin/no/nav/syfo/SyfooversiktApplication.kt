@@ -35,6 +35,7 @@ import no.nav.syfo.api.registerNaisApi
 import no.nav.syfo.auth.*
 import no.nav.syfo.db.*
 import no.nav.syfo.kafka.setupKafka
+import no.nav.syfo.oversikthendelsetilfelle.OversikthendelstilfelleService
 import no.nav.syfo.personstatus.*
 import no.nav.syfo.tilgangskontroll.MidlertidigTilgangsSjekk
 import no.nav.syfo.tilgangskontroll.TilgangskontrollConsumer
@@ -153,11 +154,12 @@ fun Application.kafkaModule() {
     isProd {
 
         val oversiktHendelseService = OversiktHendelseService(database)
+        val oversikthendelstilfelleService = OversikthendelstilfelleService(database)
 
         launch(backgroundTasksContext) {
             val vaultSecrets =
                     objectMapper.readValue<VaultSecrets>(Paths.get("/var/run/secrets/nais.io/vault/credentials.json").toFile())
-            setupKafka(vaultSecrets, oversiktHendelseService)
+            setupKafka(vaultSecrets, oversiktHendelseService, oversikthendelstilfelleService)
         }
     }
 }

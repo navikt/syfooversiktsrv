@@ -27,7 +27,7 @@ fun getEnvironment(): Environment {
                 getEnvVar("DATABASE_NAME", "syfooversiktsrv"),
                 getEnvVar("SYFOOVERSIKTSRV_DB_URL"),
                 getEnvVar("MOUNT_PATH_VAULT"),
-                getEnvVar("KAFKA_OVERSIKT_HENDELSE_V1_TOPIC", "privat-syfo-sm2013-register"),
+                getEnvVar("OVERSIKTHENDELSE_OPPFOLGINGSTILFELLE_TOPIC", "aapen-syfo-oversikthendelse-tilfelle-v1"),
                 getEnvVar("KAFKA_BOOTSTRAP_SERVERS_URL"),
                 getEnvVar("CLIENT_ID")
         )
@@ -48,7 +48,7 @@ data class Environment(
         val databaseName: String,
         val syfooversiktsrvDBURL: String,
         val mountPathVault: String,
-        val oversiktHendelseTopic: String,
+        val oversikthendelseOppfolgingstilfelleTopic: String,
         override val kafkaBootstrapServers: String,
         val clientid: String
 ) : KafkaConfig

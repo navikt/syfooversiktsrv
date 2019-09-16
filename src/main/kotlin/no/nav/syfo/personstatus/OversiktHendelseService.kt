@@ -31,7 +31,7 @@ class OversiktHendelseService(private val database: DatabaseInterface) {
                 log.info("Opprettet person basert pa oversikthendelse med moteplanlegger alle svar mottatt, {}", CallIdArgument(callId))
                 COUNT_OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_MOTTATT_OPPRETT.inc()
             }
-            erPersonsEnhetOppdatert(person, oversiktHendelse) -> {
+            erPersonsEnhetOppdatert(person, oversiktHendelse.enhetId) -> {
                 database.oppdaterPersonMedMoteplanleggerAlleSvarNyEnhet(oversiktHendelse)
                 log.info("Oppdatert person basert pa oversikthendelse med moteplanlegger alle svar mottatt med ny enhet, {}", CallIdArgument(callId))
                 COUNT_OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_MOTTATT_OPPDATER_ENHET.inc()
@@ -51,7 +51,7 @@ class OversiktHendelseService(private val database: DatabaseInterface) {
                 log.error("Fant ikke person som skal oppdateres med hendelse {}, for enhet {}", oversiktHendelse.hendelseId, oversiktHendelse.enhetId)
                 COUNT_OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_BEHANDLET_FEILET.inc()
             }
-            erPersonsEnhetOppdatert(person, oversiktHendelse) -> {
+            erPersonsEnhetOppdatert(person, oversiktHendelse.enhetId) -> {
                 database.oppdaterPersonMedMoteplanleggerAlleSvarBehandletNyEnhet(oversiktHendelse)
                 log.info("Oppdatert person basert pa oversikthendelse med moteplanleggersvar behandlet med ny enhet, {}", CallIdArgument(callId))
                 COUNT_OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_BEHANDLET_OPPDATER_ENHET.inc()
@@ -71,7 +71,7 @@ class OversiktHendelseService(private val database: DatabaseInterface) {
                 log.error("Fant ikke person som skal oppdateres med hendelse {}, for enhet {}, {}", oversiktHendelse.hendelseId, oversiktHendelse.enhetId, CallIdArgument(callId))
                 COUNT_OVERSIKTHENDELSE_MOTEBEHOVSSVAR_BEHANDLET_FEILET.inc()
             }
-            erPersonsEnhetOppdatert(person, oversiktHendelse) -> {
+            erPersonsEnhetOppdatert(person, oversiktHendelse.enhetId) -> {
                 database.oppdaterPersonMedMotebehovBehandletNyEnhet(oversiktHendelse)
                 log.info("Oppdatert person basert pa oversikthendelse med motebehovsvar behandlet med ny enhet, {}", CallIdArgument(callId))
                 COUNT_OVERSIKTHENDELSE_MOTEBEHOVSSVAR_BEHANDLET_OPPDATER_ENHET.inc()
@@ -92,7 +92,7 @@ class OversiktHendelseService(private val database: DatabaseInterface) {
                 log.info("Opprettet person basert pa oversikthendelse med motebehovsvar mottatt, {}", CallIdArgument(callId))
                 COUNT_OVERSIKTHENDELSE_MOTEBEHOV_SVAR_MOTTATT_OPPRETT.inc()
             }
-            erPersonsEnhetOppdatert(person, oversiktHendelse) -> {
+            erPersonsEnhetOppdatert(person, oversiktHendelse.enhetId) -> {
                 database.oppdaterPersonMedMotebehovMottattNyEnhet(oversiktHendelse)
                 log.info("Oppdatert person basert pa oversikthendelse med motebehovsvar mottatt med ny enhet, {}", CallIdArgument(callId))
                 COUNT_OVERSIKTHENDELSE_MOTEBEHOV_SVAR_MOTTATT_OPPDATER_ENHET.inc()
@@ -105,9 +105,11 @@ class OversiktHendelseService(private val database: DatabaseInterface) {
         }
     }
 
-    fun erPersonsEnhetOppdatert(person: List<PersonOversiktStatus>, oversiktHendelse: KOversikthendelse): Boolean {
-        val enhet = person[0].enhet
-        val nyEnhet = oversiktHendelse.enhetId
-        return nyEnhet.isNotEmpty() && nyEnhet != enhet
+    companion object {
+
+        fun erPersonsEnhetOppdatert(person: List<PersonOversiktStatus>, nyEnhetId: String): Boolean {
+            val enhet = person[0].enhet
+            return nyEnhetId.isNotEmpty() && nyEnhetId != enhet
+        }
     }
 }
