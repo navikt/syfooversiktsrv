@@ -2,8 +2,7 @@ package no.nav.syfo.personstatus
 
 import no.nav.syfo.db.DatabaseInterface
 import no.nav.syfo.db.toList
-import no.nav.syfo.personstatus.domain.PersonOversiktStatus
-import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
+import no.nav.syfo.personstatus.domain.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.sql.ResultSet
@@ -15,6 +14,20 @@ const val KNYTNING_IKKE_FUNNET = 0L
 
 val DatabaseInterface.LOG: Logger
     get() = LoggerFactory.getLogger("no.nav.syfo.DatabaseInterface")
+
+const val queryHentPersonResultatInternal = """
+                         SELECT *
+                         FROM PERSON_OVERSIKT_STATUS
+                         WHERE fnr=?
+                """
+fun DatabaseInterface.hentPersonResultatInternal(fnr: String): List<PersonOversiktStatusInternal> {
+    return connection.use { connection ->
+        connection.prepareStatement(queryHentPersonResultatInternal).use {
+            it.setString(1, fnr)
+            it.executeQuery().toList { toPersonOversiktStatusInternal() }
+        }
+    }
+}
 
 fun DatabaseInterface.hentPersonResultat(fnr: String): List<PersonOversiktStatus> {
     val query = """
@@ -127,6 +140,16 @@ fun DatabaseInterface.oppdaterEnhetDersomKnytningFinnes(veilederBrukerKnytning: 
     }
     return id
 }
+
+fun ResultSet.toPersonOversiktStatusInternal(): PersonOversiktStatusInternal =
+        PersonOversiktStatusInternal(
+                id = getInt("id"),
+                veilederIdent = getString("tildelt_veileder"),
+                fnr = getString("fnr"),
+                enhet = getString("tildelt_enhet"),
+                motebehovUbehandlet = getObject("motebehov_ubehandlet") as Boolean?,
+                moteplanleggerUbehandlet = getObject("moteplanlegger_ubehandlet") as Boolean?
+        )
 
 fun ResultSet.toPersonOversiktStatus(): PersonOversiktStatus =
         PersonOversiktStatus(
