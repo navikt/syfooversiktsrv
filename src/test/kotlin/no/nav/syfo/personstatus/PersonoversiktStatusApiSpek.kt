@@ -56,10 +56,6 @@ object PersonoversiktStatusApiSpek : Spek({
             client
     )
     val oversiktHendelseService = OversiktHendelseService(database)
-    val veilederConsumer = VeilederConsumer(
-            env.syfoveilederUrl,
-            clientVeileder
-    )
 
     afterGroup {
         database.stop()
@@ -79,7 +75,7 @@ object PersonoversiktStatusApiSpek : Spek({
             }
 
             application.routing {
-                registerPersonoversiktApi(tilgangskontrollConsumer, PersonoversiktStatusService(database, veilederConsumer))
+                registerPersonoversiktApi(tilgangskontrollConsumer, PersonoversiktStatusService(database))
             }
 
             beforeEachTest {
@@ -129,8 +125,6 @@ object PersonoversiktStatusApiSpek : Spek({
                         personOversiktStatus.enhet shouldEqual oversiktHendelse.enhetId
                         personOversiktStatus.motebehovUbehandlet shouldEqual true
                         personOversiktStatus.moteplanleggerUbehandlet shouldEqual null
-                        personOversiktStatus.veileder?.fornavn shouldEqual VEILEDER_FORNAVN
-                        personOversiktStatus.veileder?.etternavn shouldEqual VEILEDER_ETTERNAVN
                     }
                 }
 
@@ -158,8 +152,6 @@ object PersonoversiktStatusApiSpek : Spek({
                         personOversiktStatus.enhet shouldEqual oversiktHendelse.enhetId
                         personOversiktStatus.motebehovUbehandlet shouldEqual null
                         personOversiktStatus.moteplanleggerUbehandlet shouldEqual true
-                        personOversiktStatus.veileder?.fornavn shouldEqual VEILEDER_FORNAVN
-                        personOversiktStatus.veileder?.etternavn shouldEqual VEILEDER_ETTERNAVN
                     }
                 }
 
