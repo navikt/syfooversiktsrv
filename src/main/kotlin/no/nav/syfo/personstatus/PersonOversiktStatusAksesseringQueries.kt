@@ -20,16 +20,16 @@ const val queryHentPersonResultatInternal = """
                          FROM PERSON_OVERSIKT_STATUS
                          WHERE fnr=?
                 """
-fun DatabaseInterface.hentPersonResultatInternal(fnr: String): List<PersonOversiktStatusInternal> {
+fun DatabaseInterface.hentPersonResultatInternal(fnr: String): List<PPersonOversiktStatus> {
     return connection.use { connection ->
         connection.prepareStatement(queryHentPersonResultatInternal).use {
             it.setString(1, fnr)
-            it.executeQuery().toList { toPersonOversiktStatusInternal() }
+            it.executeQuery().toList { toPPersonOversiktStatus() }
         }
     }
 }
 
-fun DatabaseInterface.hentPersonResultat(fnr: String): List<PersonOversiktStatus> {
+fun DatabaseInterface.hentPersonResultat(fnr: String): List<PPersonOversiktStatus> {
     val query = """
                          SELECT *
                          FROM PERSON_OVERSIKT_STATUS
@@ -38,7 +38,7 @@ fun DatabaseInterface.hentPersonResultat(fnr: String): List<PersonOversiktStatus
     return connection.use { connection ->
         connection.prepareStatement(query).use {
             it.setString(1, fnr)
-            it.executeQuery().toList { toPersonOversiktStatus() }
+            it.executeQuery().toList { toPPersonOversiktStatus() }
         }
     }
 }
@@ -49,11 +49,11 @@ const val queryHentPersonerTilknyttetEnhet = """
                         WHERE tildelt_enhet = ?
                 """
 
-fun DatabaseInterface.hentPersonerTilknyttetEnhet(enhet: String): List<PersonOversiktStatus> {
+fun DatabaseInterface.hentPersonerTilknyttetEnhet(enhet: String): List<PPersonOversiktStatus> {
     return connection.use { connection ->
         connection.prepareStatement(queryHentPersonerTilknyttetEnhet).use {
             it.setString(1, enhet)
-            it.executeQuery().toList { toPersonOversiktStatus() }
+            it.executeQuery().toList { toPPersonOversiktStatus() }
         }
     }
 }
@@ -141,18 +141,9 @@ fun DatabaseInterface.oppdaterEnhetDersomKnytningFinnes(veilederBrukerKnytning: 
     return id
 }
 
-fun ResultSet.toPersonOversiktStatusInternal(): PersonOversiktStatusInternal =
-        PersonOversiktStatusInternal(
+fun ResultSet.toPPersonOversiktStatus(): PPersonOversiktStatus =
+        PPersonOversiktStatus(
                 id = getInt("id"),
-                veilederIdent = getString("tildelt_veileder"),
-                fnr = getString("fnr"),
-                enhet = getString("tildelt_enhet"),
-                motebehovUbehandlet = getObject("motebehov_ubehandlet") as Boolean?,
-                moteplanleggerUbehandlet = getObject("moteplanlegger_ubehandlet") as Boolean?
-        )
-
-fun ResultSet.toPersonOversiktStatus(): PersonOversiktStatus =
-        PersonOversiktStatus(
                 veilederIdent = getString("tildelt_veileder"),
                 fnr = getString("fnr"),
                 enhet = getString("tildelt_enhet"),

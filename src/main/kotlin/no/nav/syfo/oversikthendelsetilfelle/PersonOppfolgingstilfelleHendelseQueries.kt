@@ -3,12 +3,42 @@ package no.nav.syfo.oversikthendelsetilfelle
 import no.nav.syfo.db.DatabaseInterface
 import no.nav.syfo.db.toList
 import no.nav.syfo.oversikthendelsetilfelle.domain.KOversikthendelsetilfelle
-import no.nav.syfo.oversikthendelsetilfelle.domain.PersonOppfolgingstilfelleInternal
+import no.nav.syfo.oversikthendelsetilfelle.domain.PPersonOppfolgingstilfelle
 import no.nav.syfo.util.convert
 import java.sql.*
 import java.sql.Types.NULL
 import java.time.Instant
 import java.util.*
+
+const val queryHentPersonsOppfolgingstilfellerGjeldendeI8UkerUtenAktivitet = """
+                        SELECT *
+                        FROM PERSON_OPPFOLGINGSTILFELLE
+                        WHERE person_oversikt_status_id = ? AND gradert = 'f' AND fom <= now() - interval '8 week' AND tom > now() - interval '17 day'
+                """
+
+fun DatabaseInterface.hentPersonsOppfolgingstilfellerGjeldendeI8UkerUtenAktivitet(personId: Int): List<PPersonOppfolgingstilfelle> {
+    return connection.use { connection ->
+        connection.prepareStatement(queryHentPersonsOppfolgingstilfellerGjeldendeI8UkerUtenAktivitet).use {
+            it.setInt(1, personId)
+            it.executeQuery().toList { toPPersonOppfolgingstilfelle() }
+        }
+    }
+}
+
+const val queryHentOppfolgingstilfelleForPerson = """
+                         SELECT *
+                         FROM PERSON_OPPFOLGINGSTILFELLE
+                         WHERE person_oversikt_status_id = ?
+                """
+
+fun DatabaseInterface.hentOppfolgingstilfellerForPerson(personId: Int): List<PPersonOppfolgingstilfelle> {
+    return connection.use { connection ->
+        connection.prepareStatement(queryHentOppfolgingstilfelleForPerson).use {
+            it.setInt(1, personId)
+            it.executeQuery().toList { toPPersonOppfolgingstilfelle() }
+        }
+    }
+}
 
 const val queryHentOppfolgingstilfelleResultat = """
                          SELECT *
@@ -16,12 +46,12 @@ const val queryHentOppfolgingstilfelleResultat = """
                          WHERE (person_oversikt_status_id = ? AND virksomhetsnummer = ?)
                 """
 
-fun DatabaseInterface.hentOppfolgingstilfelleResultat(personId: Int, virksomhetsnummer: String): List<PersonOppfolgingstilfelleInternal> {
+fun DatabaseInterface.hentOppfolgingstilfelleResultat(personId: Int, virksomhetsnummer: String): List<PPersonOppfolgingstilfelle> {
     return connection.use { connection ->
         connection.prepareStatement(queryHentOppfolgingstilfelleResultat).use {
             it.setInt(1, personId)
             it.setString(2, virksomhetsnummer)
-            it.executeQuery().toList { toPersonOppfolgingstilfelleInternal() }
+            it.executeQuery().toList { toPPersonOppfolgingstilfelle() }
         }
     }
 }
@@ -165,8 +195,8 @@ fun DatabaseInterface.oppdaterPersonOppfolgingstilfelleMottatt(personId: Int, ov
     opprettEllerOppdaterOppfolgingstilfelle(personId, oversikthendelsetilfelle)
 }
 
-fun ResultSet.toPersonOppfolgingstilfelleInternal(): PersonOppfolgingstilfelleInternal =
-        PersonOppfolgingstilfelleInternal(
+fun ResultSet.toPPersonOppfolgingstilfelle(): PPersonOppfolgingstilfelle =
+        PPersonOppfolgingstilfelle(
                 id = getInt("id"),
                 personOversiktStatusId = getInt("person_oversikt_status_id"),
                 virksomhetsnummer = getString("virksomhetsnummer"),

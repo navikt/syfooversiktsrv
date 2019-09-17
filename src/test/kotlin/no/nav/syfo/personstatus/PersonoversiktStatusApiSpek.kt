@@ -23,17 +23,21 @@ import kotlinx.coroutines.io.ByteReadChannel
 import no.nav.syfo.auth.getTokenFromCookie
 import no.nav.syfo.auth.isInvalidToken
 import no.nav.syfo.getEnvironment
+import no.nav.syfo.oversikthendelsetilfelle.OversikthendelstilfelleService
+import no.nav.syfo.oversikthendelsetilfelle.domain.KOversikthendelsetilfelle
+import no.nav.syfo.oversikthendelsetilfelle.generateOversikthendelsetilfelle
 import no.nav.syfo.personstatus.domain.*
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testutil.UserConstants.NAV_ENHET
-import no.nav.syfo.testutil.UserConstants.VEILEDER_ETTERNAVN
-import no.nav.syfo.testutil.UserConstants.VEILEDER_FORNAVN
 import no.nav.syfo.testutil.UserConstants.VEILEDER_ID
+import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER
+import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER_2
 import no.nav.syfo.tilgangskontroll.TilgangskontrollConsumer
 import org.amshove.kluent.shouldEqual
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 private val objectMapper: ObjectMapper = ObjectMapper().apply {
@@ -56,6 +60,7 @@ object PersonoversiktStatusApiSpek : Spek({
             client
     )
     val oversiktHendelseService = OversiktHendelseService(database)
+    val oversikthendelstilfelleService = OversikthendelstilfelleService(database)
 
     afterGroup {
         database.stop()
@@ -155,7 +160,7 @@ object PersonoversiktStatusApiSpek : Spek({
                     }
                 }
 
-                it("skal hente returnere NoContent, om alle personer i personoversikt er behandlet") {
+                it("skal returnere NoContent, om alle personer i personoversikt er behandlet og ikke har oppfolgingstilfelle") {
                     every {
                         isInvalidToken(any())
                     } returns false
@@ -182,6 +187,259 @@ object PersonoversiktStatusApiSpek : Spek({
                         call.request.cookies[cookies]
                     }) {
                         response.status() shouldEqual HttpStatusCode.NoContent
+                    }
+                }
+
+                it("should return list of PersonOversiktStatus, if there is a person with a relevant active Oppfolgingstilfelle") {
+                    every {
+                        isInvalidToken(any())
+                    } returns false
+                    every {
+                        getTokenFromCookie(any())
+                    } returns "token"
+
+                    val oversikthendelstilfelle = generateOversikthendelsetilfelle.copy(
+                            enhetId = NAV_ENHET,
+                            gradert = false,
+                            fom = LocalDate.now().minusDays(56),
+                            tom = LocalDate.now()
+                    )
+                    oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
+
+                    with(handleRequest(HttpMethod.Get, url) {
+                        call.request.cookies[cookies]
+                    }) {
+                        response.status() shouldEqual HttpStatusCode.OK
+                        val personOversiktStatus = objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!).first()
+                        personOversiktStatus.veilederIdent shouldEqual null
+                        personOversiktStatus.fnr shouldEqual oversikthendelstilfelle.fnr
+                        personOversiktStatus.enhet shouldEqual oversikthendelstilfelle.enhetId
+                        personOversiktStatus.motebehovUbehandlet shouldEqual null
+                        personOversiktStatus.moteplanleggerUbehandlet shouldEqual null
+
+                        personOversiktStatus.oppfolgingstilfeller.size shouldEqual 1
+                        checkPersonOppfolgingstilfelle(personOversiktStatus.oppfolgingstilfeller.first(), oversikthendelstilfelle)
+                    }
+                }
+
+                it("should return list of PersonOversiktStatus, if there is a person with 2 relevant active Oppfolgingstilfelle with different virksomhetsnummer") {
+                    every {
+                        isInvalidToken(any())
+                    } returns false
+                    every {
+                        getTokenFromCookie(any())
+                    } returns "token"
+
+                    val oversikthendelstilfelle = generateOversikthendelsetilfelle.copy(
+                            virksomhetsnummer = VIRKSOMHETSNUMMER,
+                            enhetId = NAV_ENHET,
+                            gradert = false,
+                            fom = LocalDate.now().minusDays(56),
+                            tom = LocalDate.now()
+                    )
+                    val oversikthendelstilfelle2 = oversikthendelstilfelle.copy(
+                            virksomhetsnummer = VIRKSOMHETSNUMMER_2
+                    )
+                    oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
+                    oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle2)
+
+                    with(handleRequest(HttpMethod.Get, url) {
+                        call.request.cookies[cookies]
+                    }) {
+                        response.status() shouldEqual HttpStatusCode.OK
+                        val personOversiktStatus = objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!).first()
+                        personOversiktStatus.veilederIdent shouldEqual null
+                        personOversiktStatus.fnr shouldEqual oversikthendelstilfelle.fnr
+                        personOversiktStatus.enhet shouldEqual oversikthendelstilfelle.enhetId
+                        personOversiktStatus.motebehovUbehandlet shouldEqual null
+                        personOversiktStatus.moteplanleggerUbehandlet shouldEqual null
+
+                        personOversiktStatus.oppfolgingstilfeller.size shouldEqual 2
+                        checkPersonOppfolgingstilfelle(personOversiktStatus.oppfolgingstilfeller.first(), oversikthendelstilfelle)
+                        checkPersonOppfolgingstilfelle(personOversiktStatus.oppfolgingstilfeller.last(), oversikthendelstilfelle2)
+                    }
+                }
+
+                it("should return list of PersonOversiktStatus, if there is a person with a relevant Oppfolgingstilfelle valid in Arbeidsgiverperiode") {
+                    every {
+                        isInvalidToken(any())
+                    } returns false
+                    every {
+                        getTokenFromCookie(any())
+                    } returns "token"
+
+                    val oversikthendelstilfelle = generateOversikthendelsetilfelle.copy(
+                            enhetId = NAV_ENHET,
+                            gradert = false,
+                            fom = LocalDate.now().minusDays(56),
+                            tom = LocalDate.now().minusDays(16)
+                    )
+                    oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
+
+                    with(handleRequest(HttpMethod.Get, url) {
+                        call.request.cookies[cookies]
+                    }) {
+                        response.status() shouldEqual HttpStatusCode.OK
+                        val personOversiktStatus = objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!).first()
+                        personOversiktStatus.veilederIdent shouldEqual null
+                        personOversiktStatus.fnr shouldEqual oversikthendelstilfelle.fnr
+                        personOversiktStatus.enhet shouldEqual oversikthendelstilfelle.enhetId
+                        personOversiktStatus.motebehovUbehandlet shouldEqual null
+                        personOversiktStatus.moteplanleggerUbehandlet shouldEqual null
+
+                        personOversiktStatus.oppfolgingstilfeller.size shouldEqual 1
+                        checkPersonOppfolgingstilfelle(personOversiktStatus.oppfolgingstilfeller.first(), oversikthendelstilfelle)
+                    }
+                }
+
+                it("should not return person with a Oppfolgingstilfelle that is not valid after today + Arbeidsgiverperiode") {
+                    every {
+                        isInvalidToken(any())
+                    } returns false
+                    every {
+                        getTokenFromCookie(any())
+                    } returns "token"
+
+                    val oversikthendelstilfelle = generateOversikthendelsetilfelle.copy(
+                            enhetId = NAV_ENHET,
+                            gradert = false,
+                            fom = LocalDate.now().minusDays(56),
+                            tom = LocalDate.now().minusDays(17)
+                    )
+                    oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
+
+                    with(handleRequest(HttpMethod.Get, url) {
+                        call.request.cookies[cookies]
+                    }) {
+                        response.status() shouldEqual HttpStatusCode.NoContent
+                    }
+                }
+
+                it("should not return a person with a Oppfolgingstilfelle that is Gradert") {
+                    every {
+                        isInvalidToken(any())
+                    } returns false
+                    every {
+                        getTokenFromCookie(any())
+                    } returns "token"
+
+                    val oversikthendelstilfelle = generateOversikthendelsetilfelle.copy(
+                            enhetId = NAV_ENHET,
+                            gradert = true,
+                            fom = LocalDate.now().minusDays(56),
+                            tom = LocalDate.now().plusDays(16)
+                    )
+                    oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
+
+                    with(handleRequest(HttpMethod.Get, url) {
+                        call.request.cookies[cookies]
+                    }) {
+                        response.status() shouldEqual HttpStatusCode.NoContent
+                    }
+                }
+
+                it("should not return a person with a Oppfolgingstilfelle that is not 8 weeks old") {
+                    every {
+                        isInvalidToken(any())
+                    } returns false
+                    every {
+                        getTokenFromCookie(any())
+                    } returns "token"
+
+                    val oversikthendelstilfelle = generateOversikthendelsetilfelle.copy(
+                            enhetId = NAV_ENHET,
+                            gradert = false,
+                            fom = LocalDate.now().minusDays(55),
+                            tom = LocalDate.now().plusDays(16)
+                    )
+                    oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
+
+                    with(handleRequest(HttpMethod.Get, url) {
+                        call.request.cookies[cookies]
+                    }) {
+                        response.status() shouldEqual HttpStatusCode.NoContent
+                    }
+                }
+
+                it("should return Person, with MOTEBEHOV_SVAR_MOTTATT && MOTEPLANLEGGER_ALLE_SVAR_MOTTATT, and then receives Oppfolgingstilfelle") {
+                    every {
+                        isInvalidToken(any())
+                    } returns false
+                    every {
+                        getTokenFromCookie(any())
+                    } returns "token"
+
+                    val oversiktHendelse = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
+                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
+
+                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
+                    database.connection.tildelVeilederTilPerson(tilknytning)
+
+                    val oversiktHendelseMoteplanleggerMottatt = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
+                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerMottatt)
+
+                    val oversikthendelstilfelle = generateOversikthendelsetilfelle.copy(
+                            enhetId = NAV_ENHET,
+                            gradert = false,
+                            fom = LocalDate.now().minusDays(56),
+                            tom = LocalDate.now()
+                    )
+                    oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
+
+                    with(handleRequest(HttpMethod.Get, url) {
+                        call.request.cookies[cookies]
+                    }) {
+                        response.status() shouldEqual HttpStatusCode.OK
+                        val personOversiktStatus = objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!).first()
+                        personOversiktStatus.veilederIdent shouldEqual tilknytning.veilederIdent
+                        personOversiktStatus.fnr shouldEqual oversikthendelstilfelle.fnr
+                        personOversiktStatus.enhet shouldEqual oversikthendelstilfelle.enhetId
+                        personOversiktStatus.motebehovUbehandlet shouldEqual true
+                        personOversiktStatus.moteplanleggerUbehandlet shouldEqual true
+
+                        personOversiktStatus.oppfolgingstilfeller.size shouldEqual 1
+                        checkPersonOppfolgingstilfelle(personOversiktStatus.oppfolgingstilfeller.first(), oversikthendelstilfelle)
+                    }
+                }
+
+                it("should return Person, receives Oppfolgingstilfelle, and then MOTEBEHOV_SVAR_MOTTATT and MOTEPLANLEGGER_ALLE_SVAR_MOTTATT") {
+                    every {
+                        isInvalidToken(any())
+                    } returns false
+                    every {
+                        getTokenFromCookie(any())
+                    } returns "token"
+
+                    val oversikthendelstilfelle = generateOversikthendelsetilfelle.copy(
+                            enhetId = NAV_ENHET,
+                            gradert = false,
+                            fom = LocalDate.now().minusDays(56),
+                            tom = LocalDate.now()
+                    )
+                    oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
+
+                    val oversiktHendelse = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
+                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
+
+                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
+                    database.connection.tildelVeilederTilPerson(tilknytning)
+
+                    val oversiktHendelseMoteplanleggerMottatt = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
+                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerMottatt)
+
+                    with(handleRequest(HttpMethod.Get, url) {
+                        call.request.cookies[cookies]
+                    }) {
+                        response.status() shouldEqual HttpStatusCode.OK
+                        val personOversiktStatus = objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!).first()
+                        personOversiktStatus.veilederIdent shouldEqual tilknytning.veilederIdent
+                        personOversiktStatus.fnr shouldEqual oversikthendelstilfelle.fnr
+                        personOversiktStatus.enhet shouldEqual oversikthendelstilfelle.enhetId
+                        personOversiktStatus.motebehovUbehandlet shouldEqual true
+                        personOversiktStatus.moteplanleggerUbehandlet shouldEqual true
+
+                        personOversiktStatus.oppfolgingstilfeller.size shouldEqual 1
+                        checkPersonOppfolgingstilfelle(personOversiktStatus.oppfolgingstilfeller.first(), oversikthendelstilfelle)
                     }
                 }
             }
@@ -218,33 +476,12 @@ private val client = HttpClient(MockEngine) {
     }
 }
 
-@InternalAPI
-private val clientVeileder = HttpClient(MockEngine) {
-    val baseUrl = env.syfoveilederUrl
-    engine {
-        addHandler { request ->
-            when (request.url.fullUrl) {
-                "$baseUrl/syfoveileder/api/veiledere/enhet/$NAV_ENHET" -> {
-                    val responseHeaders = headersOf("Content-Type" to listOf(ContentType.Application.Json.toString()))
-                    respond(ByteReadChannel((
-                            "[{\"ident\":\"Z999999\",\"fornavn\":\"$VEILEDER_FORNAVN\"," +
-                                    "\"etternavn\":\"$VEILEDER_ETTERNAVN\",\"enhetNr\":\"$NAV_ENHET\",\"enhetNavn\":\"NAV X-FILES\"}]"
-
-                            )
-                            .toByteArray(Charsets.UTF_8)), HttpStatusCode.OK, responseHeaders)
-                }
-                else -> error("Unhandled ${request.url.fullUrl}")
-            }
-        }
-    }
-    install(JsonFeature) {
-        serializer = JacksonSerializer {
-            registerKotlinModule()
-            registerModule(JavaTimeModule())
-            configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-        }
-    }
-}
-
 private val Url.hostWithPortIfRequired: String get() = if (port == protocol.defaultPort) host else hostWithPort
 private val Url.fullUrl: String get() = "${protocol.name}://$hostWithPortIfRequired$fullPath"
+
+
+fun checkPersonOppfolgingstilfelle(oppfolgingstilfelle: Oppfolgingstilfelle, oversikthendelsetilfelle: KOversikthendelsetilfelle) {
+    oppfolgingstilfelle.virksomhetsnummer shouldEqual oversikthendelsetilfelle.virksomhetsnummer
+    oppfolgingstilfelle.fom shouldEqual oversikthendelsetilfelle.fom
+    oppfolgingstilfelle.tom shouldEqual oversikthendelsetilfelle.tom
+}

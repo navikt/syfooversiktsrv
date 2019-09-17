@@ -1,8 +1,8 @@
 package no.nav.syfo.testutil
 
 import no.nav.syfo.db.*
-import no.nav.syfo.oversikthendelsetilfelle.domain.PersonOppfolgingstilfelleInternal
-import no.nav.syfo.oversikthendelsetilfelle.toPersonOppfolgingstilfelleInternal
+import no.nav.syfo.oversikthendelsetilfelle.domain.PPersonOppfolgingstilfelle
+import no.nav.syfo.oversikthendelsetilfelle.toPPersonOppfolgingstilfelle
 import no.nav.syfo.personstatus.*
 import no.nav.syfo.personstatus.domain.*
 import org.testcontainers.containers.PostgreSQLContainer
@@ -76,20 +76,20 @@ fun Connection.tildelVeilederTilPerson(veilederBrukerKnytning: VeilederBrukerKny
     }
 }
 
-fun Connection.hentPersonerTilknyttetEnhet(enhet: String): List<PersonOversiktStatus> {
+fun Connection.hentPersonerTilknyttetEnhet(enhet: String): List<PPersonOversiktStatus> {
     return use { connection ->
         connection.prepareStatement(queryHentPersonerTilknyttetEnhet).use {
             it.setString(1, enhet)
-            it.executeQuery().toList { toPersonOversiktStatus() }
+            it.executeQuery().toList { toPPersonOversiktStatus() }
         }
     }
 }
 
-fun Connection.hentPersonResultatInternal(fnr: String): List<PersonOversiktStatusInternal> {
+fun Connection.hentPersonResultatInternal(fnr: String): List<PPersonOversiktStatus> {
     return use { connection ->
         connection.prepareStatement(queryHentPersonResultatInternal).use {
             it.setString(1, fnr)
-            it.executeQuery().toList { toPersonOversiktStatusInternal() }
+            it.executeQuery().toList { toPPersonOversiktStatus() }
         }
     }
 }
@@ -100,11 +100,11 @@ const val queryHentOppfolgingstilfelleResultatForPerson = """
                          WHERE person_oversikt_status_id = ?
                 """
 
-fun Connection.hentOppfolgingstilfelleResultat(personId: Int): List<PersonOppfolgingstilfelleInternal> {
+fun Connection.hentOppfolgingstilfelleResultat(personId: Int): List<PPersonOppfolgingstilfelle> {
     return use { connection ->
         connection.prepareStatement(queryHentOppfolgingstilfelleResultatForPerson).use {
             it.setInt(1, personId)
-            it.executeQuery().toList { toPersonOppfolgingstilfelleInternal() }
+            it.executeQuery().toList { toPPersonOppfolgingstilfelle() }
         }
     }
 }

@@ -1,6 +1,6 @@
 package no.nav.syfo.personstatus.domain
 
-data class PersonOversiktStatusInternal(
+data class PPersonOversiktStatus(
         val veilederIdent: String?,
         val fnr: String,
         val id: Int,
