@@ -1,11 +1,10 @@
 package no.nav.syfo.personstatus
 
 import io.ktor.application.call
-import io.ktor.http.*
+import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
 import io.ktor.routing.*
 import no.nav.syfo.auth.getTokenFromCookie
-import no.nav.syfo.auth.isInvalidToken
 import no.nav.syfo.metric.COUNT_PERSONOVERSIKTSTATUS_ENHET_HENTET
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.tilgangskontroll.TilgangskontrollConsumer
@@ -31,7 +30,7 @@ fun Route.registerPersonoversiktApi(
                     when (tilgangskontrollConsumer.harVeilederTilgangTilEnhet(enhet, token, callId)) {
                         true -> {
                             val personListe: List<PersonOversiktStatus> = personoversiktStatusService
-                                    .hentPersonoversiktStatusTilknyttetEnhet(enhet, token)
+                                    .hentPersonoversiktStatusTilknyttetEnhet(enhet)
                                     .filter { tilgangskontrollConsumer.harVeilederTilgangTilPerson(it.fnr, token, callId) }
 
                             when {

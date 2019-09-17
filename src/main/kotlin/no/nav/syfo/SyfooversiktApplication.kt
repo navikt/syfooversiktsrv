@@ -261,8 +261,7 @@ fun Application.serverModule() {
     val httpClient = HttpClient(Apache, config)
 
     val personTildelingService = PersonTildelingService(database)
-    val veilederConsumer = VeilederConsumer(env.syfoveilederUrl, httpClient)
-    val personoversiktStatusService = PersonoversiktStatusService(database, veilederConsumer)
+    val personoversiktStatusService = PersonoversiktStatusService(database)
     val tilgangskontrollConsumer = TilgangskontrollConsumer(env.syfotilgangskontrollUrl, httpClient)
 
     routing {

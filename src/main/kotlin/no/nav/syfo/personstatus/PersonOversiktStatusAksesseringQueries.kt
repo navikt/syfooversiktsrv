@@ -132,7 +132,6 @@ fun ResultSet.toPersonOversiktStatus(): PersonOversiktStatus =
         PersonOversiktStatus(
                 veilederIdent = getString("tildelt_veileder"),
                 fnr = getString("fnr"),
-                veileder = null,
                 enhet = getString("tildelt_enhet"),
                 motebehovUbehandlet = getObject("motebehov_ubehandlet") as Boolean?,
                 moteplanleggerUbehandlet = getObject("moteplanlegger_ubehandlet") as Boolean?
