@@ -1,11 +1,11 @@
 package no.nav.syfo.testutil
 
 import no.nav.syfo.db.*
-import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
-import org.testcontainers.containers.PostgreSQLContainer
+import no.nav.syfo.oversikthendelsetilfelle.domain.PersonOppfolgingstilfelleInternal
+import no.nav.syfo.oversikthendelsetilfelle.toPersonOppfolgingstilfelleInternal
 import no.nav.syfo.personstatus.*
 import no.nav.syfo.personstatus.domain.*
-
+import org.testcontainers.containers.PostgreSQLContainer
 import java.sql.Connection
 import java.sql.Timestamp
 import java.time.Instant
@@ -81,6 +81,30 @@ fun Connection.hentPersonerTilknyttetEnhet(enhet: String): List<PersonOversiktSt
         connection.prepareStatement(queryHentPersonerTilknyttetEnhet).use {
             it.setString(1, enhet)
             it.executeQuery().toList { toPersonOversiktStatus() }
+        }
+    }
+}
+
+fun Connection.hentPersonResultatInternal(fnr: String): List<PersonOversiktStatusInternal> {
+    return use { connection ->
+        connection.prepareStatement(queryHentPersonResultatInternal).use {
+            it.setString(1, fnr)
+            it.executeQuery().toList { toPersonOversiktStatusInternal() }
+        }
+    }
+}
+
+const val queryHentOppfolgingstilfelleResultatForPerson = """
+                         SELECT *
+                         FROM PERSON_OPPFOLGINGSTILFELLE
+                         WHERE person_oversikt_status_id = ?
+                """
+
+fun Connection.hentOppfolgingstilfelleResultat(personId: Int): List<PersonOppfolgingstilfelleInternal> {
+    return use { connection ->
+        connection.prepareStatement(queryHentOppfolgingstilfelleResultatForPerson).use {
+            it.setInt(1, personId)
+            it.executeQuery().toList { toPersonOppfolgingstilfelleInternal() }
         }
     }
 }
