@@ -5,30 +5,30 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 group = "no.nav.syfo"
 version = "1.0-SNAPSHOT"
 
-val coroutinesVersion = "1.2.1"
-val kluentVersion = "1.39"
-val ktorVersion = "1.2.0"
-val logbackVersion = "1.2.3"
-val prometheusVersion = "0.5.0"
-val spekVersion = "2.0.4"
-val logstashEncoderVersion = "5.1"
-val jacksonVersion = "2.9.8"
-val postgresVersion = "42.2.5"
-val h2Version = "1.4.197"
+val coroutinesVersion = "1.3.1"
 val flywayVersion = "5.2.4"
+val jacksonVersion = "2.9.8"
 val hikariVersion = "3.3.0"
-val vaultJavaDriveVersion = "3.1.0"
-val mockkVersion = "1.9"
+val h2Version = "1.4.197"
 val kafkaVersion = "2.0.0"
 val kafkaEmbeddedVersion = "2.0.2"
+val kluentVersion = "1.39"
+val ktorVersion = "1.2.4"
+val logbackVersion = "1.2.3"
+val logstashEncoderVersion = "5.1"
+val mockkVersion = "1.9.3"
+val postgresVersion = "42.2.5"
+val prometheusVersion = "0.5.0"
+val spekVersion = "2.0.7"
 val smCommonVersion = "1.0.22"
+val vaultJavaDriveVersion = "3.1.0"
 
 tasks.withType<Jar> {
     manifest.attributes["Main-Class"] = "no.nav.syfo.SyfooversiktApplicationKt"
 }
 
 plugins {
-    kotlin("jvm") version "1.3.21"
+    kotlin("jvm") version "1.3.50"
     id("com.diffplug.gradle.spotless") version "3.18.0"
     id("com.github.johnrengelman.shadow") version "4.0.4"
 }
