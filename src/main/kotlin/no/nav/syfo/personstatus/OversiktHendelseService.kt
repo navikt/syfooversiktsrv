@@ -107,7 +107,7 @@ class OversiktHendelseService(private val database: DatabaseInterface) {
 
     companion object {
 
-        fun erPersonsEnhetOppdatert(person: List<PersonOversiktStatus>, nyEnhetId: String): Boolean {
+        fun erPersonsEnhetOppdatert(person: List<PPersonOversiktStatus>, nyEnhetId: String): Boolean {
             val enhet = person[0].enhet
             return nyEnhetId.isNotEmpty() && nyEnhetId != enhet
         }

@@ -5,5 +5,6 @@ data class PersonOversiktStatus(
         val fnr: String,
         val enhet: String,
         val motebehovUbehandlet: Boolean?,
-        val moteplanleggerUbehandlet: Boolean?
+        val moteplanleggerUbehandlet: Boolean?,
+        val oppfolgingstilfeller: List<Oppfolgingstilfelle>
 )

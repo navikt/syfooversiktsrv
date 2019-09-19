@@ -9,13 +9,12 @@ import io.ktor.jackson.jackson
 import io.ktor.server.testing.TestApplicationEngine
 import io.ktor.util.InternalAPI
 import no.nav.syfo.oversikthendelsetilfelle.domain.KOversikthendelsetilfelle
-import no.nav.syfo.oversikthendelsetilfelle.domain.PersonOppfolgingstilfelleInternal
-import no.nav.syfo.personstatus.domain.PersonOversiktStatusInternal
+import no.nav.syfo.oversikthendelsetilfelle.domain.PPersonOppfolgingstilfelle
+import no.nav.syfo.personstatus.domain.PPersonOversiktStatus
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_2_FNR
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
-import no.nav.syfo.testutil.UserConstants.NAV_ENHET
 import no.nav.syfo.testutil.UserConstants.NAV_ENHET_2
 import no.nav.syfo.testutil.UserConstants.VEILEDER_ID
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER
@@ -25,7 +24,6 @@ import org.amshove.kluent.shouldEqual
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import java.time.LocalDate
-import java.time.LocalDateTime
 
 @InternalAPI
 object OversikthendelstilfelleServiceSpek : Spek({
@@ -57,15 +55,7 @@ object OversikthendelstilfelleServiceSpek : Spek({
                 database.connection.dropData()
             }
 
-            val oversikthendelstilfelle = KOversikthendelsetilfelle(
-                    fnr = ARBEIDSTAKER_FNR,
-                    enhetId = NAV_ENHET,
-                    virksomhetsnummer = VIRKSOMHETSNUMMER,
-                    gradert = false,
-                    fom = LocalDate.now().minusDays(30),
-                    tom = LocalDate.now().plusDays(30),
-                    tidspunkt = LocalDateTime.now()
-            )
+            val oversikthendelstilfelle = generateOversikthendelsetilfelle
 
             val tilknytning = VeilederBrukerKnytning(
                     VEILEDER_ID,
@@ -295,18 +285,18 @@ object OversikthendelstilfelleServiceSpek : Spek({
     }
 })
 
-fun checkPersonOversiktStatus(personOversiktStatusInternal: PersonOversiktStatusInternal, oversikthendelsetilfelle: KOversikthendelsetilfelle, veilederIdent: String?) {
-    personOversiktStatusInternal.fnr shouldEqual oversikthendelsetilfelle.fnr
-    personOversiktStatusInternal.veilederIdent shouldEqual veilederIdent
-    personOversiktStatusInternal.enhet shouldEqual oversikthendelsetilfelle.enhetId
-    personOversiktStatusInternal.motebehovUbehandlet shouldEqual null
-    personOversiktStatusInternal.moteplanleggerUbehandlet shouldEqual null
+fun checkPersonOversiktStatus(pPersonOversiktStatus: PPersonOversiktStatus, oversikthendelsetilfelle: KOversikthendelsetilfelle, veilederIdent: String?) {
+    pPersonOversiktStatus.fnr shouldEqual oversikthendelsetilfelle.fnr
+    pPersonOversiktStatus.veilederIdent shouldEqual veilederIdent
+    pPersonOversiktStatus.enhet shouldEqual oversikthendelsetilfelle.enhetId
+    pPersonOversiktStatus.motebehovUbehandlet shouldEqual null
+    pPersonOversiktStatus.moteplanleggerUbehandlet shouldEqual null
 }
 
-fun checkPersonOppfolgingstilfelle(personOppfolgingstilfelleInternal: PersonOppfolgingstilfelleInternal, oversikthendelsetilfelle: KOversikthendelsetilfelle, personId: Int) {
-    personOppfolgingstilfelleInternal.personOversiktStatusId shouldEqual personId
-    personOppfolgingstilfelleInternal.virksomhetsnummer shouldEqual oversikthendelsetilfelle.virksomhetsnummer
-    personOppfolgingstilfelleInternal.gradert shouldEqual oversikthendelsetilfelle.gradert
-    personOppfolgingstilfelleInternal.fom shouldEqual oversikthendelsetilfelle.fom
-    personOppfolgingstilfelleInternal.tom shouldEqual oversikthendelsetilfelle.tom
+fun checkPersonOppfolgingstilfelle(pPersonOppfolgingstilfelle: PPersonOppfolgingstilfelle, oversikthendelsetilfelle: KOversikthendelsetilfelle, personId: Int) {
+    pPersonOppfolgingstilfelle.personOversiktStatusId shouldEqual personId
+    pPersonOppfolgingstilfelle.virksomhetsnummer shouldEqual oversikthendelsetilfelle.virksomhetsnummer
+    pPersonOppfolgingstilfelle.gradert shouldEqual oversikthendelsetilfelle.gradert
+    pPersonOppfolgingstilfelle.fom shouldEqual oversikthendelsetilfelle.fom
+    pPersonOppfolgingstilfelle.tom shouldEqual oversikthendelsetilfelle.tom
 }

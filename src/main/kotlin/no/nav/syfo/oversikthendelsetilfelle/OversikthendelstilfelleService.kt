@@ -4,7 +4,7 @@ import no.nav.syfo.LOG
 import no.nav.syfo.db.DatabaseInterface
 import no.nav.syfo.metric.*
 import no.nav.syfo.oversikthendelsetilfelle.domain.KOversikthendelsetilfelle
-import no.nav.syfo.personstatus.domain.PersonOversiktStatusInternal
+import no.nav.syfo.personstatus.domain.PPersonOversiktStatus
 import no.nav.syfo.personstatus.hentPersonResultatInternal
 import no.nav.syfo.util.CallIdArgument
 
@@ -33,7 +33,7 @@ class OversikthendelstilfelleService(private val database: DatabaseInterface) {
     }
     companion object {
 
-        fun erPersonsEnhetOppdatert(person: List<PersonOversiktStatusInternal>, nyEnhetId: String): Boolean {
+        fun erPersonsEnhetOppdatert(person: List<PPersonOversiktStatus>, nyEnhetId: String): Boolean {
             val enhet = person.first().enhet
             return nyEnhetId.isNotEmpty() && nyEnhetId != enhet
         }
