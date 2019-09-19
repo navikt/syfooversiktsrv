@@ -27,7 +27,7 @@ fun Route.registerPersonoversiktApi(
                     val enhet: String = call.parameters["enhet"]?.takeIf { validateEnhet(it) }
                             ?: throw IllegalArgumentException("Enhet mangler")
 
-                    when (tilgangskontrollConsumer.harVeilederTilgangTilEnhet(enhet, token, callId)) {
+                    when (tilgangskontrollConsumer. harVeilederTilgangTilEnhet(enhet, token, callId)) {
                         true -> {
                             val personListe: List<PersonOversiktStatus> = personoversiktStatusService
                                     .hentPersonoversiktStatusTilknyttetEnhet(enhet)

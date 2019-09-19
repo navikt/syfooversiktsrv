@@ -1,28 +1,42 @@
-package no.nav.syfo
+package no.nav.syfo.kafka
 
+import com.fasterxml.jackson.databind.*
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.readValue
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import no.nav.common.KafkaEnvironment
-import no.nav.syfo.kafka.*
+import no.nav.syfo.Environment
+import no.nav.syfo.VaultSecrets
+import no.nav.syfo.personstatus.domain.KOversikthendelse
+import no.nav.syfo.testutil.generator.generateOversikthendelse
 import org.amshove.kluent.shouldEqual
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.StringDeserializer
-import org.apache.kafka.common.serialization.StringSerializer
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import java.net.ServerSocket
 import java.time.Duration
 import java.util.*
 
+private val objectMapper: ObjectMapper = ObjectMapper().apply {
+    registerKotlinModule()
+    registerModule(JavaTimeModule())
+    configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+    configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+}
+
 object KafkaITSpek : Spek({
-    val topic = "aapen-test-topic"
     fun getRandomPort() = ServerSocket(0).use {
         it.localPort
     }
 
+    val oversiktHendelseTopic = "aapen-syfo-oversikthendelse-v1"
+
     val embeddedEnvironment = KafkaEnvironment(
             autoStart = false,
-            topics = listOf(topic)
+            topics = listOf(oversiktHendelseTopic)
     )
 
     val credentials = VaultSecrets(
@@ -44,7 +58,7 @@ object KafkaITSpek : Spek({
             syfotilgangskontrollUrl = "",
             clientid = "",
             syfoveilederUrl = ""
-            )
+    )
 
     fun Properties.overrideForTest(): Properties = apply {
         remove("security.protocol")
@@ -54,14 +68,14 @@ object KafkaITSpek : Spek({
     val baseConfig = loadBaseConfig(env, credentials).overrideForTest()
 
     val producerProperties = baseConfig
-            .toProducerConfig("spek.integration", valueSerializer = StringSerializer::class)
-    val producer = KafkaProducer<String, String>(producerProperties)
+            .toProducerConfig("spek.integration", valueSerializer = JacksonKafkaSerializer::class)
+    val producer = KafkaProducer<String, KOversikthendelse>(producerProperties)
 
     val consumerProperties = baseConfig
             .toConsumerConfig("spek.integration-consumer", valueDeserializer = StringDeserializer::class)
     val consumer = KafkaConsumer<String, String>(consumerProperties)
 
-    consumer.subscribe(listOf(topic))
+    consumer.subscribe(listOf(oversiktHendelseTopic))
 
     beforeGroup {
         embeddedEnvironment.start()
@@ -71,14 +85,19 @@ object KafkaITSpek : Spek({
         embeddedEnvironment.tearDown()
     }
 
-    describe("Push a message on a topic") {
-        val message = "Test message"
-        it("Can read the messages from the kafka topic") {
-            producer.send(ProducerRecord(topic, message))
+    describe("Produce and consume messages from topic") {
+        it("Topic $oversiktHendelseTopic") {
+            val oversikthendelse = generateOversikthendelse.copy()
+            producer.send(ProducerRecord(oversiktHendelseTopic, oversikthendelse))
 
-            val messages = consumer.poll(Duration.ofMillis(5000)).toList()
+            val messages: ArrayList<KOversikthendelse> = arrayListOf()
+            consumer.poll(Duration.ofMillis(5000)).forEach {
+                val hendelse: KOversikthendelse = objectMapper.readValue(it.value())
+                messages.add(hendelse)
+
+            }
             messages.size shouldEqual 1
-            messages[0].value() shouldEqual message
+            messages.first() shouldEqual oversikthendelse
         }
     }
 })
