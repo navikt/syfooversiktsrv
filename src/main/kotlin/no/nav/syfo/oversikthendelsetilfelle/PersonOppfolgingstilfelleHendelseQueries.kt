@@ -63,16 +63,16 @@ const val queryOppdaterOppfolgingstilfelleMottatt = """
                         WHERE person_oversikt_status_id = ?
                 """
 
-fun DatabaseInterface.oppdaterOppfolgingstilfelleMottatt(personId: Int, oversikthendelsetilfelleV2: KOversikthendelsetilfelleV2) {
+fun DatabaseInterface.oppdaterOppfolgingstilfelleMottatt(personId: Int, oversikthendelsetilfelle: KOversikthendelsetilfelle) {
     val tidspunkt = Timestamp.from(Instant.now())
 
     connection.use { connection ->
         connection.prepareStatement(queryOppdaterOppfolgingstilfelleMottatt).use {
-            it.setBoolean(1, oversikthendelsetilfelleV2.gradert)
-            it.setTimestamp(2, convert(oversikthendelsetilfelleV2.fom))
-            it.setTimestamp(3, convert(oversikthendelsetilfelleV2.tom))
+            it.setBoolean(1, oversikthendelsetilfelle.gradert)
+            it.setTimestamp(2, convert(oversikthendelsetilfelle.fom))
+            it.setTimestamp(3, convert(oversikthendelsetilfelle.tom))
             it.setTimestamp(4, tidspunkt)
-            it.setString(5, oversikthendelsetilfelleV2.virksomhetsnavn)
+            it.setString(5, oversikthendelsetilfelle.virksomhetsnavn)
             it.setInt(6, personId)
             it.execute()
         }
@@ -92,7 +92,7 @@ const val queryOpprettOppfolgingstilfelleMottatt = """INSERT INTO PERSON_OPPFOLG
         opprettet,
         sist_endret) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
 
-fun DatabaseInterface.opprettOppfolgingstilfelleMottatt(personId: Int, oversikthendelsetilfelleV2: KOversikthendelsetilfelleV2) {
+fun DatabaseInterface.opprettOppfolgingstilfelleMottatt(personId: Int, oversikthendelsetilfelle: KOversikthendelsetilfelle) {
     val uuid = UUID.randomUUID().toString()
     val tidspunkt = Timestamp.from(Instant.now())
 
@@ -100,11 +100,11 @@ fun DatabaseInterface.opprettOppfolgingstilfelleMottatt(personId: Int, oversikth
         connection.prepareStatement(queryOpprettOppfolgingstilfelleMottatt).use {
             it.setString(1, uuid)
             it.setInt(2, personId)
-            it.setString(3, oversikthendelsetilfelleV2.virksomhetsnummer)
-            it.setString(4, oversikthendelsetilfelleV2.virksomhetsnavn)
-            it.setTimestamp(5, convert(oversikthendelsetilfelleV2.fom))
-            it.setTimestamp(6, convert(oversikthendelsetilfelleV2.tom))
-            it.setBoolean(7, oversikthendelsetilfelleV2.gradert)
+            it.setString(3, oversikthendelsetilfelle.virksomhetsnummer)
+            it.setString(4, oversikthendelsetilfelle.virksomhetsnavn)
+            it.setTimestamp(5, convert(oversikthendelsetilfelle.fom))
+            it.setTimestamp(6, convert(oversikthendelsetilfelle.tom))
+            it.setBoolean(7, oversikthendelsetilfelle.gradert)
             it.setTimestamp(8, tidspunkt)
             it.setTimestamp(9, tidspunkt)
             it.execute()
@@ -113,13 +113,13 @@ fun DatabaseInterface.opprettOppfolgingstilfelleMottatt(personId: Int, oversikth
     }
 }
 
-fun DatabaseInterface.opprettEllerOppdaterOppfolgingstilfelle(personId: Int, oversikthendelsetilfelleV2: KOversikthendelsetilfelleV2) {
-    val resultatListe = hentOppfolgingstilfelleResultat(personId, oversikthendelsetilfelleV2.virksomhetsnummer)
+fun DatabaseInterface.opprettEllerOppdaterOppfolgingstilfelle(personId: Int, oversikthendelsetilfelle: KOversikthendelsetilfelle) {
+    val resultatListe = hentOppfolgingstilfelleResultat(personId, oversikthendelsetilfelle.virksomhetsnummer)
 
     if (resultatListe.isEmpty()) {
-        opprettOppfolgingstilfelleMottatt(personId, oversikthendelsetilfelleV2)
+        opprettOppfolgingstilfelleMottatt(personId, oversikthendelsetilfelle)
     } else {
-        oppdaterOppfolgingstilfelleMottatt(personId, oversikthendelsetilfelleV2)
+        oppdaterOppfolgingstilfelleMottatt(personId, oversikthendelsetilfelle)
     }
 }
 
@@ -131,7 +131,7 @@ const val queryOpprettPersonOppfolgingstilfelleMottatt = """INSERT INTO PERSON_O
         opprettet,
         sist_endret) VALUES (DEFAULT, ?, ?, ?, ?, ?) RETURNING id"""
 
-fun DatabaseInterface.opprettPersonOppfolgingstilfelleMottatt(oversikthendelsetilfelleV2: KOversikthendelsetilfelleV2) {
+fun DatabaseInterface.opprettPersonOppfolgingstilfelleMottatt(oversikthendelsetilfelle: KOversikthendelsetilfelle) {
     val uuid = UUID.randomUUID().toString()
     val tidspunkt = Timestamp.from(Instant.now())
 
@@ -140,8 +140,8 @@ fun DatabaseInterface.opprettPersonOppfolgingstilfelleMottatt(oversikthendelseti
     connection.use { connection ->
         val personIdList = connection.prepareStatement(queryOpprettPersonOppfolgingstilfelleMottatt).use {
             it.setString(1, uuid)
-            it.setString(2, oversikthendelsetilfelleV2.fnr)
-            it.setString(3, oversikthendelsetilfelleV2.enhetId)
+            it.setString(2, oversikthendelsetilfelle.fnr)
+            it.setString(3, oversikthendelsetilfelle.enhetId)
             it.setTimestamp(4, tidspunkt)
             it.setTimestamp(5, tidspunkt)
             it.executeQuery().toList { getInt("id") }
@@ -155,7 +155,7 @@ fun DatabaseInterface.opprettPersonOppfolgingstilfelleMottatt(oversikthendelseti
 
         connection.commit()
     }
-    personId?.let { opprettEllerOppdaterOppfolgingstilfelle(it, oversikthendelsetilfelleV2) }
+    personId?.let { opprettEllerOppdaterOppfolgingstilfelle(it, oversikthendelsetilfelle) }
 }
 
 const val queryOpprettPersonOppfolgingstilfelleNyEnhetMottatt = """
@@ -164,19 +164,19 @@ const val queryOpprettPersonOppfolgingstilfelleNyEnhetMottatt = """
                         WHERE fnr = ?
                 """
 
-fun DatabaseInterface.oppdaterPersonOppfolgingstilfelleNyEnhetMottatt(personId: Int, oversikthendelsetilfelleV2: KOversikthendelsetilfelleV2) {
+fun DatabaseInterface.oppdaterPersonOppfolgingstilfelleNyEnhetMottatt(personId: Int, oversikthendelsetilfelle: KOversikthendelsetilfelle) {
     val tidspunkt = Timestamp.from(Instant.now())
     connection.use { connection ->
         connection.prepareStatement(queryOpprettPersonOppfolgingstilfelleNyEnhetMottatt).use {
             it.setNull(1, NULL)
-            it.setString(2, oversikthendelsetilfelleV2.enhetId)
+            it.setString(2, oversikthendelsetilfelle.enhetId)
             it.setTimestamp(3, tidspunkt)
-            it.setString(4, oversikthendelsetilfelleV2.fnr)
+            it.setString(4, oversikthendelsetilfelle.fnr)
             it.execute()
         }
         connection.commit()
     }
-    opprettEllerOppdaterOppfolgingstilfelle(personId, oversikthendelsetilfelleV2)
+    opprettEllerOppdaterOppfolgingstilfelle(personId, oversikthendelsetilfelle)
 }
 
 const val queryOppdaterPersonOppfolgingstilfelleMottatt = """
@@ -185,18 +185,18 @@ const val queryOppdaterPersonOppfolgingstilfelleMottatt = """
                         WHERE fnr = ?
                 """
 
-fun DatabaseInterface.oppdaterPersonOppfolgingstilfelleMottatt(personId: Int, oversikthendelsetilfelleV2: KOversikthendelsetilfelleV2) {
+fun DatabaseInterface.oppdaterPersonOppfolgingstilfelleMottatt(personId: Int, oversikthendelsetilfelle: KOversikthendelsetilfelle) {
     val tidspunkt = Timestamp.from(Instant.now())
     connection.use { connection ->
         connection.prepareStatement(queryOppdaterPersonOppfolgingstilfelleMottatt).use {
-            it.setString(1, oversikthendelsetilfelleV2.enhetId)
+            it.setString(1, oversikthendelsetilfelle.enhetId)
             it.setTimestamp(2, tidspunkt)
-            it.setString(3, oversikthendelsetilfelleV2.fnr)
+            it.setString(3, oversikthendelsetilfelle.fnr)
             it.execute()
         }
         connection.commit()
     }
-    opprettEllerOppdaterOppfolgingstilfelle(personId, oversikthendelsetilfelleV2)
+    opprettEllerOppdaterOppfolgingstilfelle(personId, oversikthendelsetilfelle)
 }
 
 fun ResultSet.toPPersonOppfolgingstilfelle(): PPersonOppfolgingstilfelle =

@@ -8,7 +8,7 @@ import io.ktor.features.ContentNegotiation
 import io.ktor.jackson.jackson
 import io.ktor.server.testing.TestApplicationEngine
 import io.ktor.util.InternalAPI
-import no.nav.syfo.oversikthendelsetilfelle.domain.KOversikthendelsetilfelleV2
+import no.nav.syfo.oversikthendelsetilfelle.domain.KOversikthendelsetilfelle
 import no.nav.syfo.oversikthendelsetilfelle.domain.PPersonOppfolgingstilfelle
 import no.nav.syfo.personstatus.domain.PPersonOversiktStatus
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
@@ -302,18 +302,18 @@ object OversikthendelstilfelleServiceSpek : Spek({
     }
 })
 
-fun checkPersonOversiktStatus(pPersonOversiktStatus: PPersonOversiktStatus, oversikthendelsetilfelleV2: KOversikthendelsetilfelleV2, veilederIdent: String?) {
-    pPersonOversiktStatus.fnr shouldEqual oversikthendelsetilfelleV2.fnr
+fun checkPersonOversiktStatus(pPersonOversiktStatus: PPersonOversiktStatus, oversikthendelsetilfelle: KOversikthendelsetilfelle, veilederIdent: String?) {
+    pPersonOversiktStatus.fnr shouldEqual oversikthendelsetilfelle.fnr
     pPersonOversiktStatus.veilederIdent shouldEqual veilederIdent
-    pPersonOversiktStatus.enhet shouldEqual oversikthendelsetilfelleV2.enhetId
+    pPersonOversiktStatus.enhet shouldEqual oversikthendelsetilfelle.enhetId
     pPersonOversiktStatus.motebehovUbehandlet shouldEqual null
     pPersonOversiktStatus.moteplanleggerUbehandlet shouldEqual null
 }
 
-fun checkPersonOppfolgingstilfelle(pPersonOppfolgingstilfelle: PPersonOppfolgingstilfelle, oversikthendelsetilfelleV2: KOversikthendelsetilfelleV2, personId: Int) {
+fun checkPersonOppfolgingstilfelle(pPersonOppfolgingstilfelle: PPersonOppfolgingstilfelle, oversikthendelsetilfelle: KOversikthendelsetilfelle, personId: Int) {
     pPersonOppfolgingstilfelle.personOversiktStatusId shouldEqual personId
-    pPersonOppfolgingstilfelle.virksomhetsnummer shouldEqual oversikthendelsetilfelleV2.virksomhetsnummer
-    pPersonOppfolgingstilfelle.gradert shouldEqual oversikthendelsetilfelleV2.gradert
-    pPersonOppfolgingstilfelle.fom shouldEqual oversikthendelsetilfelleV2.fom
-    pPersonOppfolgingstilfelle.tom shouldEqual oversikthendelsetilfelleV2.tom
+    pPersonOppfolgingstilfelle.virksomhetsnummer shouldEqual oversikthendelsetilfelle.virksomhetsnummer
+    pPersonOppfolgingstilfelle.gradert shouldEqual oversikthendelsetilfelle.gradert
+    pPersonOppfolgingstilfelle.fom shouldEqual oversikthendelsetilfelle.fom
+    pPersonOppfolgingstilfelle.tom shouldEqual oversikthendelsetilfelle.tom
 }

@@ -1,13 +1,13 @@
 package no.nav.syfo.oversikthendelsetilfelle
 
-import no.nav.syfo.oversikthendelsetilfelle.domain.KOversikthendelsetilfelleV2
+import no.nav.syfo.oversikthendelsetilfelle.domain.KOversikthendelsetilfelle
 import no.nav.syfo.testutil.UserConstants
 import java.time.LocalDate
 import java.time.LocalDateTime
 
 
 val generateOversikthendelsetilfelle =
-        KOversikthendelsetilfelleV2(
+        KOversikthendelsetilfelle(
                 fnr = UserConstants.ARBEIDSTAKER_FNR,
                 enhetId = UserConstants.NAV_ENHET,
                 virksomhetsnummer = UserConstants.VIRKSOMHETSNUMMER,

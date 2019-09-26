@@ -3,7 +3,7 @@ package no.nav.syfo.oversikthendelsetilfelle.domain
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-data class KOversikthendelsetilfelleV2(
+data class KOversikthendelsetilfelle(
         val fnr: String,
         val enhetId: String,
         val virksomhetsnummer: String,
