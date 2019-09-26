@@ -39,6 +39,7 @@ var mapOppfolgingstilfelle = { pPersonOppfolgingstilfelle: PPersonOppfolgingstil
     Oppfolgingstilfelle(
             virksomhetsnummer = pPersonOppfolgingstilfelle.virksomhetsnummer,
             fom = pPersonOppfolgingstilfelle.fom,
-            tom = pPersonOppfolgingstilfelle.tom
+            tom = pPersonOppfolgingstilfelle.tom,
+            virksomhetsnavn = pPersonOppfolgingstilfelle.virksomhetsnavn ?: ""
     )
 }

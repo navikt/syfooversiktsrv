@@ -11,7 +11,7 @@ import kotlinx.coroutines.delay
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.*
 import no.nav.syfo.oversikthendelsetilfelle.OversikthendelstilfelleService
-import no.nav.syfo.oversikthendelsetilfelle.domain.KOversikthendelsetilfelle
+import no.nav.syfo.oversikthendelsetilfelle.domain.KOversikthendelsetilfelleV2
 import no.nav.syfo.personstatus.OversiktHendelseService
 import no.nav.syfo.personstatus.domain.KOversikthendelse
 import no.nav.syfo.util.CallIdArgument
@@ -107,7 +107,8 @@ suspend fun blockingApplicationLogic(
                 StructuredArguments.keyValue("virksomhetsnummer", "missing"),
                 StructuredArguments.keyValue("gradert", "missing"),
                 StructuredArguments.keyValue("fom", "missing"),
-                StructuredArguments.keyValue("tom", "missing")
+                StructuredArguments.keyValue("tom", "missing"),
+                StructuredArguments.keyValue("virksomhetsnavn", "missing")
         )
 
         val logKeys = logValues.joinToString(prefix = "(", postfix = ")", separator = ",") {
@@ -116,20 +117,21 @@ suspend fun blockingApplicationLogic(
 
         kafkaConsumer.poll(Duration.ofMillis(0)).forEach {
             val callId = kafkaCallId()
-            val oversikthendelsetilfelle: KOversikthendelsetilfelle =
+            val oversikthendelsetilfelleV2: KOversikthendelsetilfelleV2 =
                     objectMapper.readValue(it.value())
             logValues = arrayOf(
                     StructuredArguments.keyValue("oversikthendelsetilfelleId", it.key()),
-                    StructuredArguments.keyValue("harFnr", (!StringUtil.isNullOrEmpty(oversikthendelsetilfelle.fnr)).toString()),
-                    StructuredArguments.keyValue("enhetId", oversikthendelsetilfelle.enhetId),
-                    StructuredArguments.keyValue("virksomhetsnummer", oversikthendelsetilfelle.virksomhetsnummer),
-                    StructuredArguments.keyValue("gradert", oversikthendelsetilfelle.gradert),
-                    StructuredArguments.keyValue("fom", oversikthendelsetilfelle.fom),
-                    StructuredArguments.keyValue("tom", oversikthendelsetilfelle.tom)
+                    StructuredArguments.keyValue("harFnr", (!StringUtil.isNullOrEmpty(oversikthendelsetilfelleV2.fnr)).toString()),
+                    StructuredArguments.keyValue("enhetId", oversikthendelsetilfelleV2.enhetId),
+                    StructuredArguments.keyValue("virksomhetsnummer", oversikthendelsetilfelleV2.virksomhetsnummer),
+                    StructuredArguments.keyValue("gradert", oversikthendelsetilfelleV2.gradert),
+                    StructuredArguments.keyValue("fom", oversikthendelsetilfelleV2.fom),
+                    StructuredArguments.keyValue("tom", oversikthendelsetilfelleV2.tom),
+                    StructuredArguments.keyValue("virksomhetsnavn", oversikthendelsetilfelleV2.virksomhetsnavn)
             )
             LOG.info("Mottatt oversikthendelsetilfelle, klar for oppdatering, $logKeys, {}", *logValues, CallIdArgument(callId))
 
-            oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelsetilfelle, callId)
+            oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelsetilfelleV2, callId)
         }
         delay(100)
     }

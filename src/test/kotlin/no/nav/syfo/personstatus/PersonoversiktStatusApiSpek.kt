@@ -24,13 +24,14 @@ import no.nav.syfo.auth.getTokenFromCookie
 import no.nav.syfo.auth.isInvalidToken
 import no.nav.syfo.getEnvironment
 import no.nav.syfo.oversikthendelsetilfelle.OversikthendelstilfelleService
-import no.nav.syfo.oversikthendelsetilfelle.domain.KOversikthendelsetilfelle
+import no.nav.syfo.oversikthendelsetilfelle.domain.KOversikthendelsetilfelleV2
 import no.nav.syfo.oversikthendelsetilfelle.generateOversikthendelsetilfelle
 import no.nav.syfo.personstatus.domain.*
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testutil.UserConstants.NAV_ENHET
 import no.nav.syfo.testutil.UserConstants.VEILEDER_ID
+import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNAVN_2
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER_2
 import no.nav.syfo.tilgangskontroll.TilgangskontrollConsumer
@@ -238,7 +239,8 @@ object PersonoversiktStatusApiSpek : Spek({
                             tom = LocalDate.now()
                     )
                     val oversikthendelstilfelle2 = oversikthendelstilfelle.copy(
-                            virksomhetsnummer = VIRKSOMHETSNUMMER_2
+                            virksomhetsnummer = VIRKSOMHETSNUMMER_2,
+                            virksomhetsnavn = VIRKSOMHETSNAVN_2
                     )
                     oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
                     oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle2)
@@ -480,8 +482,8 @@ private val Url.hostWithPortIfRequired: String get() = if (port == protocol.defa
 private val Url.fullUrl: String get() = "${protocol.name}://$hostWithPortIfRequired$fullPath"
 
 
-fun checkPersonOppfolgingstilfelle(oppfolgingstilfelle: Oppfolgingstilfelle, oversikthendelsetilfelle: KOversikthendelsetilfelle) {
-    oppfolgingstilfelle.virksomhetsnummer shouldEqual oversikthendelsetilfelle.virksomhetsnummer
-    oppfolgingstilfelle.fom shouldEqual oversikthendelsetilfelle.fom
-    oppfolgingstilfelle.tom shouldEqual oversikthendelsetilfelle.tom
+fun checkPersonOppfolgingstilfelle(oppfolgingstilfelle: Oppfolgingstilfelle, oversikthendelsetilfelleV2: KOversikthendelsetilfelleV2) {
+    oppfolgingstilfelle.virksomhetsnummer shouldEqual oversikthendelsetilfelleV2.virksomhetsnummer
+    oppfolgingstilfelle.fom shouldEqual oversikthendelsetilfelleV2.fom
+    oppfolgingstilfelle.tom shouldEqual oversikthendelsetilfelleV2.tom
 }
