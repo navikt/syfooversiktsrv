@@ -43,19 +43,23 @@ fun Route.registerPersonTildelingApi(
         }
 
         post("/registrer") {
-
+            val callId = getCallId()
             try {
+
                 COUNT_PERSONTILDELING_TILDEL.inc()
 
                 val token = getTokenFromCookie(call.request.cookies)
 
                 val veilederBrukerKnytningerListe: VeilederBrukerKnytningListe = call.receive()
+                log.info("Tildeler veileder for ${veilederBrukerKnytningerListe.tilknytninger.size}")
 
                 val veilederBrukerKnytninger: List<VeilederBrukerKnytning> = veilederBrukerKnytningerListe.tilknytninger
-                        .filter { tilgangskontrollConsumer.harVeilederTilgangTilPerson(it.fnr, token, getCallId()) }
+                        .filter { tilgangskontrollConsumer.harVeilederTilgangTilPerson(it.fnr, token, callId) }
+
+                log.info("Veileder har tilgang til ${veilederBrukerKnytninger.size} av ${veilederBrukerKnytningerListe.tilknytninger.size} innsendte tilknytnigner, callId=$callId}")
 
                 if (veilederBrukerKnytninger.isEmpty()) {
-                    log.error("Kan ikke registrere tilknytning fordi veileder ikke har tilgang til noen av de spesifiserte tilknytningene, {}", CallIdArgument((getCallId())))
+                    log.error("Kan ikke registrere tilknytning fordi veileder ikke har tilgang til noen av de spesifiserte tilknytningene, {}", CallIdArgument(callId))
                     call.respond(HttpStatusCode.Forbidden)
                 } else {
                     personTildelingService.lagreKnytningMellomVeilederOgBruker(veilederBrukerKnytninger)

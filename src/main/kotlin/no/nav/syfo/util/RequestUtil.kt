@@ -15,8 +15,12 @@ import java.util.concurrent.atomic.*
 const val NAV_CALL_ID_HEADER = "X-Nav-CallId"
 
 fun PipelineContext<out Unit, ApplicationCall>.getCallId(): String {
-    return this.call.request.headers[NAV_CALL_ID_HEADER].toString()
+    this.call.request.headers[NAV_CALL_ID_HEADER].let {
+        return it ?: createCallid()
+    }
 }
+
+fun createCallid(): String = UUID.randomUUID().toString()
 
 fun CallIdArgument(callId: String) = StructuredArguments.keyValue("callId", callId)!!
 
