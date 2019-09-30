@@ -5,7 +5,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.*
-import no.nav.syfo.auth.getTokenFromCookie
+import no.nav.syfo.auth.*
 import no.nav.syfo.metric.COUNT_PERSONTILDELING_TILDEL
 import no.nav.syfo.metric.COUNT_PERSONTILDELING_TILDELT
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
@@ -44,24 +44,30 @@ fun Route.registerPersonTildelingApi(
 
         post("/registrer") {
 
-            COUNT_PERSONTILDELING_TILDEL.inc()
+            try {
+                COUNT_PERSONTILDELING_TILDEL.inc()
 
-            val token = getTokenFromCookie(call.request.cookies)
+                val token = getTokenFromCookie(call.request.cookies)
 
-            val veilederBrukerKnytningerListe: VeilederBrukerKnytningListe = call.receive()
+                val veilederBrukerKnytningerListe: VeilederBrukerKnytningListe = call.receive()
 
-            val veilederBrukerKnytninger: List<VeilederBrukerKnytning> = veilederBrukerKnytningerListe.tilknytninger
-                    .filter { tilgangskontrollConsumer.harVeilederTilgangTilPerson(it.fnr, token, getCallId()) }
+                val veilederBrukerKnytninger: List<VeilederBrukerKnytning> = veilederBrukerKnytningerListe.tilknytninger
+                        .filter { tilgangskontrollConsumer.harVeilederTilgangTilPerson(it.fnr, token, getCallId()) }
 
-            if (veilederBrukerKnytninger.isEmpty()) {
-                log.error("Kan ikke registrere tilknytning fordi veileder ikke har tilgang til noen av de spesifiserte tilknytningene, {}", CallIdArgument((getCallId())))
-                call.respond(HttpStatusCode.Forbidden)
-            } else {
-                personTildelingService.lagreKnytningMellomVeilederOgBruker(veilederBrukerKnytninger)
+                if (veilederBrukerKnytninger.isEmpty()) {
+                    log.error("Kan ikke registrere tilknytning fordi veileder ikke har tilgang til noen av de spesifiserte tilknytningene, {}", CallIdArgument((getCallId())))
+                    call.respond(HttpStatusCode.Forbidden)
+                } else {
+                    personTildelingService.lagreKnytningMellomVeilederOgBruker(veilederBrukerKnytninger)
 
-                COUNT_PERSONTILDELING_TILDELT.inc(veilederBrukerKnytninger.size.toDouble())
+                    COUNT_PERSONTILDELING_TILDELT.inc(veilederBrukerKnytninger.size.toDouble())
 
-                call.respond(HttpStatusCode.OK)
+                    call.respond(HttpStatusCode.OK)
+                }
+            } catch (e: Error) {
+                val navIdent = getVeilederTokenPayload(getTokenFromCookie(call.request.cookies)).navIdent
+                log.error("Feil under tildeling av bruker for navIdent=$navIdent, ${e.message}", e.cause)
+                call.respond(HttpStatusCode.InternalServerError)
             }
         }
 
