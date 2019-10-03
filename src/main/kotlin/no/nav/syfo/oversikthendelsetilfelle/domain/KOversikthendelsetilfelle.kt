@@ -7,6 +7,7 @@ data class KOversikthendelsetilfelle(
         val fnr: String,
         val enhetId: String,
         val virksomhetsnummer: String,
+        val virksomhetsnavn: String?,
         val gradert: Boolean,
         val fom: LocalDate,
         val tom: LocalDate,

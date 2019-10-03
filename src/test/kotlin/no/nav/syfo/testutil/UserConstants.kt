@@ -11,4 +11,6 @@ object UserConstants {
     const val VEILEDER_ETTERNAVN = "Scully"
     const val VIRKSOMHETSNUMMER = "123456789"
     const val VIRKSOMHETSNUMMER_2 = "123456781"
+    const val VIRKSOMHETSNAVN = "EGJ Security"
+    const val VIRKSOMHETSNAVN_2 = "JML Investments"
 }

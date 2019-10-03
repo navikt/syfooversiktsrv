@@ -1,9 +1,10 @@
+@file:Suppress("SqlNoDataSourceInspection")
+
 package no.nav.syfo.oversikthendelsetilfelle
 
 import no.nav.syfo.db.DatabaseInterface
 import no.nav.syfo.db.toList
-import no.nav.syfo.oversikthendelsetilfelle.domain.KOversikthendelsetilfelle
-import no.nav.syfo.oversikthendelsetilfelle.domain.PPersonOppfolgingstilfelle
+import no.nav.syfo.oversikthendelsetilfelle.domain.*
 import no.nav.syfo.util.convert
 import java.sql.*
 import java.sql.Types.NULL
@@ -58,7 +59,7 @@ fun DatabaseInterface.hentOppfolgingstilfelleResultat(personId: Int, virksomhets
 
 const val queryOppdaterOppfolgingstilfelleMottatt = """
                         UPDATE PERSON_OPPFOLGINGSTILFELLE
-                        SET gradert = ?, fom = ?, tom = ?, sist_endret = ?
+                        SET gradert = ?, fom = ?, tom = ?, sist_endret = ?, virksomhetsnavn = ?
                         WHERE person_oversikt_status_id = ?
                 """
 
@@ -71,7 +72,8 @@ fun DatabaseInterface.oppdaterOppfolgingstilfelleMottatt(personId: Int, oversikt
             it.setTimestamp(2, convert(oversikthendelsetilfelle.fom))
             it.setTimestamp(3, convert(oversikthendelsetilfelle.tom))
             it.setTimestamp(4, tidspunkt)
-            it.setInt(5, personId)
+            it.setString(5, oversikthendelsetilfelle.virksomhetsnavn)
+            it.setInt(6, personId)
             it.execute()
         }
         connection.commit()
@@ -83,11 +85,12 @@ const val queryOpprettOppfolgingstilfelleMottatt = """INSERT INTO PERSON_OPPFOLG
         uuid,
         person_oversikt_status_id,
         virksomhetsnummer,
+        virksomhetsnavn,
         fom,
         tom,
         gradert,
         opprettet,
-        sist_endret) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?)"""
+        sist_endret) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
 
 fun DatabaseInterface.opprettOppfolgingstilfelleMottatt(personId: Int, oversikthendelsetilfelle: KOversikthendelsetilfelle) {
     val uuid = UUID.randomUUID().toString()
@@ -98,11 +101,12 @@ fun DatabaseInterface.opprettOppfolgingstilfelleMottatt(personId: Int, oversikth
             it.setString(1, uuid)
             it.setInt(2, personId)
             it.setString(3, oversikthendelsetilfelle.virksomhetsnummer)
-            it.setTimestamp(4, convert(oversikthendelsetilfelle.fom))
-            it.setTimestamp(5, convert(oversikthendelsetilfelle.tom))
-            it.setBoolean(6, oversikthendelsetilfelle.gradert)
-            it.setTimestamp(7, tidspunkt)
+            it.setString(4, oversikthendelsetilfelle.virksomhetsnavn)
+            it.setTimestamp(5, convert(oversikthendelsetilfelle.fom))
+            it.setTimestamp(6, convert(oversikthendelsetilfelle.tom))
+            it.setBoolean(7, oversikthendelsetilfelle.gradert)
             it.setTimestamp(8, tidspunkt)
+            it.setTimestamp(9, tidspunkt)
             it.execute()
         }
         connection.commit()
@@ -202,5 +206,6 @@ fun ResultSet.toPPersonOppfolgingstilfelle(): PPersonOppfolgingstilfelle =
                 virksomhetsnummer = getString("virksomhetsnummer"),
                 fom = convert(getTimestamp("fom")),
                 tom = convert(getTimestamp("tom")),
-                gradert = getObject("gradert") as Boolean
+                gradert = getObject("gradert") as Boolean,
+                virksomhetsnavn = getString("virksomhetsnavn")
         )

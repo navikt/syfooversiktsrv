@@ -17,6 +17,7 @@ import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_2_FNR
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testutil.UserConstants.NAV_ENHET_2
 import no.nav.syfo.testutil.UserConstants.VEILEDER_ID
+import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNAVN_2
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER_2
 import org.amshove.kluent.shouldBe
@@ -280,6 +281,22 @@ object OversikthendelstilfelleServiceSpek : Spek({
                 oppfolgingstilfellerSist.size shouldBe 1
                 checkPersonOppfolgingstilfelle(oppfolgingstilfellerForst.first(), oversikthendelsetilfelleMottattForst, personForst.id)
                 checkPersonOppfolgingstilfelle(oppfolgingstilfellerSist.first(), oversikthendelsetilfelleMottattSist, personSist.id)
+            }
+
+            it("Skal oppdatere person, med oppfolgingstilfelle, med nytt virksomhetsnavn hvis den ikke har fra før") {
+                val utenVirksomhetsnavn = oversikthendelstilfelle.copy(
+                        virksomhetsnavn = null
+                )
+
+                oversikthendelstilfelleService.oppdaterPersonMedHendelse(utenVirksomhetsnavn)
+                val person = database.connection.hentPersonResultatInternal(utenVirksomhetsnavn.fnr)
+                person.size shouldBe 1
+                val oppfolgingstilfelle = database.connection.hentOppfolgingstilfelleResultat(person.first().id)
+                oppfolgingstilfelle.first().virksomhetsnavn shouldEqual null
+
+                oversikthendelstilfelleService.oppdaterPersonMedHendelse(utenVirksomhetsnavn.copy(virksomhetsnavn = VIRKSOMHETSNAVN_2))
+                val oppdatertOppfolingstilfelle = database.connection.hentOppfolgingstilfelleResultat(person.first().id)
+                oppdatertOppfolingstilfelle.first().virksomhetsnavn shouldEqual VIRKSOMHETSNAVN_2
             }
         }
     }

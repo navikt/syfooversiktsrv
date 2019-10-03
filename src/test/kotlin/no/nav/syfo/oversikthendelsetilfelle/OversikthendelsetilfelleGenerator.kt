@@ -11,6 +11,7 @@ val generateOversikthendelsetilfelle =
                 fnr = UserConstants.ARBEIDSTAKER_FNR,
                 enhetId = UserConstants.NAV_ENHET,
                 virksomhetsnummer = UserConstants.VIRKSOMHETSNUMMER,
+                virksomhetsnavn = UserConstants.VIRKSOMHETSNAVN,
                 gradert = false,
                 fom = LocalDate.now().minusDays(56),
                 tom = LocalDate.now().plusDays(16),

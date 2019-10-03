@@ -107,7 +107,8 @@ suspend fun blockingApplicationLogic(
                 StructuredArguments.keyValue("virksomhetsnummer", "missing"),
                 StructuredArguments.keyValue("gradert", "missing"),
                 StructuredArguments.keyValue("fom", "missing"),
-                StructuredArguments.keyValue("tom", "missing")
+                StructuredArguments.keyValue("tom", "missing"),
+                StructuredArguments.keyValue("virksomhetsnavn", "missing")
         )
 
         val logKeys = logValues.joinToString(prefix = "(", postfix = ")", separator = ",") {
@@ -125,7 +126,8 @@ suspend fun blockingApplicationLogic(
                     StructuredArguments.keyValue("virksomhetsnummer", oversikthendelsetilfelle.virksomhetsnummer),
                     StructuredArguments.keyValue("gradert", oversikthendelsetilfelle.gradert),
                     StructuredArguments.keyValue("fom", oversikthendelsetilfelle.fom),
-                    StructuredArguments.keyValue("tom", oversikthendelsetilfelle.tom)
+                    StructuredArguments.keyValue("tom", oversikthendelsetilfelle.tom),
+                    StructuredArguments.keyValue("virksomhetsnavn", oversikthendelsetilfelle.virksomhetsnavn)
             )
             LOG.info("Mottatt oversikthendelsetilfelle, klar for oppdatering, $logKeys, {}", *logValues, CallIdArgument(callId))
 
