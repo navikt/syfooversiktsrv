@@ -1,6 +1,7 @@
 package no.nav.syfo.metric
 
 import io.prometheus.client.Counter
+import io.prometheus.client.Histogram
 
 const val METRICS_NS = "syfooversiktsrv"
 
@@ -32,6 +33,9 @@ const val OVERSIKTHENDELSETILFELLE_INGEN_AKTIVITET_ENHET = "oversikthendelsetilf
 const val OVERSIKTHENDELSETILFELLE_GRADERT_OPPRETT = "oversikthendelsetilfelle_gradert_opprett_count"
 const val OVERSIKTHENDELSETILFELLE_GRADERT_OPPDATER = "oversikthendelsetilfelle_gradert_oppdater_count"
 const val OVERSIKTHENDELSETILFELLE_GRADERT_OPPDATER_ENHET = "oversikthendelsetilfelle_gradert_oppdater_enhet_count"
+
+const val SYFOTILGANGSKONTROLL_HISTOGRAM_PERSON = "syfotilgangskontroll_histogram_person"
+const val SYFOTILGANGSKONTROLL_HISTOGRAM_ENHET = "syfotilgangskontroll_histogram_enhet"
 
 const val OVERSIKTHENDELSE_UKJENT_MOTTATT = "oversikthendelse_ukjent_count"
 
@@ -162,3 +166,16 @@ val COUNT_OVERSIKTHENDELSETILFELLE_GRADERT_OPPDATER_ENHET: Counter = Counter.bui
         .name(OVERSIKTHENDELSETILFELLE_GRADERT_OPPDATER_ENHET)
         .help("Counts the number of graderte oversikthendelsetilfeller resulting in update with new enhetId}")
         .register()
+
+val HISTOGRAM_SYFOTILGANGSKONTROLL_PERSON: Histogram = Histogram.build()
+        .namespace(METRICS_NS)
+        .name(SYFOTILGANGSKONTROLL_HISTOGRAM_PERSON)
+        .help("Measure the current time it takes to get a response from Syfotilgangskontroll - person")
+        .register()
+
+val HISTOGRAM_SYFOTILGANGSKONTROLL_ENHET: Histogram = Histogram.build()
+        .namespace(METRICS_NS)
+        .name(SYFOTILGANGSKONTROLL_HISTOGRAM_ENHET)
+        .help("Measure the current time it takes to get a response from Syfotilgangskontroll - enhet ")
+        .register()
+
