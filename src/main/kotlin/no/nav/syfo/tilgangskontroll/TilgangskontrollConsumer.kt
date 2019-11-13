@@ -5,6 +5,8 @@ import io.ktor.client.request.*
 import io.ktor.client.response.HttpResponse
 import io.ktor.http.ContentType
 import no.nav.syfo.auth.log
+import no.nav.syfo.metric.HISTOGRAM_SYFOTILGANGSKONTROLL_ENHET
+import no.nav.syfo.metric.HISTOGRAM_SYFOTILGANGSKONTROLL_PERSON
 import no.nav.syfo.util.NAV_CALL_ID_HEADER
 import org.slf4j.LoggerFactory
 
@@ -21,6 +23,7 @@ class TilgangskontrollConsumer(
     private val pathTilgangTilEnhet = "/enhet"
 
     suspend fun harVeilederTilgangTilPerson(fnr: String, token: String, callId: String): Boolean {
+        var requestTimer = HISTOGRAM_SYFOTILGANGSKONTROLL_PERSON.startTimer()
         val response = client.get<HttpResponse>(getTilgangskontrollUrl(pathTilgangTilBruker)) {
             accept(ContentType.Application.Json)
             headers {
@@ -29,10 +32,12 @@ class TilgangskontrollConsumer(
             }
             parameter(paramFnr, fnr)
         }
+        requestTimer.observeDuration()
         return response.status.value in 200..299
     }
 
     suspend fun harVeilederTilgangTilEnhet(enhet: String, token: String, callId: String): Boolean {
+        var requestTimer = HISTOGRAM_SYFOTILGANGSKONTROLL_ENHET.startTimer()
         val response = client.get<HttpResponse>(getTilgangskontrollUrl(pathTilgangTilEnhet)) {
             accept(ContentType.Application.Json)
             headers {
@@ -42,6 +47,7 @@ class TilgangskontrollConsumer(
             parameter(paramEnhet, enhet)
 
         }
+        requestTimer.observeDuration()
         return response.status.value in 200..299
     }
 
