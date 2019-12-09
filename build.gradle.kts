@@ -19,7 +19,7 @@ val logstashEncoderVersion = "5.1"
 val mockkVersion = "1.9.3"
 val postgresVersion = "42.2.5"
 val prometheusVersion = "0.5.0"
-val spekVersion = "2.0.7"
+val spekVersion = "2.0.9"
 val smCommonVersion = "1.0.22"
 val vaultJavaDriveVersion = "3.1.0"
 
