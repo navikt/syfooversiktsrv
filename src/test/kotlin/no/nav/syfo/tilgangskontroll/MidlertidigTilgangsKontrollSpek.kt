@@ -7,21 +7,25 @@ import org.spekframework.spek2.style.specification.describe
 
 @InternalAPI
 class MidlertidigTilgangsKontrollSpek : Spek({
+    val tilgangerTestPath = "./src/test/resources/tilganger.json"
 
     describe("MidlertidigTilgangsSjekk") {
-        val tilgangsSjekk = MidlertidigTilgangsSjekk(javaClass.classLoader.getResource("tilganger.json").path)
-        it("Skal lese tilganger") {
+        val identWithAccess = "Z123456"
+        val identWithoutAccess = "Z234567"
+
+        val tilgangsSjekk = MidlertidigTilgangsSjekk(tilgangerTestPath)
+        it("Should read $tilgangerTestPath") {
             tilgangsSjekk.tilgangListe.size shouldEqualTo 1
-            tilgangsSjekk.tilgangListe shouldContain "Z123456"
+            tilgangsSjekk.tilgangListe shouldContain identWithAccess
         }
 
-        it("Skal gi tilgang til en ident i listen") {
-            val harTilgang = tilgangsSjekk.harTilgang("Z123456")
+        it("Should grant access to a whitelisted Ident") {
+            val harTilgang = tilgangsSjekk.harTilgang(identWithAccess)
             harTilgang shouldEqual true
         }
 
-        it("Skal ikke gi tilgang til ident som ikke finnes i listen") {
-            val harTilgang = tilgangsSjekk.harTilgang("Z123455")
+        it("Should not grant access to a non-whitelisted Ident") {
+            val harTilgang = tilgangsSjekk.harTilgang(identWithoutAccess)
             harTilgang shouldEqual false
         }
     }
