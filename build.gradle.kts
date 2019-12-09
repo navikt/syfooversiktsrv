@@ -13,6 +13,7 @@ val h2Version = "1.4.197"
 val kafkaVersion = "2.0.0"
 val kafkaEmbeddedVersion = "2.0.2"
 val kluentVersion = "1.39"
+val kotlinSerializationVersion = "0.9.0"
 val ktorVersion = "1.2.5"
 val logbackVersion = "1.2.3"
 val logstashEncoderVersion = "5.1"
@@ -80,8 +81,8 @@ dependencies {
     implementation("no.nav.syfo.sm:syfosm-common-models:$smCommonVersion")
     implementation("no.nav.syfo.sm:syfosm-common-kafka:$smCommonVersion")
 
-    compile("org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.9.0")
-    compile("org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:0.9.0")
+    compile("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$kotlinSerializationVersion")
+    compile("org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:$kotlinSerializationVersion")
 
     compile("io.ktor:ktor-jackson:$ktorVersion")
     compile("io.ktor:ktor-client-jackson:$ktorVersion")
