@@ -1,5 +1,5 @@
 # syfooversiktsrv
-Denne appen er en backend-tjenste for Syfooversikt
+This app i a service for Syfooversikt(https://github.com/navikt/syfooversikt)
 
 ## Technologies used
 * Kotlin
