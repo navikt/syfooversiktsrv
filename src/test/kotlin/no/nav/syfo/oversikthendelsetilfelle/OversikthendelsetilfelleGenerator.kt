@@ -9,6 +9,7 @@ import java.time.LocalDateTime
 val generateOversikthendelsetilfelle =
         KOversikthendelsetilfelle(
                 fnr = UserConstants.ARBEIDSTAKER_FNR,
+                navn = UserConstants.ARBEIDSTAKER_NAVN,
                 enhetId = UserConstants.NAV_ENHET,
                 virksomhetsnummer = UserConstants.VIRKSOMHETSNUMMER,
                 virksomhetsnavn = UserConstants.VIRKSOMHETSNAVN,

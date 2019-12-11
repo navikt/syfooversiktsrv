@@ -5,6 +5,7 @@ import java.time.LocalDateTime
 
 data class KOversikthendelsetilfelle(
         val fnr: String,
+        val navn: String?,
         val enhetId: String,
         val virksomhetsnummer: String,
         val virksomhetsnavn: String?,
