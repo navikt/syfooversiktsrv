@@ -5,6 +5,7 @@ object UserConstants {
     const val ARBEIDSTAKER_FNR = "12345678912"
     const val ARBEIDSTAKER_NAVN = "Fornavn Mellomnavn Etternavn"
     const val ARBEIDSTAKER_2_FNR = "12345678911"
+    const val ARBEIDSTAKER_2_NAVN = "First Middle Last"
     const val NAV_ENHET = "0330"
     const val NAV_ENHET_2 = "0331"
     const val VEILEDER_ID = "Z999999"
