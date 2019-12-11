@@ -3,6 +3,7 @@ package no.nav.syfo.testutil
 object UserConstants {
 
     const val ARBEIDSTAKER_FNR = "12345678912"
+    const val ARBEIDSTAKER_NAVN = "Fornavn Mellomnavn Etternavn"
     const val ARBEIDSTAKER_2_FNR = "12345678911"
     const val NAV_ENHET = "0330"
     const val NAV_ENHET_2 = "0331"

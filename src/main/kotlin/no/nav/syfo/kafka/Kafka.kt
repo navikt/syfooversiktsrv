@@ -103,6 +103,7 @@ suspend fun blockingApplicationLogic(
         var logValues = arrayOf(
                 StructuredArguments.keyValue("oversikthendelsetilfelleId", "missing"),
                 StructuredArguments.keyValue("harFnr", "missing"),
+                StructuredArguments.keyValue("navn", "missing"),
                 StructuredArguments.keyValue("enhetId", "missing"),
                 StructuredArguments.keyValue("virksomhetsnummer", "missing"),
                 StructuredArguments.keyValue("gradert", "missing"),
@@ -122,6 +123,7 @@ suspend fun blockingApplicationLogic(
             logValues = arrayOf(
                     StructuredArguments.keyValue("oversikthendelsetilfelleId", it.key()),
                     StructuredArguments.keyValue("harFnr", (!StringUtil.isNullOrEmpty(oversikthendelsetilfelle.fnr)).toString()),
+                    StructuredArguments.keyValue("navn", oversikthendelsetilfelle.navn),
                     StructuredArguments.keyValue("enhetId", oversikthendelsetilfelle.enhetId),
                     StructuredArguments.keyValue("virksomhetsnummer", oversikthendelsetilfelle.virksomhetsnummer),
                     StructuredArguments.keyValue("gradert", oversikthendelsetilfelle.gradert),
