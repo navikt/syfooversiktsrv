@@ -252,6 +252,7 @@ object PersonoversiktStatusApiSpek : Spek({
                         val personOversiktStatus = objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!).first()
                         personOversiktStatus.veilederIdent shouldEqual null
                         personOversiktStatus.fnr shouldEqual oversikthendelstilfelle.fnr
+                        personOversiktStatus.navn shouldEqual oversikthendelstilfelle.navn
                         personOversiktStatus.enhet shouldEqual oversikthendelstilfelle.enhetId
                         personOversiktStatus.motebehovUbehandlet shouldEqual null
                         personOversiktStatus.moteplanleggerUbehandlet shouldEqual null
@@ -285,6 +286,7 @@ object PersonoversiktStatusApiSpek : Spek({
                         val personOversiktStatus = objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!).first()
                         personOversiktStatus.veilederIdent shouldEqual null
                         personOversiktStatus.fnr shouldEqual oversikthendelstilfelle.fnr
+                        personOversiktStatus.navn shouldEqual oversikthendelstilfelle.navn
                         personOversiktStatus.enhet shouldEqual oversikthendelstilfelle.enhetId
                         personOversiktStatus.motebehovUbehandlet shouldEqual null
                         personOversiktStatus.moteplanleggerUbehandlet shouldEqual null
@@ -395,6 +397,7 @@ object PersonoversiktStatusApiSpek : Spek({
                         val personOversiktStatus = objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!).first()
                         personOversiktStatus.veilederIdent shouldEqual tilknytning.veilederIdent
                         personOversiktStatus.fnr shouldEqual oversikthendelstilfelle.fnr
+                        personOversiktStatus.navn shouldEqual oversikthendelstilfelle.navn
                         personOversiktStatus.enhet shouldEqual oversikthendelstilfelle.enhetId
                         personOversiktStatus.motebehovUbehandlet shouldEqual true
                         personOversiktStatus.moteplanleggerUbehandlet shouldEqual true
@@ -436,6 +439,7 @@ object PersonoversiktStatusApiSpek : Spek({
                         val personOversiktStatus = objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!).first()
                         personOversiktStatus.veilederIdent shouldEqual tilknytning.veilederIdent
                         personOversiktStatus.fnr shouldEqual oversikthendelstilfelle.fnr
+                        personOversiktStatus.navn shouldEqual oversikthendelstilfelle.navn
                         personOversiktStatus.enhet shouldEqual oversikthendelstilfelle.enhetId
                         personOversiktStatus.motebehovUbehandlet shouldEqual true
                         personOversiktStatus.moteplanleggerUbehandlet shouldEqual true

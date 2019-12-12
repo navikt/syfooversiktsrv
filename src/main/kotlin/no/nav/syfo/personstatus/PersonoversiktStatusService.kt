@@ -26,6 +26,7 @@ class PersonoversiktStatusService(
 var mapPersonOversiktStatus = { pPersonOversiktStatus: PPersonOversiktStatus, oppfolgingstilfeller: List<Oppfolgingstilfelle> ->
     PersonOversiktStatus(
             fnr = pPersonOversiktStatus.fnr,
+            navn = pPersonOversiktStatus.navn ?: "",
             enhet = pPersonOversiktStatus.enhet,
             veilederIdent = pPersonOversiktStatus.veilederIdent,
             motebehovUbehandlet = pPersonOversiktStatus.motebehovUbehandlet,

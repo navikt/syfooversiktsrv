@@ -14,7 +14,9 @@ import no.nav.syfo.personstatus.domain.PPersonOversiktStatus
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_2_FNR
+import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_2_NAVN
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
+import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_NAVN
 import no.nav.syfo.testutil.UserConstants.NAV_ENHET_2
 import no.nav.syfo.testutil.UserConstants.VEILEDER_ID
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNAVN_2
@@ -141,6 +143,7 @@ object OversikthendelstilfelleServiceSpek : Spek({
                     database.connection.opprettVeilederBrukerKnytning(tilknytning)
 
                     val hendelse = oversikthendelstilfelle.copy(
+                            navn = ARBEIDSTAKER_2_NAVN,
                             enhetId = NAV_ENHET_2,
                             gradert = false
                     )
@@ -162,6 +165,7 @@ object OversikthendelstilfelleServiceSpek : Spek({
                     database.connection.opprettVeilederBrukerKnytning(tilknytning)
 
                     val hendelse = oversikthendelstilfelle.copy(
+                            navn = ARBEIDSTAKER_2_NAVN,
                             enhetId = NAV_ENHET_2,
                             gradert = true
                     )
@@ -248,6 +252,7 @@ object OversikthendelstilfelleServiceSpek : Spek({
 
                 val oversikthendelsetilfelleMottattForst = oversikthendelstilfelle.copy(
                         fnr = ARBEIDSTAKER_FNR,
+                        navn = ARBEIDSTAKER_NAVN,
                         virksomhetsnummer = VIRKSOMHETSNUMMER,
                         fom = LocalDate.now().plusDays(120),
                         tom = LocalDate.now().plusDays(120),
@@ -255,6 +260,7 @@ object OversikthendelstilfelleServiceSpek : Spek({
                 )
                 val oversikthendelsetilfelleMottattSist = oversikthendelstilfelle.copy(
                         fnr = ARBEIDSTAKER_2_FNR,
+                        navn = ARBEIDSTAKER_2_NAVN,
                         virksomhetsnummer = VIRKSOMHETSNUMMER,
                         fom = LocalDate.now().plusDays(60),
                         tom = LocalDate.now().plusDays(60),
@@ -304,6 +310,7 @@ object OversikthendelstilfelleServiceSpek : Spek({
 
 fun checkPersonOversiktStatus(pPersonOversiktStatus: PPersonOversiktStatus, oversikthendelsetilfelle: KOversikthendelsetilfelle, veilederIdent: String?) {
     pPersonOversiktStatus.fnr shouldEqual oversikthendelsetilfelle.fnr
+    pPersonOversiktStatus.navn shouldEqual oversikthendelsetilfelle.navn
     pPersonOversiktStatus.veilederIdent shouldEqual veilederIdent
     pPersonOversiktStatus.enhet shouldEqual oversikthendelsetilfelle.enhetId
     pPersonOversiktStatus.motebehovUbehandlet shouldEqual null
