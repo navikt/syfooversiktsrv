@@ -14,20 +14,26 @@ class OversikthendelstilfelleService(private val database: DatabaseInterface) {
             oversikthendelsetilfelle: KOversikthendelsetilfelle,
             callId: String = ""
     ) {
-        val person = database.hentPersonResultatInternal(oversikthendelsetilfelle.fnr)
+        if(isInvalidOversikthendelsetilfelle(oversikthendelsetilfelle)) {
+            LOG.error("Oppdaterte ikke person med oversikthendelsetilfelle med ugyldig EnhetId, for enhet {}, {}", oversikthendelsetilfelle.enhetId, CallIdArgument(callId))
+            COUNT_OVERSIKTHENDELSETILFELLE_UGDYLGIG_MOTTATT.inc()
+            return
+        } else {
+            val person = database.hentPersonResultatInternal(oversikthendelsetilfelle.fnr)
 
-        when {
-            person.isEmpty() -> {
-                database.opprettPersonOppfolgingstilfelleMottatt(oversikthendelsetilfelle)
-                countOpprett(oversikthendelsetilfelle, callId)
-            }
-            erPersonsEnhetOppdatert(person, oversikthendelsetilfelle.enhetId) -> {
-                database.oppdaterPersonOppfolgingstilfelleNyEnhetMottatt(person.first().id, oversikthendelsetilfelle)
-                countOppdaterNyEnhet(oversikthendelsetilfelle, callId)
-            }
-            else -> {
-                database.oppdaterPersonOppfolgingstilfelleMottatt(person.first().id, oversikthendelsetilfelle)
-                countOppdater(oversikthendelsetilfelle, callId)
+            when {
+                person.isEmpty() -> {
+                    database.opprettPersonOppfolgingstilfelleMottatt(oversikthendelsetilfelle)
+                    countOpprett(oversikthendelsetilfelle, callId)
+                }
+                erPersonsEnhetOppdatert(person, oversikthendelsetilfelle.enhetId) -> {
+                    database.oppdaterPersonOppfolgingstilfelleNyEnhetMottatt(person.first().id, oversikthendelsetilfelle)
+                    countOppdaterNyEnhet(oversikthendelsetilfelle, callId)
+                }
+                else -> {
+                    database.oppdaterPersonOppfolgingstilfelleMottatt(person.first().id, oversikthendelsetilfelle)
+                    countOppdater(oversikthendelsetilfelle, callId)
+                }
             }
         }
     }
@@ -38,6 +44,10 @@ class OversikthendelstilfelleService(private val database: DatabaseInterface) {
             return nyEnhetId.isNotEmpty() && nyEnhetId != enhet
         }
     }
+}
+
+fun isInvalidOversikthendelsetilfelle(oversikthendelsetilfelle: KOversikthendelsetilfelle): Boolean {
+    return oversikthendelsetilfelle.enhetId.length > 4
 }
 
 fun countOpprett(
