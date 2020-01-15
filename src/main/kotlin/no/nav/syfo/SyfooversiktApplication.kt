@@ -37,7 +37,6 @@ import no.nav.syfo.db.*
 import no.nav.syfo.kafka.setupKafka
 import no.nav.syfo.oversikthendelsetilfelle.OversikthendelstilfelleService
 import no.nav.syfo.personstatus.*
-import no.nav.syfo.tilgangskontroll.MidlertidigTilgangsSjekk
 import no.nav.syfo.tilgangskontroll.TilgangskontrollConsumer
 import no.nav.syfo.util.NAV_CALL_ID_HEADER
 import no.nav.syfo.util.getCallId
@@ -226,7 +225,6 @@ fun Application.serverModule() {
 
 
     isProd {
-        val tilgangsSjekk = MidlertidigTilgangsSjekk()
         intercept(ApplicationCallPipeline.Call) {
             if (call.request.uri.contains(Regex("is_alive|is_ready|prometheus"))) {
                 proceed()
@@ -235,9 +233,6 @@ fun Application.serverModule() {
             val cookies = call.request.cookies
             if (isInvalidToken(cookies)) {
                 call.respond(HttpStatusCode.Unauthorized, "Ugyldig token")
-                finish()
-            } else if (!tilgangsSjekk.harTilgang(getVeilederTokenPayload(getTokenFromCookie(cookies)).navIdent)) {
-                call.respond(HttpStatusCode.Forbidden, "Denne identen har ikke tilgang til applikasjonen")
                 finish()
             } else {
                 proceed()
