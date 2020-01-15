@@ -113,12 +113,12 @@ fun Application.init() {
                 username = newCredentials.username,
                 password = newCredentials.password,
                 databaseName = env.databaseName,
-                runMigrationsOninit = false)) { prodDatabase->
+                runMigrationsOninit = false)) { prodDatabase ->
 
             // i prod må vi kjøre flyway migrations med et eget sett brukernavn/passord
             vaultCredentialService.getNewCredentials(env.mountPathVault, env.databaseName, Role.ADMIN).let {
-                        prodDatabase.runFlywayMigrations(env.syfooversiktsrvDBURL, it.username, it.password)
-                    }
+                prodDatabase.runFlywayMigrations(env.syfooversiktsrvDBURL, it.username, it.password)
+            }
 
             vaultCredentialService.renewCredentialsTaskData = RenewCredentialsTaskData(env.mountPathVault, env.databaseName, Role.USER) {
                 prodDatabase.updateCredentials(username = it.username, password = it.password)
@@ -282,7 +282,6 @@ fun CoroutineScope.createListener(applicationState: ApplicationState, action: su
                 applicationState.running = false
             }
         }
-
 
 
 val Application.envKind get() = environment.config.property("ktor.environment").getString()
