@@ -4,11 +4,6 @@ import com.auth0.jwk.JwkProviderBuilder
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.auth0.jwt.interfaces.DecodedJWT
-import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.annotation.JsonValue
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.ktor.request.RequestCookies
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.Environment
@@ -47,7 +42,8 @@ data class VeilederTokenPayload(
 
 fun getVeilederTokenPayload(token: String): VeilederTokenPayload {
     val decodedJWT = JWT.decode(token)
-    val navIdent: String = decodedJWT.claims["NAVident"]?.asString() ?: throw Error("Missing NAVident in private claims")
+    val navIdent: String = decodedJWT.claims["NAVident"]?.asString()
+            ?: throw Error("Missing NAVident in private claims")
     val navn: String = decodedJWT.claims["name"]?.asString() ?: throw Error("Missing name in private claims")
     val email = decodedJWT.claims["unique_name"]?.asString() ?: throw Error("Missing unique_name in private claims")
     return VeilederTokenPayload(navIdent, navn, email)
