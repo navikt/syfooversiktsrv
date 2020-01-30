@@ -107,7 +107,7 @@ object PersonoversiktStatusApiSpek : Spek({
                     }
                 }
 
-                it("skal hente enhet sin personoversikt med ubehandlet motebehovsvar") {
+                it("skal returnere NoContent med ubehandlet motebehovsvar og ikke har oppfolgingstilfelle") {
                     every {
                         isInvalidToken(any())
                     } returns false
@@ -124,17 +124,11 @@ object PersonoversiktStatusApiSpek : Spek({
                     with(handleRequest(HttpMethod.Get, url) {
                         call.request.cookies[cookies]
                     }) {
-                        response.status() shouldEqual HttpStatusCode.OK
-                        val personOversiktStatus = objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!)[0]
-                        personOversiktStatus.veilederIdent shouldEqual tilknytning.veilederIdent
-                        personOversiktStatus.fnr shouldEqual oversiktHendelse.fnr
-                        personOversiktStatus.enhet shouldEqual oversiktHendelse.enhetId
-                        personOversiktStatus.motebehovUbehandlet shouldEqual true
-                        personOversiktStatus.moteplanleggerUbehandlet shouldEqual null
+                        response.status() shouldEqual HttpStatusCode.NoContent
                     }
                 }
 
-                it("skal hente enhet sin personoversikt med ubehandlet moteplanleggersvar") {
+                it("skal returnere NoContent med ubehandlet moteplanleggersvar og ikke har oppfolgingstilfelle") {
                     every {
                         isInvalidToken(any())
                     } returns false
@@ -151,13 +145,7 @@ object PersonoversiktStatusApiSpek : Spek({
                     with(handleRequest(HttpMethod.Get, url) {
                         call.request.cookies[cookies]
                     }) {
-                        response.status() shouldEqual HttpStatusCode.OK
-                        val personOversiktStatus = objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!)[0]
-                        personOversiktStatus.veilederIdent shouldEqual tilknytning.veilederIdent
-                        personOversiktStatus.fnr shouldEqual oversiktHendelse.fnr
-                        personOversiktStatus.enhet shouldEqual oversiktHendelse.enhetId
-                        personOversiktStatus.motebehovUbehandlet shouldEqual null
-                        personOversiktStatus.moteplanleggerUbehandlet shouldEqual true
+                        response.status() shouldEqual HttpStatusCode.NoContent
                     }
                 }
 
@@ -191,7 +179,7 @@ object PersonoversiktStatusApiSpek : Spek({
                     }
                 }
 
-                it("should return list of PersonOversiktStatus, if there is a person with a relevant active Oppfolgingstilfelle") {
+                it("should return NoContent, if there is a person with a relevant active Oppfolgingstilfelle, but neither MOTEBEHOV_SVAR_MOTTATT nor MOTEPLANLEGGER_ALLE_SVAR_MOTTATT") {
                     every {
                         isInvalidToken(any())
                     } returns false
@@ -210,20 +198,49 @@ object PersonoversiktStatusApiSpek : Spek({
                     with(handleRequest(HttpMethod.Get, url) {
                         call.request.cookies[cookies]
                     }) {
+                        response.status() shouldEqual HttpStatusCode.NoContent
+                    }
+                }
+
+                it("should return list of PersonOversiktStatus, if MOTEBEHOV_SVAR_MOTTATT and MOTEPLANLEGGER_ALLE_SVAR_MOTTATT, and there is a person with a relevant active Oppfolgingstilfelle") {
+                    every {
+                        isInvalidToken(any())
+                    } returns false
+                    every {
+                        getTokenFromCookie(any())
+                    } returns "token"
+
+                    val oversikthendelstilfelle = generateOversikthendelsetilfelle.copy(
+                            enhetId = NAV_ENHET,
+                            gradert = false,
+                            fom = LocalDate.now().minusDays(56),
+                            tom = LocalDate.now()
+                    )
+                    oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
+
+                    val oversiktHendelseMotebehovMottatt = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
+                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMotebehovMottatt)
+
+                    val oversiktHendelseMoteplanleggerMottatt = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
+                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerMottatt)
+
+                    with(handleRequest(HttpMethod.Get, url) {
+                        call.request.cookies[cookies]
+                    }) {
                         response.status() shouldEqual HttpStatusCode.OK
                         val personOversiktStatus = objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!).first()
                         personOversiktStatus.veilederIdent shouldEqual null
                         personOversiktStatus.fnr shouldEqual oversikthendelstilfelle.fnr
                         personOversiktStatus.enhet shouldEqual oversikthendelstilfelle.enhetId
-                        personOversiktStatus.motebehovUbehandlet shouldEqual null
-                        personOversiktStatus.moteplanleggerUbehandlet shouldEqual null
+                        personOversiktStatus.motebehovUbehandlet shouldEqual true
+                        personOversiktStatus.moteplanleggerUbehandlet shouldEqual true
 
                         personOversiktStatus.oppfolgingstilfeller.size shouldEqual 1
                         checkPersonOppfolgingstilfelle(personOversiktStatus.oppfolgingstilfeller.first(), oversikthendelstilfelle)
                     }
                 }
 
-                it("should return list of PersonOversiktStatus, if there is a person with 2 relevant active Oppfolgingstilfelle with different virksomhetsnummer") {
+                it("should return list of PersonOversiktStatus, if MOTEBEHOV_SVAR_MOTTATT and if there is a person with 2 relevant active Oppfolgingstilfelle with different virksomhetsnummer") {
                     every {
                         isInvalidToken(any())
                     } returns false
@@ -245,6 +262,9 @@ object PersonoversiktStatusApiSpek : Spek({
                     oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
                     oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle2)
 
+                    val oversiktHendelseMotebehovMottatt = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
+                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMotebehovMottatt)
+
                     with(handleRequest(HttpMethod.Get, url) {
                         call.request.cookies[cookies]
                     }) {
@@ -254,7 +274,7 @@ object PersonoversiktStatusApiSpek : Spek({
                         personOversiktStatus.fnr shouldEqual oversikthendelstilfelle.fnr
                         personOversiktStatus.navn shouldEqual oversikthendelstilfelle.navn
                         personOversiktStatus.enhet shouldEqual oversikthendelstilfelle.enhetId
-                        personOversiktStatus.motebehovUbehandlet shouldEqual null
+                        personOversiktStatus.motebehovUbehandlet shouldEqual true
                         personOversiktStatus.moteplanleggerUbehandlet shouldEqual null
 
                         personOversiktStatus.oppfolgingstilfeller.size shouldEqual 2
@@ -263,7 +283,7 @@ object PersonoversiktStatusApiSpek : Spek({
                     }
                 }
 
-                it("should return list of PersonOversiktStatus, if there is a person with a relevant Oppfolgingstilfelle valid in Arbeidsgiverperiode") {
+                it("should return list of PersonOversiktStatus, if MOTEPLANLEGGER_ALLE_SVAR_MOTTATT and  if there is a person with a relevant Oppfolgingstilfelle valid in Arbeidsgiverperiode") {
                     every {
                         isInvalidToken(any())
                     } returns false
@@ -279,6 +299,9 @@ object PersonoversiktStatusApiSpek : Spek({
                     )
                     oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
 
+                    val oversiktHendelseMoteplanleggerMottatt = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
+                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerMottatt)
+
                     with(handleRequest(HttpMethod.Get, url) {
                         call.request.cookies[cookies]
                     }) {
@@ -289,7 +312,7 @@ object PersonoversiktStatusApiSpek : Spek({
                         personOversiktStatus.navn shouldEqual oversikthendelstilfelle.navn
                         personOversiktStatus.enhet shouldEqual oversikthendelstilfelle.enhetId
                         personOversiktStatus.motebehovUbehandlet shouldEqual null
-                        personOversiktStatus.moteplanleggerUbehandlet shouldEqual null
+                        personOversiktStatus.moteplanleggerUbehandlet shouldEqual true
 
                         personOversiktStatus.oppfolgingstilfeller.size shouldEqual 1
                         checkPersonOppfolgingstilfelle(personOversiktStatus.oppfolgingstilfeller.first(), oversikthendelstilfelle)

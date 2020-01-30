@@ -43,6 +43,21 @@ fun DatabaseInterface.hentPersonResultat(fnr: String): List<PPersonOversiktStatu
     }
 }
 
+const val queryHentUbehandledePersonerTilknyttetEnhet = """
+                        SELECT *
+                        FROM PERSON_OVERSIKT_STATUS
+                        WHERE ((tildelt_enhet = ?)
+                        AND (motebehov_ubehandlet = 't' OR moteplanlegger_ubehandlet = 't'))
+                """
+fun DatabaseInterface.hentUbehandledePersonerTilknyttetEnhet(enhet: String): List<PPersonOversiktStatus> {
+    return connection.use { connection ->
+        connection.prepareStatement(queryHentUbehandledePersonerTilknyttetEnhet).use {
+            it.setString(1, enhet)
+            it.executeQuery().toList { toPPersonOversiktStatus() }
+        }
+    }
+}
+
 const val queryHentPersonerTilknyttetEnhet = """
                         SELECT *
                         FROM PERSON_OVERSIKT_STATUS

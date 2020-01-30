@@ -2,23 +2,22 @@ package no.nav.syfo.personstatus
 
 import no.nav.syfo.db.DatabaseInterface
 import no.nav.syfo.oversikthendelsetilfelle.domain.PPersonOppfolgingstilfelle
-import no.nav.syfo.oversikthendelsetilfelle.hentPersonsOppfolgingstilfellerGjeldendeI8UkerUtenAktivitet
+import no.nav.syfo.oversikthendelsetilfelle.hentOppfolgingstilfellerForPerson
 import no.nav.syfo.personstatus.domain.*
 
 class PersonoversiktStatusService(
         private val database: DatabaseInterface
 ) {
-
     fun hentPersonoversiktStatusTilknyttetEnhet(enhet: String): List<PersonOversiktStatus> {
-        val personListe = database.hentPersonerTilknyttetEnhet(enhet)
+        val personListe = database.hentUbehandledePersonerTilknyttetEnhet(enhet)
         return personListe.map {
-            val pOppfolgingstilfeller = database.hentPersonsOppfolgingstilfellerGjeldendeI8UkerUtenAktivitet(it.id)
+            val pOppfolgingstilfeller = database.hentOppfolgingstilfellerForPerson(it.id)
             val oppfolgingstilfeller: List<Oppfolgingstilfelle> = pOppfolgingstilfeller.map { pOppfolgingstilfelle ->
                 mapOppfolgingstilfelle(pOppfolgingstilfelle)
             }
             mapPersonOversiktStatus(it, oppfolgingstilfeller)
         }.filter {
-            it.oppfolgingstilfeller.isNotEmpty() || it.motebehovUbehandlet == true || it.moteplanleggerUbehandlet == true
+            it.oppfolgingstilfeller.isNotEmpty()
         }
     }
 }
