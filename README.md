@@ -1,5 +1,6 @@
 # syfooversiktsrv
-This application is a service dedicated for supply Syfooversikt(https://github.com/navikt/syfooversikt) with a list of relevant persons along with relevant information.
+This application is a service dedicated to supply Syfooversikt(https://github.com/navikt/syfooversikt) with a list of
+relevant persons and information on them.
 
 ## Technologies used
 * Kotlin
