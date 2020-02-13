@@ -5,7 +5,6 @@ import no.nav.syfo.testutil.UserConstants
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-
 val generateOversikthendelsetilfelle =
         KOversikthendelsetilfelle(
                 fnr = UserConstants.ARBEIDSTAKER_FNR,

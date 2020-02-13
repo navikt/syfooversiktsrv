@@ -14,7 +14,7 @@ class OversikthendelstilfelleService(private val database: DatabaseInterface) {
             oversikthendelsetilfelle: KOversikthendelsetilfelle,
             callId: String = ""
     ) {
-        if(isInvalidOversikthendelsetilfelle(oversikthendelsetilfelle)) {
+        if (isInvalidOversikthendelsetilfelle(oversikthendelsetilfelle)) {
             LOG.error("Oppdaterte ikke person med oversikthendelsetilfelle med ugyldig EnhetId, for enhet {}, {}", oversikthendelsetilfelle.enhetId, CallIdArgument(callId))
             COUNT_OVERSIKTHENDELSETILFELLE_UGDYLGIG_MOTTATT.inc()
             return
@@ -37,6 +37,7 @@ class OversikthendelstilfelleService(private val database: DatabaseInterface) {
             }
         }
     }
+
     companion object {
 
         fun erPersonsEnhetOppdatert(person: List<PPersonOversiktStatus>, nyEnhetId: String): Boolean {

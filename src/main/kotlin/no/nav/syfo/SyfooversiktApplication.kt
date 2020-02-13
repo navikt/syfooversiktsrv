@@ -31,7 +31,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.slf4j.MDCContext
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.api.*
-import no.nav.syfo.auth.*
+import no.nav.syfo.auth.isInvalidToken
 import no.nav.syfo.db.*
 import no.nav.syfo.kafka.setupKafka
 import no.nav.syfo.oversikthendelsetilfelle.OversikthendelstilfelleService
