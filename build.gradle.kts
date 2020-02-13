@@ -81,13 +81,13 @@ dependencies {
     implementation("no.nav.syfo.sm:syfosm-common-models:$smCommonVersion")
     implementation("no.nav.syfo.sm:syfosm-common-kafka:$smCommonVersion")
 
-    compile("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$kotlinSerializationVersion")
-    compile("org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:$kotlinSerializationVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$kotlinSerializationVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:$kotlinSerializationVersion")
 
-    compile("io.ktor:ktor-jackson:$ktorVersion")
-    compile("io.ktor:ktor-client-jackson:$ktorVersion")
-    compile("io.ktor:ktor-auth:$ktorVersion")
-    compile("io.ktor:ktor-auth-jwt:$ktorVersion")
+    implementation("io.ktor:ktor-jackson:$ktorVersion")
+    implementation("io.ktor:ktor-client-jackson:$ktorVersion")
+    implementation("io.ktor:ktor-auth:$ktorVersion")
+    implementation("io.ktor:ktor-auth-jwt:$ktorVersion")
 
     testImplementation("no.nav:kafka-embedded-env:$kafkaEmbeddedVersion")
     testImplementation("org.amshove.kluent:kluent:$kluentVersion")
