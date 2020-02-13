@@ -4,7 +4,8 @@ import io.ktor.http.*
 import io.ktor.routing.routing
 import io.ktor.server.testing.TestApplicationEngine
 import io.ktor.server.testing.handleRequest
-import no.nav.syfo.api.registerNaisApi
+import no.nav.syfo.api.registerPodApi
+import no.nav.syfo.api.registerPrometheusApi
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldNotEqual
 import org.spekframework.spek2.Spek
@@ -22,7 +23,8 @@ object SelftestSpek : Spek({
         with(TestApplicationEngine()) {
             start()
             application.routing {
-                registerNaisApi(applicationState)
+                registerPodApi(applicationState)
+                registerPrometheusApi()
             }
 
             it("Returns ok on is_alive") {
@@ -65,7 +67,7 @@ object SelftestSpek : Spek({
         with(TestApplicationEngine()) {
             start()
             application.routing {
-                registerNaisApi(ApplicationState(running = false))
+                registerPodApi(ApplicationState(running = false))
             }
 
             it("Returns internal server error when liveness check fails") {
@@ -81,7 +83,7 @@ object SelftestSpek : Spek({
         with(TestApplicationEngine()) {
             start()
             application.routing {
-                registerNaisApi(ApplicationState(initialized = false))
+                registerPodApi(ApplicationState(initialized = false))
             }
 
             it("Returns internal server error when readyness check fails") {

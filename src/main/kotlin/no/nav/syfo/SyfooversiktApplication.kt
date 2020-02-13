@@ -27,12 +27,10 @@ import io.ktor.response.respond
 import io.ktor.routing.routing
 import io.ktor.server.engine.*
 import io.ktor.server.netty.Netty
-import io.prometheus.client.hotspot.DefaultExports
 import kotlinx.coroutines.*
 import kotlinx.coroutines.slf4j.MDCContext
 import net.logstash.logback.argument.StructuredArguments
-import no.nav.syfo.api.getWellKnown
-import no.nav.syfo.api.registerNaisApi
+import no.nav.syfo.api.*
 import no.nav.syfo.auth.*
 import no.nav.syfo.db.*
 import no.nav.syfo.kafka.setupKafka
@@ -83,8 +81,6 @@ fun main() {
     })
 
     server.start(wait = false)
-
-    DefaultExports.initialize()
 }
 
 
@@ -263,7 +259,8 @@ fun Application.serverModule() {
     val tilgangskontrollConsumer = TilgangskontrollConsumer(env.syfotilgangskontrollUrl, httpClient)
 
     routing {
-        registerNaisApi(state)
+        registerPodApi(state)
+        registerPrometheusApi()
         registerPersonoversiktApi(tilgangskontrollConsumer, personoversiktStatusService)
         registerPersonTildelingApi(tilgangskontrollConsumer, personTildelingService)
     }
