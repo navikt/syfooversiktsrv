@@ -5,7 +5,9 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 group = "no.nav.syfo"
 version = "1.0-SNAPSHOT"
 
-val coroutinesVersion = "1.3.1"
+val coroutinesVersion = "1.3.3"
+val kotlinSerializationVersion = "0.9.0"
+val ktorVersion = "1.3.1"
 val flywayVersion = "5.2.4"
 val jacksonVersion = "2.9.8"
 val hikariVersion = "3.3.0"
@@ -13,8 +15,6 @@ val h2Version = "1.4.197"
 val kafkaVersion = "2.0.0"
 val kafkaEmbeddedVersion = "2.0.2"
 val kluentVersion = "1.39"
-val kotlinSerializationVersion = "0.9.0"
-val ktorVersion = "1.2.5"
 val logbackVersion = "1.2.3"
 val logstashEncoderVersion = "5.1"
 val mockkVersion = "1.9.3"
@@ -29,7 +29,7 @@ tasks.withType<Jar> {
 }
 
 plugins {
-    kotlin("jvm") version "1.3.60"
+    kotlin("jvm") version "1.3.61"
     id("com.diffplug.gradle.spotless") version "3.18.0"
     id("com.github.johnrengelman.shadow") version "4.0.4"
 }
