@@ -35,7 +35,7 @@ class TilgangskontrollConsumer(
         requestTimer.observeDuration()
         val responseIs2XX = response.status.value in 200..299
         response.close()
-        return responseIs2XX in 200..299
+        return responseIs2XX
     }
 
     suspend fun harVeilederTilgangTilEnhet(enhet: String, token: String, callId: String): Boolean {
@@ -52,7 +52,7 @@ class TilgangskontrollConsumer(
         requestTimer.observeDuration()
         val responseIs2XX = response.status.value in 200..299
         response.close()
-        return responseIs2XX in 200..299
+        return responseIs2XX
     }
 
     private fun getTilgangskontrollUrl(path: String): String {
