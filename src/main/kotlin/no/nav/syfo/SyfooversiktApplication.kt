@@ -27,6 +27,7 @@ import io.ktor.response.respond
 import io.ktor.routing.routing
 import io.ktor.server.engine.*
 import io.ktor.server.netty.Netty
+import io.prometheus.client.hotspot.DefaultExports
 import kotlinx.coroutines.*
 import kotlinx.coroutines.slf4j.MDCContext
 import net.logstash.logback.argument.StructuredArguments
@@ -82,6 +83,8 @@ fun main() {
     })
 
     server.start(wait = false)
+
+    DefaultExports.initialize()
 }
 
 
