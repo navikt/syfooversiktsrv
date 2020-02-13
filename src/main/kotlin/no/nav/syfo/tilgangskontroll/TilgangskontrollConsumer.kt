@@ -4,12 +4,10 @@ import io.ktor.client.HttpClient
 import io.ktor.client.request.*
 import io.ktor.client.response.HttpResponse
 import io.ktor.http.ContentType
-import no.nav.syfo.auth.log
 import no.nav.syfo.metric.HISTOGRAM_SYFOTILGANGSKONTROLL_ENHET
 import no.nav.syfo.metric.HISTOGRAM_SYFOTILGANGSKONTROLL_PERSON
 import no.nav.syfo.util.NAV_CALL_ID_HEADER
 import org.slf4j.LoggerFactory
-
 
 val log = LoggerFactory.getLogger("no.nav.syfo.oversikt.tilgangskontroll")
 
