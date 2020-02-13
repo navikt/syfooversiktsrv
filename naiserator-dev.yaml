@@ -1,0 +1,58 @@
+apiVersion: "nais.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: syfooversiktsrv
+  namespace: default
+  labels:
+    team: teamsykefravr
+spec:
+  image: {{ image }}
+  port: 8080
+  team: teamsykefravr
+  liveness:
+    path: /is_alive
+    initialDelay: 10
+    timeout: 5
+    periodSeconds: 5
+    failureThreshold: 30
+  readiness:
+    path: /is_ready
+    initialDelay: 10
+    periodSeconds: 5
+    timeout: 5
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1024Mi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+  replicas:
+    min: 1
+    max: 2
+    cpuThresholdPercentage: 90
+  prometheus:
+    enabled: true
+    path: /prometheus
+  ingresses:
+    - "https://syfooversiktsrv.nais.preprod.local"
+  vault:
+    enabled: true
+  webproxy: true
+  env:
+    - name: CLIENT_ID
+      value: 38e07d31-659d-4595-939a-f18dce3446c5
+    - name: AADDISCOVERY_URL
+      value: https://login.microsoftonline.com/966ac572-f5b7-4bbe-aa88-c76419c0f851/.well-known/openid-configuration
+    - name: JWT_ISSUER
+      value: https://sts.windows.net/966ac572-f5b7-4bbe-aa88-c76419c0f851/
+    - name: SYFOOVERSIKTSRV_DB_URL
+      value: jdbc:postgresql://B27DBVL007.preprod.local:5432/syfooversiktsrv
+    - name: MOUNT_PATH_VAULT
+      value: /postgresql/preprod-fss
+    - name: KTOR_ENV
+      value: production
+    - name: KAFKA_BOOTSTRAP_SERVERS_URL
+      value: SSL://b27apvl00045.preprod.local:8443,SSL://b27apvl00046.preprod.local:8443,SSL://b27apvl00047.preprod.local:8443
+    - name: SYFOTILGANGSKONTROLL_URL
+      value: https://syfo-tilgangskontroll.nais.preprod.local
