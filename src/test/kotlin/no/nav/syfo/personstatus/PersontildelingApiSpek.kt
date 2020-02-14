@@ -17,7 +17,7 @@ import io.ktor.server.testing.*
 import io.ktor.util.InternalAPI
 import io.mockk.every
 import io.mockk.mockkStatic
-import kotlinx.coroutines.io.ByteReadChannel
+import io.ktor.utils.io.ByteReadChannel
 import no.nav.syfo.auth.getTokenFromCookie
 import no.nav.syfo.auth.isInvalidToken
 import no.nav.syfo.getEnvironment
@@ -130,7 +130,6 @@ object PersontildelingApiSpek : Spek({
                     with(handleRequest(HttpMethod.Post, url) {
                         addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
                         call.request.cookies[cookies]
-                        respondOk()
                         setBody("{\"tilknytninger\":[{\"veilederIdent\": \"$VEILEDER_ID\",\"fnr\": \"$ARBEIDSTAKER_FNR\",\"enhet\": \"$NAV_ENHET\"}]}")
                     }) {
                         response.status() shouldEqual HttpStatusCode.OK

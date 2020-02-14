@@ -19,7 +19,7 @@ import io.ktor.server.testing.handleRequest
 import io.ktor.util.InternalAPI
 import io.mockk.every
 import io.mockk.mockkStatic
-import kotlinx.coroutines.io.ByteReadChannel
+import io.ktor.utils.io.ByteReadChannel
 import no.nav.syfo.auth.getTokenFromCookie
 import no.nav.syfo.auth.isInvalidToken
 import no.nav.syfo.getEnvironment

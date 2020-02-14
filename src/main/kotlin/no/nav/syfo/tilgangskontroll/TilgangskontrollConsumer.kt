@@ -2,7 +2,8 @@ package no.nav.syfo.tilgangskontroll
 
 import io.ktor.client.HttpClient
 import io.ktor.client.request.*
-import io.ktor.client.response.HttpResponse
+import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.HttpStatement
 import io.ktor.http.ContentType
 import no.nav.syfo.metric.HISTOGRAM_SYFOTILGANGSKONTROLL_ENHET
 import no.nav.syfo.metric.HISTOGRAM_SYFOTILGANGSKONTROLL_PERSON
@@ -22,14 +23,14 @@ class TilgangskontrollConsumer(
 
     suspend fun harVeilederTilgangTilPerson(fnr: String, token: String, callId: String): Boolean {
         var requestTimer = HISTOGRAM_SYFOTILGANGSKONTROLL_PERSON.startTimer()
-        val response = client.get<HttpResponse>(getTilgangskontrollUrl(pathTilgangTilBruker)) {
+        val response = client.get<HttpStatement>(getTilgangskontrollUrl(pathTilgangTilBruker)) {
             accept(ContentType.Application.Json)
             headers {
                 append("Authorization", "Bearer $token")
                 append(NAV_CALL_ID_HEADER, callId)
             }
             parameter(paramFnr, fnr)
-        }
+        }.receive<HttpResponse>()
         requestTimer.observeDuration()
         return response.status.value in 200..299
     }
