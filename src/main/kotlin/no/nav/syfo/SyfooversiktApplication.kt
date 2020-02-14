@@ -251,6 +251,11 @@ fun Application.serverModule() {
             logger = Logger.DEFAULT
             level = LogLevel.INFO
         }
+        engine {
+            customizeClient {
+                setMaxConnTotal(50)
+            }
+        }
     }
     val httpClient = HttpClient(Apache, config)
 
