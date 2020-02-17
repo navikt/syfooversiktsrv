@@ -4,22 +4,21 @@ import com.fasterxml.jackson.databind.*
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import io.ktor.application.call
 import io.ktor.application.install
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.mock.MockEngine
-import io.ktor.client.engine.mock.respond
-import io.ktor.client.features.json.JacksonSerializer
-import io.ktor.client.features.json.JsonFeature
 import io.ktor.features.ContentNegotiation
-import io.ktor.http.*
+import io.ktor.http.HttpMethod
+import io.ktor.http.HttpStatusCode
 import io.ktor.jackson.jackson
-import io.ktor.routing.routing
+import io.ktor.response.respond
+import io.ktor.routing.*
+import io.ktor.server.engine.embeddedServer
+import io.ktor.server.netty.Netty
 import io.ktor.server.testing.TestApplicationEngine
 import io.ktor.server.testing.handleRequest
 import io.ktor.util.InternalAPI
 import io.mockk.every
 import io.mockk.mockkStatic
-import io.ktor.utils.io.ByteReadChannel
 import no.nav.syfo.auth.getTokenFromCookie
 import no.nav.syfo.auth.isInvalidToken
 import no.nav.syfo.getEnvironment
@@ -34,10 +33,12 @@ import no.nav.syfo.testutil.UserConstants.VEILEDER_ID
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNAVN_2
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER_2
+import no.nav.syfo.tilgangskontroll.Tilgang
 import no.nav.syfo.tilgangskontroll.TilgangskontrollConsumer
 import org.amshove.kluent.shouldEqual
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
+import java.net.ServerSocket
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -53,24 +54,38 @@ private val env = getEnvironment()
 @InternalAPI
 object PersonoversiktStatusApiSpek : Spek({
 
-    val database = TestDB()
-    val cookies = ""
-    val baseUrl = "/api/v1/personoversikt"
-    val tilgangskontrollConsumer = TilgangskontrollConsumer(
-            env.syfotilgangskontrollUrl,
-            client
-    )
-    val oversiktHendelseService = OversiktHendelseService(database)
-    val oversikthendelstilfelleService = OversikthendelstilfelleService(database)
-
-    afterGroup {
-        database.stop()
-    }
-
     describe("PersonoversiktApi") {
 
         with(TestApplicationEngine()) {
             start()
+
+            val responseAccessEnhet = Tilgang(true, "")
+            val responseAccessPersons = listOf(ARBEIDSTAKER_FNR)
+
+            val mockHttpServerPort = ServerSocket(0).use { it.localPort }
+            val mockHttpServerUrl = "http://localhost:$mockHttpServerPort"
+            val mockServer = embeddedServer(Netty, mockHttpServerPort) {
+                install(ContentNegotiation) {
+                    jackson {}
+                }
+                routing {
+                    get("${env.syfotilgangskontrollUrl}/syfo-tilgangskontroll/api/tilgang/enhet?enhet=$NAV_ENHET") {
+                        call.respond(responseAccessEnhet)
+                    }
+                    post("${env.syfotilgangskontrollUrl}/syfo-tilgangskontroll/api/tilgang/brukere") {
+                        call.respond(responseAccessPersons)
+                    }
+                }
+            }.start()
+
+            val database = TestDB()
+            val cookies = ""
+            val baseUrl = "/api/v1/personoversikt"
+            val tilgangskontrollConsumer = TilgangskontrollConsumer(
+                    "$mockHttpServerUrl/${env.syfotilgangskontrollUrl}"
+            )
+            val oversiktHendelseService = OversiktHendelseService(database)
+            val oversikthendelstilfelleService = OversikthendelstilfelleService(database)
 
             application.install(ContentNegotiation) {
                 jackson {
@@ -90,6 +105,11 @@ object PersonoversiktStatusApiSpek : Spek({
 
             afterEachTest {
                 database.connection.dropData()
+            }
+
+            afterGroup {
+                mockServer.stop(1L, 10L)
+                database.stop()
             }
 
             describe("Hent personoversikt for enhet") {
@@ -475,39 +495,6 @@ object PersonoversiktStatusApiSpek : Spek({
         }
     }
 })
-
-@InternalAPI
-private val client = HttpClient(MockEngine) {
-    val baseUrl = env.syfotilgangskontrollUrl
-    engine {
-        addHandler { request ->
-            when (request.url.fullUrl) {
-                "$baseUrl/syfo-tilgangskontroll/api/tilgang/enhet?enhet=$NAV_ENHET" -> {
-                    val responseHeaders = headersOf("Content-Type" to listOf(ContentType.Application.Json.toString()))
-                    respond(ByteReadChannel(("{" +
-                            "\"harTilgang\":\"true\",\"begrunnelse\":\"null\"}").toByteArray(Charsets.UTF_8)), HttpStatusCode.OK, responseHeaders)
-                }
-                "$baseUrl/syfo-tilgangskontroll/api/tilgang/bruker?fnr=$ARBEIDSTAKER_FNR" -> {
-                    val responseHeaders = headersOf("Content-Type" to listOf(ContentType.Application.Json.toString()))
-                    respond(ByteReadChannel(("{" +
-                            "\"harTilgang\":\"true\",\"begrunnelse\":\"null\"}").toByteArray(Charsets.UTF_8)), HttpStatusCode.OK, responseHeaders)
-                }
-                else -> error("Unhandled ${request.url.fullUrl}")
-            }
-        }
-    }
-    install(JsonFeature) {
-        serializer = JacksonSerializer {
-            registerKotlinModule()
-            registerModule(JavaTimeModule())
-            configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-        }
-    }
-}
-
-private val Url.hostWithPortIfRequired: String get() = if (port == protocol.defaultPort) host else hostWithPort
-private val Url.fullUrl: String get() = "${protocol.name}://$hostWithPortIfRequired$fullPath"
-
 
 fun checkPersonOppfolgingstilfelle(oppfolgingstilfelle: Oppfolgingstilfelle, oversikthendelsetilfelle: KOversikthendelsetilfelle) {
     oppfolgingstilfelle.virksomhetsnummer shouldEqual oversikthendelsetilfelle.virksomhetsnummer

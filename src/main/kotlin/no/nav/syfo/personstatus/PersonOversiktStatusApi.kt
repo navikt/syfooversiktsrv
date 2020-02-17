@@ -20,36 +20,44 @@ fun Route.registerPersonoversiktApi(
 ) {
     route("/api/v1/personoversikt") {
         get("/enhet/{enhet}") {
-                try {
-                    val callId = getCallId()
-                    val token = getTokenFromCookie(call.request.cookies)
+            try {
+                val callId = getCallId()
+                val token = getTokenFromCookie(call.request.cookies)
 
-                    val enhet: String = call.parameters["enhet"]?.takeIf { validateEnhet(it) }
-                            ?: throw IllegalArgumentException("Enhet mangler")
+                val enhet: String = call.parameters["enhet"]?.takeIf { validateEnhet(it) }
+                        ?: throw IllegalArgumentException("Enhet mangler")
 
-                    when (tilgangskontrollConsumer. harVeilederTilgangTilEnhet(enhet, token, callId)) {
-                        true -> {
-                            val personListe: List<PersonOversiktStatus> = personoversiktStatusService
-                                    .hentPersonoversiktStatusTilknyttetEnhet(enhet)
-                                    .filter { tilgangskontrollConsumer.harVeilederTilgangTilPerson(it.fnr, token, callId) }
+                when (tilgangskontrollConsumer.harVeilederTilgangTilEnhet(enhet, token, callId)) {
+                    true -> {
+                        val personOversiktStatusList: List<PersonOversiktStatus> = personoversiktStatusService
+                                .hentPersonoversiktStatusTilknyttetEnhet(enhet)
 
-                            when {
-                                personListe.isNotEmpty() -> call.respond(personListe)
-                                else -> call.respond(HttpStatusCode.NoContent)
-                            }
+                        val personFnrListWithVeilederAccess: List<String> = tilgangskontrollConsumer.veilederPersonAccessList(
+                                personOversiktStatusList.map { it.fnr },
+                                token,
+                                callId
+                        ) ?: emptyList()
 
-                            COUNT_PERSONOVERSIKTSTATUS_ENHET_HENTET.inc()
+                        val personList = personOversiktStatusList
+                                .filter { personFnrListWithVeilederAccess.contains(it.fnr) }
+
+                        when {
+                            personList.isNotEmpty() -> call.respond(personList)
+                            else -> call.respond(HttpStatusCode.NoContent)
                         }
-                        else -> {
-                            log.error("Veileder mangler tilgang til enhet, {}", CallIdArgument(callId))
-                            call.respond(HttpStatusCode.Forbidden, "Veileder mangler tilgang til enhet")
-                        }
+
+                        COUNT_PERSONOVERSIKTSTATUS_ENHET_HENTET.inc()
                     }
-                } catch (e: IllegalArgumentException) {
-                    log.warn("Kan ikke hente personoversikt for enhet: {}, {}", e.message, CallIdArgument(getCallId()))
-                    call.respond(HttpStatusCode.BadRequest, e.message ?: "Kan ikke hente personoversikt for enhet")
+                    else -> {
+                        log.error("Veileder mangler tilgang til enhet, {}", CallIdArgument(callId))
+                        call.respond(HttpStatusCode.Forbidden, "Veileder mangler tilgang til enhet")
+                    }
                 }
+            } catch (e: IllegalArgumentException) {
+                log.warn("Kan ikke hente personoversikt for enhet: {}, {}", e.message, CallIdArgument(getCallId()))
+                call.respond(HttpStatusCode.BadRequest, e.message ?: "Kan ikke hente personoversikt for enhet")
             }
+        }
 
     }
 }

@@ -5,6 +5,20 @@ import io.prometheus.client.Histogram
 
 const val METRICS_NS = "syfooversiktsrv"
 
+const val CALL_TILGANGSKONTROLL_PERSONS_SUCCESS = "call_tilgangskontroll_persons_success_count"
+const val CALL_TILGANGSKONTROLL_PERSONS_FAIL = "call_tilgangskontroll_persons_fail_count"
+val COUNT_CALL_TILGANGSKONTROLL_PERSONS_SUCCESS: Counter = Counter.build()
+        .namespace(METRICS_NS)
+        .name(CALL_TILGANGSKONTROLL_PERSONS_SUCCESS)
+        .help("Counts the number of successful calls to syfo-tilgangskontroll - persons")
+        .register()
+val COUNT_CALL_TILGANGSKONTROLL_PERSONS_FAIL: Counter = Counter.build()
+        .namespace(METRICS_NS)
+        .name(CALL_TILGANGSKONTROLL_PERSONS_FAIL)
+        .help("Counts the number of failed calls to syfo-tilgangskontroll - persons")
+        .register()
+
+
 const val PERSONOVERSIKTSTATUS_ENHET_HENTET = "success_personoversikt_hentet_count"
 val COUNT_PERSONOVERSIKTSTATUS_ENHET_HENTET: Counter = Counter.build()
         .namespace(METRICS_NS)
@@ -176,12 +190,12 @@ val COUNT_OVERSIKTHENDELSETILFELLE_GRADERT_OPPDATER_ENHET: Counter = Counter.bui
 
 
 const val SYFOTILGANGSKONTROLL_HISTOGRAM_ENHET = "syfotilgangskontroll_histogram_enhet"
-const val SYFOTILGANGSKONTROLL_HISTOGRAM_PERSON = "syfotilgangskontroll_histogram_person"
+const val SYFOTILGANGSKONTROLL_HISTOGRAM_PERSONER = "syfotilgangskontroll_histogram_personer"
 
-val HISTOGRAM_SYFOTILGANGSKONTROLL_PERSON: Histogram = Histogram.build()
+val HISTOGRAM_SYFOTILGANGSKONTROLL_PERSONER: Histogram = Histogram.build()
         .namespace(METRICS_NS)
-        .name(SYFOTILGANGSKONTROLL_HISTOGRAM_PERSON)
-        .help("Measure the current time it takes to get a response from Syfotilgangskontroll - person")
+        .name(SYFOTILGANGSKONTROLL_HISTOGRAM_PERSONER)
+        .help("Measure the current time it takes to get a response from Syfotilgangskontroll - personer")
         .register()
 
 val HISTOGRAM_SYFOTILGANGSKONTROLL_ENHET: Histogram = Histogram.build()

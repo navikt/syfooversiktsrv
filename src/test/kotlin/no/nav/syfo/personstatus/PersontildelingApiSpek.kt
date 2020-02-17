@@ -4,20 +4,20 @@ import com.fasterxml.jackson.databind.*
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import io.ktor.application.call
 import io.ktor.application.install
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.mock.*
-import io.ktor.client.features.json.JacksonSerializer
-import io.ktor.client.features.json.JsonFeature
 import io.ktor.features.ContentNegotiation
 import io.ktor.http.*
 import io.ktor.jackson.jackson
+import io.ktor.response.respond
+import io.ktor.routing.post
 import io.ktor.routing.routing
+import io.ktor.server.engine.embeddedServer
+import io.ktor.server.netty.Netty
 import io.ktor.server.testing.*
 import io.ktor.util.InternalAPI
 import io.mockk.every
 import io.mockk.mockkStatic
-import io.ktor.utils.io.ByteReadChannel
 import no.nav.syfo.auth.getTokenFromCookie
 import no.nav.syfo.auth.isInvalidToken
 import no.nav.syfo.getEnvironment
@@ -30,6 +30,7 @@ import no.nav.syfo.tilgangskontroll.TilgangskontrollConsumer
 import org.amshove.kluent.shouldEqual
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
+import java.net.ServerSocket
 
 private val objectMapper: ObjectMapper = ObjectMapper().apply {
     registerKotlinModule()
@@ -43,126 +44,118 @@ private val env = getEnvironment()
 @InternalAPI
 object PersontildelingApiSpek : Spek({
 
-    val database = TestDB()
-    val cookies = ""
-    val baseUrl = "/api/v1/persontildeling"
-    val tilgangskontrollConsumer = TilgangskontrollConsumer(
-            env.syfotilgangskontrollUrl,
-            client
-    )
+    with(TestApplicationEngine()) {
+        start()
 
-    afterGroup {
-        database.stop()
-    }
+        val responseList = listOf(ARBEIDSTAKER_FNR)
 
-    describe("PersontildelingApi") {
-
-        with(TestApplicationEngine()) {
-            start()
-
-            application.install(ContentNegotiation) {
-                jackson {
-                    registerKotlinModule()
-                    registerModule(JavaTimeModule())
-                    configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+        val mockHttpServerPort = ServerSocket(0).use { it.localPort }
+        val mockHttpServerUrl = "http://localhost:$mockHttpServerPort"
+        val mockServer = embeddedServer(Netty, mockHttpServerPort) {
+            install(ContentNegotiation) {
+                jackson {}
+            }
+            routing {
+                post("${env.syfotilgangskontrollUrl}/syfo-tilgangskontroll/api/tilgang/brukere") {
+                    call.respond(responseList)
                 }
             }
+        }.start()
 
-            application.routing {
-                registerPersonTildelingApi(tilgangskontrollConsumer, PersonTildelingService(database))
-            }
+        val database = TestDB()
+        val cookies = ""
+        val baseUrl = "/api/v1/persontildeling"
+        val tilgangskontrollConsumer = TilgangskontrollConsumer(
+                "$mockHttpServerUrl/${env.syfotilgangskontrollUrl}"
+        )
 
-            beforeEachTest {
-                mockkStatic("no.nav.syfo.auth.TokenAuthKt")
-            }
+        afterGroup {
+            database.stop()
+            mockServer.stop(1L, 10L)
+        }
 
-            afterEachTest {
-                database.connection.dropData()
-            }
+        describe("PersontildelingApi") {
 
-            describe("Hent veiledertilknytninger") {
-                val url = "$baseUrl/veileder/$VEILEDER_ID"
+            with(TestApplicationEngine()) {
+                start()
 
-                it("skal returnere status NoContent om veileder ikke har tilknytninger") {
-                    every {
-                        isInvalidToken(any())
-                    } returns false
-
-                    with(handleRequest(HttpMethod.Get, url) {
-                        call.request.cookies[cookies]
-                    }) {
-                        response.status() shouldEqual HttpStatusCode.NoContent
+                application.install(ContentNegotiation) {
+                    jackson {
+                        registerKotlinModule()
+                        registerModule(JavaTimeModule())
+                        configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
                     }
                 }
 
-                it("skal hente veileder sine tilknytninger ") {
-                    every {
-                        isInvalidToken(any())
-                    } returns false
+                application.routing {
+                    registerPersonTildelingApi(tilgangskontrollConsumer, PersonTildelingService(database))
+                }
 
-                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
+                beforeEachTest {
+                    mockkStatic("no.nav.syfo.auth.TokenAuthKt")
+                }
 
-                    database.connection.opprettVeilederBrukerKnytning(tilknytning)
+                afterEachTest {
+                    database.connection.dropData()
+                }
 
-                    with(handleRequest(HttpMethod.Get, url) {
-                        call.request.cookies[cookies]
-                    }) {
-                        response.status() shouldEqual HttpStatusCode.OK
-                        val returnertVerdig = objectMapper.readValue<List<VeilederBrukerKnytning>>(response.content!!)[0]
-                        returnertVerdig.veilederIdent shouldEqual tilknytning.veilederIdent
-                        returnertVerdig.fnr shouldEqual tilknytning.fnr
-                        returnertVerdig.enhet shouldEqual tilknytning.enhet
+                describe("Hent veiledertilknytninger") {
+                    val url = "$baseUrl/veileder/$VEILEDER_ID"
+
+                    it("skal returnere status NoContent om veileder ikke har tilknytninger") {
+                        every {
+                            isInvalidToken(any())
+                        } returns false
+
+                        with(handleRequest(HttpMethod.Get, url) {
+                            call.request.cookies[cookies]
+                        }) {
+                            response.status() shouldEqual HttpStatusCode.NoContent
+                        }
+                    }
+
+                    it("skal hente veileder sine tilknytninger ") {
+                        every {
+                            isInvalidToken(any())
+                        } returns false
+
+                        val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
+
+                        database.connection.opprettVeilederBrukerKnytning(tilknytning)
+
+                        with(handleRequest(HttpMethod.Get, url) {
+                            call.request.cookies[cookies]
+                        }) {
+                            response.status() shouldEqual HttpStatusCode.OK
+                            val returnertVerdig = objectMapper.readValue<List<VeilederBrukerKnytning>>(response.content!!)[0]
+                            returnertVerdig.veilederIdent shouldEqual tilknytning.veilederIdent
+                            returnertVerdig.fnr shouldEqual tilknytning.fnr
+                            returnertVerdig.enhet shouldEqual tilknytning.enhet
+                        }
                     }
                 }
-            }
 
-            describe("skal lagre veiledertilknytninger") {
-                val url = "$baseUrl/registrer"
+                describe("skal lagre veiledertilknytninger") {
+                    val url = "$baseUrl/registrer"
 
-                it("skal lagre liste med veiledertilknytninger") {
-                    every {
-                        isInvalidToken(any())
-                    } returns false
-                    every {
-                        getTokenFromCookie(any())
-                    } returns "token"
+                    it("skal lagre liste med veiledertilknytninger") {
+                        every {
+                            isInvalidToken(any())
+                        } returns false
+                        every {
+                            getTokenFromCookie(any())
+                        } returns "token"
 
-                    with(handleRequest(HttpMethod.Post, url) {
-                        addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
-                        call.request.cookies[cookies]
-                        setBody("{\"tilknytninger\":[{\"veilederIdent\": \"$VEILEDER_ID\",\"fnr\": \"$ARBEIDSTAKER_FNR\",\"enhet\": \"$NAV_ENHET\"}]}")
-                    }) {
-                        response.status() shouldEqual HttpStatusCode.OK
+                        with(handleRequest(HttpMethod.Post, url) {
+                            addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                            call.request.cookies[cookies]
+                            setBody("{\"tilknytninger\":[{\"veilederIdent\": \"$VEILEDER_ID\",\"fnr\": \"$ARBEIDSTAKER_FNR\",\"enhet\": \"$NAV_ENHET\"}]}")
+                        }) {
+                            response.status() shouldEqual HttpStatusCode.OK
+                        }
                     }
                 }
             }
         }
     }
 })
-
-@InternalAPI
-private val client = HttpClient(MockEngine) {
-    val baseUrl = env.syfotilgangskontrollUrl
-    engine {
-        addHandler { request ->
-            when (request.url.fullUrl) {
-                "$baseUrl/syfo-tilgangskontroll/api/tilgang/bruker?fnr=$ARBEIDSTAKER_FNR" -> {
-                    val responseHeaders = headersOf("Content-Type" to listOf(ContentType.Application.Json.toString()))
-                    respond(ByteReadChannel(("{" +
-                            "\"harTilgang\":\"true\",\"begrunnelse\":\"null\"}").toByteArray(Charsets.UTF_8)), HttpStatusCode.OK, responseHeaders)
-                }
-                else -> error("Unhandled ${request.url.fullUrl}")
-            }
-        }
-    }
-    install(JsonFeature) {
-        serializer = JacksonSerializer {
-            registerKotlinModule()
-            registerModule(JavaTimeModule())
-            configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-        }
-    }
-}
-
-private val Url.hostWithPortIfRequired: String get() = if (port == protocol.defaultPort) host else hostWithPort
-private val Url.fullUrl: String get() = "${protocol.name}://$hostWithPortIfRequired$fullPath"

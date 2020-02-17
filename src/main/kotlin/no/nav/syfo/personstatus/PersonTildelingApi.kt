@@ -5,7 +5,8 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.*
-import no.nav.syfo.auth.*
+import no.nav.syfo.auth.getTokenFromCookie
+import no.nav.syfo.auth.getVeilederTokenPayload
 import no.nav.syfo.metric.COUNT_PERSONTILDELING_TILDEL
 import no.nav.syfo.metric.COUNT_PERSONTILDELING_TILDELT
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
@@ -45,20 +46,23 @@ fun Route.registerPersonTildelingApi(
         post("/registrer") {
             val callId = getCallId()
             try {
-
                 COUNT_PERSONTILDELING_TILDEL.inc()
 
                 val token = getTokenFromCookie(call.request.cookies)
 
                 val veilederBrukerKnytningerListe: VeilederBrukerKnytningListe = call.receive()
-                log.info("Tildeler veileder for ${veilederBrukerKnytningerListe.tilknytninger.size}")
+
+                val tilknytningFnrListWithVeilederAccess: List<String> = tilgangskontrollConsumer.veilederPersonAccessList(
+                        veilederBrukerKnytningerListe.tilknytninger.map { it.fnr },
+                        token,
+                        callId
+                ) ?: emptyList()
 
                 val veilederBrukerKnytninger: List<VeilederBrukerKnytning> = veilederBrukerKnytningerListe.tilknytninger
-                        .filter { tilgangskontrollConsumer.harVeilederTilgangTilPerson(it.fnr, token, callId) }
-
-                log.info("Veileder har tilgang til ${veilederBrukerKnytninger.size} av ${veilederBrukerKnytningerListe.tilknytninger.size} innsendte tilknytnigner, callId=$callId}")
+                        .filter { tilknytningFnrListWithVeilederAccess.contains(it.fnr) }
 
                 if (veilederBrukerKnytninger.isEmpty()) {
+                    log.error("tilknytningFnrListWithVeilederAccess size ${tilknytningFnrListWithVeilederAccess.size}")
                     log.error("Kan ikke registrere tilknytning fordi veileder ikke har tilgang til noen av de spesifiserte tilknytningene, {}", CallIdArgument(callId))
                     call.respond(HttpStatusCode.Forbidden)
                 } else {
@@ -74,6 +78,5 @@ fun Route.registerPersonTildelingApi(
                 call.respond(HttpStatusCode.InternalServerError)
             }
         }
-
     }
 }
