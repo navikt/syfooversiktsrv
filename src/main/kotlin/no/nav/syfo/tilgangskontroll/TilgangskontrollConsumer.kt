@@ -59,7 +59,7 @@ class TilgangskontrollConsumer(
                 .responseString()
         requestTimer.observeDuration()
 
-        return response.statusCode in 200..2999
+        return response.statusCode in 200..299
     }
 
     private fun getTilgangskontrollUrl(path: String): String {
