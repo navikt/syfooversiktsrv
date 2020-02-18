@@ -35,7 +35,6 @@ class TilgangskontrollConsumer(
                 ))
                 .responseString()
 
-        requestTimer.observeDuration()
         requestTimer.close()
 
         result.fold(success = {
@@ -58,7 +57,6 @@ class TilgangskontrollConsumer(
                         NAV_CALL_ID_HEADER to callId
                 ))
                 .responseString()
-        requestTimer.observeDuration()
         requestTimer.close()
 
         return response.statusCode in 200..2999
