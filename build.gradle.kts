@@ -12,6 +12,7 @@ val flywayVersion = "5.2.4"
 val jacksonVersion = "2.9.8"
 val hikariVersion = "3.3.0"
 val h2Version = "1.4.197"
+val fuelVersion = "1.15.1"
 val kafkaVersion = "2.0.0"
 val kafkaEmbeddedVersion = "2.0.2"
 val kluentVersion = "1.39"
@@ -69,6 +70,8 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
+
+    implementation("com.github.kittinunf.fuel:fuel:$fuelVersion")
 
     //Database
     implementation("org.postgresql:postgresql:$postgresVersion")
