@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import com.github.kittinunf.fuel.core.isSuccessful
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.fuel.httpPost
 import no.nav.syfo.metric.*
@@ -59,7 +60,7 @@ class TilgangskontrollConsumer(
                 .responseString()
         requestTimer.observeDuration()
 
-        return response.statusCode in 200..299
+        return response.isSuccessful
     }
 
     private fun getTilgangskontrollUrl(path: String): String {
