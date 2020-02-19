@@ -20,7 +20,6 @@ import io.mockk.every
 import io.mockk.mockkStatic
 import no.nav.syfo.auth.getTokenFromCookie
 import no.nav.syfo.auth.isInvalidToken
-import no.nav.syfo.getEnvironment
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
@@ -39,8 +38,6 @@ private val objectMapper: ObjectMapper = ObjectMapper().apply {
     configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
 }
 
-private val env = getEnvironment()
-
 @InternalAPI
 object PersontildelingApiSpek : Spek({
 
@@ -56,7 +53,7 @@ object PersontildelingApiSpek : Spek({
                 jackson {}
             }
             routing {
-                post("${env.syfotilgangskontrollUrl}/syfo-tilgangskontroll/api/tilgang/brukere") {
+                post("/syfo-tilgangskontroll/api/tilgang/brukere") {
                     call.respond(responseList)
                 }
             }
@@ -66,7 +63,7 @@ object PersontildelingApiSpek : Spek({
         val cookies = ""
         val baseUrl = "/api/v1/persontildeling"
         val tilgangskontrollConsumer = TilgangskontrollConsumer(
-                "$mockHttpServerUrl/${env.syfotilgangskontrollUrl}"
+                mockHttpServerUrl
         )
 
         afterGroup {
