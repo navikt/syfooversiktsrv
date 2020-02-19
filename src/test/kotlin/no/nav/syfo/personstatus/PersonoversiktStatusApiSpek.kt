@@ -21,7 +21,6 @@ import io.mockk.every
 import io.mockk.mockkStatic
 import no.nav.syfo.auth.getTokenFromCookie
 import no.nav.syfo.auth.isInvalidToken
-import no.nav.syfo.getEnvironment
 import no.nav.syfo.oversikthendelsetilfelle.OversikthendelstilfelleService
 import no.nav.syfo.oversikthendelsetilfelle.domain.KOversikthendelsetilfelle
 import no.nav.syfo.oversikthendelsetilfelle.generateOversikthendelsetilfelle
@@ -49,8 +48,6 @@ private val objectMapper: ObjectMapper = ObjectMapper().apply {
     configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
 }
 
-private val env = getEnvironment()
-
 @InternalAPI
 object PersonoversiktStatusApiSpek : Spek({
 
@@ -69,10 +66,12 @@ object PersonoversiktStatusApiSpek : Spek({
                     jackson {}
                 }
                 routing {
-                    get("${env.syfotilgangskontrollUrl}/syfo-tilgangskontroll/api/tilgang/enhet?enhet=$NAV_ENHET") {
-                        call.respond(responseAccessEnhet)
+                    get("/syfo-tilgangskontroll/api/tilgang/enhet") {
+                        if (call.parameters["enhet"] == NAV_ENHET) {
+                            call.respond(responseAccessEnhet)
+                        }
                     }
-                    post("${env.syfotilgangskontrollUrl}/syfo-tilgangskontroll/api/tilgang/brukere") {
+                    post("/syfo-tilgangskontroll/api/tilgang/brukere") {
                         call.respond(responseAccessPersons)
                     }
                 }
@@ -82,7 +81,7 @@ object PersonoversiktStatusApiSpek : Spek({
             val cookies = ""
             val baseUrl = "/api/v1/personoversikt"
             val tilgangskontrollConsumer = TilgangskontrollConsumer(
-                    "$mockHttpServerUrl/${env.syfotilgangskontrollUrl}"
+                    mockHttpServerUrl
             )
             val oversiktHendelseService = OversiktHendelseService(database)
             val oversikthendelstilfelleService = OversikthendelstilfelleService(database)
