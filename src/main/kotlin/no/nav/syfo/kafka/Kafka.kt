@@ -131,8 +131,7 @@ suspend fun blockingApplicationLogic(
                     StructuredArguments.keyValue("tom", oversikthendelsetilfelle.tom),
                     StructuredArguments.keyValue("virksomhetsnavn", oversikthendelsetilfelle.virksomhetsnavn)
             )
-            LOG.info("Mottatt oversikthendelsetilfelle, klar for oppdatering, $logKeys, {}", *logValues, CallIdArgument(callId))
-
+            
             oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelsetilfelle, callId)
         }
         delay(100)
