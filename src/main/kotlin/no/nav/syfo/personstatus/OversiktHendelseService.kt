@@ -28,17 +28,14 @@ class OversiktHendelseService(private val database: DatabaseInterface) {
         when {
             person.isEmpty() -> {
                 database.opprettPersonMedMoteplanleggerAlleSvarMottatt(oversiktHendelse)
-                log.info("Opprettet person basert pa oversikthendelse med moteplanlegger alle svar mottatt, {}", CallIdArgument(callId))
                 COUNT_OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_MOTTATT_OPPRETT.inc()
             }
             erPersonsEnhetOppdatert(person, oversiktHendelse.enhetId) -> {
                 database.oppdaterPersonMedMoteplanleggerAlleSvarNyEnhet(oversiktHendelse)
-                log.info("Oppdatert person basert pa oversikthendelse med moteplanlegger alle svar mottatt med ny enhet, {}", CallIdArgument(callId))
                 COUNT_OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_MOTTATT_OPPDATER_ENHET.inc()
             }
             else -> {
                 database.oppdaterPersonMedMoteplanleggerAlleSvarMottatt(oversiktHendelse)
-                log.info("Oppdatert person basert pa oversikthendelse med moteplanlegger alle svar mottatt, {}", CallIdArgument(callId))
                 COUNT_OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_MOTTATT_OPPDATER.inc()
             }
         }
@@ -53,12 +50,10 @@ class OversiktHendelseService(private val database: DatabaseInterface) {
             }
             erPersonsEnhetOppdatert(person, oversiktHendelse.enhetId) -> {
                 database.oppdaterPersonMedMoteplanleggerAlleSvarBehandletNyEnhet(oversiktHendelse)
-                log.info("Oppdatert person basert pa oversikthendelse med moteplanleggersvar behandlet med ny enhet, {}", CallIdArgument(callId))
                 COUNT_OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_BEHANDLET_OPPDATER_ENHET.inc()
             }
             else -> {
                 database.oppdaterPersonMedMoteplanleggerAlleSvarBehandlet(oversiktHendelse)
-                log.info("Oppdatert person basert pa oversikthendelse med moteplanleggersvar behandlet, {}", CallIdArgument(callId))
                 COUNT_OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_BEHANDLET_OPPDATER.inc()
             }
         }
@@ -73,12 +68,10 @@ class OversiktHendelseService(private val database: DatabaseInterface) {
             }
             erPersonsEnhetOppdatert(person, oversiktHendelse.enhetId) -> {
                 database.oppdaterPersonMedMotebehovBehandletNyEnhet(oversiktHendelse)
-                log.info("Oppdatert person basert pa oversikthendelse med motebehovsvar behandlet med ny enhet, {}", CallIdArgument(callId))
                 COUNT_OVERSIKTHENDELSE_MOTEBEHOVSSVAR_BEHANDLET_OPPDATER_ENHET.inc()
             }
             else -> {
                 database.oppdaterPersonMedMotebehovBehandlet(oversiktHendelse)
-                log.info("Oppdatert person basert pa oversikthendelse med motebehovsvar behandlet, {}", CallIdArgument(callId))
                 COUNT_OVERSIKTHENDELSE_MOTEBEHOVSSVAR_BEHANDLET.inc()
             }
         }
@@ -89,17 +82,14 @@ class OversiktHendelseService(private val database: DatabaseInterface) {
         when {
             person.isEmpty() -> {
                 database.opprettPersonMedMotebehovMottatt(oversiktHendelse)
-                log.info("Opprettet person basert pa oversikthendelse med motebehovsvar mottatt, {}", CallIdArgument(callId))
                 COUNT_OVERSIKTHENDELSE_MOTEBEHOV_SVAR_MOTTATT_OPPRETT.inc()
             }
             erPersonsEnhetOppdatert(person, oversiktHendelse.enhetId) -> {
                 database.oppdaterPersonMedMotebehovMottattNyEnhet(oversiktHendelse)
-                log.info("Oppdatert person basert pa oversikthendelse med motebehovsvar mottatt med ny enhet, {}", CallIdArgument(callId))
                 COUNT_OVERSIKTHENDELSE_MOTEBEHOV_SVAR_MOTTATT_OPPDATER_ENHET.inc()
             }
             else -> {
                 database.oppdaterPersonMedMotebehovMottatt(oversiktHendelse)
-                log.info("Oppdatert person basert pa oversikthendelse med motebehovsvar mottatt, {}", CallIdArgument(callId))
                 COUNT_OVERSIKTHENDELSE_MOTEBEHOV_SVAR_MOTTATT_OPPDATER.inc()
             }
         }
