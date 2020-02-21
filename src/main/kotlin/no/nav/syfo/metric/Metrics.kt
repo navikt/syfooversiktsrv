@@ -192,6 +192,8 @@ val COUNT_OVERSIKTHENDELSETILFELLE_GRADERT_OPPDATER_ENHET: Counter = Counter.bui
 const val SYFOTILGANGSKONTROLL_HISTOGRAM_ENHET = "syfotilgangskontroll_histogram_enhet"
 const val SYFOTILGANGSKONTROLL_HISTOGRAM_PERSONER = "syfotilgangskontroll_histogram_personer"
 
+const val PERSONOVERSIKT_HISTOGRAM_ENHET = "personoversikt_histogram_enhet"
+
 val HISTOGRAM_SYFOTILGANGSKONTROLL_PERSONER: Histogram = Histogram.build()
         .namespace(METRICS_NS)
         .name(SYFOTILGANGSKONTROLL_HISTOGRAM_PERSONER)
@@ -204,3 +206,8 @@ val HISTOGRAM_SYFOTILGANGSKONTROLL_ENHET: Histogram = Histogram.build()
         .help("Measure the current time it takes to get a response from Syfotilgangskontroll - enhet ")
         .register()
 
+val HISTOGRAM_PERSONOVERSIKT: Histogram = Histogram.build()
+        .namespace(METRICS_NS)
+        .name(PERSONOVERSIKT_HISTOGRAM_ENHET)
+        .help("Measure the current time it takes to get a response from personoversikt")
+        .register()
