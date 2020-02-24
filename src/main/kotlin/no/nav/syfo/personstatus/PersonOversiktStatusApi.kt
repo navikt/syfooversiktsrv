@@ -6,6 +6,7 @@ import io.ktor.response.respond
 import io.ktor.routing.*
 import no.nav.syfo.auth.getTokenFromCookie
 import no.nav.syfo.metric.COUNT_PERSONOVERSIKTSTATUS_ENHET_HENTET
+import no.nav.syfo.metric.HISTOGRAM_PERSONOVERSIKT
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.tilgangskontroll.TilgangskontrollConsumer
 import no.nav.syfo.util.*
@@ -29,6 +30,7 @@ fun Route.registerPersonoversiktApi(
 
                 when (tilgangskontrollConsumer.harVeilederTilgangTilEnhet(enhet, token, callId)) {
                     true -> {
+                        var requestTimer = HISTOGRAM_PERSONOVERSIKT.startTimer();
                         val personOversiktStatusList: List<PersonOversiktStatus> = personoversiktStatusService
                                 .hentPersonoversiktStatusTilknyttetEnhet(enhet)
 
@@ -45,7 +47,7 @@ fun Route.registerPersonoversiktApi(
                             personList.isNotEmpty() -> call.respond(personList)
                             else -> call.respond(HttpStatusCode.NoContent)
                         }
-
+                        requestTimer.observeDuration()
                         COUNT_PERSONOVERSIKTSTATUS_ENHET_HENTET.inc()
                     }
                     else -> {
