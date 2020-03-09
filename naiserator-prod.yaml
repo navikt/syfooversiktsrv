@@ -1,0 +1,58 @@
+apiVersion: "nais.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: syfooversiktsrv
+  namespace: default
+  labels:
+    team: teamsykefravr
+spec:
+  image: {{ image }}
+  port: 8080
+  team: teamsykefravr
+  liveness:
+    path: /is_alive
+    initialDelay: 10
+    timeout: 5
+    periodSeconds: 5
+    failureThreshold: 30
+  readiness:
+    path: /is_ready
+    initialDelay: 10
+    periodSeconds: 5
+    timeout: 5
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1024Mi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+  replicas:
+    min: 1
+    max: 2
+    cpuThresholdPercentage: 90
+  prometheus:
+    enabled: true
+    path: /prometheus
+  ingresses:
+    - "https://syfooversiktsrv.nais.adeo.no"
+  vault:
+    enabled: true
+  webproxy: true
+  env:
+    - name: CLIENT_ID
+      value: 9b4e07a3-4f4c-4bab-b866-87f62dff480d
+    - name: AADDISCOVERY_URL
+      value: https://login.microsoftonline.com/navno.onmicrosoft.com/.well-known/openid-configuration
+    - name: JWT_ISSUER
+      value: https://sts.windows.net/62366534-1ec3-4962-8869-9b5535279d0b/
+    - name: SYFOOVERSIKTSRV_DB_URL
+      value: jdbc:postgresql://fsspgdb.adeo.no:5432/syfooversiktsrv
+    - name: MOUNT_PATH_VAULT
+      value: /postgresql/prod-fss
+    - name: KTOR_ENV
+      value: production
+    - name: KAFKA_BOOTSTRAP_SERVERS_URL
+      value: SASL_SSL://a01apvl00145.adeo.no:8443,SASL_SSL://a01apvl00146.adeo.no:8443,SASL_SSL://a01apvl00147.adeo.no:8443,SASL_SSL://a01apvl00149.adeo.no:8443
+    - name: SYFOTILGANGSKONTROLL_URL
+      value: https://syfo-tilgangskontroll.nais.adeo.no
