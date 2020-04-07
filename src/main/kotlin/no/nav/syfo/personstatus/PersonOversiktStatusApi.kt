@@ -51,7 +51,7 @@ fun Route.registerPersonoversiktApi(
                         COUNT_PERSONOVERSIKTSTATUS_ENHET_HENTET.inc()
                     }
                     else -> {
-                        log.error("Veileder mangler tilgang til enhet, {}", CallIdArgument(callId))
+                        log.warn("Veileder mangler tilgang til enhet, {}", CallIdArgument(callId))
                         call.respond(HttpStatusCode.Forbidden, "Veileder mangler tilgang til enhet")
                     }
                 }
