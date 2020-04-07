@@ -30,7 +30,7 @@ fun Route.registerPersonoversiktApi(
 
                 when (tilgangskontrollConsumer.harVeilederTilgangTilEnhet(enhet, token, callId)) {
                     true -> {
-                        var requestTimer = HISTOGRAM_PERSONOVERSIKT.startTimer();
+                        val requestTimer = HISTOGRAM_PERSONOVERSIKT.startTimer();
                         val personOversiktStatusList: List<PersonOversiktStatus> = personoversiktStatusService
                                 .hentPersonoversiktStatusTilknyttetEnhet(enhet)
 
