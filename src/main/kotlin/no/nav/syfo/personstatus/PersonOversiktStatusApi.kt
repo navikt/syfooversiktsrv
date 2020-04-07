@@ -51,12 +51,12 @@ fun Route.registerPersonoversiktApi(
                         COUNT_PERSONOVERSIKTSTATUS_ENHET_HENTET.inc()
                     }
                     else -> {
-                        log.warn("Veileder mangler tilgang til enhet, {}", CallIdArgument(callId))
+                        log.warn("Veileder mangler tilgang til enhet, {}", callIdArgument(callId))
                         call.respond(HttpStatusCode.Forbidden, "Veileder mangler tilgang til enhet")
                     }
                 }
             } catch (e: IllegalArgumentException) {
-                log.warn("Kan ikke hente personoversikt for enhet: {}, {}", e.message, CallIdArgument(getCallId()))
+                log.warn("Kan ikke hente personoversikt for enhet: {}, {}", e.message, callIdArgument(getCallId()))
                 call.respond(HttpStatusCode.BadRequest, e.message ?: "Kan ikke hente personoversikt for enhet")
             }
         }

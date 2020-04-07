@@ -1,28 +1,25 @@
 package no.nav.syfo.util
 
-import com.fasterxml.jackson.core.JsonGenerator
 import io.ktor.application.ApplicationCall
 import io.ktor.application.call
 import io.ktor.util.pipeline.PipelineContext
-import net.logstash.logback.argument.StructuredArgument
 import net.logstash.logback.argument.StructuredArguments
-import java.time.Instant
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
-import java.util.concurrent.atomic.*
+import java.util.concurrent.atomic.AtomicInteger
 
-const val NAV_CALL_ID_HEADER = "X-Nav-CallId"
+const val NAV_CALL_ID_HEADER = "Nav-Call-Id"
 
 fun PipelineContext<out Unit, ApplicationCall>.getCallId(): String {
     this.call.request.headers[NAV_CALL_ID_HEADER].let {
-        return it ?: createCallid()
+        return it ?: createCallId()
     }
 }
 
-fun createCallid(): String = UUID.randomUUID().toString()
+fun createCallId(): String = UUID.randomUUID().toString()
 
-fun CallIdArgument(callId: String) = StructuredArguments.keyValue("callId", callId)!!
+fun callIdArgument(callId: String) = StructuredArguments.keyValue("callId", callId)!!
 
 private val kafkaCounter = AtomicInteger(0)
 

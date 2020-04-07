@@ -14,7 +14,7 @@ import no.nav.syfo.oversikthendelsetilfelle.OversikthendelstilfelleService
 import no.nav.syfo.oversikthendelsetilfelle.domain.KOversikthendelsetilfelle
 import no.nav.syfo.personstatus.OversiktHendelseService
 import no.nav.syfo.personstatus.domain.KOversikthendelse
-import no.nav.syfo.util.CallIdArgument
+import no.nav.syfo.util.callIdArgument
 import no.nav.syfo.util.kafkaCallId
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.serialization.StringDeserializer
@@ -85,7 +85,7 @@ suspend fun blockingApplicationLogic(
                     StructuredArguments.keyValue("enhetId", oversiktHendelse.enhetId),
                     StructuredArguments.keyValue("hendelseId", oversiktHendelse.hendelseId)
             )
-            LOG.info("Mottatt oversikthendelse, klar for oppdatering, $logKeys, {}", *logValues, CallIdArgument(callId))
+            LOG.info("Mottatt oversikthendelse, klar for oppdatering, $logKeys, {}", *logValues, callIdArgument(callId))
 
             oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse, callId)
         }

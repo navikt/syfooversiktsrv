@@ -3,7 +3,7 @@ package no.nav.syfo.personstatus
 import no.nav.syfo.db.DatabaseInterface
 import no.nav.syfo.metric.*
 import no.nav.syfo.personstatus.domain.*
-import no.nav.syfo.util.CallIdArgument
+import no.nav.syfo.util.callIdArgument
 import org.slf4j.LoggerFactory
 
 private val log: org.slf4j.Logger = LoggerFactory.getLogger("no.nav.syfo.personstatus")
@@ -17,7 +17,7 @@ class OversiktHendelseService(private val database: DatabaseInterface) {
             OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.toString() -> oppdaterPersonMedHendelseMoteplanleggerSvarMottat(oversiktHendelse, callId)
             OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_BEHANDLET.toString() -> oppdaterPersonMedHendelseMoteplanleggerSvarBehandlet(oversiktHendelse, callId)
             else -> {
-                log.error("Mottatt oversikthendelse med ukjent type, ${oversiktHendelse.hendelseId}, {}", CallIdArgument(callId))
+                log.error("Mottatt oversikthendelse med ukjent type, ${oversiktHendelse.hendelseId}, {}", callIdArgument(callId))
                 COUNT_OVERSIKTHENDELSE_UKJENT_MOTTATT.inc()
             }
         }
@@ -63,7 +63,7 @@ class OversiktHendelseService(private val database: DatabaseInterface) {
         val person = database.hentPersonResultat(oversiktHendelse.fnr)
         when {
             person.isEmpty() -> {
-                log.error("Fant ikke person som skal oppdateres med hendelse {}, for enhet {}, {}", oversiktHendelse.hendelseId, oversiktHendelse.enhetId, CallIdArgument(callId))
+                log.error("Fant ikke person som skal oppdateres med hendelse {}, for enhet {}, {}", oversiktHendelse.hendelseId, oversiktHendelse.enhetId, callIdArgument(callId))
                 COUNT_OVERSIKTHENDELSE_MOTEBEHOVSSVAR_BEHANDLET_FEILET.inc()
             }
             erPersonsEnhetOppdatert(person, oversiktHendelse.enhetId) -> {

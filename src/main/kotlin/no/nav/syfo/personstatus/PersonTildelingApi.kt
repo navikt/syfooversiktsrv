@@ -12,7 +12,7 @@ import no.nav.syfo.metric.COUNT_PERSONTILDELING_TILDELT
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytningListe
 import no.nav.syfo.tilgangskontroll.TilgangskontrollConsumer
-import no.nav.syfo.util.CallIdArgument
+import no.nav.syfo.util.callIdArgument
 import no.nav.syfo.util.getCallId
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -37,7 +37,7 @@ fun Route.registerPersonTildelingApi(
                     else -> call.respond(HttpStatusCode.NoContent)
                 }
             } catch (e: IllegalArgumentException) {
-                log.warn("Kan ikke hente tilknytninger: {}, {}", e.message, CallIdArgument(getCallId()))
+                log.warn("Kan ikke hente tilknytninger: {}, {}", e.message, callIdArgument(getCallId()))
                 call.respond(HttpStatusCode.BadRequest, e.message ?: "Kan ikke hente tilknytninger")
             }
 
@@ -63,7 +63,7 @@ fun Route.registerPersonTildelingApi(
 
                 if (veilederBrukerKnytninger.isEmpty()) {
                     log.error("tilknytningFnrListWithVeilederAccess size ${tilknytningFnrListWithVeilederAccess.size}")
-                    log.error("Kan ikke registrere tilknytning fordi veileder ikke har tilgang til noen av de spesifiserte tilknytningene, {}", CallIdArgument(callId))
+                    log.error("Kan ikke registrere tilknytning fordi veileder ikke har tilgang til noen av de spesifiserte tilknytningene, {}", callIdArgument(callId))
                     call.respond(HttpStatusCode.Forbidden)
                 } else {
                     personTildelingService.lagreKnytningMellomVeilederOgBruker(veilederBrukerKnytninger)
