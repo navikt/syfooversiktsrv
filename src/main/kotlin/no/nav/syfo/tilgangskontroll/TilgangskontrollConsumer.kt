@@ -51,7 +51,7 @@ class TilgangskontrollConsumer(
 
     fun harVeilederTilgangTilEnhet(enhet: String, token: String, callId: String): Boolean {
         val requestTimer = HISTOGRAM_SYFOTILGANGSKONTROLL_ENHET.startTimer()
-        val (_, response, _) = getTilgangskontrollUrl("$pathTilgangTilEnhet?${paramEnhet}=$enhet").httpGet()
+        val (_, response, _) = getTilgangskontrollUrl("$pathTilgangTilEnhet?$paramEnhet=$enhet").httpGet()
             .header(mapOf(
                 "Authorization" to bearerHeader(token),
                 "Accept" to "application/json",

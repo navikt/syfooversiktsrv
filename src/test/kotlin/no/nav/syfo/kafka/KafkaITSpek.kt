@@ -94,7 +94,6 @@ object KafkaITSpek : Spek({
             consumer.poll(Duration.ofMillis(5000)).forEach {
                 val hendelse: KOversikthendelse = objectMapper.readValue(it.value())
                 messages.add(hendelse)
-
             }
             messages.size shouldEqual 1
             messages.first() shouldEqual oversikthendelse

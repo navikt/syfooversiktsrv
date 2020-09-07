@@ -23,6 +23,4 @@ fun callIdArgument(callId: String) = StructuredArguments.keyValue("callId", call
 
 private val kafkaCounter = AtomicInteger(0)
 
-fun kafkaCallId(): String
-        = "${LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-HHmm"))}-syfooversiktsrv-kafka-${kafkaCounter.incrementAndGet()}"
-
+fun kafkaCallId(): String = "${LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-HHmm"))}-syfooversiktsrv-kafka-${kafkaCounter.incrementAndGet()}"

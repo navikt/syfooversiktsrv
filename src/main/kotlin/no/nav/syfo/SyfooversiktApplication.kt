@@ -78,11 +78,9 @@ fun main() {
     server.start(wait = false)
 }
 
-
 lateinit var database: DatabaseInterface
 val state: ApplicationState = ApplicationState(running = false, initialized = false)
 val env: Environment = getEnvironment()
-
 
 fun Application.init() {
     isDev {
@@ -154,7 +152,6 @@ fun Application.kafkaModule() {
         }
     }
 }
-
 
 fun Application.serverModule() {
 
@@ -244,7 +241,6 @@ fun Application.serverModule() {
 
     state.initialized = true
 }
-
 
 fun CoroutineScope.createListener(applicationState: ApplicationState, action: suspend CoroutineScope.() -> Unit): Job =
     launch {

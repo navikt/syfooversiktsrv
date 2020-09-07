@@ -72,7 +72,7 @@ dependencies {
 
     implementation("com.github.kittinunf.fuel:fuel:$fuelVersion")
 
-    //Database
+    // Database
     implementation("org.postgresql:postgresql:$postgresVersion")
     implementation("com.h2database:h2:$h2Version")
     implementation("com.zaxxer:HikariCP:$hikariVersion")

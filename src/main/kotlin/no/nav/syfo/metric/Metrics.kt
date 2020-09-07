@@ -18,14 +18,12 @@ val COUNT_CALL_TILGANGSKONTROLL_PERSONS_FAIL: Counter = Counter.build()
     .help("Counts the number of failed calls to syfo-tilgangskontroll - persons")
     .register()
 
-
 const val PERSONOVERSIKTSTATUS_ENHET_HENTET = "success_personoversikt_hentet_count"
 val COUNT_PERSONOVERSIKTSTATUS_ENHET_HENTET: Counter = Counter.build()
     .namespace(METRICS_NS)
     .name(PERSONOVERSIKTSTATUS_ENHET_HENTET)
     .help("Counts database.oppdaterPersonMedMotebehovBehandlet(oversiktHendelse) the number of completed calls to personoversikt/enhet/{enhet}")
     .register()
-
 
 const val METRIC_NAME_PERSONTILDELING_TILDEL = "call_persontildeling_tildel_count"
 val COUNT_PERSONTILDELING_TILDEL: Counter = Counter.build()
@@ -34,7 +32,6 @@ val COUNT_PERSONTILDELING_TILDEL: Counter = Counter.build()
     .help("Counts the number of POST-calls to endpoint persontildeling/registrer")
     .register()
 
-
 const val METRIC_NAME_PERSONTILDELING_TILDELT = "success_persontildeling_tildelt_count"
 val COUNT_PERSONTILDELING_TILDELT: Counter = Counter.build()
     .namespace(METRICS_NS)
@@ -42,14 +39,12 @@ val COUNT_PERSONTILDELING_TILDELT: Counter = Counter.build()
     .help("Counts the number of updated in db completed as a result of calls to persontildeling/registrer")
     .register()
 
-
 const val OVERSIKTHENDELSE_UKJENT_MOTTATT = "oversikthendelse_ukjent_count"
 val COUNT_OVERSIKTHENDELSE_UKJENT_MOTTATT: Counter = Counter.build()
     .namespace(METRICS_NS)
     .name(OVERSIKTHENDELSE_UKJENT_MOTTATT)
     .help("Counts the number of oversikthendelse of unknown type received}")
     .register()
-
 
 const val OVERSIKTHENDELSE_MOTEBEHOV_SVAR_MOTTATT_OPPRETT = "oversikthendelse_motebehov_svar_mottatt_opprett_count"
 const val OVERSIKTHENDELSE_MOTEBEHOV_SVAR_MOTTATT_OPPDATER = "oversikthendelse_motebehov_svar_mottatt_oppdater_count"
@@ -73,7 +68,6 @@ val COUNT_OVERSIKTHENDELSE_MOTEBEHOV_SVAR_MOTTATT_OPPDATER_ENHET: Counter = Coun
     .help("Counts the number of oversikthendelse of type motebehovsvar-mottatt resulting in update with new enhetId}")
     .register()
 
-
 const val OVERSIKTHENDELSE_MOTEBEHOV_SVAR_BEHANDLET = "oversikthendelse_motebehov_svar_behandlet_count"
 const val OVERSIKTHENDELSE_MOTEBEHOV_SVAR_BEHANDLET_OPPDATER_ENHET = "oversikthendelse_motebehov_svar_behandlet_oppdater_enhet_count"
 const val OVERSIKTHENDELSE_MOTEBEHOV_SVAR_BEHANDLET_FEILET = "oversikthendelse_motebehov_svar_behandlet_feilet_count"
@@ -96,7 +90,6 @@ val COUNT_OVERSIKTHENDELSE_MOTEBEHOVSSVAR_BEHANDLET_FEILET: Counter = Counter.bu
     .help("Counts the number of oversikthendelse of type motebehovsvar-behandlet that failed to update missing person")
     .register()
 
-
 const val OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_MOTTATT_OPPRETT = "oversikthendelse_moteplanlegger_alle_svar_mottatt_opprett_count"
 const val OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_MOTTATT_OPPDATER = "oversikthendelse_moteplanlegger_alle_svar_mottatt_oppdater_count"
 const val OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_MOTTATT_OPPDATER_ENHET = "oversikthendelse_moteplanlegger_alle_svar_mottatt_oppdater_enhet_count"
@@ -116,7 +109,6 @@ val COUNT_OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_MOTTATT_OPPDATER_ENHET: Coun
     .name(OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_MOTTATT_OPPDATER_ENHET)
     .help("Counts the number of oversikthendelse of type moteplanlegger-alle-svar-mottatt resulting in update with new enhetId}")
     .register()
-
 
 const val OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_BEHANDLET_OPPDATER = "oversikthendelse_moteplanlegger_alle_svar_behandlet_oppdater_count"
 const val OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_BEHANDLET_OPPDATER_ENHET = "oversikthendelse_moteplanlegger_alle_svar_behandlet_oppdater_enhet_count"
@@ -138,14 +130,12 @@ val COUNT_OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_BEHANDLET_FEILET: Counter = 
     .help("Counts the number of oversikthendelse of type moteplanlegger-alle-svar-behandlet that failed to update missing person")
     .register()
 
-
 const val OVERSIKTHENDELSETILFELLE_UGYLDIG_MOTTATT = "oversikthendelsetilfelle_ugyldig_mottatt"
 val COUNT_OVERSIKTHENDELSETILFELLE_UGDYLGIG_MOTTATT: Counter = Counter.build()
     .namespace(METRICS_NS)
     .name(OVERSIKTHENDELSETILFELLE_UGYLDIG_MOTTATT)
     .help("Counts the number of oversikthendelsetilfeller skipped due to invalid data}")
     .register()
-
 
 const val OVERSIKTHENDELSETILFELLE_INGEN_AKTIVITET_OPPRETT = "oversikthendelsetilfelle_ingen_aktivitet_opprett_count"
 const val OVERSIKTHENDELSETILFELLE_INGEN_AKTIVITET_OPPDATER = "oversikthendelsetilfelle_ingen_aktivitet_oppdater_count"
@@ -167,7 +157,6 @@ val COUNT_OVERSIKTHENDELSETILFELLE_INGEN_AKTIVITET_OPPDATER_ENHET: Counter = Cou
     .help("Counts the number of oversikthendelsetilfeller  with Ingen Aktivitet resulting in update with new enhetId}")
     .register()
 
-
 const val OVERSIKTHENDELSETILFELLE_GRADERT_OPPRETT = "oversikthendelsetilfelle_gradert_opprett_count"
 const val OVERSIKTHENDELSETILFELLE_GRADERT_OPPDATER = "oversikthendelsetilfelle_gradert_oppdater_count"
 const val OVERSIKTHENDELSETILFELLE_GRADERT_OPPDATER_ENHET = "oversikthendelsetilfelle_gradert_oppdater_enhet_count"
@@ -187,7 +176,6 @@ val COUNT_OVERSIKTHENDELSETILFELLE_GRADERT_OPPDATER_ENHET: Counter = Counter.bui
     .name(OVERSIKTHENDELSETILFELLE_GRADERT_OPPDATER_ENHET)
     .help("Counts the number of graderte oversikthendelsetilfeller resulting in update with new enhetId}")
     .register()
-
 
 const val SYFOTILGANGSKONTROLL_HISTOGRAM_ENHET = "syfotilgangskontroll_histogram_enhet"
 const val SYFOTILGANGSKONTROLL_HISTOGRAM_PERSONER = "syfotilgangskontroll_histogram_personer"

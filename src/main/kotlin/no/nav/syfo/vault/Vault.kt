@@ -61,5 +61,4 @@ object Vault {
         duration < MIN_REFRESH_MARGIN * 2 -> duration / 2
         else -> duration - MIN_REFRESH_MARGIN
     }
-
 }

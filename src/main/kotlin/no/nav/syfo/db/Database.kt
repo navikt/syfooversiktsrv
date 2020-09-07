@@ -9,16 +9,17 @@ import java.sql.ResultSet
 
 enum class Role {
     ADMIN, USER, READONLY;
+
     override fun toString() = name.toLowerCase()
 }
 
 data class DbConfig(
-        val jdbcUrl: String,
-        val password: String,
-        val username: String,
-        val databaseName: String,
-        val poolSize: Int = 2,
-        val runMigrationsOninit: Boolean = true
+    val jdbcUrl: String,
+    val password: String,
+    val username: String,
+    val databaseName: String,
+    val poolSize: Int = 2,
+    val runMigrationsOninit: Boolean = true
 )
 
 class DevDatabase(daoConfig: DbConfig) : Database(daoConfig, null)
@@ -78,9 +79,7 @@ abstract class Database(val daoConfig: DbConfig, private val initBlock: ((contex
         dataSource(jdbcUrl, username, password)
         load().migrate()
     }
-
 }
-
 
 fun <T> ResultSet.toList(mapper: ResultSet.() -> T) = mutableListOf<T>().apply {
     while (next()) {

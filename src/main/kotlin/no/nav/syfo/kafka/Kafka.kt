@@ -30,7 +30,6 @@ private val objectMapper: ObjectMapper = ObjectMapper().apply {
     configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
 }
 
-
 private val LOG: Logger = LoggerFactory.getLogger("no.nav.syfo.Kafka")
 
 suspend fun CoroutineScope.setupKafka(

@@ -59,7 +59,6 @@ fun Connection.opprettVeilederBrukerKnytning(veilederBrukerKnytning: VeilederBru
     }
 }
 
-
 fun Connection.tildelVeilederTilPerson(veilederBrukerKnytning: VeilederBrukerKnytning) {
     val updateQuery = """
                          UPDATE PERSON_OVERSIKT_STATUS

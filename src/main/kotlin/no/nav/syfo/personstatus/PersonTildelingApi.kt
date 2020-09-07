@@ -40,7 +40,6 @@ fun Route.registerPersonTildelingApi(
                 log.warn("Kan ikke hente tilknytninger: {}, {}", e.message, callIdArgument(getCallId()))
                 call.respond(HttpStatusCode.BadRequest, e.message ?: "Kan ikke hente tilknytninger")
             }
-
         }
 
         post("/registrer") {
