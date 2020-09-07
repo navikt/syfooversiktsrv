@@ -33,6 +33,7 @@ plugins {
     kotlin("jvm") version "1.3.61"
     id("com.diffplug.gradle.spotless") version "3.18.0"
     id("com.github.johnrengelman.shadow") version "4.0.4"
+    id("org.jlleitschuh.gradle.ktlint") version "9.2.1"
 }
 
 buildscript {

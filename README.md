@@ -40,6 +40,9 @@ $ select * from person_oversikt_status;
 
 #### Build
 Run `./gradlew clean shadowJar`
+
+#### Lint
+Run `./gradlew --continue ktlintCheck`
    
 #### Local Env variables
 Make a copy of `localEnvForTests.json` with the name `localEnv.json` and set the variables. This file ignored by git.
