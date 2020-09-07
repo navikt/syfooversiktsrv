@@ -20,6 +20,7 @@ const val queryHentPersonResultatInternal = """
                          FROM PERSON_OVERSIKT_STATUS
                          WHERE fnr=?
                 """
+
 fun DatabaseInterface.hentPersonResultatInternal(fnr: String): List<PPersonOversiktStatus> {
     return connection.use { connection ->
         connection.prepareStatement(queryHentPersonResultatInternal).use {
@@ -49,6 +50,7 @@ const val queryHentUbehandledePersonerTilknyttetEnhet = """
                         WHERE ((tildelt_enhet = ?)
                         AND (motebehov_ubehandlet = 't' OR moteplanlegger_ubehandlet = 't'))
                 """
+
 fun DatabaseInterface.hentUbehandledePersonerTilknyttetEnhet(enhet: String): List<PPersonOversiktStatus> {
     return connection.use { connection ->
         connection.prepareStatement(queryHentUbehandledePersonerTilknyttetEnhet).use {
@@ -86,7 +88,6 @@ fun DatabaseInterface.hentBrukereTilknyttetVeileder(veileder: String): List<Veil
         }
     }
 }
-
 
 const val queryLagreBrukerKnytningPaEnhet = """INSERT INTO PERSON_OVERSIKT_STATUS (
             id,
@@ -157,19 +158,19 @@ fun DatabaseInterface.oppdaterEnhetDersomKnytningFinnes(veilederBrukerKnytning: 
 }
 
 fun ResultSet.toPPersonOversiktStatus(): PPersonOversiktStatus =
-        PPersonOversiktStatus(
-                id = getInt("id"),
-                veilederIdent = getString("tildelt_veileder"),
-                fnr = getString("fnr"),
-                navn = getString("navn"),
-                enhet = getString("tildelt_enhet"),
-                motebehovUbehandlet = getObject("motebehov_ubehandlet") as Boolean?,
-                moteplanleggerUbehandlet = getObject("moteplanlegger_ubehandlet") as Boolean?
-        )
+    PPersonOversiktStatus(
+        id = getInt("id"),
+        veilederIdent = getString("tildelt_veileder"),
+        fnr = getString("fnr"),
+        navn = getString("navn"),
+        enhet = getString("tildelt_enhet"),
+        motebehovUbehandlet = getObject("motebehov_ubehandlet") as Boolean?,
+        moteplanleggerUbehandlet = getObject("moteplanlegger_ubehandlet") as Boolean?
+    )
 
 fun ResultSet.toVeilederBrukerKnytning(): VeilederBrukerKnytning =
-        VeilederBrukerKnytning(
-                veilederIdent = getString("tildelt_veileder"),
-                fnr = getString("fnr"),
-                enhet = getString("tildelt_enhet")
-        )
+    VeilederBrukerKnytning(
+        veilederIdent = getString("tildelt_veileder"),
+        fnr = getString("fnr"),
+        enhet = getString("tildelt_enhet")
+    )

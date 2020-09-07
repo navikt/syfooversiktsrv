@@ -40,8 +40,10 @@ import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
-
-data class ApplicationState(var running: Boolean = true, var initialized: Boolean = false)
+data class ApplicationState(
+    var running: Boolean = true,
+    var initialized: Boolean = false
+)
 
 val LOG: org.slf4j.Logger = LoggerFactory.getLogger("no.nav.syfo.SyfooversiktApplicationKt")
 
@@ -85,10 +87,10 @@ val env: Environment = getEnvironment()
 fun Application.init() {
     isDev {
         database = DevDatabase(DbConfig(
-                jdbcUrl = "jdbc:postgresql://localhost:5432/syfooversiktsrv_dev",
-                databaseName = "syfooversiktsrv_dev",
-                password = "password",
-                username = "username")
+            jdbcUrl = "jdbc:postgresql://localhost:5432/syfooversiktsrv_dev",
+            databaseName = "syfooversiktsrv_dev",
+            password = "password",
+            username = "username")
         )
 
         state.running = true
@@ -100,11 +102,11 @@ fun Application.init() {
         val newCredentials = vaultCredentialService.getNewCredentials(env.mountPathVault, env.databaseName, Role.USER)
 
         database = ProdDatabase(DbConfig(
-                jdbcUrl = env.syfooversiktsrvDBURL,
-                username = newCredentials.username,
-                password = newCredentials.password,
-                databaseName = env.databaseName,
-                runMigrationsOninit = false)) { prodDatabase ->
+            jdbcUrl = env.syfooversiktsrvDBURL,
+            username = newCredentials.username,
+            password = newCredentials.password,
+            databaseName = env.databaseName,
+            runMigrationsOninit = false)) { prodDatabase ->
 
             // i prod må vi kjøre flyway migrations med et eget sett brukernavn/passord
             vaultCredentialService.getNewCredentials(env.mountPathVault, env.databaseName, Role.ADMIN).let {
@@ -114,7 +116,6 @@ fun Application.init() {
             vaultCredentialService.renewCredentialsTaskData = RenewCredentialsTaskData(env.mountPathVault, env.databaseName, Role.USER) {
                 prodDatabase.updateCredentials(username = it.username, password = it.password)
             }
-
 
             state.running = true
         }
@@ -143,13 +144,12 @@ fun Application.kafkaModule() {
     }
 
     isProd {
-
         val oversiktHendelseService = OversiktHendelseService(database)
         val oversikthendelstilfelleService = OversikthendelstilfelleService(database)
 
         launch(backgroundTasksContext) {
             val vaultSecrets =
-                    objectMapper.readValue<VaultSecrets>(Paths.get("/var/run/secrets/nais.io/vault/credentials.json").toFile())
+                objectMapper.readValue<VaultSecrets>(Paths.get("/var/run/secrets/nais.io/vault/credentials.json").toFile())
             setupKafka(vaultSecrets, oversiktHendelseService, oversikthendelstilfelleService)
         }
     }
@@ -178,18 +178,18 @@ fun Application.serverModule() {
     install(Authentication) {
         val wellKnown = getWellKnown(env.aadDiscoveryUrl)
         val jwkProvider = JwkProviderBuilder(URL(wellKnown.jwks_uri))
-                .cached(10, 24, TimeUnit.HOURS)
-                .rateLimited(10, 1, TimeUnit.MINUTES)
-                .build()
+            .cached(10, 24, TimeUnit.HOURS)
+            .rateLimited(10, 1, TimeUnit.MINUTES)
+            .build()
         jwt(name = "jwt") {
             verifier(jwkProvider, wellKnown.issuer)
             validate { credentials ->
                 if (!credentials.payload.audience.contains(env.clientid)) {
                     log.warn(
-                            "Auth: Unexpected audience for jwt {}, {}, {}",
-                            StructuredArguments.keyValue("issuer", credentials.payload.issuer),
-                            StructuredArguments.keyValue("audience", credentials.payload.audience),
-                            StructuredArguments.keyValue("expectedAudience", env.clientid)
+                        "Auth: Unexpected audience for jwt {}, {}, {}",
+                        StructuredArguments.keyValue("issuer", credentials.payload.issuer),
+                        StructuredArguments.keyValue("audience", credentials.payload.audience),
+                        StructuredArguments.keyValue("expectedAudience", env.clientid)
                     )
                     null
                 } else {
@@ -214,7 +214,6 @@ fun Application.serverModule() {
             throw cause
         }
     }
-
 
     isProd {
         intercept(ApplicationCallPipeline.Call) {
@@ -248,14 +247,13 @@ fun Application.serverModule() {
 
 
 fun CoroutineScope.createListener(applicationState: ApplicationState, action: suspend CoroutineScope.() -> Unit): Job =
-        launch {
-            try {
-                action()
-            } finally {
-                applicationState.running = false
-            }
+    launch {
+        try {
+            action()
+        } finally {
+            applicationState.running = false
         }
-
+    }
 
 val Application.envKind get() = environment.config.property("ktor.environment").getString()
 

@@ -8,7 +8,7 @@ import io.ktor.routing.get
 import no.nav.syfo.ApplicationState
 
 fun Routing.registerPodApi(
-        applicationState: ApplicationState
+    applicationState: ApplicationState
 ) {
     get("/is_alive") {
         if (applicationState.running) {

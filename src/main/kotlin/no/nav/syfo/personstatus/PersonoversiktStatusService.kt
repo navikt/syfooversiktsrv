@@ -6,7 +6,7 @@ import no.nav.syfo.oversikthendelsetilfelle.hentOppfolgingstilfellerForPerson
 import no.nav.syfo.personstatus.domain.*
 
 class PersonoversiktStatusService(
-        private val database: DatabaseInterface
+    private val database: DatabaseInterface
 ) {
     fun hentPersonoversiktStatusTilknyttetEnhet(enhet: String): List<PersonOversiktStatus> {
         val personListe = database.hentUbehandledePersonerTilknyttetEnhet(enhet)
@@ -24,21 +24,21 @@ class PersonoversiktStatusService(
 
 var mapPersonOversiktStatus = { pPersonOversiktStatus: PPersonOversiktStatus, oppfolgingstilfeller: List<Oppfolgingstilfelle> ->
     PersonOversiktStatus(
-            fnr = pPersonOversiktStatus.fnr,
-            navn = pPersonOversiktStatus.navn ?: "",
-            enhet = pPersonOversiktStatus.enhet,
-            veilederIdent = pPersonOversiktStatus.veilederIdent,
-            motebehovUbehandlet = pPersonOversiktStatus.motebehovUbehandlet,
-            moteplanleggerUbehandlet = pPersonOversiktStatus.moteplanleggerUbehandlet,
-            oppfolgingstilfeller = oppfolgingstilfeller
+        fnr = pPersonOversiktStatus.fnr,
+        navn = pPersonOversiktStatus.navn ?: "",
+        enhet = pPersonOversiktStatus.enhet,
+        veilederIdent = pPersonOversiktStatus.veilederIdent,
+        motebehovUbehandlet = pPersonOversiktStatus.motebehovUbehandlet,
+        moteplanleggerUbehandlet = pPersonOversiktStatus.moteplanleggerUbehandlet,
+        oppfolgingstilfeller = oppfolgingstilfeller
     )
 }
 
 var mapOppfolgingstilfelle = { pPersonOppfolgingstilfelle: PPersonOppfolgingstilfelle ->
     Oppfolgingstilfelle(
-            virksomhetsnummer = pPersonOppfolgingstilfelle.virksomhetsnummer,
-            fom = pPersonOppfolgingstilfelle.fom,
-            tom = pPersonOppfolgingstilfelle.tom,
-            virksomhetsnavn = pPersonOppfolgingstilfelle.virksomhetsnavn ?: ""
+        virksomhetsnummer = pPersonOppfolgingstilfelle.virksomhetsnummer,
+        fom = pPersonOppfolgingstilfelle.fom,
+        tom = pPersonOppfolgingstilfelle.tom,
+        virksomhetsnavn = pPersonOppfolgingstilfelle.virksomhetsnavn ?: ""
     )
 }

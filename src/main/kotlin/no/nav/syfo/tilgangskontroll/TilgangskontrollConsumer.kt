@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory
 val log = LoggerFactory.getLogger("no.nav.syfo.oversikt.tilgangskontroll")
 
 class TilgangskontrollConsumer(
-        private val endpointUrl: String
+    private val endpointUrl: String
 ) {
     private val paramEnhet = "enhet"
     private val pathTilgangTilBrukere = "/brukere"
@@ -28,13 +28,13 @@ class TilgangskontrollConsumer(
         val requestTimer = HISTOGRAM_SYFOTILGANGSKONTROLL_PERSONER.startTimer()
 
         val (_, _, result) = getTilgangskontrollUrl(pathTilgangTilBrukere).httpPost()
-                .body(bodyJson)
-                .header(mapOf(
-                        "Authorization" to bearerHeader(token),
-                        "Content-Type" to "application/json",
-                        NAV_CALL_ID_HEADER to callId
-                ))
-                .responseString()
+            .body(bodyJson)
+            .header(mapOf(
+                "Authorization" to bearerHeader(token),
+                "Content-Type" to "application/json",
+                NAV_CALL_ID_HEADER to callId
+            ))
+            .responseString()
 
         requestTimer.observeDuration()
 
@@ -52,12 +52,12 @@ class TilgangskontrollConsumer(
     fun harVeilederTilgangTilEnhet(enhet: String, token: String, callId: String): Boolean {
         val requestTimer = HISTOGRAM_SYFOTILGANGSKONTROLL_ENHET.startTimer()
         val (_, response, _) = getTilgangskontrollUrl("$pathTilgangTilEnhet?${paramEnhet}=$enhet").httpGet()
-                .header(mapOf(
-                        "Authorization" to bearerHeader(token),
-                        "Accept" to "application/json",
-                        NAV_CALL_ID_HEADER to callId
-                ))
-                .responseString()
+            .header(mapOf(
+                "Authorization" to bearerHeader(token),
+                "Accept" to "application/json",
+                NAV_CALL_ID_HEADER to callId
+            ))
+            .responseString()
         requestTimer.observeDuration()
 
         return response.isSuccessful

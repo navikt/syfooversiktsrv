@@ -1,6 +1,6 @@
 package no.nav.syfo.tilgangskontroll
 
 data class Tilgang(
-        val harTilgang: Boolean,
-        val begrunnelse: String?
+    val harTilgang: Boolean,
+    val begrunnelse: String?
 )

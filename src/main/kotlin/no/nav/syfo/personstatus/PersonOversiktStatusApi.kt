@@ -16,8 +16,8 @@ import org.slf4j.LoggerFactory
 private val log: Logger = LoggerFactory.getLogger("no.nav.syfo")
 
 fun Route.registerPersonoversiktApi(
-        tilgangskontrollConsumer: TilgangskontrollConsumer,
-        personoversiktStatusService: PersonoversiktStatusService
+    tilgangskontrollConsumer: TilgangskontrollConsumer,
+    personoversiktStatusService: PersonoversiktStatusService
 ) {
     route("/api/v1/personoversikt") {
         get("/enhet/{enhet}") {
@@ -26,22 +26,22 @@ fun Route.registerPersonoversiktApi(
                 val token = getTokenFromCookie(call.request.cookies)
 
                 val enhet: String = call.parameters["enhet"]?.takeIf { validateEnhet(it) }
-                        ?: throw IllegalArgumentException("Enhet mangler")
+                    ?: throw IllegalArgumentException("Enhet mangler")
 
                 when (tilgangskontrollConsumer.harVeilederTilgangTilEnhet(enhet, token, callId)) {
                     true -> {
-                        val requestTimer = HISTOGRAM_PERSONOVERSIKT.startTimer();
+                        val requestTimer = HISTOGRAM_PERSONOVERSIKT.startTimer()
                         val personOversiktStatusList: List<PersonOversiktStatus> = personoversiktStatusService
-                                .hentPersonoversiktStatusTilknyttetEnhet(enhet)
+                            .hentPersonoversiktStatusTilknyttetEnhet(enhet)
 
                         val personFnrListWithVeilederAccess: List<String> = tilgangskontrollConsumer.veilederPersonAccessList(
-                                personOversiktStatusList.map { it.fnr },
-                                token,
-                                callId
+                            personOversiktStatusList.map { it.fnr },
+                            token,
+                            callId
                         ) ?: emptyList()
 
                         val personList = personOversiktStatusList
-                                .filter { personFnrListWithVeilederAccess.contains(it.fnr) }
+                            .filter { personFnrListWithVeilederAccess.contains(it.fnr) }
 
                         when {
                             personList.isNotEmpty() -> call.respond(personList)
@@ -60,6 +60,5 @@ fun Route.registerPersonoversiktApi(
                 call.respond(HttpStatusCode.BadRequest, e.message ?: "Kan ikke hente personoversikt for enhet")
             }
         }
-
     }
 }

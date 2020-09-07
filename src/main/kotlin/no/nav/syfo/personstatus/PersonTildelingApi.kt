@@ -20,15 +20,15 @@ import org.slf4j.LoggerFactory
 private val log: Logger = LoggerFactory.getLogger("no.nav.syfo")
 
 fun Route.registerPersonTildelingApi(
-        tilgangskontrollConsumer: TilgangskontrollConsumer,
-        personTildelingService: PersonTildelingService
+    tilgangskontrollConsumer: TilgangskontrollConsumer,
+    personTildelingService: PersonTildelingService
 ) {
     route("/api/v1/persontildeling") {
 
         get("/veileder/{veileder}") {
             try {
                 val veileder: String = call.parameters["veileder"]?.takeIf { it.isNotEmpty() }
-                        ?: throw IllegalArgumentException("Veileder mangler")
+                    ?: throw IllegalArgumentException("Veileder mangler")
 
                 val tilknytninger: List<VeilederBrukerKnytning> = personTildelingService.hentBrukertilknytningerPaVeileder(veileder)
 
@@ -53,13 +53,13 @@ fun Route.registerPersonTildelingApi(
                 val veilederBrukerKnytningerListe: VeilederBrukerKnytningListe = call.receive()
 
                 val tilknytningFnrListWithVeilederAccess: List<String> = tilgangskontrollConsumer.veilederPersonAccessList(
-                        veilederBrukerKnytningerListe.tilknytninger.map { it.fnr },
-                        token,
-                        callId
+                    veilederBrukerKnytningerListe.tilknytninger.map { it.fnr },
+                    token,
+                    callId
                 ) ?: emptyList()
 
                 val veilederBrukerKnytninger: List<VeilederBrukerKnytning> = veilederBrukerKnytningerListe.tilknytninger
-                        .filter { tilknytningFnrListWithVeilederAccess.contains(it.fnr) }
+                    .filter { tilknytningFnrListWithVeilederAccess.contains(it.fnr) }
 
                 if (veilederBrukerKnytninger.isEmpty()) {
                     log.error("tilknytningFnrListWithVeilederAccess size ${tilknytningFnrListWithVeilederAccess.size}")

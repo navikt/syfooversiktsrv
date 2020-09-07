@@ -11,8 +11,8 @@ import no.nav.syfo.util.callIdArgument
 class OversikthendelstilfelleService(private val database: DatabaseInterface) {
 
     fun oppdaterPersonMedHendelse(
-            oversikthendelsetilfelle: KOversikthendelsetilfelle,
-            callId: String = ""
+        oversikthendelsetilfelle: KOversikthendelsetilfelle,
+        callId: String = ""
     ) {
         if (isInvalidOversikthendelsetilfelle(oversikthendelsetilfelle)) {
             LOG.error("Oppdaterte ikke person med oversikthendelsetilfelle med ugyldig EnhetId, for enhet {}, {}", oversikthendelsetilfelle.enhetId, callIdArgument(callId))
@@ -52,8 +52,8 @@ fun isInvalidOversikthendelsetilfelle(oversikthendelsetilfelle: KOversikthendels
 }
 
 fun countOpprett(
-        oversikthendelsetilfelle: KOversikthendelsetilfelle,
-        callId: String = ""
+    oversikthendelsetilfelle: KOversikthendelsetilfelle,
+    callId: String = ""
 ) {
     if (oversikthendelsetilfelle.gradert) {
         LOG.info("Opprettet person basert pa gradert oversikthendelsetilfelle, for enhet {}, {}", oversikthendelsetilfelle.enhetId, callIdArgument(callId))
@@ -65,8 +65,8 @@ fun countOpprett(
 }
 
 fun countOppdaterNyEnhet(
-        oversikthendelsetilfelle: KOversikthendelsetilfelle,
-        callId: String = ""
+    oversikthendelsetilfelle: KOversikthendelsetilfelle,
+    callId: String = ""
 ) {
     if (oversikthendelsetilfelle.gradert) {
         LOG.info("Oppdatert person basert pa gradert oversikthendelsetilfelle mottatt med ny enhet, {}", callIdArgument(callId))
@@ -78,8 +78,8 @@ fun countOppdaterNyEnhet(
 }
 
 fun countOppdater(
-        oversikthendelsetilfelle: KOversikthendelsetilfelle,
-        callId: String = ""
+    oversikthendelsetilfelle: KOversikthendelsetilfelle,
+    callId: String = ""
 ) {
     if (oversikthendelsetilfelle.gradert) {
         LOG.info("Oppdatert person basert pa gradert oversikthendelsetilfelle mottatt, {}", callIdArgument(callId))

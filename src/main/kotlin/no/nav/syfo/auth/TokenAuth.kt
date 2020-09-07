@@ -35,15 +35,15 @@ fun getDecodedTokenFromCookie(cookies: RequestCookies): DecodedJWT? {
 }
 
 data class VeilederTokenPayload(
-        val navIdent: String,
-        val navn: String,
-        val epost: String
+    val navIdent: String,
+    val navn: String,
+    val epost: String
 )
 
 fun getVeilederTokenPayload(token: String): VeilederTokenPayload {
     val decodedJWT = JWT.decode(token)
     val navIdent: String = decodedJWT.claims["NAVident"]?.asString()
-            ?: throw Error("Missing NAVident in private claims")
+        ?: throw Error("Missing NAVident in private claims")
     val navn: String = decodedJWT.claims["name"]?.asString() ?: throw Error("Missing name in private claims")
     val email = decodedJWT.claims["unique_name"]?.asString() ?: throw Error("Missing unique_name in private claims")
     return VeilederTokenPayload(navIdent, navn, email)
@@ -56,10 +56,10 @@ fun isInvalidToken(cookies: RequestCookies): Boolean {
     if (decodedToken != null) {
         return if (!decodedToken.audience.contains(env.clientid)) {
             log.warn(
-                    "Auth: Unexpected audience for jwt {}, {}, {}",
-                    StructuredArguments.keyValue("issuer", decodedToken.issuer),
-                    StructuredArguments.keyValue("audience", decodedToken.audience),
-                    StructuredArguments.keyValue("expectedAudience", env.clientid)
+                "Auth: Unexpected audience for jwt {}, {}, {}",
+                StructuredArguments.keyValue("issuer", decodedToken.issuer),
+                StructuredArguments.keyValue("audience", decodedToken.audience),
+                StructuredArguments.keyValue("expectedAudience", env.clientid)
             )
             true
         } else {
@@ -74,9 +74,9 @@ fun isInvalidToken(cookies: RequestCookies): Boolean {
 fun verifyToken(token: String, env: Environment): DecodedJWT {
     val wellKnown = getWellKnown(env.aadDiscoveryUrl)
     val jwkProvider = JwkProviderBuilder(URL(wellKnown.jwks_uri))
-            .cached(10, 24, TimeUnit.HOURS)
-            .rateLimited(10, 1, TimeUnit.MINUTES)
-            .build()
+        .cached(10, 24, TimeUnit.HOURS)
+        .rateLimited(10, 1, TimeUnit.MINUTES)
+        .build()
 
     val jwt = JWT.decode(token)
     val jwk = jwkProvider.get(jwt.keyId)
@@ -95,9 +95,9 @@ fun verifyToken(token: String, env: Environment): DecodedJWT {
     }
 
     val verifier = JWT.require(algorithm) // signature
-            .withIssuer(env.jwtIssuer) // iss
-            .withAudience(env.clientid) // aud
-            .build()
+        .withIssuer(env.jwtIssuer) // iss
+        .withAudience(env.clientid) // aud
+        .build()
 
     return verifier.verify(token)
 }
