@@ -30,6 +30,7 @@ var mapPersonOversiktStatus = { pPersonOversiktStatus: PPersonOversiktStatus, op
         veilederIdent = pPersonOversiktStatus.veilederIdent,
         motebehovUbehandlet = pPersonOversiktStatus.motebehovUbehandlet,
         moteplanleggerUbehandlet = pPersonOversiktStatus.moteplanleggerUbehandlet,
+        oppfolgingsplanLPSBistandUbehandlet = pPersonOversiktStatus.oppfolgingsplanLPSBistandUbehandlet,
         oppfolgingstilfeller = oppfolgingstilfeller
     )
 }

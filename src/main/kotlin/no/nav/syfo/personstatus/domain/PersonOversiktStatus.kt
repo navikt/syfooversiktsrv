@@ -7,5 +7,6 @@ data class PersonOversiktStatus(
     val enhet: String,
     val motebehovUbehandlet: Boolean?,
     val moteplanleggerUbehandlet: Boolean?,
+    val oppfolgingsplanLPSBistandUbehandlet: Boolean?,
     val oppfolgingstilfeller: List<Oppfolgingstilfelle>
 )

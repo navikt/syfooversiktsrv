@@ -165,7 +165,8 @@ fun ResultSet.toPPersonOversiktStatus(): PPersonOversiktStatus =
         navn = getString("navn"),
         enhet = getString("tildelt_enhet"),
         motebehovUbehandlet = getObject("motebehov_ubehandlet") as Boolean?,
-        moteplanleggerUbehandlet = getObject("moteplanlegger_ubehandlet") as Boolean?
+        moteplanleggerUbehandlet = getObject("moteplanlegger_ubehandlet") as Boolean?,
+        oppfolgingsplanLPSBistandUbehandlet = getObject("oppfolgingsplan_lps_bistand_ubehandlet") as Boolean?
     )
 
 fun ResultSet.toVeilederBrukerKnytning(): VeilederBrukerKnytning =

@@ -1,0 +1,1 @@
+ALTER TABLE PERSON_OVERSIKT_STATUS ADD COLUMN oppfolgingsplan_lps_bistand_ubehandlet BOOLEAN DEFAULT null;
