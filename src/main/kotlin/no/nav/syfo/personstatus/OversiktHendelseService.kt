@@ -16,6 +16,8 @@ class OversiktHendelseService(private val database: DatabaseInterface) {
             OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET.toString() -> oppdaterPersonMedHendelseMotebehovBehandlet(oversiktHendelse, callId)
             OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.toString() -> oppdaterPersonMedHendelseMoteplanleggerSvarMottat(oversiktHendelse, callId)
             OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_BEHANDLET.toString() -> oppdaterPersonMedHendelseMoteplanleggerSvarBehandlet(oversiktHendelse, callId)
+            OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT.toString() -> oppdaterPersonMedHendelseOppfolgingsplanLPSBistandMottatt(oversiktHendelse, callId)
+            OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_BEHANDLET.toString() -> oppdaterPersonMedHendelseOppfolgingsplanLPSBistandBehandlet(oversiktHendelse, callId)
             else -> {
                 log.error("Mottatt oversikthendelse med ukjent type, ${oversiktHendelse.hendelseId}, {}", callIdArgument(callId))
                 COUNT_OVERSIKTHENDELSE_UKJENT_MOTTATT.inc()
@@ -91,6 +93,42 @@ class OversiktHendelseService(private val database: DatabaseInterface) {
             else -> {
                 database.oppdaterPersonMedMotebehovMottatt(oversiktHendelse)
                 COUNT_OVERSIKTHENDELSE_MOTEBEHOV_SVAR_MOTTATT_OPPDATER.inc()
+            }
+        }
+    }
+
+    private fun oppdaterPersonMedHendelseOppfolgingsplanLPSBistandMottatt(oversiktHendelse: KOversikthendelse, callId: String) {
+        val person = database.hentPersonResultat(oversiktHendelse.fnr)
+        when {
+            person.isEmpty() -> {
+                database.opprettPersonMedOPLPSBistandMottatt(oversiktHendelse)
+                COUNT_OVERSIKTHENDELSE_MOTEBEHOV_SVAR_MOTTATT_OPPRETT.inc()
+            }
+            erPersonsEnhetOppdatert(person, oversiktHendelse.enhetId) -> {
+                database.oppdaterPersonMedOPLPSBistandMottattNyEnhet(oversiktHendelse)
+                COUNT_OVERSIKTHENDELSE_MOTEBEHOV_SVAR_MOTTATT_OPPDATER_ENHET.inc()
+            }
+            else -> {
+                database.oppdaterPersonMedOPLPSBistandMottatt(oversiktHendelse)
+                COUNT_OVERSIKTHENDELSE_MOTEBEHOV_SVAR_MOTTATT_OPPDATER.inc()
+            }
+        }
+    }
+
+    private fun oppdaterPersonMedHendelseOppfolgingsplanLPSBistandBehandlet(oversiktHendelse: KOversikthendelse, callId: String) {
+        val person = database.hentPersonResultat(oversiktHendelse.fnr)
+        when {
+            person.isEmpty() -> {
+                log.error("Fant ikke person som skal oppdateres med hendelse {}, for enhet {}, {}", oversiktHendelse.hendelseId, oversiktHendelse.enhetId, callIdArgument(callId))
+                COUNT_OVERSIKTHENDELSE_MOTEBEHOVSSVAR_BEHANDLET_FEILET.inc()
+            }
+            erPersonsEnhetOppdatert(person, oversiktHendelse.enhetId) -> {
+                database.oppdaterPersonMedOPLPSBistandBehandletNyEnhet(oversiktHendelse)
+                COUNT_OVERSIKTHENDELSE_MOTEBEHOVSSVAR_BEHANDLET_OPPDATER_ENHET.inc()
+            }
+            else -> {
+                database.oppdaterPersonMedOPLPSBistandBehandlet(oversiktHendelse)
+                COUNT_OVERSIKTHENDELSE_MOTEBEHOVSSVAR_BEHANDLET.inc()
             }
         }
     }

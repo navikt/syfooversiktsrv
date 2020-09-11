@@ -32,6 +32,7 @@ import no.nav.syfo.testutil.UserConstants.VEILEDER_ID
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNAVN_2
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER_2
+import no.nav.syfo.testutil.generator.generateKOversikthendelse
 import no.nav.syfo.tilgangskontroll.Tilgang
 import no.nav.syfo.tilgangskontroll.TilgangskontrollConsumer
 import org.amshove.kluent.shouldEqual
@@ -221,7 +222,7 @@ object PersonoversiktStatusApiSpek : Spek({
                     }
                 }
 
-                it("should return list of PersonOversiktStatus, if MOTEBEHOV_SVAR_MOTTATT and MOTEPLANLEGGER_ALLE_SVAR_MOTTATT, and there is a person with a relevant active Oppfolgingstilfelle") {
+                it("should return list of PersonOversiktStatus, if MOTEBEHOV_SVAR_MOTTATT and MOTEPLANLEGGER_ALLE_SVAR_MOTTATT and OPPFOLGINGSPLANLPS_BISTAND_MOTTATT, and there is a person with a relevant active Oppfolgingstilfelle") {
                     every {
                         isInvalidToken(any())
                     } returns false
@@ -243,6 +244,9 @@ object PersonoversiktStatusApiSpek : Spek({
                     val oversiktHendelseMoteplanleggerMottatt = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerMottatt)
 
+                    val oversiktHendelseOPLPSBistandMottatt = generateKOversikthendelse(OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT)
+                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseOPLPSBistandMottatt)
+
                     with(handleRequest(HttpMethod.Get, url) {
                         call.request.cookies[cookies]
                     }) {
@@ -253,6 +257,7 @@ object PersonoversiktStatusApiSpek : Spek({
                         personOversiktStatus.enhet shouldEqual oversikthendelstilfelle.enhetId
                         personOversiktStatus.motebehovUbehandlet shouldEqual true
                         personOversiktStatus.moteplanleggerUbehandlet shouldEqual true
+                        personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldEqual true
 
                         personOversiktStatus.oppfolgingstilfeller.size shouldEqual 1
                         checkPersonOppfolgingstilfelle(personOversiktStatus.oppfolgingstilfeller.first(), oversikthendelstilfelle)
@@ -295,6 +300,7 @@ object PersonoversiktStatusApiSpek : Spek({
                         personOversiktStatus.enhet shouldEqual oversikthendelstilfelle.enhetId
                         personOversiktStatus.motebehovUbehandlet shouldEqual true
                         personOversiktStatus.moteplanleggerUbehandlet shouldEqual null
+                        personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldEqual null
 
                         personOversiktStatus.oppfolgingstilfeller.size shouldEqual 2
                         checkPersonOppfolgingstilfelle(personOversiktStatus.oppfolgingstilfeller.first(), oversikthendelstilfelle)
@@ -332,6 +338,7 @@ object PersonoversiktStatusApiSpek : Spek({
                         personOversiktStatus.enhet shouldEqual oversikthendelstilfelle.enhetId
                         personOversiktStatus.motebehovUbehandlet shouldEqual null
                         personOversiktStatus.moteplanleggerUbehandlet shouldEqual true
+                        personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldEqual null
 
                         personOversiktStatus.oppfolgingstilfeller.size shouldEqual 1
                         checkPersonOppfolgingstilfelle(personOversiktStatus.oppfolgingstilfeller.first(), oversikthendelstilfelle)
@@ -407,7 +414,7 @@ object PersonoversiktStatusApiSpek : Spek({
                     }
                 }
 
-                it("should return Person, with MOTEBEHOV_SVAR_MOTTATT && MOTEPLANLEGGER_ALLE_SVAR_MOTTATT, and then receives Oppfolgingstilfelle") {
+                it("should return Person, with MOTEBEHOV_SVAR_MOTTATT && MOTEPLANLEGGER_ALLE_SVAR_MOTTATT, and then receives Oppfolgingstilfelle and the OPPFOLGINGSPLANLPS_BISTAND_MOTTATT") {
                     every {
                         isInvalidToken(any())
                     } returns false
@@ -423,6 +430,9 @@ object PersonoversiktStatusApiSpek : Spek({
 
                     val oversiktHendelseMoteplanleggerMottatt = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerMottatt)
+
+                    val oversiktHendelseOPLPSBistandMottatt = generateKOversikthendelse(OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT)
+                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseOPLPSBistandMottatt)
 
                     val oversikthendelstilfelle = generateOversikthendelsetilfelle.copy(
                             enhetId = NAV_ENHET,
@@ -443,13 +453,14 @@ object PersonoversiktStatusApiSpek : Spek({
                         personOversiktStatus.enhet shouldEqual oversikthendelstilfelle.enhetId
                         personOversiktStatus.motebehovUbehandlet shouldEqual true
                         personOversiktStatus.moteplanleggerUbehandlet shouldEqual true
+                        personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldEqual true
 
                         personOversiktStatus.oppfolgingstilfeller.size shouldEqual 1
                         checkPersonOppfolgingstilfelle(personOversiktStatus.oppfolgingstilfeller.first(), oversikthendelstilfelle)
                     }
                 }
 
-                it("should return Person, receives Oppfolgingstilfelle, and then MOTEBEHOV_SVAR_MOTTATT and MOTEPLANLEGGER_ALLE_SVAR_MOTTATT") {
+                it("should return Person, receives Oppfolgingstilfelle, and then MOTEBEHOV_SVAR_MOTTATT and MOTEPLANLEGGER_ALLE_SVAR_MOTTATT and OPPFOLGINGSPLANLPS_BISTAND_MOTTATT") {
                     every {
                         isInvalidToken(any())
                     } returns false
@@ -474,6 +485,9 @@ object PersonoversiktStatusApiSpek : Spek({
                     val oversiktHendelseMoteplanleggerMottatt = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerMottatt)
 
+                    val oversiktHendelseOPLPSBistandMottatt = generateKOversikthendelse(OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT)
+                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseOPLPSBistandMottatt)
+
                     with(handleRequest(HttpMethod.Get, url) {
                         call.request.cookies[cookies]
                     }) {
@@ -485,6 +499,7 @@ object PersonoversiktStatusApiSpek : Spek({
                         personOversiktStatus.enhet shouldEqual oversikthendelstilfelle.enhetId
                         personOversiktStatus.motebehovUbehandlet shouldEqual true
                         personOversiktStatus.moteplanleggerUbehandlet shouldEqual true
+                        personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldEqual true
 
                         personOversiktStatus.oppfolgingstilfeller.size shouldEqual 1
                         checkPersonOppfolgingstilfelle(personOversiktStatus.oppfolgingstilfeller.first(), oversikthendelstilfelle)

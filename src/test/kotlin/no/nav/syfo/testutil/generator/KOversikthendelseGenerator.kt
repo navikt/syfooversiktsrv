@@ -12,3 +12,11 @@ val generateOversikthendelse =
                 UserConstants.NAV_ENHET,
                 LocalDateTime.now()
         )
+
+fun generateKOversikthendelse(oversikthendelseType: OversikthendelseType) =
+    KOversikthendelse(
+        UserConstants.ARBEIDSTAKER_FNR,
+        oversikthendelseType.name,
+        UserConstants.NAV_ENHET,
+        LocalDateTime.now()
+    )
