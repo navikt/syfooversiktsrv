@@ -17,7 +17,7 @@ class PersonoversiktStatusService(
             }
             mapPersonOversiktStatus(it, oppfolgingstilfeller)
         }.filter {
-            it.oppfolgingstilfeller.isNotEmpty()
+            it.oppfolgingsplanLPSBistandUbehandlet == true || it.oppfolgingstilfeller.isNotEmpty()
         }
     }
 }
