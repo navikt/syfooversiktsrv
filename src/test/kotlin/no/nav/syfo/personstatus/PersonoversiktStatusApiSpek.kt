@@ -505,6 +505,34 @@ object PersonoversiktStatusApiSpek : Spek({
                         checkPersonOppfolgingstilfelle(personOversiktStatus.oppfolgingstilfeller.first(), oversikthendelstilfelle)
                     }
                 }
+
+                it("should return Person, no Oppfolgingstilfelle, and then OPPFOLGINGSPLANLPS_BISTAND_MOTTATT") {
+                    every {
+                        isInvalidToken(any())
+                    } returns false
+                    every {
+                        getTokenFromCookie(any())
+                    } returns "token"
+
+                    val oversiktHendelseOPLPSBistandMottatt = generateKOversikthendelse(OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT)
+                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseOPLPSBistandMottatt)
+
+                    with(handleRequest(HttpMethod.Get, url) {
+                        call.request.cookies[cookies]
+                    }) {
+                        response.status() shouldEqual HttpStatusCode.OK
+                        val personOversiktStatus = objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!).first()
+                        personOversiktStatus.veilederIdent shouldEqual null
+                        personOversiktStatus.fnr shouldEqual oversiktHendelseOPLPSBistandMottatt.fnr
+                        personOversiktStatus.navn shouldEqual ""
+                        personOversiktStatus.enhet shouldEqual oversiktHendelseOPLPSBistandMottatt.enhetId
+                        personOversiktStatus.motebehovUbehandlet shouldEqual null
+                        personOversiktStatus.moteplanleggerUbehandlet shouldEqual null
+                        personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldEqual true
+
+                        personOversiktStatus.oppfolgingstilfeller.size shouldEqual 0
+                    }
+                }
             }
         }
     }
