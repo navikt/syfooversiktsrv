@@ -7,7 +7,7 @@ version = "1.0-SNAPSHOT"
 
 val coroutinesVersion = "1.3.3"
 val kotlinSerializationVersion = "0.9.0"
-val ktorVersion = "1.3.1"
+val ktorVersion = "1.3.2"
 val flywayVersion = "5.2.4"
 val jacksonVersion = "2.9.8"
 val hikariVersion = "3.3.0"
