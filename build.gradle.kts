@@ -11,7 +11,6 @@ val ktorVersion = "1.3.1"
 val flywayVersion = "5.2.4"
 val jacksonVersion = "2.9.8"
 val hikariVersion = "3.3.0"
-val h2Version = "1.4.197"
 val fuelVersion = "1.15.1"
 val kafkaVersion = "2.0.0"
 val kafkaEmbeddedVersion = "2.0.2"
@@ -64,7 +63,6 @@ dependencies {
 
     // Database
     implementation("org.postgresql:postgresql:$postgresVersion")
-    implementation("com.h2database:h2:$h2Version")
     implementation("com.zaxxer:HikariCP:$hikariVersion")
     implementation("org.flywaydb:flyway-core:$flywayVersion")
     implementation("com.bettercloud:vault-java-driver:$vaultJavaDriveVersion")
