@@ -30,7 +30,7 @@ tasks.withType<Jar> {
 }
 
 plugins {
-    kotlin("jvm") version "1.3.61"
+    kotlin("jvm") version "1.4.10"
     id("com.github.johnrengelman.shadow") version "6.1.0"
     id("org.jlleitschuh.gradle.ktlint") version "9.2.1"
 }
