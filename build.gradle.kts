@@ -5,7 +5,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 group = "no.nav.syfo"
 version = "1.0-SNAPSHOT"
 
-val coroutinesVersion = "1.3.3"
+val coroutinesVersion = "1.3.9"
 val kotlinSerializationVersion = "0.9.0"
 val ktorVersion = "1.3.2"
 val flywayVersion = "5.2.4"
