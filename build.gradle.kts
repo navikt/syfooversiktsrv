@@ -88,9 +88,6 @@ dependencies {
     testImplementation("org.testcontainers:postgresql:$postgresTestContainersVersion")
     testRuntimeOnly("org.spekframework.spek2:spek-runtime-jvm:$spekVersion")
     testRuntimeOnly("org.spekframework.spek2:spek-runner-junit5:$spekVersion")
-
-    api("io.ktor:ktor-client-mock:$ktorVersion")
-    api("io.ktor:ktor-client-mock-jvm:$ktorVersion")
 }
 
 tasks {
