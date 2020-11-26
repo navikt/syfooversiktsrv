@@ -38,6 +38,9 @@ spec:
     - "https://syfooversiktsrv.nais.adeo.no"
   vault:
     enabled: true
+    paths:
+      - kvPath: "/serviceuser/data/prod/srvsyfooversiktsrv"
+        mountPath: "/secrets/serviceuser/syfooversiktsrv"
   webproxy: true
   env:
     - name: CLIENT_ID

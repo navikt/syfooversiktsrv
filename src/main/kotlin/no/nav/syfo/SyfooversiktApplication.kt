@@ -1,29 +1,31 @@
 package no.nav.syfo
 
 import com.auth0.jwk.JwkProviderBuilder
-import com.fasterxml.jackson.databind.*
+import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.typesafe.config.ConfigFactory
 import io.ktor.application.*
-import io.ktor.auth.Authentication
-import io.ktor.auth.jwt.JWTPrincipal
-import io.ktor.auth.jwt.jwt
-import io.ktor.config.HoconApplicationConfig
+import io.ktor.auth.*
+import io.ktor.auth.jwt.*
+import io.ktor.config.*
 import io.ktor.features.*
-import io.ktor.http.HttpHeaders
-import io.ktor.http.HttpStatusCode
-import io.ktor.jackson.jackson
-import io.ktor.request.uri
-import io.ktor.response.respond
-import io.ktor.routing.routing
+import io.ktor.http.*
+import io.ktor.jackson.*
+import io.ktor.request.*
+import io.ktor.response.*
+import io.ktor.routing.*
 import io.ktor.server.engine.*
-import io.ktor.server.netty.Netty
-import kotlinx.coroutines.*
+import io.ktor.server.netty.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.slf4j.MDCContext
 import net.logstash.logback.argument.StructuredArguments
-import no.nav.syfo.api.*
+import no.nav.syfo.api.getWellKnown
+import no.nav.syfo.api.registerPodApi
+import no.nav.syfo.api.registerPrometheusApi
 import no.nav.syfo.auth.isInvalidToken
 import no.nav.syfo.db.*
 import no.nav.syfo.kafka.setupKafka
@@ -32,10 +34,10 @@ import no.nav.syfo.personstatus.*
 import no.nav.syfo.tilgangskontroll.TilgangskontrollConsumer
 import no.nav.syfo.util.NAV_CALL_ID_HEADER
 import no.nav.syfo.util.getCallId
+import no.nav.syfo.util.getFileAsString
 import no.nav.syfo.vault.Vault
 import org.slf4j.LoggerFactory
 import java.net.URL
-import java.nio.file.Paths
 import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -46,13 +48,6 @@ data class ApplicationState(
 )
 
 val LOG: org.slf4j.Logger = LoggerFactory.getLogger("no.nav.syfo.SyfooversiktApplicationKt")
-
-private val objectMapper: ObjectMapper = ObjectMapper().apply {
-    registerKotlinModule()
-    registerModule(JavaTimeModule())
-    configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-    configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-}
 
 val backgroundTasksContext = Executors.newFixedThreadPool(4).asCoroutineDispatcher() + MDCContext()
 
@@ -146,8 +141,10 @@ fun Application.kafkaModule() {
         val oversikthendelstilfelleService = OversikthendelstilfelleService(database)
 
         launch(backgroundTasksContext) {
-            val vaultSecrets =
-                objectMapper.readValue<VaultSecrets>(Paths.get("/var/run/secrets/nais.io/vault/credentials.json").toFile())
+            val vaultSecrets = VaultSecrets(
+                serviceuserPassword = getFileAsString("/secrets/serviceuser/syfooversiktsrv/password"),
+                serviceuserUsername = getFileAsString("/secrets/serviceuser/syfooversiktsrv/username")
+            )
             setupKafka(vaultSecrets, oversiktHendelseService, oversikthendelstilfelleService)
         }
     }
