@@ -18,7 +18,7 @@ val kluentVersion = "1.61"
 val logbackVersion = "1.2.3"
 val logstashEncoderVersion = "6.3"
 val mockkVersion = "1.10.0"
-val postgresTestContainersVersion = "1.14.3"
+val postgresEmbeddedVersion = "0.13.3"
 val postgresVersion = "42.2.13"
 val prometheusVersion = "0.9.0"
 val spekVersion = "2.0.12"
@@ -85,7 +85,7 @@ dependencies {
     testImplementation("org.spekframework.spek2:spek-dsl-jvm:$spekVersion")
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")
-    testImplementation("org.testcontainers:postgresql:$postgresTestContainersVersion")
+    testImplementation("com.opentable.components:otj-pg-embedded:$postgresEmbeddedVersion")
     testRuntimeOnly("org.spekframework.spek2:spek-runtime-jvm:$spekVersion")
     testRuntimeOnly("org.spekframework.spek2:spek-runner-junit5:$spekVersion")
 }
