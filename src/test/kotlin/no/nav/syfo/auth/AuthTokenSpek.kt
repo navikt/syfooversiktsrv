@@ -1,7 +1,7 @@
 package no.nav.syfo.auth
 
 import io.ktor.util.InternalAPI
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 
@@ -13,9 +13,9 @@ object AuthTokenSpek : Spek({
         it("Skal parse og returnere gyldig payload") {
             val tokenPayload = getVeilederTokenPayload(mockToken)
 
-            tokenPayload.navIdent shouldEqual "Z991598"
-            tokenPayload.epost shouldEqual "F_Z991598.E_Z991598@trygdeetaten.no"
-            tokenPayload.navn shouldEqual "F_Z991598 E_Z991598"
+            tokenPayload.navIdent shouldBeEqualTo "Z991598"
+            tokenPayload.epost shouldBeEqualTo "F_Z991598.E_Z991598@trygdeetaten.no"
+            tokenPayload.navn shouldBeEqualTo "F_Z991598 E_Z991598"
         }
     }
 })

@@ -26,7 +26,7 @@ import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testutil.UserConstants.NAV_ENHET
 import no.nav.syfo.testutil.UserConstants.VEILEDER_ID
 import no.nav.syfo.tilgangskontroll.TilgangskontrollConsumer
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import java.net.ServerSocket
@@ -107,7 +107,7 @@ object PersontildelingApiSpek : Spek({
                         with(handleRequest(HttpMethod.Get, url) {
                             call.request.cookies[cookies]
                         }) {
-                            response.status() shouldEqual HttpStatusCode.NoContent
+                            response.status() shouldBeEqualTo HttpStatusCode.NoContent
                         }
                     }
 
@@ -123,11 +123,11 @@ object PersontildelingApiSpek : Spek({
                         with(handleRequest(HttpMethod.Get, url) {
                             call.request.cookies[cookies]
                         }) {
-                            response.status() shouldEqual HttpStatusCode.OK
+                            response.status() shouldBeEqualTo HttpStatusCode.OK
                             val returnertVerdig = objectMapper.readValue<List<VeilederBrukerKnytning>>(response.content!!)[0]
-                            returnertVerdig.veilederIdent shouldEqual tilknytning.veilederIdent
-                            returnertVerdig.fnr shouldEqual tilknytning.fnr
-                            returnertVerdig.enhet shouldEqual tilknytning.enhet
+                            returnertVerdig.veilederIdent shouldBeEqualTo tilknytning.veilederIdent
+                            returnertVerdig.fnr shouldBeEqualTo tilknytning.fnr
+                            returnertVerdig.enhet shouldBeEqualTo tilknytning.enhet
                         }
                     }
                 }
@@ -148,7 +148,7 @@ object PersontildelingApiSpek : Spek({
                             call.request.cookies[cookies]
                             setBody("{\"tilknytninger\":[{\"veilederIdent\": \"$VEILEDER_ID\",\"fnr\": \"$ARBEIDSTAKER_FNR\",\"enhet\": \"$NAV_ENHET\"}]}")
                         }) {
-                            response.status() shouldEqual HttpStatusCode.OK
+                            response.status() shouldBeEqualTo HttpStatusCode.OK
                         }
                     }
                 }

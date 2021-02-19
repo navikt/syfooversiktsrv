@@ -9,7 +9,7 @@ import no.nav.syfo.Environment
 import no.nav.syfo.VaultSecrets
 import no.nav.syfo.personstatus.domain.KOversikthendelse
 import no.nav.syfo.testutil.generator.generateOversikthendelse
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -95,8 +95,8 @@ object KafkaITSpek : Spek({
                 val hendelse: KOversikthendelse = objectMapper.readValue(it.value())
                 messages.add(hendelse)
             }
-            messages.size shouldEqual 1
-            messages.first() shouldEqual oversikthendelse
+            messages.size shouldBeEqualTo 1
+            messages.first() shouldBeEqualTo oversikthendelse
         }
     }
 })

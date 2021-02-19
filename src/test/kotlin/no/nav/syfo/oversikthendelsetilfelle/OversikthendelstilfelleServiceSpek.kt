@@ -23,7 +23,7 @@ import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNAVN_2
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER_2
 import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import java.time.LocalDate
@@ -298,29 +298,29 @@ object OversikthendelstilfelleServiceSpek : Spek({
                 val person = database.connection.hentPersonResultatInternal(utenVirksomhetsnavn.fnr)
                 person.size shouldBe 1
                 val oppfolgingstilfelle = database.connection.hentOppfolgingstilfelleResultat(person.first().id)
-                oppfolgingstilfelle.first().virksomhetsnavn shouldEqual null
+                oppfolgingstilfelle.first().virksomhetsnavn shouldBeEqualTo null
 
                 oversikthendelstilfelleService.oppdaterPersonMedHendelse(utenVirksomhetsnavn.copy(virksomhetsnavn = VIRKSOMHETSNAVN_2))
                 val oppdatertOppfolingstilfelle = database.connection.hentOppfolgingstilfelleResultat(person.first().id)
-                oppdatertOppfolingstilfelle.first().virksomhetsnavn shouldEqual VIRKSOMHETSNAVN_2
+                oppdatertOppfolingstilfelle.first().virksomhetsnavn shouldBeEqualTo VIRKSOMHETSNAVN_2
             }
         }
     }
 })
 
 fun checkPersonOversiktStatus(pPersonOversiktStatus: PPersonOversiktStatus, oversikthendelsetilfelle: KOversikthendelsetilfelle, veilederIdent: String?) {
-    pPersonOversiktStatus.fnr shouldEqual oversikthendelsetilfelle.fnr
-    pPersonOversiktStatus.navn shouldEqual oversikthendelsetilfelle.navn
-    pPersonOversiktStatus.veilederIdent shouldEqual veilederIdent
-    pPersonOversiktStatus.enhet shouldEqual oversikthendelsetilfelle.enhetId
-    pPersonOversiktStatus.motebehovUbehandlet shouldEqual null
-    pPersonOversiktStatus.moteplanleggerUbehandlet shouldEqual null
+    pPersonOversiktStatus.fnr shouldBeEqualTo oversikthendelsetilfelle.fnr
+    pPersonOversiktStatus.navn shouldBeEqualTo oversikthendelsetilfelle.navn
+    pPersonOversiktStatus.veilederIdent shouldBeEqualTo veilederIdent
+    pPersonOversiktStatus.enhet shouldBeEqualTo oversikthendelsetilfelle.enhetId
+    pPersonOversiktStatus.motebehovUbehandlet shouldBeEqualTo null
+    pPersonOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo null
 }
 
 fun checkPersonOppfolgingstilfelle(pPersonOppfolgingstilfelle: PPersonOppfolgingstilfelle, oversikthendelsetilfelle: KOversikthendelsetilfelle, personId: Int) {
-    pPersonOppfolgingstilfelle.personOversiktStatusId shouldEqual personId
-    pPersonOppfolgingstilfelle.virksomhetsnummer shouldEqual oversikthendelsetilfelle.virksomhetsnummer
-    pPersonOppfolgingstilfelle.gradert shouldEqual oversikthendelsetilfelle.gradert
-    pPersonOppfolgingstilfelle.fom shouldEqual oversikthendelsetilfelle.fom
-    pPersonOppfolgingstilfelle.tom shouldEqual oversikthendelsetilfelle.tom
+    pPersonOppfolgingstilfelle.personOversiktStatusId shouldBeEqualTo personId
+    pPersonOppfolgingstilfelle.virksomhetsnummer shouldBeEqualTo oversikthendelsetilfelle.virksomhetsnummer
+    pPersonOppfolgingstilfelle.gradert shouldBeEqualTo oversikthendelsetilfelle.gradert
+    pPersonOppfolgingstilfelle.fom shouldBeEqualTo oversikthendelsetilfelle.fom
+    pPersonOppfolgingstilfelle.tom shouldBeEqualTo oversikthendelsetilfelle.tom
 }
