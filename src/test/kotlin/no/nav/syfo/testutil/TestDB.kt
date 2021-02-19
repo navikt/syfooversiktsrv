@@ -1,16 +1,12 @@
 package no.nav.syfo.testutil
 
 import com.opentable.db.postgres.embedded.EmbeddedPostgres
-import no.nav.syfo.db.*
-import no.nav.syfo.oversikthendelsetilfelle.domain.PPersonOppfolgingstilfelle
-import no.nav.syfo.oversikthendelsetilfelle.toPPersonOppfolgingstilfelle
-import no.nav.syfo.personstatus.*
-import no.nav.syfo.personstatus.domain.*
+import no.nav.syfo.db.DatabaseInterface
+import no.nav.syfo.db.toList
+import no.nav.syfo.personstatus.domain.PPersonOversiktStatus
+import no.nav.syfo.personstatus.toPPersonOversiktStatus
 import org.flywaydb.core.Flyway
 import java.sql.Connection
-import java.sql.Timestamp
-import java.time.Instant
-import java.util.*
 
 class TestDB : DatabaseInterface {
     private val pg: EmbeddedPostgres
@@ -43,39 +39,11 @@ fun Connection.dropData() {
     }
 }
 
-fun Connection.opprettVeilederBrukerKnytning(veilederBrukerKnytning: VeilederBrukerKnytning) {
-    val uuid = UUID.randomUUID().toString()
-    val tidspunkt = Timestamp.from(Instant.now())
-
-    use { connection ->
-        connection.prepareStatement(queryLagreBrukerKnytningPaEnhet).use {
-            it.setString(1, uuid)
-            it.setString(2, veilederBrukerKnytning.fnr)
-            it.setString(3, veilederBrukerKnytning.veilederIdent)
-            it.setString(4, veilederBrukerKnytning.enhet)
-            it.setTimestamp(5, tidspunkt)
-            it.setTimestamp(6, tidspunkt)
-            it.execute()
-        }
-        connection.commit()
-    }
-}
-
-fun Connection.tildelVeilederTilPerson(veilederBrukerKnytning: VeilederBrukerKnytning) {
-    val updateQuery = """
-                         UPDATE PERSON_OVERSIKT_STATUS
-                         SET tildelt_veileder = ?
-                         WHERE fnr = ?
+const val queryHentPersonerTilknyttetEnhet = """
+                        SELECT *
+                        FROM PERSON_OVERSIKT_STATUS
+                        WHERE tildelt_enhet = ?
                 """
-    use { connection ->
-        connection.prepareStatement(updateQuery).use {
-            it.setString(1, veilederBrukerKnytning.veilederIdent)
-            it.setString(2, veilederBrukerKnytning.fnr)
-            it.executeUpdate()
-        }
-        connection.commit()
-    }
-}
 
 fun Connection.hentPersonerTilknyttetEnhet(enhet: String): List<PPersonOversiktStatus> {
     return use { connection ->
@@ -83,80 +51,5 @@ fun Connection.hentPersonerTilknyttetEnhet(enhet: String): List<PPersonOversiktS
             it.setString(1, enhet)
             it.executeQuery().toList { toPPersonOversiktStatus() }
         }
-    }
-}
-
-fun Connection.hentPersonResultatInternal(fnr: String): List<PPersonOversiktStatus> {
-    return use { connection ->
-        connection.prepareStatement(queryHentPersonResultatInternal).use {
-            it.setString(1, fnr)
-            it.executeQuery().toList { toPPersonOversiktStatus() }
-        }
-    }
-}
-
-const val queryHentOppfolgingstilfelleResultatForPerson = """
-                         SELECT *
-                         FROM PERSON_OPPFOLGINGSTILFELLE
-                         WHERE person_oversikt_status_id = ?
-                """
-
-fun Connection.hentOppfolgingstilfelleResultat(personId: Int): List<PPersonOppfolgingstilfelle> {
-    return use { connection ->
-        connection.prepareStatement(queryHentOppfolgingstilfelleResultatForPerson).use {
-            it.setInt(1, personId)
-            it.executeQuery().toList { toPPersonOppfolgingstilfelle() }
-        }
-    }
-}
-
-fun Connection.opprettPerson(oversiktHendelse: KOversikthendelse) {
-    val uuid = UUID.randomUUID().toString()
-    val tidspunkt = Timestamp.from(Instant.now())
-
-    use { connection ->
-        connection.prepareStatement(queryOpprettPersonMedMotebehovMottatt).use {
-            it.setString(1, uuid)
-            it.setString(2, oversiktHendelse.fnr)
-            it.setString(3, oversiktHendelse.enhetId)
-            it.setBoolean(4, true)
-            it.setTimestamp(5, tidspunkt)
-            it.setTimestamp(6, tidspunkt)
-            it.execute()
-        }
-        connection.commit()
-    }
-}
-
-fun Connection.opprettPersonMedMoteplanleggerAlleSvarMottatt(oversiktHendelse: KOversikthendelse) {
-    val uuid = UUID.randomUUID().toString()
-    val tidspunkt = Timestamp.from(Instant.now())
-
-    use { connection ->
-        connection.prepareStatement(queryOpprettPersonMedMoteplanleggerAlleSvar).use {
-            it.setString(1, uuid)
-            it.setString(2, oversiktHendelse.fnr)
-            it.setString(3, oversiktHendelse.enhetId)
-            it.setBoolean(4, true)
-            it.setTimestamp(5, tidspunkt)
-            it.setTimestamp(6, tidspunkt)
-            it.execute()
-        }
-        connection.commit()
-    }
-}
-
-fun Connection.oppdaterPersonMedMotebehovMottatt(oversiktHendelse: KOversikthendelse) {
-    val tidspunkt = Timestamp.from(Instant.now())
-
-    use { connection ->
-        connection.prepareStatement(queryOppdaterPersonMedMotebehovMottatt).use {
-            it.setBoolean(1, true)
-            it.setString(2, oversiktHendelse.enhetId)
-            it.setTimestamp(3, tidspunkt)
-            it.setString(4, oversiktHendelse.fnr)
-            it.execute()
-        }
-        connection.commit()
     }
 }

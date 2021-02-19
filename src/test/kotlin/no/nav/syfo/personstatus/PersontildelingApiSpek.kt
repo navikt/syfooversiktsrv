@@ -118,7 +118,7 @@ object PersontildelingApiSpek : Spek({
 
                         val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
 
-                        database.connection.opprettVeilederBrukerKnytning(tilknytning)
+                        database.lagreBrukerKnytningPaEnhet(tilknytning)
 
                         with(handleRequest(HttpMethod.Get, url) {
                             call.request.cookies[cookies]

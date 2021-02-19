@@ -60,21 +60,6 @@ fun DatabaseInterface.hentUbehandledePersonerTilknyttetEnhet(enhet: String): Lis
     }
 }
 
-const val queryHentPersonerTilknyttetEnhet = """
-                        SELECT *
-                        FROM PERSON_OVERSIKT_STATUS
-                        WHERE tildelt_enhet = ?
-                """
-
-fun DatabaseInterface.hentPersonerTilknyttetEnhet(enhet: String): List<PPersonOversiktStatus> {
-    return connection.use { connection ->
-        connection.prepareStatement(queryHentPersonerTilknyttetEnhet).use {
-            it.setString(1, enhet)
-            it.executeQuery().toList { toPPersonOversiktStatus() }
-        }
-    }
-}
-
 fun DatabaseInterface.hentBrukereTilknyttetVeileder(veileder: String): List<VeilederBrukerKnytning> {
     val query = """
                         SELECT *

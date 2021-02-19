@@ -139,7 +139,7 @@ object PersonoversiktStatusApiSpek : Spek({
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
                     val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
-                    database.connection.tildelVeilederTilPerson(tilknytning)
+                    database.lagreBrukerKnytningPaEnhet(tilknytning)
 
                     with(handleRequest(HttpMethod.Get, url) {
                         call.request.cookies[cookies]
@@ -160,7 +160,7 @@ object PersonoversiktStatusApiSpek : Spek({
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
                     val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
-                    database.connection.tildelVeilederTilPerson(tilknytning)
+                    database.lagreBrukerKnytningPaEnhet(tilknytning)
 
                     with(handleRequest(HttpMethod.Get, url) {
                         call.request.cookies[cookies]
@@ -181,7 +181,7 @@ object PersonoversiktStatusApiSpek : Spek({
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
                     val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
-                    database.connection.tildelVeilederTilPerson(tilknytning)
+                    database.lagreBrukerKnytningPaEnhet(tilknytning)
 
                     val oversiktHendelseNy = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET.name, NAV_ENHET, LocalDateTime.now())
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseNy)
@@ -426,7 +426,7 @@ object PersonoversiktStatusApiSpek : Spek({
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
                     val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
-                    database.connection.tildelVeilederTilPerson(tilknytning)
+                    database.lagreBrukerKnytningPaEnhet(tilknytning)
 
                     val oversiktHendelseMoteplanleggerMottatt = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerMottatt)
@@ -480,7 +480,7 @@ object PersonoversiktStatusApiSpek : Spek({
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
                     val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
-                    database.connection.tildelVeilederTilPerson(tilknytning)
+                    database.lagreBrukerKnytningPaEnhet(tilknytning)
 
                     val oversiktHendelseMoteplanleggerMottatt = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerMottatt)
