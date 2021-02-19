@@ -35,7 +35,7 @@ import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER_2
 import no.nav.syfo.testutil.generator.generateKOversikthendelse
 import no.nav.syfo.tilgangskontroll.Tilgang
 import no.nav.syfo.tilgangskontroll.TilgangskontrollConsumer
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import java.net.ServerSocket
@@ -123,7 +123,7 @@ object PersonoversiktStatusApiSpek : Spek({
                     with(handleRequest(HttpMethod.Get, url) {
                         call.request.cookies[cookies]
                     }) {
-                        response.status() shouldEqual HttpStatusCode.NoContent
+                        response.status() shouldBeEqualTo HttpStatusCode.NoContent
                     }
                 }
 
@@ -144,7 +144,7 @@ object PersonoversiktStatusApiSpek : Spek({
                     with(handleRequest(HttpMethod.Get, url) {
                         call.request.cookies[cookies]
                     }) {
-                        response.status() shouldEqual HttpStatusCode.NoContent
+                        response.status() shouldBeEqualTo HttpStatusCode.NoContent
                     }
                 }
 
@@ -165,7 +165,7 @@ object PersonoversiktStatusApiSpek : Spek({
                     with(handleRequest(HttpMethod.Get, url) {
                         call.request.cookies[cookies]
                     }) {
-                        response.status() shouldEqual HttpStatusCode.NoContent
+                        response.status() shouldBeEqualTo HttpStatusCode.NoContent
                     }
                 }
 
@@ -195,7 +195,7 @@ object PersonoversiktStatusApiSpek : Spek({
                     with(handleRequest(HttpMethod.Get, url) {
                         call.request.cookies[cookies]
                     }) {
-                        response.status() shouldEqual HttpStatusCode.NoContent
+                        response.status() shouldBeEqualTo HttpStatusCode.NoContent
                     }
                 }
 
@@ -218,7 +218,7 @@ object PersonoversiktStatusApiSpek : Spek({
                     with(handleRequest(HttpMethod.Get, url) {
                         call.request.cookies[cookies]
                     }) {
-                        response.status() shouldEqual HttpStatusCode.NoContent
+                        response.status() shouldBeEqualTo HttpStatusCode.NoContent
                     }
                 }
 
@@ -250,16 +250,16 @@ object PersonoversiktStatusApiSpek : Spek({
                     with(handleRequest(HttpMethod.Get, url) {
                         call.request.cookies[cookies]
                     }) {
-                        response.status() shouldEqual HttpStatusCode.OK
+                        response.status() shouldBeEqualTo HttpStatusCode.OK
                         val personOversiktStatus = objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!).first()
-                        personOversiktStatus.veilederIdent shouldEqual null
-                        personOversiktStatus.fnr shouldEqual oversikthendelstilfelle.fnr
-                        personOversiktStatus.enhet shouldEqual oversikthendelstilfelle.enhetId
-                        personOversiktStatus.motebehovUbehandlet shouldEqual true
-                        personOversiktStatus.moteplanleggerUbehandlet shouldEqual true
-                        personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldEqual true
+                        personOversiktStatus.veilederIdent shouldBeEqualTo null
+                        personOversiktStatus.fnr shouldBeEqualTo oversikthendelstilfelle.fnr
+                        personOversiktStatus.enhet shouldBeEqualTo oversikthendelstilfelle.enhetId
+                        personOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
+                        personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo true
+                        personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
 
-                        personOversiktStatus.oppfolgingstilfeller.size shouldEqual 1
+                        personOversiktStatus.oppfolgingstilfeller.size shouldBeEqualTo 1
                         checkPersonOppfolgingstilfelle(personOversiktStatus.oppfolgingstilfeller.first(), oversikthendelstilfelle)
                     }
                 }
@@ -292,17 +292,17 @@ object PersonoversiktStatusApiSpek : Spek({
                     with(handleRequest(HttpMethod.Get, url) {
                         call.request.cookies[cookies]
                     }) {
-                        response.status() shouldEqual HttpStatusCode.OK
+                        response.status() shouldBeEqualTo HttpStatusCode.OK
                         val personOversiktStatus = objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!).first()
-                        personOversiktStatus.veilederIdent shouldEqual null
-                        personOversiktStatus.fnr shouldEqual oversikthendelstilfelle.fnr
-                        personOversiktStatus.navn shouldEqual oversikthendelstilfelle.navn
-                        personOversiktStatus.enhet shouldEqual oversikthendelstilfelle.enhetId
-                        personOversiktStatus.motebehovUbehandlet shouldEqual true
-                        personOversiktStatus.moteplanleggerUbehandlet shouldEqual null
-                        personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldEqual null
+                        personOversiktStatus.veilederIdent shouldBeEqualTo null
+                        personOversiktStatus.fnr shouldBeEqualTo oversikthendelstilfelle.fnr
+                        personOversiktStatus.navn shouldBeEqualTo oversikthendelstilfelle.navn
+                        personOversiktStatus.enhet shouldBeEqualTo oversikthendelstilfelle.enhetId
+                        personOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
+                        personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo null
+                        personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo null
 
-                        personOversiktStatus.oppfolgingstilfeller.size shouldEqual 2
+                        personOversiktStatus.oppfolgingstilfeller.size shouldBeEqualTo 2
                         checkPersonOppfolgingstilfelle(personOversiktStatus.oppfolgingstilfeller.first(), oversikthendelstilfelle)
                         checkPersonOppfolgingstilfelle(personOversiktStatus.oppfolgingstilfeller.last(), oversikthendelstilfelle2)
                     }
@@ -330,17 +330,17 @@ object PersonoversiktStatusApiSpek : Spek({
                     with(handleRequest(HttpMethod.Get, url) {
                         call.request.cookies[cookies]
                     }) {
-                        response.status() shouldEqual HttpStatusCode.OK
+                        response.status() shouldBeEqualTo HttpStatusCode.OK
                         val personOversiktStatus = objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!).first()
-                        personOversiktStatus.veilederIdent shouldEqual null
-                        personOversiktStatus.fnr shouldEqual oversikthendelstilfelle.fnr
-                        personOversiktStatus.navn shouldEqual oversikthendelstilfelle.navn
-                        personOversiktStatus.enhet shouldEqual oversikthendelstilfelle.enhetId
-                        personOversiktStatus.motebehovUbehandlet shouldEqual null
-                        personOversiktStatus.moteplanleggerUbehandlet shouldEqual true
-                        personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldEqual null
+                        personOversiktStatus.veilederIdent shouldBeEqualTo null
+                        personOversiktStatus.fnr shouldBeEqualTo oversikthendelstilfelle.fnr
+                        personOversiktStatus.navn shouldBeEqualTo oversikthendelstilfelle.navn
+                        personOversiktStatus.enhet shouldBeEqualTo oversikthendelstilfelle.enhetId
+                        personOversiktStatus.motebehovUbehandlet shouldBeEqualTo null
+                        personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo true
+                        personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo null
 
-                        personOversiktStatus.oppfolgingstilfeller.size shouldEqual 1
+                        personOversiktStatus.oppfolgingstilfeller.size shouldBeEqualTo 1
                         checkPersonOppfolgingstilfelle(personOversiktStatus.oppfolgingstilfeller.first(), oversikthendelstilfelle)
                     }
                 }
@@ -364,7 +364,7 @@ object PersonoversiktStatusApiSpek : Spek({
                     with(handleRequest(HttpMethod.Get, url) {
                         call.request.cookies[cookies]
                     }) {
-                        response.status() shouldEqual HttpStatusCode.NoContent
+                        response.status() shouldBeEqualTo HttpStatusCode.NoContent
                     }
                 }
 
@@ -387,7 +387,7 @@ object PersonoversiktStatusApiSpek : Spek({
                     with(handleRequest(HttpMethod.Get, url) {
                         call.request.cookies[cookies]
                     }) {
-                        response.status() shouldEqual HttpStatusCode.NoContent
+                        response.status() shouldBeEqualTo HttpStatusCode.NoContent
                     }
                 }
 
@@ -410,7 +410,7 @@ object PersonoversiktStatusApiSpek : Spek({
                     with(handleRequest(HttpMethod.Get, url) {
                         call.request.cookies[cookies]
                     }) {
-                        response.status() shouldEqual HttpStatusCode.NoContent
+                        response.status() shouldBeEqualTo HttpStatusCode.NoContent
                     }
                 }
 
@@ -445,17 +445,17 @@ object PersonoversiktStatusApiSpek : Spek({
                     with(handleRequest(HttpMethod.Get, url) {
                         call.request.cookies[cookies]
                     }) {
-                        response.status() shouldEqual HttpStatusCode.OK
+                        response.status() shouldBeEqualTo HttpStatusCode.OK
                         val personOversiktStatus = objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!).first()
-                        personOversiktStatus.veilederIdent shouldEqual tilknytning.veilederIdent
-                        personOversiktStatus.fnr shouldEqual oversikthendelstilfelle.fnr
-                        personOversiktStatus.navn shouldEqual oversikthendelstilfelle.navn
-                        personOversiktStatus.enhet shouldEqual oversikthendelstilfelle.enhetId
-                        personOversiktStatus.motebehovUbehandlet shouldEqual true
-                        personOversiktStatus.moteplanleggerUbehandlet shouldEqual true
-                        personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldEqual true
+                        personOversiktStatus.veilederIdent shouldBeEqualTo tilknytning.veilederIdent
+                        personOversiktStatus.fnr shouldBeEqualTo oversikthendelstilfelle.fnr
+                        personOversiktStatus.navn shouldBeEqualTo oversikthendelstilfelle.navn
+                        personOversiktStatus.enhet shouldBeEqualTo oversikthendelstilfelle.enhetId
+                        personOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
+                        personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo true
+                        personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
 
-                        personOversiktStatus.oppfolgingstilfeller.size shouldEqual 1
+                        personOversiktStatus.oppfolgingstilfeller.size shouldBeEqualTo 1
                         checkPersonOppfolgingstilfelle(personOversiktStatus.oppfolgingstilfeller.first(), oversikthendelstilfelle)
                     }
                 }
@@ -491,17 +491,17 @@ object PersonoversiktStatusApiSpek : Spek({
                     with(handleRequest(HttpMethod.Get, url) {
                         call.request.cookies[cookies]
                     }) {
-                        response.status() shouldEqual HttpStatusCode.OK
+                        response.status() shouldBeEqualTo HttpStatusCode.OK
                         val personOversiktStatus = objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!).first()
-                        personOversiktStatus.veilederIdent shouldEqual tilknytning.veilederIdent
-                        personOversiktStatus.fnr shouldEqual oversikthendelstilfelle.fnr
-                        personOversiktStatus.navn shouldEqual oversikthendelstilfelle.navn
-                        personOversiktStatus.enhet shouldEqual oversikthendelstilfelle.enhetId
-                        personOversiktStatus.motebehovUbehandlet shouldEqual true
-                        personOversiktStatus.moteplanleggerUbehandlet shouldEqual true
-                        personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldEqual true
+                        personOversiktStatus.veilederIdent shouldBeEqualTo tilknytning.veilederIdent
+                        personOversiktStatus.fnr shouldBeEqualTo oversikthendelstilfelle.fnr
+                        personOversiktStatus.navn shouldBeEqualTo oversikthendelstilfelle.navn
+                        personOversiktStatus.enhet shouldBeEqualTo oversikthendelstilfelle.enhetId
+                        personOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
+                        personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo true
+                        personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
 
-                        personOversiktStatus.oppfolgingstilfeller.size shouldEqual 1
+                        personOversiktStatus.oppfolgingstilfeller.size shouldBeEqualTo 1
                         checkPersonOppfolgingstilfelle(personOversiktStatus.oppfolgingstilfeller.first(), oversikthendelstilfelle)
                     }
                 }
@@ -520,17 +520,17 @@ object PersonoversiktStatusApiSpek : Spek({
                     with(handleRequest(HttpMethod.Get, url) {
                         call.request.cookies[cookies]
                     }) {
-                        response.status() shouldEqual HttpStatusCode.OK
+                        response.status() shouldBeEqualTo HttpStatusCode.OK
                         val personOversiktStatus = objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!).first()
-                        personOversiktStatus.veilederIdent shouldEqual null
-                        personOversiktStatus.fnr shouldEqual oversiktHendelseOPLPSBistandMottatt.fnr
-                        personOversiktStatus.navn shouldEqual ""
-                        personOversiktStatus.enhet shouldEqual oversiktHendelseOPLPSBistandMottatt.enhetId
-                        personOversiktStatus.motebehovUbehandlet shouldEqual null
-                        personOversiktStatus.moteplanleggerUbehandlet shouldEqual null
-                        personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldEqual true
+                        personOversiktStatus.veilederIdent shouldBeEqualTo null
+                        personOversiktStatus.fnr shouldBeEqualTo oversiktHendelseOPLPSBistandMottatt.fnr
+                        personOversiktStatus.navn shouldBeEqualTo ""
+                        personOversiktStatus.enhet shouldBeEqualTo oversiktHendelseOPLPSBistandMottatt.enhetId
+                        personOversiktStatus.motebehovUbehandlet shouldBeEqualTo null
+                        personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo null
+                        personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
 
-                        personOversiktStatus.oppfolgingstilfeller.size shouldEqual 0
+                        personOversiktStatus.oppfolgingstilfeller.size shouldBeEqualTo 0
                     }
                 }
             }
@@ -539,7 +539,7 @@ object PersonoversiktStatusApiSpek : Spek({
 })
 
 fun checkPersonOppfolgingstilfelle(oppfolgingstilfelle: Oppfolgingstilfelle, oversikthendelsetilfelle: KOversikthendelsetilfelle) {
-    oppfolgingstilfelle.virksomhetsnummer shouldEqual oversikthendelsetilfelle.virksomhetsnummer
-    oppfolgingstilfelle.fom shouldEqual oversikthendelsetilfelle.fom
-    oppfolgingstilfelle.tom shouldEqual oversikthendelsetilfelle.tom
+    oppfolgingstilfelle.virksomhetsnummer shouldBeEqualTo oversikthendelsetilfelle.virksomhetsnummer
+    oppfolgingstilfelle.fom shouldBeEqualTo oversikthendelsetilfelle.fom
+    oppfolgingstilfelle.tom shouldBeEqualTo oversikthendelsetilfelle.tom
 }

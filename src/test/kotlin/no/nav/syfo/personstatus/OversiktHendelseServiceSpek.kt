@@ -16,7 +16,7 @@ import no.nav.syfo.testutil.UserConstants.NAV_ENHET_2
 import no.nav.syfo.testutil.UserConstants.VEILEDER_ID
 import no.nav.syfo.testutil.generator.generateKOversikthendelse
 import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import java.time.LocalDateTime
@@ -61,10 +61,10 @@ object OversiktHendelseServiceSpek : Spek({
                     val personListe = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET)
 
                     personListe.size shouldBe 1
-                    personListe[0].fnr shouldEqual oversiktHendelse.fnr
-                    personListe[0].veilederIdent shouldEqual null
-                    personListe[0].enhet shouldEqual oversiktHendelse.enhetId
-                    personListe[0].motebehovUbehandlet shouldEqual true
+                    personListe[0].fnr shouldBeEqualTo oversiktHendelse.fnr
+                    personListe[0].veilederIdent shouldBeEqualTo null
+                    personListe[0].enhet shouldBeEqualTo oversiktHendelse.enhetId
+                    personListe[0].motebehovUbehandlet shouldBeEqualTo true
                 }
 
                 it("skal oppdatere person, om person eksisterer i oversikt") {
@@ -78,10 +78,10 @@ object OversiktHendelseServiceSpek : Spek({
                     val personListe = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET)
 
                     personListe.size shouldBe 1
-                    personListe[0].fnr shouldEqual oversiktHendelse.fnr
-                    personListe[0].veilederIdent shouldEqual tilknytning.veilederIdent
-                    personListe[0].enhet shouldEqual oversiktHendelse.enhetId
-                    personListe[0].motebehovUbehandlet shouldEqual true
+                    personListe[0].fnr shouldBeEqualTo oversiktHendelse.fnr
+                    personListe[0].veilederIdent shouldBeEqualTo tilknytning.veilederIdent
+                    personListe[0].enhet shouldBeEqualTo oversiktHendelse.enhetId
+                    personListe[0].motebehovUbehandlet shouldBeEqualTo true
                 }
 
                 it("skal oppdatere person, om person eksisterer i oversikt med motebehov-hendelse") {
@@ -100,10 +100,10 @@ object OversiktHendelseServiceSpek : Spek({
                     val personListe = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET_2)
 
                     personListe.size shouldBe 1
-                    personListe[0].fnr shouldEqual oversiktHendelseNy.fnr
-                    personListe[0].veilederIdent shouldEqual null
-                    personListe[0].enhet shouldEqual oversiktHendelseNy.enhetId
-                    personListe[0].motebehovUbehandlet shouldEqual true
+                    personListe[0].fnr shouldBeEqualTo oversiktHendelseNy.fnr
+                    personListe[0].veilederIdent shouldBeEqualTo null
+                    personListe[0].enhet shouldBeEqualTo oversiktHendelseNy.enhetId
+                    personListe[0].motebehovUbehandlet shouldBeEqualTo true
                 }
 
                 it("skal oppdatere person og nullstille tildelt veileder, om person eksisterer i oversikt og enhet er endret") {
@@ -118,10 +118,10 @@ object OversiktHendelseServiceSpek : Spek({
                     val personListe = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET_2)
 
                     personListe.size shouldBe 1
-                    personListe[0].fnr shouldEqual oversiktHendelse.fnr
-                    personListe[0].veilederIdent shouldEqual null
-                    personListe[0].enhet shouldEqual oversiktHendelse.enhetId
-                    personListe[0].motebehovUbehandlet shouldEqual true
+                    personListe[0].fnr shouldBeEqualTo oversiktHendelse.fnr
+                    personListe[0].veilederIdent shouldBeEqualTo null
+                    personListe[0].enhet shouldBeEqualTo oversiktHendelse.enhetId
+                    personListe[0].motebehovUbehandlet shouldBeEqualTo true
                 }
             }
 
@@ -149,10 +149,10 @@ object OversiktHendelseServiceSpek : Spek({
                     val personListe = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET)
 
                     personListe.size shouldBe 1
-                    personListe[0].fnr shouldEqual oversiktHendelseMotebehovUbehandlet.fnr
-                    personListe[0].veilederIdent shouldEqual tilknytning.veilederIdent
-                    personListe[0].enhet shouldEqual oversiktHendelseMotebehovUbehandlet.enhetId
-                    personListe[0].motebehovUbehandlet shouldEqual false
+                    personListe[0].fnr shouldBeEqualTo oversiktHendelseMotebehovUbehandlet.fnr
+                    personListe[0].veilederIdent shouldBeEqualTo tilknytning.veilederIdent
+                    personListe[0].enhet shouldBeEqualTo oversiktHendelseMotebehovUbehandlet.enhetId
+                    personListe[0].motebehovUbehandlet shouldBeEqualTo false
                 }
 
                 it("skal oppdatere person, om person eksisterer i oversikt") {
@@ -171,10 +171,10 @@ object OversiktHendelseServiceSpek : Spek({
                     val personListe = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET_2)
 
                     personListe.size shouldBe 1
-                    personListe[0].fnr shouldEqual oversiktHendelseMotebehovUbehandlet.fnr
-                    personListe[0].veilederIdent shouldEqual null
-                    personListe[0].enhet shouldEqual oversiktHendelseMotebehovUbehandlet.enhetId
-                    personListe[0].motebehovUbehandlet shouldEqual false
+                    personListe[0].fnr shouldBeEqualTo oversiktHendelseMotebehovUbehandlet.fnr
+                    personListe[0].veilederIdent shouldBeEqualTo null
+                    personListe[0].enhet shouldBeEqualTo oversiktHendelseMotebehovUbehandlet.enhetId
+                    personListe[0].motebehovUbehandlet shouldBeEqualTo false
                 }
 
                 it("skal oppdatere person og nullstille tildelt veileder, om person eksisterer i oversikt og enhet er endret") {
@@ -193,10 +193,10 @@ object OversiktHendelseServiceSpek : Spek({
                     val personListe = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET_2)
 
                     personListe.size shouldBe 1
-                    personListe[0].fnr shouldEqual oversiktHendelseMotebehovUbehandlet.fnr
-                    personListe[0].veilederIdent shouldEqual null
-                    personListe[0].enhet shouldEqual oversiktHendelseMotebehovUbehandlet.enhetId
-                    personListe[0].motebehovUbehandlet shouldEqual false
+                    personListe[0].fnr shouldBeEqualTo oversiktHendelseMotebehovUbehandlet.fnr
+                    personListe[0].veilederIdent shouldBeEqualTo null
+                    personListe[0].enhet shouldBeEqualTo oversiktHendelseMotebehovUbehandlet.enhetId
+                    personListe[0].motebehovUbehandlet shouldBeEqualTo false
                 }
             }
 
@@ -210,11 +210,11 @@ object OversiktHendelseServiceSpek : Spek({
                     val personListe = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET)
 
                     personListe.size shouldBe 1
-                    personListe[0].fnr shouldEqual oversiktHendelse.fnr
-                    personListe[0].veilederIdent shouldEqual null
-                    personListe[0].enhet shouldEqual oversiktHendelse.enhetId
-                    personListe[0].motebehovUbehandlet shouldEqual null
-                    personListe[0].moteplanleggerUbehandlet shouldEqual true
+                    personListe[0].fnr shouldBeEqualTo oversiktHendelse.fnr
+                    personListe[0].veilederIdent shouldBeEqualTo null
+                    personListe[0].enhet shouldBeEqualTo oversiktHendelse.enhetId
+                    personListe[0].motebehovUbehandlet shouldBeEqualTo null
+                    personListe[0].moteplanleggerUbehandlet shouldBeEqualTo true
                 }
 
                 it("skal oppdatere person, om person eksisterer i oversikt") {
@@ -228,11 +228,11 @@ object OversiktHendelseServiceSpek : Spek({
                     val personListe = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET)
 
                     personListe.size shouldBe 1
-                    personListe[0].fnr shouldEqual oversiktHendelse.fnr
-                    personListe[0].veilederIdent shouldEqual tilknytning.veilederIdent
-                    personListe[0].enhet shouldEqual oversiktHendelse.enhetId
-                    personListe[0].motebehovUbehandlet shouldEqual null
-                    personListe[0].moteplanleggerUbehandlet shouldEqual true
+                    personListe[0].fnr shouldBeEqualTo oversiktHendelse.fnr
+                    personListe[0].veilederIdent shouldBeEqualTo tilknytning.veilederIdent
+                    personListe[0].enhet shouldBeEqualTo oversiktHendelse.enhetId
+                    personListe[0].motebehovUbehandlet shouldBeEqualTo null
+                    personListe[0].moteplanleggerUbehandlet shouldBeEqualTo true
                 }
 
                 it("skal oppdatere person, om person eksisterer i oversikt med moteplanlegger_svar_mottatt-hendelse") {
@@ -251,11 +251,11 @@ object OversiktHendelseServiceSpek : Spek({
                     val personListe = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET_2)
 
                     personListe.size shouldBe 1
-                    personListe[0].fnr shouldEqual oversiktHendelseNy.fnr
-                    personListe[0].veilederIdent shouldEqual null
-                    personListe[0].enhet shouldEqual oversiktHendelseNy.enhetId
-                    personListe[0].motebehovUbehandlet shouldEqual null
-                    personListe[0].moteplanleggerUbehandlet shouldEqual true
+                    personListe[0].fnr shouldBeEqualTo oversiktHendelseNy.fnr
+                    personListe[0].veilederIdent shouldBeEqualTo null
+                    personListe[0].enhet shouldBeEqualTo oversiktHendelseNy.enhetId
+                    personListe[0].motebehovUbehandlet shouldBeEqualTo null
+                    personListe[0].moteplanleggerUbehandlet shouldBeEqualTo true
                 }
 
                 it("skal oppdatere person og nullstille tildelt veileder, om person eksisterer i oversikt og enhet er endret") {
@@ -270,11 +270,11 @@ object OversiktHendelseServiceSpek : Spek({
                     val personListe = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET_2)
 
                     personListe.size shouldBe 1
-                    personListe[0].fnr shouldEqual oversiktHendelse.fnr
-                    personListe[0].veilederIdent shouldEqual null
-                    personListe[0].enhet shouldEqual oversiktHendelse.enhetId
-                    personListe[0].motebehovUbehandlet shouldEqual null
-                    personListe[0].moteplanleggerUbehandlet shouldEqual true
+                    personListe[0].fnr shouldBeEqualTo oversiktHendelse.fnr
+                    personListe[0].veilederIdent shouldBeEqualTo null
+                    personListe[0].enhet shouldBeEqualTo oversiktHendelse.enhetId
+                    personListe[0].motebehovUbehandlet shouldBeEqualTo null
+                    personListe[0].moteplanleggerUbehandlet shouldBeEqualTo true
                 }
             }
 
@@ -303,11 +303,11 @@ object OversiktHendelseServiceSpek : Spek({
                     val personListe = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET)
 
                     personListe.size shouldBe 1
-                    personListe[0].fnr shouldEqual oversiktHendelseMoteplanleggerSvarUbehandlet.fnr
-                    personListe[0].veilederIdent shouldEqual tilknytning.veilederIdent
-                    personListe[0].enhet shouldEqual oversiktHendelseMoteplanleggerSvarUbehandlet.enhetId
-                    personListe[0].motebehovUbehandlet shouldEqual true
-                    personListe[0].moteplanleggerUbehandlet shouldEqual false
+                    personListe[0].fnr shouldBeEqualTo oversiktHendelseMoteplanleggerSvarUbehandlet.fnr
+                    personListe[0].veilederIdent shouldBeEqualTo tilknytning.veilederIdent
+                    personListe[0].enhet shouldBeEqualTo oversiktHendelseMoteplanleggerSvarUbehandlet.enhetId
+                    personListe[0].motebehovUbehandlet shouldBeEqualTo true
+                    personListe[0].moteplanleggerUbehandlet shouldBeEqualTo false
                 }
 
                 it("skal oppdatere person, om person eksisterer i oversikt") {
@@ -324,11 +324,11 @@ object OversiktHendelseServiceSpek : Spek({
                     val personListe = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET_2)
 
                     personListe.size shouldBe 1
-                    personListe[0].fnr shouldEqual oversiktHendelseMoteplanleggerSvarUbehandlet.fnr
-                    personListe[0].veilederIdent shouldEqual null
-                    personListe[0].enhet shouldEqual oversiktHendelseMoteplanleggerSvarUbehandlet.enhetId
-                    personListe[0].motebehovUbehandlet shouldEqual null
-                    personListe[0].moteplanleggerUbehandlet shouldEqual false
+                    personListe[0].fnr shouldBeEqualTo oversiktHendelseMoteplanleggerSvarUbehandlet.fnr
+                    personListe[0].veilederIdent shouldBeEqualTo null
+                    personListe[0].enhet shouldBeEqualTo oversiktHendelseMoteplanleggerSvarUbehandlet.enhetId
+                    personListe[0].motebehovUbehandlet shouldBeEqualTo null
+                    personListe[0].moteplanleggerUbehandlet shouldBeEqualTo false
                 }
 
                 it("skal oppdatere person og nullstille tildelt veileder, om person eksisterer i oversikt og enhet er endret") {
@@ -344,11 +344,11 @@ object OversiktHendelseServiceSpek : Spek({
                     val personListe = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET_2)
 
                     personListe.size shouldBe 1
-                    personListe[0].fnr shouldEqual oversiktHendelseMoteplanleggerSvarUbehandlet.fnr
-                    personListe[0].veilederIdent shouldEqual null
-                    personListe[0].enhet shouldEqual oversiktHendelseMoteplanleggerSvarUbehandlet.enhetId
-                    personListe[0].motebehovUbehandlet shouldEqual null
-                    personListe[0].moteplanleggerUbehandlet shouldEqual false
+                    personListe[0].fnr shouldBeEqualTo oversiktHendelseMoteplanleggerSvarUbehandlet.fnr
+                    personListe[0].veilederIdent shouldBeEqualTo null
+                    personListe[0].enhet shouldBeEqualTo oversiktHendelseMoteplanleggerSvarUbehandlet.enhetId
+                    personListe[0].motebehovUbehandlet shouldBeEqualTo null
+                    personListe[0].moteplanleggerUbehandlet shouldBeEqualTo false
                 }
             }
 
@@ -365,12 +365,12 @@ object OversiktHendelseServiceSpek : Spek({
 
                     personListe.size shouldBe 1
                     personListe[0].let {
-                        it.fnr shouldEqual oversiktHendelse.fnr
-                        it.veilederIdent shouldEqual null
-                        it.enhet shouldEqual oversiktHendelse.enhetId
-                        it.motebehovUbehandlet shouldEqual null
-                        it.moteplanleggerUbehandlet shouldEqual null
-                        it.oppfolgingsplanLPSBistandUbehandlet shouldEqual true
+                        it.fnr shouldBeEqualTo oversiktHendelse.fnr
+                        it.veilederIdent shouldBeEqualTo null
+                        it.enhet shouldBeEqualTo oversiktHendelse.enhetId
+                        it.motebehovUbehandlet shouldBeEqualTo null
+                        it.moteplanleggerUbehandlet shouldBeEqualTo null
+                        it.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
                     }
                 }
 
@@ -388,12 +388,12 @@ object OversiktHendelseServiceSpek : Spek({
 
                     personListe.size shouldBe 1
                     personListe[0].let {
-                        it.fnr shouldEqual oversiktHendelse.fnr
-                        it.veilederIdent shouldEqual tilknytning.veilederIdent
-                        it.enhet shouldEqual oversiktHendelse.enhetId
-                        it.motebehovUbehandlet shouldEqual null
-                        it.moteplanleggerUbehandlet shouldEqual null
-                        it.oppfolgingsplanLPSBistandUbehandlet shouldEqual true
+                        it.fnr shouldBeEqualTo oversiktHendelse.fnr
+                        it.veilederIdent shouldBeEqualTo tilknytning.veilederIdent
+                        it.enhet shouldBeEqualTo oversiktHendelse.enhetId
+                        it.motebehovUbehandlet shouldBeEqualTo null
+                        it.moteplanleggerUbehandlet shouldBeEqualTo null
+                        it.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
                     }
                 }
 
@@ -418,12 +418,12 @@ object OversiktHendelseServiceSpek : Spek({
 
                     personListe.size shouldBe 1
                     personListe[0].let {
-                        it.fnr shouldEqual oversiktHendelseNy.fnr
-                        it.veilederIdent shouldEqual null
-                        it.enhet shouldEqual oversiktHendelseNy.enhetId
-                        it.motebehovUbehandlet shouldEqual null
-                        it.moteplanleggerUbehandlet shouldEqual null
-                        it.oppfolgingsplanLPSBistandUbehandlet shouldEqual true
+                        it.fnr shouldBeEqualTo oversiktHendelseNy.fnr
+                        it.veilederIdent shouldBeEqualTo null
+                        it.enhet shouldBeEqualTo oversiktHendelseNy.enhetId
+                        it.motebehovUbehandlet shouldBeEqualTo null
+                        it.moteplanleggerUbehandlet shouldBeEqualTo null
+                        it.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
                     }
                 }
 
@@ -441,12 +441,12 @@ object OversiktHendelseServiceSpek : Spek({
 
                     personListe.size shouldBe 1
                     personListe[0].let {
-                        it.fnr shouldEqual oversiktHendelse.fnr
-                        it.veilederIdent shouldEqual null
-                        it.enhet shouldEqual oversiktHendelse.enhetId
-                        it.motebehovUbehandlet shouldEqual null
-                        it.moteplanleggerUbehandlet shouldEqual null
-                        it.oppfolgingsplanLPSBistandUbehandlet shouldEqual true
+                        it.fnr shouldBeEqualTo oversiktHendelse.fnr
+                        it.veilederIdent shouldBeEqualTo null
+                        it.enhet shouldBeEqualTo oversiktHendelse.enhetId
+                        it.motebehovUbehandlet shouldBeEqualTo null
+                        it.moteplanleggerUbehandlet shouldBeEqualTo null
+                        it.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
                     }
                 }
             }
@@ -482,12 +482,12 @@ object OversiktHendelseServiceSpek : Spek({
 
                     personListe.size shouldBe 1
                     personListe[0].let {
-                        it.fnr shouldEqual oversiktHendelseOPLPSBistandUbehandlet.fnr
-                        it.veilederIdent shouldEqual tilknytning.veilederIdent
-                        it.enhet shouldEqual oversiktHendelseOPLPSBistandUbehandlet.enhetId
-                        it.motebehovUbehandlet shouldEqual null
-                        it.moteplanleggerUbehandlet shouldEqual null
-                        it.oppfolgingsplanLPSBistandUbehandlet shouldEqual false
+                        it.fnr shouldBeEqualTo oversiktHendelseOPLPSBistandUbehandlet.fnr
+                        it.veilederIdent shouldBeEqualTo tilknytning.veilederIdent
+                        it.enhet shouldBeEqualTo oversiktHendelseOPLPSBistandUbehandlet.enhetId
+                        it.motebehovUbehandlet shouldBeEqualTo null
+                        it.moteplanleggerUbehandlet shouldBeEqualTo null
+                        it.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo false
                     }
                 }
 
@@ -510,12 +510,12 @@ object OversiktHendelseServiceSpek : Spek({
 
                     personListe.size shouldBe 1
                     personListe[0].let {
-                        it.fnr shouldEqual oversiktHendelseOPLPSBistandUbehandlet.fnr
-                        it.veilederIdent shouldEqual null
-                        it.enhet shouldEqual oversiktHendelseOPLPSBistandUbehandlet.enhetId
-                        it.motebehovUbehandlet shouldEqual null
-                        it.moteplanleggerUbehandlet shouldEqual null
-                        it.oppfolgingsplanLPSBistandUbehandlet shouldEqual false
+                        it.fnr shouldBeEqualTo oversiktHendelseOPLPSBistandUbehandlet.fnr
+                        it.veilederIdent shouldBeEqualTo null
+                        it.enhet shouldBeEqualTo oversiktHendelseOPLPSBistandUbehandlet.enhetId
+                        it.motebehovUbehandlet shouldBeEqualTo null
+                        it.moteplanleggerUbehandlet shouldBeEqualTo null
+                        it.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo false
                     }
                 }
 
@@ -538,12 +538,12 @@ object OversiktHendelseServiceSpek : Spek({
 
                     personListe.size shouldBe 1
                     personListe[0].let {
-                        it.fnr shouldEqual oversiktHendelseOPLPSBistandUbehandlet.fnr
-                        it.veilederIdent shouldEqual null
-                        it.enhet shouldEqual oversiktHendelseOPLPSBistandUbehandlet.enhetId
-                        it.motebehovUbehandlet shouldEqual null
-                        it.moteplanleggerUbehandlet shouldEqual null
-                        it.oppfolgingsplanLPSBistandUbehandlet shouldEqual false
+                        it.fnr shouldBeEqualTo oversiktHendelseOPLPSBistandUbehandlet.fnr
+                        it.veilederIdent shouldBeEqualTo null
+                        it.enhet shouldBeEqualTo oversiktHendelseOPLPSBistandUbehandlet.enhetId
+                        it.motebehovUbehandlet shouldBeEqualTo null
+                        it.moteplanleggerUbehandlet shouldBeEqualTo null
+                        it.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo false
                     }
                 }
             }
