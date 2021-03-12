@@ -3,6 +3,9 @@ package no.nav.syfo.testutil
 import no.nav.syfo.Environment
 
 val testEnvironment = Environment(
+    behandlendeenhetUrl = "behandlendeenhet",
+    stsRestUrl = "stsurl",
+    electorPath = "electorPath",
     applicationPort = 8080,
     applicationThreads = 1,
     oversikthendelseOppfolgingstilfelleTopic = "topic1",

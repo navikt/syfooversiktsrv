@@ -16,6 +16,9 @@ fun getEnvironment(): Environment {
         objectMapper.readValue(firstExistingFile(localEnvironmentPropertiesPath, defaultlocalEnvironmentPropertiesPath), Environment::class.java)
     } else {
         Environment(
+            getEnvVar("SYFOBEHANDLENDEENHET_URL", "http://syfobehandlendeenhet"),
+            getEnvVar("SECURITY_TOKEN_SERVICE_REST_URL"),
+            getEnvVar("ELECTOR_PATH"),
             getEnvVar("APPLICATION_PORT", "8080").toInt(),
             getEnvVar("APPLICATION_THREADS", "1").toInt(),
             getEnvVar("APPLICATION_NAME", "syfooversiktsrv"),
@@ -37,6 +40,9 @@ fun getEnvironment(): Environment {
 val appIsRunningLocally: Boolean = System.getenv("NAIS_CLUSTER_NAME").isNullOrEmpty()
 
 data class Environment(
+    val behandlendeenhetUrl: String,
+    val stsRestUrl: String,
+    val electorPath: String,
     val applicationPort: Int,
     val applicationThreads: Int,
     val applicationName: String,

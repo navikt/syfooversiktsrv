@@ -44,6 +44,9 @@ object KafkaITSpek : Spek({
             ""
     )
     val env = Environment(
+        behandlendeenhetUrl = "behandlendeenhet",
+        stsRestUrl = "stsurl",
+        electorPath = "electorPath",
             applicationPort = getRandomPort(),
             applicationThreads = 1,
             oversikthendelseOppfolgingstilfelleTopic = "topic1",

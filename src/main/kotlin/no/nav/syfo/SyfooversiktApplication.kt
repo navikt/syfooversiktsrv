@@ -17,24 +17,21 @@ import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import kotlinx.coroutines.slf4j.MDCContext
 import net.logstash.logback.argument.StructuredArguments
-import no.nav.syfo.api.getWellKnown
-import no.nav.syfo.api.registerPodApi
-import no.nav.syfo.api.registerPrometheusApi
+import no.nav.syfo.api.*
 import no.nav.syfo.auth.isInvalidToken
+import no.nav.syfo.batch.UpdateEnhetCronjob
+import no.nav.syfo.batch.enhet.BehandlendeEnhetClient
+import no.nav.syfo.batch.leaderelection.PodLeaderCoordinator
+import no.nav.syfo.batch.sts.StsRestClient
 import no.nav.syfo.db.*
 import no.nav.syfo.kafka.setupKafka
 import no.nav.syfo.oversikthendelsetilfelle.OversikthendelstilfelleService
 import no.nav.syfo.personstatus.*
 import no.nav.syfo.tilgangskontroll.TilgangskontrollConsumer
-import no.nav.syfo.util.NAV_CALL_ID_HEADER
-import no.nav.syfo.util.getCallId
-import no.nav.syfo.util.getFileAsString
+import no.nav.syfo.util.*
 import no.nav.syfo.vault.Vault
 import org.slf4j.LoggerFactory
 import java.net.URL
@@ -64,8 +61,10 @@ fun main() {
             init()
             kafkaModule()
             serverModule()
+            batchModule()
         }
     })
+
     Runtime.getRuntime().addShutdownHook(Thread {
         server.stop(10, 10, TimeUnit.SECONDS)
     })
@@ -128,6 +127,37 @@ fun Application.init() {
                 state.running = false
             }
         }
+    }
+}
+
+fun Application.batchModule() {
+    val vaultSecrets = VaultSecrets(
+        serviceuserPassword = getFileAsString("/secrets/serviceuser/syfooversiktsrv/password"),
+        serviceuserUsername = getFileAsString("/secrets/serviceuser/syfooversiktsrv/username")
+    )
+
+    val stsClientRest = StsRestClient(
+        baseUrl = env.stsRestUrl,
+        username = vaultSecrets.serviceuserUsername,
+        password = vaultSecrets.serviceuserPassword
+    )
+    val behandlendeEnhetClient = BehandlendeEnhetClient(
+        baseUrl = env.behandlendeenhetUrl,
+        stsRestClient = stsClientRest
+    )
+    val podLeaderCoordinator = PodLeaderCoordinator(
+        env = env
+    )
+
+    val updateEnhetCronjob = UpdateEnhetCronjob(
+        databaseInterface = database,
+        applicationState = state,
+        podLeaderCoordinator = podLeaderCoordinator,
+        behandlendeEnhetClient = behandlendeEnhetClient
+    )
+
+    createListenerCronjob(state) {
+        updateEnhetCronjob.start()
     }
 }
 
@@ -244,6 +274,21 @@ fun CoroutineScope.createListener(applicationState: ApplicationState, action: su
         try {
             action()
         } finally {
+            applicationState.running = false
+        }
+    }
+
+fun createListenerCronjob(
+    applicationState: ApplicationState,
+    action: suspend CoroutineScope.() -> Unit
+): Job =
+    GlobalScope.launch {
+        try {
+            action()
+        } catch (ex: Exception) {
+            LOG.error("Noe gikk veldig galt, avslutter applikasjon: {}", ex.message)
+        } finally {
+            applicationState.initialized = false
             applicationState.running = false
         }
     }

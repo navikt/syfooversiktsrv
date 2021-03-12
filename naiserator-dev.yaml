@@ -31,6 +31,7 @@ spec:
     min: 1
     max: 2
     cpuThresholdPercentage: 90
+  leaderElection: true
   prometheus:
     enabled: true
     path: /prometheus
@@ -59,3 +60,7 @@ spec:
       value: SSL://b27apvl00045.preprod.local:8443,SSL://b27apvl00046.preprod.local:8443,SSL://b27apvl00047.preprod.local:8443
     - name: SYFOTILGANGSKONTROLL_URL
       value: https://syfo-tilgangskontroll.nais.preprod.local
+    - name: SECURITY_TOKEN_SERVICE_REST_URL
+      value: https://security-token-service.nais.preprod.local
+    - name: SYFOBEHANDLENDEENHET_URL
+      value: https://syfobehandlendeenhet.nais.preprod.local

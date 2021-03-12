@@ -1,4 +1,7 @@
 {
+    "behandlendeenhetUrl": "http://localhost:8080",
+    "stsRestUrl": "stsurl",
+    "electorPath": "electorPath",
     "applicationPort": "8081",
     "applicationThreads": "1",
     "applicationName": "syfooversiktsrv",
