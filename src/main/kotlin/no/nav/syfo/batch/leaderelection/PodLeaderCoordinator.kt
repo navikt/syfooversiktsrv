@@ -1,15 +1,12 @@
 package no.nav.syfo.batch.leaderelection
 
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.databind.*
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import io.ktor.client.*
-import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
-import io.ktor.client.features.json.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.Environment
 import org.slf4j.LoggerFactory
@@ -18,16 +15,13 @@ import java.net.InetAddress
 class PodLeaderCoordinator(
     private val env: Environment
 ) {
-    private val client = HttpClient(CIO) {
-        install(JsonFeature) {
-            serializer = JacksonSerializer {
-                registerKotlinModule()
-                registerModule(JavaTimeModule())
-                configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true)
-                configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-            }
-        }
+    private val client = HttpClient(CIO) {}
+
+    private val objectMapper: ObjectMapper = jacksonObjectMapper().apply {
+        registerModule(JavaTimeModule())
+        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true)
+        configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
     }
 
     private val dont_look_for_leader = "dont_look_for_leader"
@@ -44,8 +38,8 @@ class PodLeaderCoordinator(
                     val httpPath = getHttpPath(url)
                     log.debug("Looking for leader at url:$httpPath")
                     runBlocking {
-                        val response: HttpResponse = client.get(urlString = httpPath)
-                        val leader: Leader = response.receive()
+                        val response = client.get<String>(urlString = httpPath)
+                        val leader: Leader = objectMapper.readValue(response)
                         val hostname: String = InetAddress.getLocalHost().hostName
                         when (hostname == leader.name) {
                             true -> {
