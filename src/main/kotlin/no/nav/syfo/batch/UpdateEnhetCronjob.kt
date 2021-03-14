@@ -61,9 +61,9 @@ class UpdateEnhetCronjob(
     suspend fun start() = coroutineScope {
         val (initialDelay, interval) = hentKjøretider()
         log.info("CRONJOB-TRACE: Schedulerer UpdateEnhetCronjob start: $initialDelay ms, interval: $interval ms")
-//        delay(initialDelay)
+        delay(initialDelay)
 
-        while (applicationState.initialized) {
+        while (applicationState.running) {
             val job = launch { run() }
             delay(interval)
             if (job.isActive) {
@@ -96,7 +96,7 @@ private fun hentKjøretider(): Pair<Long, Long> {
     val osloTz = ZoneId.of("Europe/Oslo")
     val now = ZonedDateTime.now(osloTz)
 
-    val nesteTime = now.plusHours(1).toInstant().toEpochMilli()
+    val nesteTime = now.plusHours(1).plusMinutes(10).toInstant().toEpochMilli()
     val enUke = Duration.ofDays(7).toMillis()
     return Pair(nesteTime, enUke)
 }
