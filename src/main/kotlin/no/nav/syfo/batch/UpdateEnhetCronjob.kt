@@ -61,7 +61,7 @@ class UpdateEnhetCronjob(
     suspend fun start() = coroutineScope {
         val (initialDelay, interval) = hentKjøretider()
         log.info("CRONJOB-TRACE: Schedulerer UpdateEnhetCronjob start: $initialDelay ms, interval: $interval ms")
-        delay(initialDelay)
+//        delay(initialDelay)
 
         while (applicationState.initialized) {
             val job = launch { run() }
