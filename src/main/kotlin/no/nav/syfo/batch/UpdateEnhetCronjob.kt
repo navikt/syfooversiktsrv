@@ -96,7 +96,7 @@ private fun hentKjøretider(): Pair<Long, Long> {
     val osloTz = ZoneId.of("Europe/Oslo")
     val now = ZonedDateTime.now(osloTz)
 
-    val nesteTime = now.plusHours(1).plusMinutes(10).toInstant().toEpochMilli()
+    val nesteTime = now.plusHours(1).plusMinutes(10).toInstant().toEpochMilli() - now.toInstant().toEpochMilli()
     val enUke = Duration.ofDays(7).toMillis()
     return Pair(nesteTime, enUke)
 }
