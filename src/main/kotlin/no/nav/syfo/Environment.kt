@@ -22,7 +22,7 @@ fun getEnvironment(): Environment {
             getEnvVar("AADDISCOVERY_URL"),
             getEnvVar("JWKKEYS_URL", "https://login.microsoftonline.com/common/discovery/keys"),
             getEnvVar("JWT_ISSUER"),
-            getEnvVar("SYFOTILGANGSKONTROLL_URL", "http://syfo-tilgangskontroll"),
+            getEnvVar("SYFOTILGANGSKONTROLL_URL"),
             getEnvVar("DATABASE_NAME", "syfooversiktsrv"),
             getEnvVar("SYFOOVERSIKTSRV_DB_URL"),
             getEnvVar("MOUNT_PATH_VAULT"),
