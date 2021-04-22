@@ -37,6 +37,21 @@ spec:
   ingresses:
     - "https://syfooversiktsrv.intern.nav.no"
     - "https://syfooversiktsrv.nais.adeo.no"
+  accessPolicy:
+    inbound:
+      rules:
+        - application: syfooversikt
+          namespace: teamsykefravr
+          cluster: prod-fss
+  azure:
+    application:
+      enabled: true
+      tenant: nav.no
+      replyURLs:
+        - "https://syfooversiktsrv.intern.nav.no/oauth2/callback"
+      claims:
+        extra:
+          - "NAVident"
   vault:
     enabled: true
     paths:
