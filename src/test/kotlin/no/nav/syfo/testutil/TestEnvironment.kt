@@ -15,6 +15,5 @@ val testEnvironment = Environment(
     jwtIssuer = "",
     aadDiscoveryUrl = "",
     syfotilgangskontrollUrl = "",
-    clientid = "",
-    syfoveilederUrl = ""
+    clientid = ""
 )
