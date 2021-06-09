@@ -19,7 +19,7 @@ fun testEnvironment(
     jwtIssuer = "",
     aadDiscoveryUrl = "",
     syfotilgangskontrollUrl = syfotilgangskontrollUrl ?: "tilgangskontroll",
-    clientid = ""
+    clientid = "loginservice"
 )
 
 fun testAppState() = ApplicationState(

@@ -1,19 +1,16 @@
 package no.nav.syfo.personstatus
 
-import io.ktor.application.call
-import io.ktor.http.HttpStatusCode
-import io.ktor.request.receive
-import io.ktor.response.respond
+import io.ktor.application.*
+import io.ktor.http.*
+import io.ktor.request.*
+import io.ktor.response.*
 import io.ktor.routing.*
-import no.nav.syfo.auth.getTokenFromCookie
-import no.nav.syfo.auth.getVeilederTokenPayload
-import no.nav.syfo.metric.COUNT_PERSONTILDELING_TILDEL
+import no.nav.syfo.api.authentication.getNAVIdentFromToken
 import no.nav.syfo.metric.COUNT_PERSONTILDELING_TILDELT
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytningListe
 import no.nav.syfo.tilgangskontroll.TilgangskontrollConsumer
-import no.nav.syfo.util.callIdArgument
-import no.nav.syfo.util.getCallId
+import no.nav.syfo.util.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -44,11 +41,9 @@ fun Route.registerPersonTildelingApi(
 
         post("/registrer") {
             val callId = getCallId()
+            val token = getBearerHeader()
+                ?: throw IllegalArgumentException("No Authorization header supplied")
             try {
-                COUNT_PERSONTILDELING_TILDEL.inc()
-
-                val token = getTokenFromCookie(call.request.cookies)
-
                 val veilederBrukerKnytningerListe: VeilederBrukerKnytningListe = call.receive()
 
                 val tilknytningFnrListWithVeilederAccess: List<String> = tilgangskontrollConsumer.veilederPersonAccessList(
@@ -72,7 +67,7 @@ fun Route.registerPersonTildelingApi(
                     call.respond(HttpStatusCode.OK)
                 }
             } catch (e: Error) {
-                val navIdent = getVeilederTokenPayload(getTokenFromCookie(call.request.cookies)).navIdent
+                val navIdent = getNAVIdentFromToken(token)
                 log.error("Feil under tildeling av bruker for navIdent=$navIdent, ${e.message}", e.cause)
                 call.respond(HttpStatusCode.InternalServerError)
             }

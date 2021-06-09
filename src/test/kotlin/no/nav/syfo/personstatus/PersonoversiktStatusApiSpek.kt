@@ -5,10 +5,6 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import io.ktor.util.*
-import io.mockk.every
-import io.mockk.mockkStatic
-import no.nav.syfo.auth.getTokenFromCookie
-import no.nav.syfo.auth.isInvalidToken
 import no.nav.syfo.oversikthendelsetilfelle.OversikthendelstilfelleService
 import no.nav.syfo.oversikthendelsetilfelle.domain.KOversikthendelsetilfelle
 import no.nav.syfo.oversikthendelsetilfelle.generateOversikthendelsetilfelle
@@ -21,6 +17,7 @@ import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNAVN_2
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER_2
 import no.nav.syfo.testutil.generator.generateKOversikthendelse
+import no.nav.syfo.util.bearerHeader
 import org.amshove.kluent.shouldBeEqualTo
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
@@ -43,14 +40,9 @@ object PersonoversiktStatusApiSpek : Spek({
                 externalMockEnvironment = externalMockEnvironment
             )
 
-            val cookies = ""
             val baseUrl = "/api/v1/personoversikt"
             val oversiktHendelseService = OversiktHendelseService(database)
             val oversikthendelstilfelleService = OversikthendelstilfelleService(database)
-
-            beforeEachTest {
-                mockkStatic("no.nav.syfo.auth.TokenAuthKt")
-            }
 
             afterEachTest {
                 database.connection.dropData()
@@ -64,29 +56,24 @@ object PersonoversiktStatusApiSpek : Spek({
                 externalMockEnvironment.stopExternalMocks()
             }
 
+            val validToken = generateJWT(
+                externalMockEnvironment.environment.clientid,
+                externalMockEnvironment.wellKnownVeileder.issuer,
+                VEILEDER_ID
+            )
+
             describe("Hent personoversikt for enhet") {
                 val url = "$baseUrl/enhet/$NAV_ENHET"
 
                 it("skal returnere status NoContent om det ikke er noen personer som er tilknyttet enhet") {
-                    every {
-                        isInvalidToken(any())
-                    } returns false
-
                     with(handleRequest(HttpMethod.Get, url) {
-                        call.request.cookies[cookies]
+                        addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
                     }) {
                         response.status() shouldBeEqualTo HttpStatusCode.NoContent
                     }
                 }
 
                 it("skal returnere NoContent med ubehandlet motebehovsvar og ikke har oppfolgingstilfelle") {
-                    every {
-                        isInvalidToken(any())
-                    } returns false
-                    every {
-                        getTokenFromCookie(any())
-                    } returns "token"
-
                     val oversiktHendelse = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
@@ -94,20 +81,13 @@ object PersonoversiktStatusApiSpek : Spek({
                     database.lagreBrukerKnytningPaEnhet(tilknytning)
 
                     with(handleRequest(HttpMethod.Get, url) {
-                        call.request.cookies[cookies]
+                        addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
                     }) {
                         response.status() shouldBeEqualTo HttpStatusCode.NoContent
                     }
                 }
 
                 it("skal returnere NoContent med ubehandlet moteplanleggersvar og ikke har oppfolgingstilfelle") {
-                    every {
-                        isInvalidToken(any())
-                    } returns false
-                    every {
-                        getTokenFromCookie(any())
-                    } returns "token"
-
                     val oversiktHendelse = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
@@ -115,20 +95,13 @@ object PersonoversiktStatusApiSpek : Spek({
                     database.lagreBrukerKnytningPaEnhet(tilknytning)
 
                     with(handleRequest(HttpMethod.Get, url) {
-                        call.request.cookies[cookies]
+                        addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
                     }) {
                         response.status() shouldBeEqualTo HttpStatusCode.NoContent
                     }
                 }
 
                 it("skal returnere NoContent, om alle personer i personoversikt er behandlet og ikke har oppfolgingstilfelle") {
-                    every {
-                        isInvalidToken(any())
-                    } returns false
-                    every {
-                        getTokenFromCookie(any())
-                    } returns "token"
-
                     val oversiktHendelse = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
@@ -145,20 +118,13 @@ object PersonoversiktStatusApiSpek : Spek({
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerBehandlet)
 
                     with(handleRequest(HttpMethod.Get, url) {
-                        call.request.cookies[cookies]
+                        addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
                     }) {
                         response.status() shouldBeEqualTo HttpStatusCode.NoContent
                     }
                 }
 
                 it("should return NoContent, if there is a person with a relevant active Oppfolgingstilfelle, but neither MOTEBEHOV_SVAR_MOTTATT nor MOTEPLANLEGGER_ALLE_SVAR_MOTTATT") {
-                    every {
-                        isInvalidToken(any())
-                    } returns false
-                    every {
-                        getTokenFromCookie(any())
-                    } returns "token"
-
                     val oversikthendelstilfelle = generateOversikthendelsetilfelle.copy(
                         enhetId = NAV_ENHET,
                         gradert = false,
@@ -168,20 +134,13 @@ object PersonoversiktStatusApiSpek : Spek({
                     oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
 
                     with(handleRequest(HttpMethod.Get, url) {
-                        call.request.cookies[cookies]
+                        addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
                     }) {
                         response.status() shouldBeEqualTo HttpStatusCode.NoContent
                     }
                 }
 
                 it("should return list of PersonOversiktStatus, if MOTEBEHOV_SVAR_MOTTATT and MOTEPLANLEGGER_ALLE_SVAR_MOTTATT and OPPFOLGINGSPLANLPS_BISTAND_MOTTATT, and there is a person with a relevant active Oppfolgingstilfelle") {
-                    every {
-                        isInvalidToken(any())
-                    } returns false
-                    every {
-                        getTokenFromCookie(any())
-                    } returns "token"
-
                     val oversikthendelstilfelle = generateOversikthendelsetilfelle.copy(
                         enhetId = NAV_ENHET,
                         gradert = false,
@@ -200,7 +159,7 @@ object PersonoversiktStatusApiSpek : Spek({
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseOPLPSBistandMottatt)
 
                     with(handleRequest(HttpMethod.Get, url) {
-                        call.request.cookies[cookies]
+                        addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
                     }) {
                         response.status() shouldBeEqualTo HttpStatusCode.OK
                         val personOversiktStatus = objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!).first()
@@ -217,13 +176,6 @@ object PersonoversiktStatusApiSpek : Spek({
                 }
 
                 it("should return list of PersonOversiktStatus, if MOTEBEHOV_SVAR_MOTTATT and if there is a person with 2 relevant active Oppfolgingstilfelle with different virksomhetsnummer") {
-                    every {
-                        isInvalidToken(any())
-                    } returns false
-                    every {
-                        getTokenFromCookie(any())
-                    } returns "token"
-
                     val oversikthendelstilfelle = generateOversikthendelsetilfelle.copy(
                         virksomhetsnummer = VIRKSOMHETSNUMMER,
                         enhetId = NAV_ENHET,
@@ -242,7 +194,7 @@ object PersonoversiktStatusApiSpek : Spek({
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMotebehovMottatt)
 
                     with(handleRequest(HttpMethod.Get, url) {
-                        call.request.cookies[cookies]
+                        addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
                     }) {
                         response.status() shouldBeEqualTo HttpStatusCode.OK
                         val personOversiktStatus = objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!).first()
@@ -261,13 +213,6 @@ object PersonoversiktStatusApiSpek : Spek({
                 }
 
                 it("should return list of PersonOversiktStatus, if MOTEPLANLEGGER_ALLE_SVAR_MOTTATT and  if there is a person with a relevant Oppfolgingstilfelle valid in Arbeidsgiverperiode") {
-                    every {
-                        isInvalidToken(any())
-                    } returns false
-                    every {
-                        getTokenFromCookie(any())
-                    } returns "token"
-
                     val oversikthendelstilfelle = generateOversikthendelsetilfelle.copy(
                         enhetId = NAV_ENHET,
                         gradert = false,
@@ -280,7 +225,7 @@ object PersonoversiktStatusApiSpek : Spek({
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerMottatt)
 
                     with(handleRequest(HttpMethod.Get, url) {
-                        call.request.cookies[cookies]
+                        addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
                     }) {
                         response.status() shouldBeEqualTo HttpStatusCode.OK
                         val personOversiktStatus = objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!).first()
@@ -298,13 +243,6 @@ object PersonoversiktStatusApiSpek : Spek({
                 }
 
                 it("should not return person with a Oppfolgingstilfelle that is not valid after today + Arbeidsgiverperiode") {
-                    every {
-                        isInvalidToken(any())
-                    } returns false
-                    every {
-                        getTokenFromCookie(any())
-                    } returns "token"
-
                     val oversikthendelstilfelle = generateOversikthendelsetilfelle.copy(
                         enhetId = NAV_ENHET,
                         gradert = false,
@@ -314,20 +252,13 @@ object PersonoversiktStatusApiSpek : Spek({
                     oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
 
                     with(handleRequest(HttpMethod.Get, url) {
-                        call.request.cookies[cookies]
+                        addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
                     }) {
                         response.status() shouldBeEqualTo HttpStatusCode.NoContent
                     }
                 }
 
                 it("should not return a person with a Oppfolgingstilfelle that is Gradert") {
-                    every {
-                        isInvalidToken(any())
-                    } returns false
-                    every {
-                        getTokenFromCookie(any())
-                    } returns "token"
-
                     val oversikthendelstilfelle = generateOversikthendelsetilfelle.copy(
                         enhetId = NAV_ENHET,
                         gradert = true,
@@ -337,20 +268,13 @@ object PersonoversiktStatusApiSpek : Spek({
                     oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
 
                     with(handleRequest(HttpMethod.Get, url) {
-                        call.request.cookies[cookies]
+                        addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
                     }) {
                         response.status() shouldBeEqualTo HttpStatusCode.NoContent
                     }
                 }
 
                 it("should not return a person with a Oppfolgingstilfelle that is not 8 weeks old") {
-                    every {
-                        isInvalidToken(any())
-                    } returns false
-                    every {
-                        getTokenFromCookie(any())
-                    } returns "token"
-
                     val oversikthendelstilfelle = generateOversikthendelsetilfelle.copy(
                         enhetId = NAV_ENHET,
                         gradert = false,
@@ -360,20 +284,13 @@ object PersonoversiktStatusApiSpek : Spek({
                     oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
 
                     with(handleRequest(HttpMethod.Get, url) {
-                        call.request.cookies[cookies]
+                        addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
                     }) {
                         response.status() shouldBeEqualTo HttpStatusCode.NoContent
                     }
                 }
 
                 it("should return Person, with MOTEBEHOV_SVAR_MOTTATT && MOTEPLANLEGGER_ALLE_SVAR_MOTTATT, and then receives Oppfolgingstilfelle and the OPPFOLGINGSPLANLPS_BISTAND_MOTTATT") {
-                    every {
-                        isInvalidToken(any())
-                    } returns false
-                    every {
-                        getTokenFromCookie(any())
-                    } returns "token"
-
                     val oversiktHendelse = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
@@ -395,7 +312,7 @@ object PersonoversiktStatusApiSpek : Spek({
                     oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
 
                     with(handleRequest(HttpMethod.Get, url) {
-                        call.request.cookies[cookies]
+                        addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
                     }) {
                         response.status() shouldBeEqualTo HttpStatusCode.OK
                         val personOversiktStatus = objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!).first()
@@ -413,13 +330,6 @@ object PersonoversiktStatusApiSpek : Spek({
                 }
 
                 it("should return Person, receives Oppfolgingstilfelle, and then MOTEBEHOV_SVAR_MOTTATT and MOTEPLANLEGGER_ALLE_SVAR_MOTTATT and OPPFOLGINGSPLANLPS_BISTAND_MOTTATT") {
-                    every {
-                        isInvalidToken(any())
-                    } returns false
-                    every {
-                        getTokenFromCookie(any())
-                    } returns "token"
-
                     val oversikthendelstilfelle = generateOversikthendelsetilfelle.copy(
                         enhetId = NAV_ENHET,
                         gradert = false,
@@ -441,7 +351,7 @@ object PersonoversiktStatusApiSpek : Spek({
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseOPLPSBistandMottatt)
 
                     with(handleRequest(HttpMethod.Get, url) {
-                        call.request.cookies[cookies]
+                        addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
                     }) {
                         response.status() shouldBeEqualTo HttpStatusCode.OK
                         val personOversiktStatus = objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!).first()
@@ -459,18 +369,11 @@ object PersonoversiktStatusApiSpek : Spek({
                 }
 
                 it("should return Person, no Oppfolgingstilfelle, and then OPPFOLGINGSPLANLPS_BISTAND_MOTTATT") {
-                    every {
-                        isInvalidToken(any())
-                    } returns false
-                    every {
-                        getTokenFromCookie(any())
-                    } returns "token"
-
                     val oversiktHendelseOPLPSBistandMottatt = generateKOversikthendelse(OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT)
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseOPLPSBistandMottatt)
 
                     with(handleRequest(HttpMethod.Get, url) {
-                        call.request.cookies[cookies]
+                        addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
                     }) {
                         response.status() shouldBeEqualTo HttpStatusCode.OK
                         val personOversiktStatus = objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!).first()

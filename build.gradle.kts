@@ -18,6 +18,7 @@ val kluentVersion = "1.61"
 val logbackVersion = "1.2.3"
 val logstashEncoderVersion = "6.3"
 val mockkVersion = "1.10.0"
+val nimbusjosejwtVersion = "7.5.1"
 val postgresEmbeddedVersion = "0.13.3"
 val postgresVersion = "42.2.13"
 val prometheusVersion = "0.9.0"
@@ -80,6 +81,7 @@ dependencies {
     implementation("io.ktor:ktor-auth:$ktorVersion")
     implementation("io.ktor:ktor-auth-jwt:$ktorVersion")
 
+    testImplementation("com.nimbusds:nimbus-jose-jwt:$nimbusjosejwtVersion")
     testImplementation("no.nav:kafka-embedded-env:$kafkaEmbeddedVersion")
     testImplementation("org.amshove.kluent:kluent:$kluentVersion")
     testImplementation("org.spekframework.spek2:spek-dsl-jvm:$spekVersion")

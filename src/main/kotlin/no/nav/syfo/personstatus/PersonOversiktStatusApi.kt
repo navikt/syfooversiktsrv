@@ -4,7 +4,6 @@ import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
 import io.ktor.routing.*
-import no.nav.syfo.auth.getTokenFromCookie
 import no.nav.syfo.metric.COUNT_PERSONOVERSIKTSTATUS_ENHET_HENTET
 import no.nav.syfo.metric.HISTOGRAM_PERSONOVERSIKT
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
@@ -23,7 +22,8 @@ fun Route.registerPersonoversiktApi(
         get("/enhet/{enhet}") {
             try {
                 val callId = getCallId()
-                val token = getTokenFromCookie(call.request.cookies)
+                val token = getBearerHeader()
+                    ?: throw IllegalArgumentException("No Authorization header supplied")
 
                 val enhet: String = call.parameters["enhet"]?.takeIf { validateEnhet(it) }
                     ?: throw IllegalArgumentException("Enhet mangler")
