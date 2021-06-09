@@ -12,33 +12,36 @@ import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.*
 import no.nav.syfo.api.authentication.*
 import no.nav.syfo.auth.isInvalidToken
+import no.nav.syfo.db.DatabaseInterface
 import no.nav.syfo.personstatus.*
 import no.nav.syfo.tilgangskontroll.TilgangskontrollConsumer
 import java.net.URL
 import java.util.concurrent.TimeUnit
 
-fun Application.apiModule() {
-    val env = getEnvironment()
-
+fun Application.apiModule(
+    applicationState: ApplicationState,
+    database: DatabaseInterface,
+    environment: Environment,
+    wellKnownVeileder: WellKnown
+) {
     installCallId()
     installContentNegotiation()
     installStatusPages()
 
     install(Authentication) {
-        val wellKnown = getWellKnown(env.aadDiscoveryUrl)
-        val jwkProvider = JwkProviderBuilder(URL(wellKnown.jwks_uri))
+        val jwkProvider = JwkProviderBuilder(URL(wellKnownVeileder.jwks_uri))
             .cached(10, 24, TimeUnit.HOURS)
             .rateLimited(10, 1, TimeUnit.MINUTES)
             .build()
         jwt(name = "jwt") {
-            verifier(jwkProvider, wellKnown.issuer)
+            verifier(jwkProvider, wellKnownVeileder.issuer)
             validate { credentials ->
-                if (!credentials.payload.audience.contains(env.clientid)) {
+                if (!credentials.payload.audience.contains(environment.clientid)) {
                     log.warn(
                         "Auth: Unexpected audience for jwt {}, {}, {}",
                         StructuredArguments.keyValue("issuer", credentials.payload.issuer),
                         StructuredArguments.keyValue("audience", credentials.payload.audience),
-                        StructuredArguments.keyValue("expectedAudience", env.clientid)
+                        StructuredArguments.keyValue("expectedAudience", environment.clientid)
                     )
                     null
                 } else {
@@ -66,14 +69,14 @@ fun Application.apiModule() {
 
     val personTildelingService = PersonTildelingService(database)
     val personoversiktStatusService = PersonoversiktStatusService(database)
-    val tilgangskontrollConsumer = TilgangskontrollConsumer(env.syfotilgangskontrollUrl)
+    val tilgangskontrollConsumer = TilgangskontrollConsumer(environment.syfotilgangskontrollUrl)
 
     routing {
-        registerPodApi(state)
+        registerPodApi(applicationState)
         registerPrometheusApi()
         registerPersonoversiktApi(tilgangskontrollConsumer, personoversiktStatusService)
         registerPersonTildelingApi(tilgangskontrollConsumer, personTildelingService)
     }
 
-    state.initialized = true
+    applicationState.initialized = true
 }

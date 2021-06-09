@@ -8,6 +8,7 @@ import io.ktor.server.netty.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.slf4j.MDCContext
 import no.nav.syfo.api.apiModule
+import no.nav.syfo.api.authentication.getWellKnown
 import no.nav.syfo.db.*
 import no.nav.syfo.kafka.setupKafka
 import no.nav.syfo.oversikthendelsetilfelle.OversikthendelstilfelleService
@@ -36,10 +37,18 @@ fun main() {
             port = env.applicationPort
         }
 
+        val environment = getEnvironment()
+        val wellKnownVeileder = getWellKnown(env.aadDiscoveryUrl)
+
         module {
             init()
             kafkaModule()
-            apiModule()
+            apiModule(
+                applicationState = state,
+                database = database,
+                environment = environment,
+                wellKnownVeileder = wellKnownVeileder
+            )
         }
     })
     Runtime.getRuntime().addShutdownHook(Thread {
