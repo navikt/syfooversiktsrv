@@ -1,44 +1,20 @@
 package no.nav.syfo
 
-import com.auth0.jwk.JwkProviderBuilder
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.typesafe.config.ConfigFactory
 import io.ktor.application.*
-import io.ktor.auth.*
-import io.ktor.auth.jwt.*
 import io.ktor.config.*
-import io.ktor.features.*
-import io.ktor.http.*
-import io.ktor.jackson.*
-import io.ktor.request.*
-import io.ktor.response.*
-import io.ktor.routing.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import kotlinx.coroutines.slf4j.MDCContext
-import net.logstash.logback.argument.StructuredArguments
-import no.nav.syfo.api.getWellKnown
-import no.nav.syfo.api.registerPodApi
-import no.nav.syfo.api.registerPrometheusApi
-import no.nav.syfo.auth.isInvalidToken
+import no.nav.syfo.api.apiModule
 import no.nav.syfo.db.*
 import no.nav.syfo.kafka.setupKafka
 import no.nav.syfo.oversikthendelsetilfelle.OversikthendelstilfelleService
-import no.nav.syfo.personstatus.*
-import no.nav.syfo.tilgangskontroll.TilgangskontrollConsumer
-import no.nav.syfo.util.NAV_CALL_ID_HEADER
-import no.nav.syfo.util.getCallId
+import no.nav.syfo.personstatus.OversiktHendelseService
 import no.nav.syfo.util.getFileAsString
 import no.nav.syfo.vault.Vault
 import org.slf4j.LoggerFactory
-import java.net.URL
-import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
@@ -63,7 +39,7 @@ fun main() {
         module {
             init()
             kafkaModule()
-            serverModule()
+            apiModule()
         }
     })
     Runtime.getRuntime().addShutdownHook(Thread {
@@ -148,95 +124,6 @@ fun Application.kafkaModule() {
             setupKafka(vaultSecrets, oversiktHendelseService, oversikthendelstilfelleService)
         }
     }
-}
-
-fun Application.serverModule() {
-
-    val env = getEnvironment()
-
-    install(CORS) {
-        host(host = "nais.adeo.no", schemes = listOf("https"), subDomains = listOf("syfooversikt"))
-        host(host = "nais.preprod.local", schemes = listOf("https"), subDomains = listOf("syfooversikt-q1", "syfooversikt"))
-        host(host = "localhost", schemes = listOf("http", "https"))
-        allowCredentials = true
-    }
-
-    install(ContentNegotiation) {
-        jackson {
-            registerKotlinModule()
-            registerModule(JavaTimeModule())
-            configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-        }
-    }
-
-    install(Authentication) {
-        val wellKnown = getWellKnown(env.aadDiscoveryUrl)
-        val jwkProvider = JwkProviderBuilder(URL(wellKnown.jwks_uri))
-            .cached(10, 24, TimeUnit.HOURS)
-            .rateLimited(10, 1, TimeUnit.MINUTES)
-            .build()
-        jwt(name = "jwt") {
-            verifier(jwkProvider, wellKnown.issuer)
-            validate { credentials ->
-                if (!credentials.payload.audience.contains(env.clientid)) {
-                    log.warn(
-                        "Auth: Unexpected audience for jwt {}, {}, {}",
-                        StructuredArguments.keyValue("issuer", credentials.payload.issuer),
-                        StructuredArguments.keyValue("audience", credentials.payload.audience),
-                        StructuredArguments.keyValue("expectedAudience", env.clientid)
-                    )
-                    null
-                } else {
-                    JWTPrincipal(credentials.payload)
-                }
-            }
-        }
-    }
-
-    install(CallId) {
-        retrieve { it.request.headers["X-Nav-CallId"] }
-        retrieve { it.request.headers[HttpHeaders.XCorrelationId] }
-        generate { UUID.randomUUID().toString() }
-        verify { callId: String -> callId.isNotEmpty() }
-        header(NAV_CALL_ID_HEADER)
-    }
-
-    install(StatusPages) {
-        exception<Throwable> { cause ->
-            call.respond(HttpStatusCode.InternalServerError, cause.message ?: "Unknown error")
-            log.error("Caught exception", cause, getCallId())
-            throw cause
-        }
-    }
-
-    isProd {
-        intercept(ApplicationCallPipeline.Call) {
-            if (call.request.uri.contains(Regex("is_alive|is_ready|prometheus"))) {
-                proceed()
-                return@intercept
-            }
-            val cookies = call.request.cookies
-            if (isInvalidToken(cookies)) {
-                call.respond(HttpStatusCode.Unauthorized, "Ugyldig token")
-                finish()
-            } else {
-                proceed()
-            }
-        }
-    }
-
-    val personTildelingService = PersonTildelingService(database)
-    val personoversiktStatusService = PersonoversiktStatusService(database)
-    val tilgangskontrollConsumer = TilgangskontrollConsumer(env.syfotilgangskontrollUrl)
-
-    routing {
-        registerPodApi(state)
-        registerPrometheusApi()
-        registerPersonoversiktApi(tilgangskontrollConsumer, personoversiktStatusService)
-        registerPersonTildelingApi(tilgangskontrollConsumer, personTildelingService)
-    }
-
-    state.initialized = true
 }
 
 fun CoroutineScope.createListener(applicationState: ApplicationState, action: suspend CoroutineScope.() -> Unit): Job =

@@ -21,6 +21,11 @@ fun createCallId(): String = UUID.randomUUID().toString()
 
 fun callIdArgument(callId: String) = StructuredArguments.keyValue("callId", callId)!!
 
+const val NAV_CONSUMER_ID_HEADER = "Nav-Consumer-Id"
+fun PipelineContext<out Unit, ApplicationCall>.getConsumerId(): String {
+    return this.call.request.headers[NAV_CONSUMER_ID_HEADER].toString()
+}
+
 private val kafkaCounter = AtomicInteger(0)
 
 fun kafkaCallId(): String = "${LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-HHmm"))}-syfooversiktsrv-kafka-${kafkaCounter.incrementAndGet()}"
