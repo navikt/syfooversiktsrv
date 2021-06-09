@@ -22,7 +22,8 @@ fun Application.apiModule(
     applicationState: ApplicationState,
     database: DatabaseInterface,
     environment: Environment,
-    wellKnownVeileder: WellKnown
+    wellKnownVeileder: WellKnown,
+    isProd: Boolean
 ) {
     installCallId()
     installContentNegotiation()
@@ -51,7 +52,7 @@ fun Application.apiModule(
         }
     }
 
-    isProd {
+    if (isProd) {
         intercept(ApplicationCallPipeline.Call) {
             if (call.request.uri.contains(Regex("is_alive|is_ready|prometheus"))) {
                 proceed()

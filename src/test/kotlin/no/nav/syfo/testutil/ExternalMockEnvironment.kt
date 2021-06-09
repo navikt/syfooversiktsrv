@@ -39,7 +39,7 @@ fun HashMap<String, NettyApplicationEngine>.start() {
 
 fun HashMap<String, NettyApplicationEngine>.stop(
     gracePeriodMillis: Long = 1L,
-    timeoutMillis: Long = 10L,
+    timeoutMillis: Long = 10L
 ) {
     this.forEach {
         it.value.stop(gracePeriodMillis, timeoutMillis)

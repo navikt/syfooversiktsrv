@@ -23,8 +23,8 @@ fun testEnvironment(
 )
 
 fun testAppState() = ApplicationState(
-    alive = true,
-    ready = true
+    running = true,
+    initialized = true
 )
 
 fun getRandomPort() = ServerSocket(0).use {

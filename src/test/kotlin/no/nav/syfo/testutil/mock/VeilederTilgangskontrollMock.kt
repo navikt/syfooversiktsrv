@@ -10,12 +10,6 @@ import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
-import no.nav.syfo.client.veiledertilgang.Tilgang
-import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_ADRESSEBESKYTTET
-import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_FNR
-import no.nav.syfo.testhelper.UserConstants.ARBEIDSTAKER_VEILEDER_NO_ACCESS
-import no.nav.syfo.testhelper.UserConstants.ENHET_NR_NO_ACCESS
-import no.nav.syfo.testhelper.getRandomPort
 import no.nav.syfo.testutil.UserConstants
 import no.nav.syfo.testutil.getRandomPort
 import no.nav.syfo.tilgangskontroll.Tilgang
@@ -31,7 +25,7 @@ class VeilederTilgangskontrollMock {
     val server = mockTilgangServer(port = port)
 
     private fun mockTilgangServer(
-        port: Int,
+        port: Int
     ): NettyApplicationEngine {
         return embeddedServer(
             factory = Netty,

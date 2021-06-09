@@ -1,9 +1,7 @@
 package no.nav.syfo.personstatus
 
-import com.fasterxml.jackson.databind.*
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import io.ktor.util.*
@@ -39,16 +37,16 @@ object PersonoversiktStatusApiSpek : Spek({
             start()
 
             val externalMockEnvironment = ExternalMockEnvironment()
-
             val database = externalMockEnvironment.database
-            val cookies = ""
-            val baseUrl = "/api/v1/personoversikt"
-            val oversiktHendelseService = OversiktHendelseService(database)
-            val oversikthendelstilfelleService = OversikthendelstilfelleService(database)
 
             application.testApiModule(
                 externalMockEnvironment = externalMockEnvironment
             )
+
+            val cookies = ""
+            val baseUrl = "/api/v1/personoversikt"
+            val oversiktHendelseService = OversiktHendelseService(database)
+            val oversikthendelstilfelleService = OversikthendelstilfelleService(database)
 
             beforeEachTest {
                 mockkStatic("no.nav.syfo.auth.TokenAuthKt")

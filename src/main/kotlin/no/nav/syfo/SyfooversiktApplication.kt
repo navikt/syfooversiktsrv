@@ -47,7 +47,8 @@ fun main() {
                 applicationState = state,
                 database = database,
                 environment = environment,
-                wellKnownVeileder = wellKnownVeileder
+                wellKnownVeileder = wellKnownVeileder,
+                isProd = (envKind == "production")
             )
         }
     })
