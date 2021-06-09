@@ -46,6 +46,8 @@ object KafkaITSpek : Spek({
     val env = Environment(
             applicationPort = getRandomPort(),
             applicationThreads = 1,
+            azureAppClientId = "azureAppClientId",
+            azureAppWellKnownUrl = "azureAppWellKnownUrl",
             oversikthendelseOppfolgingstilfelleTopic = "topic1",
             kafkaBootstrapServers = embeddedEnvironment.brokersURL,
             syfooversiktsrvDBURL = "12314.adeo.no",

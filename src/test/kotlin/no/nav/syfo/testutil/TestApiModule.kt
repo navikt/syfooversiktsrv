@@ -10,6 +10,7 @@ fun Application.testApiModule(
         applicationState = externalMockEnvironment.applicationState,
         database = externalMockEnvironment.database,
         environment = externalMockEnvironment.environment,
-        wellKnownVeileder = externalMockEnvironment.wellKnownVeileder
+        wellKnownVeileder = externalMockEnvironment.wellKnownVeileder,
+        wellKnownVeilederV2 = externalMockEnvironment.wellKnownVeilederV2
     )
 }

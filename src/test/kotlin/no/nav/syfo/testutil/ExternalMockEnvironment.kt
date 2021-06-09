@@ -2,8 +2,7 @@ package no.nav.syfo.testutil
 
 import io.ktor.server.netty.*
 import no.nav.syfo.ApplicationState
-import no.nav.syfo.testutil.mock.VeilederTilgangskontrollMock
-import no.nav.syfo.testutil.mock.wellKnownVeilederMock
+import no.nav.syfo.testutil.mock.*
 
 class ExternalMockEnvironment {
     val applicationState: ApplicationState = testAppState()
@@ -20,6 +19,7 @@ class ExternalMockEnvironment {
     )
 
     val wellKnownVeileder = wellKnownVeilederMock()
+    val wellKnownVeilederV2 = wellKnownVeilederV2Mock()
 }
 
 fun ExternalMockEnvironment.startExternalMocks() {

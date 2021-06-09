@@ -9,6 +9,8 @@ fun testEnvironment(
 ) = Environment(
     applicationPort = 8080,
     applicationThreads = 1,
+    azureAppClientId = "azureAppClientId",
+    azureAppWellKnownUrl = "azureAppWellKnownUrl",
     oversikthendelseOppfolgingstilfelleTopic = "topic1",
     kafkaBootstrapServers = "boostrapserver",
     syfooversiktsrvDBURL = "12314.adeo.no",
