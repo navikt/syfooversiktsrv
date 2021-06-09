@@ -1,4 +1,4 @@
-package no.nav.syfo.personstatus
+package no.nav.syfo.personstatus.api.v1
 
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
@@ -6,6 +6,7 @@ import io.ktor.response.respond
 import io.ktor.routing.*
 import no.nav.syfo.metric.COUNT_PERSONOVERSIKTSTATUS_ENHET_HENTET
 import no.nav.syfo.metric.HISTOGRAM_PERSONOVERSIKT
+import no.nav.syfo.personstatus.PersonoversiktStatusService
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.tilgangskontroll.TilgangskontrollConsumer
 import no.nav.syfo.util.*

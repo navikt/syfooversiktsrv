@@ -1,4 +1,4 @@
-package no.nav.syfo.personstatus
+package no.nav.syfo.personstatus.api.v1
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -6,6 +6,7 @@ import io.ktor.http.*
 import io.ktor.server.testing.*
 import io.ktor.util.*
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
+import no.nav.syfo.personstatus.lagreBrukerKnytningPaEnhet
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testutil.UserConstants.NAV_ENHET
@@ -16,7 +17,7 @@ import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 
 @InternalAPI
-object PersontildelingApiSpek : Spek({
+object PersontildelingApiV1Spek : Spek({
     val objectMapper: ObjectMapper = apiConsumerObjectMapper()
 
     describe("PersontildelingApi") {

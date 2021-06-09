@@ -3,10 +3,14 @@ package no.nav.syfo.api
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.routing.*
-import no.nav.syfo.*
+import no.nav.syfo.ApplicationState
+import no.nav.syfo.Environment
 import no.nav.syfo.api.authentication.*
 import no.nav.syfo.db.DatabaseInterface
-import no.nav.syfo.personstatus.*
+import no.nav.syfo.personstatus.PersonTildelingService
+import no.nav.syfo.personstatus.PersonoversiktStatusService
+import no.nav.syfo.personstatus.api.v1.registerPersonTildelingApi
+import no.nav.syfo.personstatus.api.v1.registerPersonoversiktApi
 import no.nav.syfo.tilgangskontroll.TilgangskontrollConsumer
 
 fun Application.apiModule(

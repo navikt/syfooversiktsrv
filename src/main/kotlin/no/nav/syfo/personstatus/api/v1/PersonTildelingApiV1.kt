@@ -1,4 +1,4 @@
-package no.nav.syfo.personstatus
+package no.nav.syfo.personstatus.api.v1
 
 import io.ktor.application.*
 import io.ktor.http.*
@@ -7,6 +7,7 @@ import io.ktor.response.*
 import io.ktor.routing.*
 import no.nav.syfo.api.authentication.getNAVIdentFromToken
 import no.nav.syfo.metric.COUNT_PERSONTILDELING_TILDELT
+import no.nav.syfo.personstatus.PersonTildelingService
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytningListe
 import no.nav.syfo.tilgangskontroll.TilgangskontrollConsumer
