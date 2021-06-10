@@ -40,7 +40,7 @@ spec:
   accessPolicy:
     inbound:
       rules:
-        - application: finnfastlege
+        - application: syfooversikt
           namespace: teamsykefravr
           cluster: dev-fss
   azure:
