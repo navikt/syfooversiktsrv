@@ -47,7 +47,9 @@ object KafkaITSpek : Spek({
             applicationPort = getRandomPort(),
             applicationThreads = 1,
             azureAppClientId = "azureAppClientId",
+            azureAppClientSecret = "azureAppClientSecret",
             azureAppWellKnownUrl = "azureAppWellKnownUrl",
+            azureTokenEndpoint = "azureTokenEndpoint",
             oversikthendelseOppfolgingstilfelleTopic = "topic1",
             kafkaBootstrapServers = embeddedEnvironment.brokersURL,
             syfooversiktsrvDBURL = "12314.adeo.no",
@@ -57,6 +59,7 @@ object KafkaITSpek : Spek({
             jwkKeysUrl = "",
             jwtIssuer = "",
             aadDiscoveryUrl = "",
+            syfotilgangskontrollClientId = "syfotilgangskontrollClientId",
             syfotilgangskontrollUrl = "",
             clientid = ""
     )

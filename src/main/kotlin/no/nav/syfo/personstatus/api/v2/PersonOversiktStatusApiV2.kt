@@ -31,13 +31,13 @@ fun Route.registerPersonoversiktApiV2(
                 val enhet: String = call.parameters["enhet"]?.takeIf { validateEnhet(it) }
                     ?: throw IllegalArgumentException("Enhet mangler")
 
-                when (veilederTilgangskontrollClient.harVeilederTilgangTilEnhet(enhet, token, callId)) {
+                when (veilederTilgangskontrollClient.harVeilederTilgangTilEnhetMedOBO(enhet, token, callId)) {
                     true -> {
                         val requestTimer = HISTOGRAM_PERSONOVERSIKT.startTimer()
                         val personOversiktStatusList: List<PersonOversiktStatus> = personoversiktStatusService
                             .hentPersonoversiktStatusTilknyttetEnhet(enhet)
 
-                        val personFnrListWithVeilederAccess: List<String> = veilederTilgangskontrollClient.veilederPersonAccessList(
+                        val personFnrListWithVeilederAccess: List<String> = veilederTilgangskontrollClient.veilederPersonAccessListMedOBO(
                             personOversiktStatusList.map { it.fnr },
                             token,
                             callId

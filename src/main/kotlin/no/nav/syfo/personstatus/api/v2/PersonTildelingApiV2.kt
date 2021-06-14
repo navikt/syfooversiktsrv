@@ -49,7 +49,7 @@ fun Route.registerPersonTildelingApiV2(
             try {
                 val veilederBrukerKnytningerListe: VeilederBrukerKnytningListe = call.receive()
 
-                val tilknytningFnrListWithVeilederAccess: List<String> = veilederTilgangskontrollClient.veilederPersonAccessList(
+                val tilknytningFnrListWithVeilederAccess: List<String> = veilederTilgangskontrollClient.veilederPersonAccessListMedOBO(
                     veilederBrukerKnytningerListe.tilknytninger.map { it.fnr },
                     token,
                     callId

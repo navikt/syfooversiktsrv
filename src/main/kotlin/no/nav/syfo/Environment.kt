@@ -16,21 +16,24 @@ fun getEnvironment(): Environment {
         objectMapper.readValue(firstExistingFile(localEnvironmentPropertiesPath, defaultlocalEnvironmentPropertiesPath), Environment::class.java)
     } else {
         Environment(
-            getEnvVar("APPLICATION_PORT", "8080").toInt(),
-            getEnvVar("APPLICATION_THREADS", "1").toInt(),
-            getEnvVar("APPLICATION_NAME", "syfooversiktsrv"),
-            getEnvVar("AADDISCOVERY_URL"),
-            getEnvVar("AZURE_APP_CLIENT_ID"),
-            getEnvVar("AZURE_APP_WELL_KNOWN_URL"),
-            getEnvVar("JWKKEYS_URL", "https://login.microsoftonline.com/common/discovery/keys"),
-            getEnvVar("JWT_ISSUER"),
-            getEnvVar("SYFOTILGANGSKONTROLL_URL"),
-            getEnvVar("DATABASE_NAME", "syfooversiktsrv"),
-            getEnvVar("SYFOOVERSIKTSRV_DB_URL"),
-            getEnvVar("MOUNT_PATH_VAULT"),
-            getEnvVar("OVERSIKTHENDELSE_OPPFOLGINGSTILFELLE_TOPIC", "aapen-syfo-oversikthendelse-tilfelle-v1"),
-            getEnvVar("KAFKA_BOOTSTRAP_SERVERS_URL"),
-            getEnvVar("CLIENT_ID")
+            applicationPort = getEnvVar("APPLICATION_PORT", "8080").toInt(),
+            applicationThreads = getEnvVar("APPLICATION_THREADS", "1").toInt(),
+            applicationName = getEnvVar("APPLICATION_NAME", "syfooversiktsrv"),
+            aadDiscoveryUrl = getEnvVar("AADDISCOVERY_URL"),
+            azureAppClientId = getEnvVar("AZURE_APP_CLIENT_ID"),
+            azureAppClientSecret = getEnvVar("AZURE_APP_CLIENT_SECRET"),
+            azureAppWellKnownUrl = getEnvVar("AZURE_APP_WELL_KNOWN_URL"),
+            azureTokenEndpoint = getEnvVar("AZURE_OPENID_CONFIG_TOKEN_ENDPOINT"),
+            jwkKeysUrl = getEnvVar("JWKKEYS_URL", "https://login.microsoftonline.com/common/discovery/keys"),
+            jwtIssuer = getEnvVar("JWT_ISSUER"),
+            syfotilgangskontrollClientId = getEnvVar("SYFOTILGANGSKONTROLL_CLIENT_ID"),
+            syfotilgangskontrollUrl = getEnvVar("SYFOTILGANGSKONTROLL_URL"),
+            databaseName = getEnvVar("DATABASE_NAME", "syfooversiktsrv"),
+            syfooversiktsrvDBURL = getEnvVar("SYFOOVERSIKTSRV_DB_URL"),
+            mountPathVault = getEnvVar("MOUNT_PATH_VAULT"),
+            oversikthendelseOppfolgingstilfelleTopic = getEnvVar("OVERSIKTHENDELSE_OPPFOLGINGSTILFELLE_TOPIC", "aapen-syfo-oversikthendelse-tilfelle-v1"),
+            kafkaBootstrapServers = getEnvVar("KAFKA_BOOTSTRAP_SERVERS_URL"),
+            clientid = getEnvVar("CLIENT_ID")
         )
     }
 }
@@ -43,9 +46,12 @@ data class Environment(
     val applicationName: String,
     val aadDiscoveryUrl: String,
     val azureAppClientId: String,
+    val azureAppClientSecret: String,
     val azureAppWellKnownUrl: String,
+    val azureTokenEndpoint: String,
     val jwkKeysUrl: String,
     val jwtIssuer: String,
+    val syfotilgangskontrollClientId: String,
     val syfotilgangskontrollUrl: String,
     val databaseName: String,
     val syfooversiktsrvDBURL: String,

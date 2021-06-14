@@ -8,13 +8,16 @@ class ExternalMockEnvironment {
     val applicationState: ApplicationState = testAppState()
     val database = TestDB()
 
+    val azureAdV2Mock = AzureAdV2Mock()
     val tilgangskontrollMock = VeilederTilgangskontrollMock()
 
     val externalApplicationMockMap = hashMapOf(
+        azureAdV2Mock.name to azureAdV2Mock.server,
         tilgangskontrollMock.name to tilgangskontrollMock.server
     )
 
     val environment = testEnvironment(
+        azureTokenEndpoint = azureAdV2Mock.url,
         syfotilgangskontrollUrl = tilgangskontrollMock.url
     )
 

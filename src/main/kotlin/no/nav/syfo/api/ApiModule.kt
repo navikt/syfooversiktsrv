@@ -6,6 +6,7 @@ import io.ktor.routing.*
 import no.nav.syfo.ApplicationState
 import no.nav.syfo.Environment
 import no.nav.syfo.api.authentication.*
+import no.nav.syfo.client.azuread.AzureAdV2Client
 import no.nav.syfo.db.DatabaseInterface
 import no.nav.syfo.personstatus.PersonTildelingService
 import no.nav.syfo.personstatus.PersonoversiktStatusService
@@ -43,7 +44,18 @@ fun Application.apiModule(
 
     val personTildelingService = PersonTildelingService(database)
     val personoversiktStatusService = PersonoversiktStatusService(database)
-    val tilgangskontrollConsumer = VeilederTilgangskontrollClient(environment.syfotilgangskontrollUrl)
+
+    val azureAdV2Client = AzureAdV2Client(
+        aadAppClient = environment.azureAppClientId,
+        aadAppSecret = environment.azureAppClientSecret,
+        aadTokenEndpoint = environment.azureTokenEndpoint
+    )
+    val syfotilgangskontrollClientId = environment.syfotilgangskontrollClientId
+    val tilgangskontrollConsumer = VeilederTilgangskontrollClient(
+        endpointUrl = environment.syfotilgangskontrollUrl,
+        azureAdV2Client = azureAdV2Client,
+        syfotilgangskontrollClientId = syfotilgangskontrollClientId
+    )
 
     routing {
         registerPodApi(applicationState)

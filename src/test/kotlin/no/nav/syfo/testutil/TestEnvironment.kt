@@ -5,12 +5,15 @@ import no.nav.syfo.Environment
 import java.net.ServerSocket
 
 fun testEnvironment(
+    azureTokenEndpoint: String = "azureTokenEndpoint",
     syfotilgangskontrollUrl: String? = null
 ) = Environment(
     applicationPort = 8080,
     applicationThreads = 1,
     azureAppClientId = "azureAppClientId",
+    azureAppClientSecret = "azureAppClientSecret",
     azureAppWellKnownUrl = "azureAppWellKnownUrl",
+    azureTokenEndpoint = azureTokenEndpoint,
     oversikthendelseOppfolgingstilfelleTopic = "topic1",
     kafkaBootstrapServers = "boostrapserver",
     syfooversiktsrvDBURL = "12314.adeo.no",
@@ -20,6 +23,7 @@ fun testEnvironment(
     jwkKeysUrl = "",
     jwtIssuer = "",
     aadDiscoveryUrl = "",
+    syfotilgangskontrollClientId = "syfotilgangskontrollClientId",
     syfotilgangskontrollUrl = syfotilgangskontrollUrl ?: "tilgangskontroll",
     clientid = "loginservice"
 )
