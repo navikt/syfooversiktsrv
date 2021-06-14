@@ -10,7 +10,7 @@ import no.nav.syfo.metric.COUNT_PERSONTILDELING_TILDELT
 import no.nav.syfo.personstatus.PersonTildelingService
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytningListe
-import no.nav.syfo.tilgangskontroll.TilgangskontrollConsumer
+import no.nav.syfo.client.veiledertilgang.VeilederTilgangskontrollConsumer
 import no.nav.syfo.util.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory
 private val log: Logger = LoggerFactory.getLogger("no.nav.syfo")
 
 fun Route.registerPersonTildelingApi(
-    tilgangskontrollConsumer: TilgangskontrollConsumer,
+    veilederTilgangskontrollConsumer: VeilederTilgangskontrollConsumer,
     personTildelingService: PersonTildelingService
 ) {
     route("/api/v1/persontildeling") {
@@ -47,7 +47,7 @@ fun Route.registerPersonTildelingApi(
             try {
                 val veilederBrukerKnytningerListe: VeilederBrukerKnytningListe = call.receive()
 
-                val tilknytningFnrListWithVeilederAccess: List<String> = tilgangskontrollConsumer.veilederPersonAccessList(
+                val tilknytningFnrListWithVeilederAccess: List<String> = veilederTilgangskontrollConsumer.veilederPersonAccessList(
                     veilederBrukerKnytningerListe.tilknytninger.map { it.fnr },
                     token,
                     callId

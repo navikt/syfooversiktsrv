@@ -12,7 +12,7 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import no.nav.syfo.testutil.UserConstants
 import no.nav.syfo.testutil.getRandomPort
-import no.nav.syfo.tilgangskontroll.Tilgang
+import no.nav.syfo.client.veiledertilgang.Tilgang
 
 class VeilederTilgangskontrollMock {
     private val port = getRandomPort()

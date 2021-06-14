@@ -1,4 +1,4 @@
-package no.nav.syfo.tilgangskontroll
+package no.nav.syfo.client.veiledertilgang
 
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -13,9 +13,7 @@ import no.nav.syfo.util.NAV_CALL_ID_HEADER
 import no.nav.syfo.util.bearerHeader
 import org.slf4j.LoggerFactory
 
-val log = LoggerFactory.getLogger("no.nav.syfo.oversikt.tilgangskontroll")
-
-class TilgangskontrollConsumer(
+class VeilederTilgangskontrollConsumer(
     private val endpointUrl: String
 ) {
     private val paramEnhet = "enhet"
@@ -71,5 +69,9 @@ class TilgangskontrollConsumer(
         registerKotlinModule()
         registerModule(JavaTimeModule())
         configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+    }
+
+    companion object {
+        private val log = LoggerFactory.getLogger(VeilederTilgangskontrollConsumer::class.java)
     }
 }
