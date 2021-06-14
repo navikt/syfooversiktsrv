@@ -8,7 +8,7 @@ import no.nav.syfo.metric.COUNT_PERSONOVERSIKTSTATUS_ENHET_HENTET
 import no.nav.syfo.metric.HISTOGRAM_PERSONOVERSIKT
 import no.nav.syfo.personstatus.PersonoversiktStatusService
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
-import no.nav.syfo.client.veiledertilgang.VeilederTilgangskontrollConsumer
+import no.nav.syfo.client.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.util.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -18,7 +18,7 @@ private val log: Logger = LoggerFactory.getLogger("no.nav.syfo")
 const val personOversiktApiV2Path = "/api/v2/personoversikt"
 
 fun Route.registerPersonoversiktApiV2(
-    veilederTilgangskontrollConsumer: VeilederTilgangskontrollConsumer,
+    veilederTilgangskontrollClient: VeilederTilgangskontrollClient,
     personoversiktStatusService: PersonoversiktStatusService
 ) {
     route(personOversiktApiV2Path) {
@@ -31,13 +31,13 @@ fun Route.registerPersonoversiktApiV2(
                 val enhet: String = call.parameters["enhet"]?.takeIf { validateEnhet(it) }
                     ?: throw IllegalArgumentException("Enhet mangler")
 
-                when (veilederTilgangskontrollConsumer.harVeilederTilgangTilEnhet(enhet, token, callId)) {
+                when (veilederTilgangskontrollClient.harVeilederTilgangTilEnhet(enhet, token, callId)) {
                     true -> {
                         val requestTimer = HISTOGRAM_PERSONOVERSIKT.startTimer()
                         val personOversiktStatusList: List<PersonOversiktStatus> = personoversiktStatusService
                             .hentPersonoversiktStatusTilknyttetEnhet(enhet)
 
-                        val personFnrListWithVeilederAccess: List<String> = veilederTilgangskontrollConsumer.veilederPersonAccessList(
+                        val personFnrListWithVeilederAccess: List<String> = veilederTilgangskontrollClient.veilederPersonAccessList(
                             personOversiktStatusList.map { it.fnr },
                             token,
                             callId

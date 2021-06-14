@@ -13,7 +13,7 @@ import no.nav.syfo.util.NAV_CALL_ID_HEADER
 import no.nav.syfo.util.bearerHeader
 import org.slf4j.LoggerFactory
 
-class VeilederTilgangskontrollConsumer(
+class VeilederTilgangskontrollClient(
     private val endpointUrl: String
 ) {
     private val paramEnhet = "enhet"
@@ -72,6 +72,6 @@ class VeilederTilgangskontrollConsumer(
     }
 
     companion object {
-        private val log = LoggerFactory.getLogger(VeilederTilgangskontrollConsumer::class.java)
+        private val log = LoggerFactory.getLogger(VeilederTilgangskontrollClient::class.java)
     }
 }

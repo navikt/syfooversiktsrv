@@ -13,7 +13,7 @@ import no.nav.syfo.personstatus.api.v1.registerPersonTildelingApi
 import no.nav.syfo.personstatus.api.v1.registerPersonoversiktApi
 import no.nav.syfo.personstatus.api.v2.registerPersonTildelingApiV2
 import no.nav.syfo.personstatus.api.v2.registerPersonoversiktApiV2
-import no.nav.syfo.client.veiledertilgang.VeilederTilgangskontrollConsumer
+import no.nav.syfo.client.veiledertilgang.VeilederTilgangskontrollClient
 
 fun Application.apiModule(
     applicationState: ApplicationState,
@@ -43,7 +43,7 @@ fun Application.apiModule(
 
     val personTildelingService = PersonTildelingService(database)
     val personoversiktStatusService = PersonoversiktStatusService(database)
-    val tilgangskontrollConsumer = VeilederTilgangskontrollConsumer(environment.syfotilgangskontrollUrl)
+    val tilgangskontrollConsumer = VeilederTilgangskontrollClient(environment.syfotilgangskontrollUrl)
 
     routing {
         registerPodApi(applicationState)
