@@ -11,7 +11,6 @@ val ktorVersion = "1.3.2"
 val flywayVersion = "7.5.2"
 val jacksonVersion = "2.10.0"
 val hikariVersion = "4.0.1"
-val fuelVersion = "1.15.1"
 val kafkaVersion = "2.0.0"
 val kafkaEmbeddedVersion = "2.0.2"
 val kluentVersion = "1.61"
@@ -52,6 +51,7 @@ dependencies {
     implementation("io.prometheus:simpleclient_common:$prometheusVersion")
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
     implementation("io.ktor:ktor-client-apache:$ktorVersion")
+    implementation("io.ktor:ktor-client-cio:$ktorVersion")
     implementation("io.ktor:ktor-client-logging:$ktorVersion")
     implementation("io.ktor:ktor-client-logging-jvm:$ktorVersion")
 
@@ -60,8 +60,6 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
-
-    implementation("com.github.kittinunf.fuel:fuel:$fuelVersion")
 
     // Database
     implementation("org.postgresql:postgresql:$postgresVersion")

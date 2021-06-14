@@ -1,13 +1,11 @@
 package no.nav.syfo.client.veiledertilgang
 
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.readValue
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import com.github.kittinunf.fuel.core.isSuccessful
-import com.github.kittinunf.fuel.httpGet
-import com.github.kittinunf.fuel.httpPost
+import io.ktor.client.call.*
+import io.ktor.client.features.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
+import no.nav.syfo.client.httpClientDefault
 import no.nav.syfo.metric.*
 import no.nav.syfo.util.NAV_CALL_ID_HEADER
 import no.nav.syfo.util.bearerHeader
@@ -16,59 +14,75 @@ import org.slf4j.LoggerFactory
 class VeilederTilgangskontrollClient(
     private val endpointUrl: String
 ) {
+    private val httpClient = httpClientDefault()
+
     private val paramEnhet = "enhet"
     private val pathTilgangTilBrukere = "/brukere"
     private val pathTilgangTilEnhet = "/enhet"
 
-    fun veilederPersonAccessList(fnrList: List<String>, token: String, callId: String): List<String>? {
-        val bodyJson = objectMapper.writeValueAsString(fnrList)
+    suspend fun veilederPersonAccessList(
+        personIdentNumberList: List<String>,
+        token: String,
+        callId: String
+    ): List<String>? {
+        try {
+            val requestTimer = HISTOGRAM_SYFOTILGANGSKONTROLL_PERSONER.startTimer()
 
-        val requestTimer = HISTOGRAM_SYFOTILGANGSKONTROLL_PERSONER.startTimer()
+            val response: HttpResponse = httpClient.post(getTilgangskontrollUrl(pathTilgangTilBrukere)) {
+                header(HttpHeaders.Authorization, bearerHeader(token))
+                header(NAV_CALL_ID_HEADER, callId)
+                accept(ContentType.Application.Json)
+                contentType(ContentType.Application.Json)
+                body = personIdentNumberList
+            }
 
-        val (_, _, result) = getTilgangskontrollUrl(pathTilgangTilBrukere).httpPost()
-            .body(bodyJson)
-            .header(mapOf(
-                "Authorization" to bearerHeader(token),
-                "Content-Type" to "application/json",
-                NAV_CALL_ID_HEADER to callId
-            ))
-            .responseString()
-
-        requestTimer.observeDuration()
-
-        result.fold(success = {
+            requestTimer.observeDuration()
             COUNT_CALL_TILGANGSKONTROLL_PERSONS_SUCCESS.inc()
-            return objectMapper.readValue<List<String>>(result.get())
-        }, failure = {
+            return response.receive()
+        } catch (e: ClientRequestException) {
+            return if (e.response.status == HttpStatusCode.Forbidden) {
+                log.warn("Forbidden to request access to list of person from syfo-tilgangskontroll")
+                null
+            } else {
+                COUNT_CALL_TILGANGSKONTROLL_PERSONS_FAIL.inc()
+                log.error("Error while requesting access to list of person from syfo-tilgangskontroll: ${e.message}", e)
+                null
+            }
+        } catch (e: ServerResponseException) {
             COUNT_CALL_TILGANGSKONTROLL_PERSONS_FAIL.inc()
-            val exception = it.exception
-            log.error("Error while requesting access to list of person from syfo-tilgangskontroll: ${exception.message}", exception)
+            log.error("Error while requesting access to list of person from syfo-tilgangskontroll: ${e.message}", e)
             return null
-        })
+        }
     }
 
-    fun harVeilederTilgangTilEnhet(enhet: String, token: String, callId: String): Boolean {
-        val requestTimer = HISTOGRAM_SYFOTILGANGSKONTROLL_ENHET.startTimer()
-        val (_, response, _) = getTilgangskontrollUrl("$pathTilgangTilEnhet?$paramEnhet=$enhet").httpGet()
-            .header(mapOf(
-                "Authorization" to bearerHeader(token),
-                "Accept" to "application/json",
-                NAV_CALL_ID_HEADER to callId
-            ))
-            .responseString()
-        requestTimer.observeDuration()
-
-        return response.isSuccessful
+    suspend fun harVeilederTilgangTilEnhet(
+        enhet: String,
+        token: String,
+        callId: String
+    ): Boolean {
+        try {
+            val requestTimer = HISTOGRAM_SYFOTILGANGSKONTROLL_ENHET.startTimer()
+            val url = getTilgangskontrollUrl("$pathTilgangTilEnhet?$paramEnhet=$enhet")
+            val response: HttpResponse = httpClient.get(url) {
+                header(HttpHeaders.Authorization, bearerHeader(token))
+                header(NAV_CALL_ID_HEADER, callId)
+                accept(ContentType.Application.Json)
+            }
+            requestTimer.observeDuration()
+            return response.receive<Tilgang>().harTilgang
+        } catch (e: ClientRequestException) {
+            return if (e.response.status == HttpStatusCode.Forbidden) {
+                false
+            } else {
+                return false
+            }
+        } catch (e: ServerResponseException) {
+            return false
+        }
     }
 
     private fun getTilgangskontrollUrl(path: String): String {
         return "$endpointUrl/syfo-tilgangskontroll/api/tilgang$path"
-    }
-
-    private val objectMapper: ObjectMapper = ObjectMapper().apply {
-        registerKotlinModule()
-        registerModule(JavaTimeModule())
-        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
     }
 
     companion object {
