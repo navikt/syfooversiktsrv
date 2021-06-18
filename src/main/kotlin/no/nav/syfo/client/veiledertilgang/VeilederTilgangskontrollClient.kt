@@ -30,7 +30,7 @@ class VeilederTilgangskontrollClient(
         val oboToken = azureAdV2Client.getOnBehalfOfToken(
             scopeClientId = syfotilgangskontrollClientId,
             token = token
-        )?.access_token
+        )?.accessToken
             ?: throw RuntimeException("Failed to request access to list of persons: Failed to get OBO token")
 
         try {
@@ -72,7 +72,7 @@ class VeilederTilgangskontrollClient(
         val oboToken = azureAdV2Client.getOnBehalfOfToken(
             scopeClientId = syfotilgangskontrollClientId,
             token = token
-        )?.access_token ?: throw RuntimeException("Failed to request access to Enhet: Failed to get OBO token")
+        )?.accessToken ?: throw RuntimeException("Failed to request access to Enhet: Failed to get OBO token")
 
         try {
             val requestTimer = HISTOGRAM_SYFOTILGANGSKONTROLL_ENHET.startTimer()
