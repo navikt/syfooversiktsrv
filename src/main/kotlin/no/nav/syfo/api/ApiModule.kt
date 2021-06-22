@@ -7,20 +7,17 @@ import no.nav.syfo.ApplicationState
 import no.nav.syfo.Environment
 import no.nav.syfo.api.authentication.*
 import no.nav.syfo.client.azuread.AzureAdV2Client
+import no.nav.syfo.client.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.db.DatabaseInterface
 import no.nav.syfo.personstatus.PersonTildelingService
 import no.nav.syfo.personstatus.PersonoversiktStatusService
-import no.nav.syfo.personstatus.api.v1.registerPersonTildelingApi
-import no.nav.syfo.personstatus.api.v1.registerPersonoversiktApi
 import no.nav.syfo.personstatus.api.v2.registerPersonTildelingApiV2
 import no.nav.syfo.personstatus.api.v2.registerPersonoversiktApiV2
-import no.nav.syfo.client.veiledertilgang.VeilederTilgangskontrollClient
 
 fun Application.apiModule(
     applicationState: ApplicationState,
     database: DatabaseInterface,
     environment: Environment,
-    wellKnownVeileder: WellKnown,
     wellKnownVeilederV2: WellKnown
 ) {
     installCallId()
@@ -29,11 +26,6 @@ fun Application.apiModule(
 
     installJwtAuthentication(
         jwtIssuerList = listOf(
-            JwtIssuer(
-                accectedAudienceList = listOf(environment.clientid),
-                jwtIssuerType = JwtIssuerType.VEILEDER,
-                wellKnown = wellKnownVeileder
-            ),
             JwtIssuer(
                 accectedAudienceList = listOf(environment.azureAppClientId),
                 jwtIssuerType = JwtIssuerType.VEILEDER_V2,
@@ -60,10 +52,6 @@ fun Application.apiModule(
     routing {
         registerPodApi(applicationState)
         registerPrometheusApi()
-        authenticate(JwtIssuerType.VEILEDER.name) {
-            registerPersonoversiktApi(tilgangskontrollConsumer, personoversiktStatusService)
-            registerPersonTildelingApi(tilgangskontrollConsumer, personTildelingService)
-        }
         authenticate(JwtIssuerType.VEILEDER_V2.name) {
             registerPersonoversiktApiV2(tilgangskontrollConsumer, personoversiktStatusService)
             registerPersonTildelingApiV2(tilgangskontrollConsumer, personTildelingService)

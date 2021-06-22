@@ -20,12 +20,8 @@ fun testEnvironment(
     mountPathVault = "vault.adeo.no",
     databaseName = "syfooversiktsrv",
     applicationName = "syfooversiktsrv",
-    jwkKeysUrl = "",
-    jwtIssuer = "",
-    aadDiscoveryUrl = "",
     syfotilgangskontrollClientId = "syfotilgangskontrollClientId",
     syfotilgangskontrollUrl = syfotilgangskontrollUrl ?: "tilgangskontroll",
-    clientid = "loginservice"
 )
 
 fun testAppState() = ApplicationState(

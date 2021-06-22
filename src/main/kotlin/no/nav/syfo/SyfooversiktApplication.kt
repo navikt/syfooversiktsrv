@@ -40,7 +40,6 @@ fun main() {
             }
 
             val environment = getEnvironment()
-            val wellKnownVeileder = getWellKnown(env.aadDiscoveryUrl)
             val wellKnownVeilederV2 = getWellKnown(env.azureAppWellKnownUrl)
 
             module {
@@ -50,7 +49,6 @@ fun main() {
                     applicationState = state,
                     database = database,
                     environment = environment,
-                    wellKnownVeileder = wellKnownVeileder,
                     wellKnownVeilederV2 = wellKnownVeilederV2,
                 )
             }

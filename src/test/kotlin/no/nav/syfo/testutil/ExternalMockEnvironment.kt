@@ -21,7 +21,6 @@ class ExternalMockEnvironment {
         syfotilgangskontrollUrl = tilgangskontrollMock.url
     )
 
-    val wellKnownVeileder = wellKnownVeilederMock()
     val wellKnownVeilederV2 = wellKnownVeilederV2Mock()
 }
 

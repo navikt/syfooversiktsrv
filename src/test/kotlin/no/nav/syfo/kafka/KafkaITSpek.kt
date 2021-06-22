@@ -56,12 +56,8 @@ object KafkaITSpek : Spek({
         mountPathVault = "vault.adeo.no",
         databaseName = "syfooversiktsrv",
         applicationName = "syfooversiktsrv",
-        jwkKeysUrl = "",
-        jwtIssuer = "",
-        aadDiscoveryUrl = "",
         syfotilgangskontrollClientId = "syfotilgangskontrollClientId",
         syfotilgangskontrollUrl = "",
-        clientid = ""
     )
 
     fun Properties.overrideForTest(): Properties = apply {
