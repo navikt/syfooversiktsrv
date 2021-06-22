@@ -1,5 +1,4 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import com.github.jengelman.gradle.plugins.shadow.transformers.ServiceFileTransformer
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 group = "no.nav.syfo"
@@ -30,7 +29,7 @@ tasks.withType<Jar> {
 }
 
 plugins {
-    kotlin("jvm") version "1.4.10"
+    kotlin("jvm") version "1.5.10"
     id("com.github.johnrengelman.shadow") version "6.1.0"
     id("org.jlleitschuh.gradle.ktlint") version "9.2.1"
 }
@@ -96,10 +95,9 @@ tasks {
     }
 
     withType<ShadowJar> {
-        transform(ServiceFileTransformer::class.java) {
-            setPath("META-INF/cxf")
-            include("bus-extensions.txt")
-        }
+        archiveBaseName.set("app")
+        archiveClassifier.set("")
+        archiveVersion.set("")
     }
 
     withType<KotlinCompile> {
