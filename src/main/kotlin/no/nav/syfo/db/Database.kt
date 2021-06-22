@@ -37,22 +37,27 @@ class ProdDatabase(daoConfig: DbConfig, initBlock: (context: Database) -> Unit) 
  * Base Database implementation.
  * Hooks up the database with the provided configuration/credentials
  */
-abstract class Database(val daoConfig: DbConfig, private val initBlock: ((context: Database) -> Unit)?) : DatabaseInterface {
+abstract class Database(
+    val daoConfig: DbConfig,
+    private val initBlock: ((context: Database) -> Unit)?,
+) : DatabaseInterface {
 
     var dataSource: HikariDataSource
 
     init {
 
-        dataSource = HikariDataSource(HikariConfig().apply {
-            jdbcUrl = daoConfig.jdbcUrl
-            username = daoConfig.username
-            password = daoConfig.password
-            maximumPoolSize = daoConfig.poolSize
-            minimumIdle = 1
-            isAutoCommit = false
-            transactionIsolation = "TRANSACTION_REPEATABLE_READ"
-            validate()
-        })
+        dataSource = HikariDataSource(
+            HikariConfig().apply {
+                jdbcUrl = daoConfig.jdbcUrl
+                username = daoConfig.username
+                password = daoConfig.password
+                maximumPoolSize = daoConfig.poolSize
+                minimumIdle = 1
+                isAutoCommit = false
+                transactionIsolation = "TRANSACTION_REPEATABLE_READ"
+                validate()
+            }
+        )
 
         afterInit()
     }

@@ -3,18 +3,18 @@ package no.nav.syfo.oversikthendelsetilfelle
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import io.ktor.application.install
-import io.ktor.features.ContentNegotiation
-import io.ktor.jackson.jackson
-import io.ktor.server.testing.TestApplicationEngine
-import io.ktor.util.InternalAPI
+import io.ktor.application.*
+import io.ktor.features.*
+import io.ktor.jackson.*
+import io.ktor.server.testing.*
+import io.ktor.util.*
 import no.nav.syfo.oversikthendelsetilfelle.domain.KOversikthendelsetilfelle
 import no.nav.syfo.oversikthendelsetilfelle.domain.PPersonOppfolgingstilfelle
 import no.nav.syfo.personstatus.domain.PPersonOversiktStatus
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
 import no.nav.syfo.personstatus.hentPersonResultatInternal
 import no.nav.syfo.personstatus.lagreBrukerKnytningPaEnhet
-import no.nav.syfo.testutil.*
+import no.nav.syfo.testutil.TestDB
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_2_FNR
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_2_NAVN
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
@@ -24,6 +24,7 @@ import no.nav.syfo.testutil.UserConstants.VEILEDER_ID
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNAVN_2
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER_2
+import no.nav.syfo.testutil.dropData
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.spekframework.spek2.Spek
@@ -63,9 +64,9 @@ object OversikthendelstilfelleServiceSpek : Spek({
             val oversikthendelstilfelle = generateOversikthendelsetilfelle
 
             val tilknytning = VeilederBrukerKnytning(
-                    VEILEDER_ID,
-                    oversikthendelstilfelle.fnr,
-                    oversikthendelstilfelle.enhetId
+                VEILEDER_ID,
+                oversikthendelstilfelle.fnr,
+                oversikthendelstilfelle.enhetId
             )
 
             describe("Person eksisterer ikke") {
@@ -145,9 +146,9 @@ object OversikthendelstilfelleServiceSpek : Spek({
                     database.lagreBrukerKnytningPaEnhet(tilknytning)
 
                     val hendelse = oversikthendelstilfelle.copy(
-                            navn = ARBEIDSTAKER_2_NAVN,
-                            enhetId = NAV_ENHET_2,
-                            gradert = false
+                        navn = ARBEIDSTAKER_2_NAVN,
+                        enhetId = NAV_ENHET_2,
+                        gradert = false
                     )
                     oversikthendelstilfelleService.oppdaterPersonMedHendelse(hendelse)
 
@@ -167,9 +168,9 @@ object OversikthendelstilfelleServiceSpek : Spek({
                     database.lagreBrukerKnytningPaEnhet(tilknytning)
 
                     val hendelse = oversikthendelstilfelle.copy(
-                            navn = ARBEIDSTAKER_2_NAVN,
-                            enhetId = NAV_ENHET_2,
-                            gradert = true
+                        navn = ARBEIDSTAKER_2_NAVN,
+                        enhetId = NAV_ENHET_2,
+                        gradert = true
                     )
                     oversikthendelstilfelleService.oppdaterPersonMedHendelse(hendelse)
 
@@ -191,14 +192,14 @@ object OversikthendelstilfelleServiceSpek : Spek({
                     database.lagreBrukerKnytningPaEnhet(tilknytning)
 
                     val oversikthendelsetilfelleMottattForst = oversikthendelstilfelle.copy(
-                            fom = LocalDate.now().plusDays(120),
-                            tom = LocalDate.now().plusDays(120),
-                            gradert = true
+                        fom = LocalDate.now().plusDays(120),
+                        tom = LocalDate.now().plusDays(120),
+                        gradert = true
                     )
                     val oversikthendelsetilfelleMottattSist = oversikthendelstilfelle.copy(
-                            fom = LocalDate.now().plusDays(60),
-                            tom = LocalDate.now().plusDays(60),
-                            gradert = false
+                        fom = LocalDate.now().plusDays(60),
+                        tom = LocalDate.now().plusDays(60),
+                        gradert = false
                     )
                     oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelsetilfelleMottattForst)
 
@@ -221,16 +222,16 @@ object OversikthendelstilfelleServiceSpek : Spek({
                 database.lagreBrukerKnytningPaEnhet(tilknytning)
 
                 val oversikthendelsetilfelleMottattForst = oversikthendelstilfelle.copy(
-                        virksomhetsnummer = VIRKSOMHETSNUMMER,
-                        fom = LocalDate.now().plusDays(120),
-                        tom = LocalDate.now().plusDays(120),
-                        gradert = true
+                    virksomhetsnummer = VIRKSOMHETSNUMMER,
+                    fom = LocalDate.now().plusDays(120),
+                    tom = LocalDate.now().plusDays(120),
+                    gradert = true
                 )
                 val oversikthendelsetilfelleMottattSist = oversikthendelstilfelle.copy(
-                        virksomhetsnummer = VIRKSOMHETSNUMMER_2,
-                        fom = LocalDate.now().plusDays(60),
-                        tom = LocalDate.now().plusDays(60),
-                        gradert = false
+                    virksomhetsnummer = VIRKSOMHETSNUMMER_2,
+                    fom = LocalDate.now().plusDays(60),
+                    tom = LocalDate.now().plusDays(60),
+                    gradert = false
                 )
                 oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelsetilfelleMottattForst)
 
@@ -253,20 +254,20 @@ object OversikthendelstilfelleServiceSpek : Spek({
                 database.lagreBrukerKnytningPaEnhet(tilknytning)
 
                 val oversikthendelsetilfelleMottattForst = oversikthendelstilfelle.copy(
-                        fnr = ARBEIDSTAKER_FNR,
-                        navn = ARBEIDSTAKER_NAVN,
-                        virksomhetsnummer = VIRKSOMHETSNUMMER,
-                        fom = LocalDate.now().plusDays(120),
-                        tom = LocalDate.now().plusDays(120),
-                        gradert = true
+                    fnr = ARBEIDSTAKER_FNR,
+                    navn = ARBEIDSTAKER_NAVN,
+                    virksomhetsnummer = VIRKSOMHETSNUMMER,
+                    fom = LocalDate.now().plusDays(120),
+                    tom = LocalDate.now().plusDays(120),
+                    gradert = true
                 )
                 val oversikthendelsetilfelleMottattSist = oversikthendelstilfelle.copy(
-                        fnr = ARBEIDSTAKER_2_FNR,
-                        navn = ARBEIDSTAKER_2_NAVN,
-                        virksomhetsnummer = VIRKSOMHETSNUMMER,
-                        fom = LocalDate.now().plusDays(60),
-                        tom = LocalDate.now().plusDays(60),
-                        gradert = false
+                    fnr = ARBEIDSTAKER_2_FNR,
+                    navn = ARBEIDSTAKER_2_NAVN,
+                    virksomhetsnummer = VIRKSOMHETSNUMMER,
+                    fom = LocalDate.now().plusDays(60),
+                    tom = LocalDate.now().plusDays(60),
+                    gradert = false
                 )
                 oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelsetilfelleMottattForst)
 
@@ -293,7 +294,7 @@ object OversikthendelstilfelleServiceSpek : Spek({
 
             it("Skal oppdatere person, med oppfolgingstilfelle, med nytt virksomhetsnavn hvis den ikke har fra før") {
                 val utenVirksomhetsnavn = oversikthendelstilfelle.copy(
-                        virksomhetsnavn = null
+                    virksomhetsnavn = null
                 )
 
                 oversikthendelstilfelleService.oppdaterPersonMedHendelse(utenVirksomhetsnavn)

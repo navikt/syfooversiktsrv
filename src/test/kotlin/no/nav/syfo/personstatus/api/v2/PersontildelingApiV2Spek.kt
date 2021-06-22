@@ -55,9 +55,11 @@ object PersontildelingApiV2Spek : Spek({
                 val url = "$baseUrl/veileder/$VEILEDER_ID"
 
                 it("skal returnere status NoContent om veileder ikke har tilknytninger") {
-                    with(handleRequest(HttpMethod.Get, url) {
-                        addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                    }) {
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        }
+                    ) {
                         response.status() shouldBeEqualTo HttpStatusCode.NoContent
                     }
                 }
@@ -67,9 +69,11 @@ object PersontildelingApiV2Spek : Spek({
 
                     database.lagreBrukerKnytningPaEnhet(tilknytning)
 
-                    with(handleRequest(HttpMethod.Get, url) {
-                        addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                    }) {
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        }
+                    ) {
                         response.status() shouldBeEqualTo HttpStatusCode.OK
                         val returnertVerdig = objectMapper.readValue<List<VeilederBrukerKnytning>>(response.content!!)[0]
                         returnertVerdig.veilederIdent shouldBeEqualTo tilknytning.veilederIdent
@@ -84,11 +88,13 @@ object PersontildelingApiV2Spek : Spek({
 
                 it("skal lagre liste med veiledertilknytninger") {
 
-                    with(handleRequest(HttpMethod.Post, url) {
-                        addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
-                        addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                        setBody("{\"tilknytninger\":[{\"veilederIdent\": \"$VEILEDER_ID\",\"fnr\": \"$ARBEIDSTAKER_FNR\",\"enhet\": \"$NAV_ENHET\"}]}")
-                    }) {
+                    with(
+                        handleRequest(HttpMethod.Post, url) {
+                            addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                            setBody("{\"tilknytninger\":[{\"veilederIdent\": \"$VEILEDER_ID\",\"fnr\": \"$ARBEIDSTAKER_FNR\",\"enhet\": \"$NAV_ENHET\"}]}")
+                        }
+                    ) {
                         response.status() shouldBeEqualTo HttpStatusCode.OK
                     }
                 }

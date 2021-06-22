@@ -68,9 +68,11 @@ object PersonoversiktStatusApiSpek : Spek({
                 val url = "$baseUrl/enhet/$NAV_ENHET"
 
                 it("skal returnere status NoContent om det ikke er noen personer som er tilknyttet enhet") {
-                    with(handleRequest(HttpMethod.Get, url) {
-                        addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                    }) {
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        }
+                    ) {
                         response.status() shouldBeEqualTo HttpStatusCode.NoContent
                     }
                 }
@@ -82,9 +84,11 @@ object PersonoversiktStatusApiSpek : Spek({
                     val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
                     database.lagreBrukerKnytningPaEnhet(tilknytning)
 
-                    with(handleRequest(HttpMethod.Get, url) {
-                        addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                    }) {
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        }
+                    ) {
                         response.status() shouldBeEqualTo HttpStatusCode.NoContent
                     }
                 }
@@ -96,9 +100,11 @@ object PersonoversiktStatusApiSpek : Spek({
                     val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
                     database.lagreBrukerKnytningPaEnhet(tilknytning)
 
-                    with(handleRequest(HttpMethod.Get, url) {
-                        addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                    }) {
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        }
+                    ) {
                         response.status() shouldBeEqualTo HttpStatusCode.NoContent
                     }
                 }
@@ -119,9 +125,11 @@ object PersonoversiktStatusApiSpek : Spek({
                     val oversiktHendelseMoteplanleggerBehandlet = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_BEHANDLET.name, NAV_ENHET, LocalDateTime.now())
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerBehandlet)
 
-                    with(handleRequest(HttpMethod.Get, url) {
-                        addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                    }) {
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        }
+                    ) {
                         response.status() shouldBeEqualTo HttpStatusCode.NoContent
                     }
                 }
@@ -135,9 +143,11 @@ object PersonoversiktStatusApiSpek : Spek({
                     )
                     oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
 
-                    with(handleRequest(HttpMethod.Get, url) {
-                        addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                    }) {
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        }
+                    ) {
                         response.status() shouldBeEqualTo HttpStatusCode.NoContent
                     }
                 }
@@ -160,9 +170,11 @@ object PersonoversiktStatusApiSpek : Spek({
                     val oversiktHendelseOPLPSBistandMottatt = generateKOversikthendelse(OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT)
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseOPLPSBistandMottatt)
 
-                    with(handleRequest(HttpMethod.Get, url) {
-                        addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                    }) {
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        }
+                    ) {
                         response.status() shouldBeEqualTo HttpStatusCode.OK
                         val personOversiktStatus = objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!).first()
                         personOversiktStatus.veilederIdent shouldBeEqualTo null
@@ -195,9 +207,11 @@ object PersonoversiktStatusApiSpek : Spek({
                     val oversiktHendelseMotebehovMottatt = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMotebehovMottatt)
 
-                    with(handleRequest(HttpMethod.Get, url) {
-                        addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                    }) {
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        }
+                    ) {
                         response.status() shouldBeEqualTo HttpStatusCode.OK
                         val personOversiktStatus = objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!).first()
                         personOversiktStatus.veilederIdent shouldBeEqualTo null
@@ -226,9 +240,11 @@ object PersonoversiktStatusApiSpek : Spek({
                     val oversiktHendelseMoteplanleggerMottatt = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerMottatt)
 
-                    with(handleRequest(HttpMethod.Get, url) {
-                        addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                    }) {
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        }
+                    ) {
                         response.status() shouldBeEqualTo HttpStatusCode.OK
                         val personOversiktStatus = objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!).first()
                         personOversiktStatus.veilederIdent shouldBeEqualTo null
@@ -253,9 +269,11 @@ object PersonoversiktStatusApiSpek : Spek({
                     )
                     oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
 
-                    with(handleRequest(HttpMethod.Get, url) {
-                        addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                    }) {
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        }
+                    ) {
                         response.status() shouldBeEqualTo HttpStatusCode.NoContent
                     }
                 }
@@ -269,9 +287,11 @@ object PersonoversiktStatusApiSpek : Spek({
                     )
                     oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
 
-                    with(handleRequest(HttpMethod.Get, url) {
-                        addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                    }) {
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        }
+                    ) {
                         response.status() shouldBeEqualTo HttpStatusCode.NoContent
                     }
                 }
@@ -285,9 +305,11 @@ object PersonoversiktStatusApiSpek : Spek({
                     )
                     oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
 
-                    with(handleRequest(HttpMethod.Get, url) {
-                        addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                    }) {
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        }
+                    ) {
                         response.status() shouldBeEqualTo HttpStatusCode.NoContent
                     }
                 }
@@ -313,9 +335,11 @@ object PersonoversiktStatusApiSpek : Spek({
                     )
                     oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
 
-                    with(handleRequest(HttpMethod.Get, url) {
-                        addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                    }) {
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        }
+                    ) {
                         response.status() shouldBeEqualTo HttpStatusCode.OK
                         val personOversiktStatus = objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!).first()
                         personOversiktStatus.veilederIdent shouldBeEqualTo tilknytning.veilederIdent
@@ -352,9 +376,11 @@ object PersonoversiktStatusApiSpek : Spek({
                     val oversiktHendelseOPLPSBistandMottatt = generateKOversikthendelse(OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT)
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseOPLPSBistandMottatt)
 
-                    with(handleRequest(HttpMethod.Get, url) {
-                        addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                    }) {
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        }
+                    ) {
                         response.status() shouldBeEqualTo HttpStatusCode.OK
                         val personOversiktStatus = objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!).first()
                         personOversiktStatus.veilederIdent shouldBeEqualTo tilknytning.veilederIdent
@@ -374,9 +400,11 @@ object PersonoversiktStatusApiSpek : Spek({
                     val oversiktHendelseOPLPSBistandMottatt = generateKOversikthendelse(OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT)
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseOPLPSBistandMottatt)
 
-                    with(handleRequest(HttpMethod.Get, url) {
-                        addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                    }) {
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        }
+                    ) {
                         response.status() shouldBeEqualTo HttpStatusCode.OK
                         val personOversiktStatus = objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!).first()
                         personOversiktStatus.veilederIdent shouldBeEqualTo null

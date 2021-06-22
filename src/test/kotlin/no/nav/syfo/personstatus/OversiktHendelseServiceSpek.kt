@@ -3,11 +3,11 @@ package no.nav.syfo.personstatus
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import io.ktor.application.install
-import io.ktor.features.ContentNegotiation
-import io.ktor.jackson.jackson
-import io.ktor.server.testing.TestApplicationEngine
-import io.ktor.util.InternalAPI
+import io.ktor.application.*
+import io.ktor.features.*
+import io.ktor.jackson.*
+import io.ktor.server.testing.*
+import io.ktor.util.*
 import no.nav.syfo.personstatus.domain.*
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR

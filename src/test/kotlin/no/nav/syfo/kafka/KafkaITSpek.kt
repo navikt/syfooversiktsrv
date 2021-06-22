@@ -35,33 +35,33 @@ object KafkaITSpek : Spek({
     val oversiktHendelseTopic = "aapen-syfo-oversikthendelse-v1"
 
     val embeddedEnvironment = KafkaEnvironment(
-            autoStart = false,
-            topics = listOf(oversiktHendelseTopic)
+        autoStart = false,
+        topics = listOf(oversiktHendelseTopic)
     )
 
     val credentials = VaultSecrets(
-            "",
-            ""
+        "",
+        ""
     )
     val env = Environment(
-            applicationPort = getRandomPort(),
-            applicationThreads = 1,
-            azureAppClientId = "azureAppClientId",
-            azureAppClientSecret = "azureAppClientSecret",
-            azureAppWellKnownUrl = "azureAppWellKnownUrl",
-            azureTokenEndpoint = "azureTokenEndpoint",
-            oversikthendelseOppfolgingstilfelleTopic = "topic1",
-            kafkaBootstrapServers = embeddedEnvironment.brokersURL,
-            syfooversiktsrvDBURL = "12314.adeo.no",
-            mountPathVault = "vault.adeo.no",
-            databaseName = "syfooversiktsrv",
-            applicationName = "syfooversiktsrv",
-            jwkKeysUrl = "",
-            jwtIssuer = "",
-            aadDiscoveryUrl = "",
-            syfotilgangskontrollClientId = "syfotilgangskontrollClientId",
-            syfotilgangskontrollUrl = "",
-            clientid = ""
+        applicationPort = getRandomPort(),
+        applicationThreads = 1,
+        azureAppClientId = "azureAppClientId",
+        azureAppClientSecret = "azureAppClientSecret",
+        azureAppWellKnownUrl = "azureAppWellKnownUrl",
+        azureTokenEndpoint = "azureTokenEndpoint",
+        oversikthendelseOppfolgingstilfelleTopic = "topic1",
+        kafkaBootstrapServers = embeddedEnvironment.brokersURL,
+        syfooversiktsrvDBURL = "12314.adeo.no",
+        mountPathVault = "vault.adeo.no",
+        databaseName = "syfooversiktsrv",
+        applicationName = "syfooversiktsrv",
+        jwkKeysUrl = "",
+        jwtIssuer = "",
+        aadDiscoveryUrl = "",
+        syfotilgangskontrollClientId = "syfotilgangskontrollClientId",
+        syfotilgangskontrollUrl = "",
+        clientid = ""
     )
 
     fun Properties.overrideForTest(): Properties = apply {
@@ -72,11 +72,11 @@ object KafkaITSpek : Spek({
     val baseConfig = loadBaseConfig(env, credentials).overrideForTest()
 
     val producerProperties = baseConfig
-            .toProducerConfig("spek.integration", valueSerializer = JacksonKafkaSerializer::class)
+        .toProducerConfig("spek.integration", valueSerializer = JacksonKafkaSerializer::class)
     val producer = KafkaProducer<String, KOversikthendelse>(producerProperties)
 
     val consumerProperties = baseConfig
-            .toConsumerConfig("spek.integration-consumer", valueDeserializer = StringDeserializer::class)
+        .toConsumerConfig("spek.integration-consumer", valueDeserializer = StringDeserializer::class)
     val consumer = KafkaConsumer<String, String>(consumerProperties)
 
     consumer.subscribe(listOf(oversiktHendelseTopic))

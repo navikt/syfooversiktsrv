@@ -29,33 +29,38 @@ val LOG: org.slf4j.Logger = LoggerFactory.getLogger("no.nav.syfo.SyfooversiktApp
 val backgroundTasksContext = Executors.newFixedThreadPool(4).asCoroutineDispatcher() + MDCContext()
 
 fun main() {
-    val server = embeddedServer(Netty, applicationEngineEnvironment {
-        log = LoggerFactory.getLogger("ktor.application")
-        config = HoconApplicationConfig(ConfigFactory.load())
+    val server = embeddedServer(
+        Netty,
+        applicationEngineEnvironment {
+            log = LoggerFactory.getLogger("ktor.application")
+            config = HoconApplicationConfig(ConfigFactory.load())
 
-        connector {
-            port = env.applicationPort
+            connector {
+                port = env.applicationPort
+            }
+
+            val environment = getEnvironment()
+            val wellKnownVeileder = getWellKnown(env.aadDiscoveryUrl)
+            val wellKnownVeilederV2 = getWellKnown(env.azureAppWellKnownUrl)
+
+            module {
+                init()
+                kafkaModule()
+                apiModule(
+                    applicationState = state,
+                    database = database,
+                    environment = environment,
+                    wellKnownVeileder = wellKnownVeileder,
+                    wellKnownVeilederV2 = wellKnownVeilederV2,
+                )
+            }
         }
-
-        val environment = getEnvironment()
-        val wellKnownVeileder = getWellKnown(env.aadDiscoveryUrl)
-        val wellKnownVeilederV2 = getWellKnown(env.azureAppWellKnownUrl)
-
-        module {
-            init()
-            kafkaModule()
-            apiModule(
-                applicationState = state,
-                database = database,
-                environment = environment,
-                wellKnownVeileder = wellKnownVeileder,
-                wellKnownVeilederV2 = wellKnownVeilederV2
-            )
+    )
+    Runtime.getRuntime().addShutdownHook(
+        Thread {
+            server.stop(10, 10, TimeUnit.SECONDS)
         }
-    })
-    Runtime.getRuntime().addShutdownHook(Thread {
-        server.stop(10, 10, TimeUnit.SECONDS)
-    })
+    )
 
     server.start(wait = false)
 }
@@ -66,11 +71,13 @@ val env: Environment = getEnvironment()
 
 fun Application.init() {
     isDev {
-        database = DevDatabase(DbConfig(
-            jdbcUrl = "jdbc:postgresql://localhost:5432/syfooversiktsrv_dev",
-            databaseName = "syfooversiktsrv_dev",
-            password = "password",
-            username = "username")
+        database = DevDatabase(
+            DbConfig(
+                jdbcUrl = "jdbc:postgresql://localhost:5432/syfooversiktsrv_dev",
+                databaseName = "syfooversiktsrv_dev",
+                password = "password",
+                username = "username"
+            )
         )
 
         state.running = true
@@ -79,14 +86,21 @@ fun Application.init() {
     isProd {
         val vaultCredentialService = VaultCredentialService()
 
-        val newCredentials = vaultCredentialService.getNewCredentials(env.mountPathVault, env.databaseName, Role.USER)
+        val newCredentials = vaultCredentialService.getNewCredentials(
+            env.mountPathVault,
+            env.databaseName,
+            Role.USER,
+        )
 
-        database = ProdDatabase(DbConfig(
-            jdbcUrl = env.syfooversiktsrvDBURL,
-            username = newCredentials.username,
-            password = newCredentials.password,
-            databaseName = env.databaseName,
-            runMigrationsOninit = false)) { prodDatabase ->
+        database = ProdDatabase(
+            DbConfig(
+                jdbcUrl = env.syfooversiktsrvDBURL,
+                username = newCredentials.username,
+                password = newCredentials.password,
+                databaseName = env.databaseName,
+                runMigrationsOninit = false,
+            )
+        ) { prodDatabase ->
 
             // i prod må vi kjøre flyway migrations med et eget sett brukernavn/passord
             vaultCredentialService.getNewCredentials(env.mountPathVault, env.databaseName, Role.ADMIN).let {
