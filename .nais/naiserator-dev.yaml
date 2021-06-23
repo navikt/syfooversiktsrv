@@ -59,12 +59,6 @@ spec:
         mountPath: "/secrets/serviceuser/syfooversiktsrv"
   webproxy: true
   env:
-    - name: CLIENT_ID
-      value: 38e07d31-659d-4595-939a-f18dce3446c5
-    - name: AADDISCOVERY_URL
-      value: https://login.microsoftonline.com/966ac572-f5b7-4bbe-aa88-c76419c0f851/.well-known/openid-configuration
-    - name: JWT_ISSUER
-      value: https://sts.windows.net/966ac572-f5b7-4bbe-aa88-c76419c0f851/
     - name: SYFOOVERSIKTSRV_DB_URL
       value: jdbc:postgresql://B27DBVL007.preprod.local:5432/syfooversiktsrv
     - name: MOUNT_PATH_VAULT
