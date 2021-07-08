@@ -27,7 +27,7 @@ fun Application.apiModule(
     installJwtAuthentication(
         jwtIssuerList = listOf(
             JwtIssuer(
-                accectedAudienceList = listOf(environment.azureAppClientId),
+                acceptedAudienceList = listOf(environment.azureAppClientId),
                 jwtIssuerType = JwtIssuerType.VEILEDER_V2,
                 wellKnown = wellKnownVeilederV2
             )
