@@ -36,7 +36,6 @@ spec:
     path: /prometheus
   ingresses:
     - "https://syfooversiktsrv.dev.intern.nav.no"
-    - "https://syfooversiktsrv.nais.preprod.local"
   accessPolicy:
     inbound:
       rules:
