@@ -39,16 +39,8 @@ class VeilederTilgangskontrollMock {
                 }
             }
             routing {
-                get("/syfo-tilgangskontroll/api/tilgang/enhet") {
-                    if (call.parameters["enhet"] == UserConstants.NAV_ENHET) {
-                        call.respond(responseAccessEnhet)
-                    }
-                }
                 get("/syfo-tilgangskontroll/api/tilgang/navident/enhet/${UserConstants.NAV_ENHET}") {
                     call.respond(responseAccessEnhet)
-                }
-                post("/syfo-tilgangskontroll/api/tilgang/brukere") {
-                    call.respond(responseAccessPersons)
                 }
                 post("/syfo-tilgangskontroll/api/tilgang/navident/brukere") {
                     call.respond(responseAccessPersons)
