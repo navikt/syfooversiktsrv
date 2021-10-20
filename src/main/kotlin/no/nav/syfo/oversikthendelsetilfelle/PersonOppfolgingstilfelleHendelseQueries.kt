@@ -206,6 +206,7 @@ fun DatabaseInterface.oppdaterPersonOppfolgingstilfelleMottatt(personId: Int, ov
 fun ResultSet.toPPersonOppfolgingstilfelle(): PPersonOppfolgingstilfelle =
     PPersonOppfolgingstilfelle(
         id = getInt("id"),
+        sistEndret = getTimestamp("sist_endret").toLocalDateTime(),
         personOversiktStatusId = getInt("person_oversikt_status_id"),
         virksomhetsnummer = getString("virksomhetsnummer"),
         fom = convert(getTimestamp("fom")),
