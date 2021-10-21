@@ -30,6 +30,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 @InternalAPI
 object OversikthendelstilfelleServiceSpek : Spek({
@@ -196,12 +197,14 @@ object OversikthendelstilfelleServiceSpek : Spek({
                         tom = LocalDate.now().plusDays(120),
                         gradert = true
                     )
+                    oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelsetilfelleMottattForst)
+
                     val oversikthendelsetilfelleMottattSist = oversikthendelstilfelle.copy(
                         fom = LocalDate.now().plusDays(60),
                         tom = LocalDate.now().plusDays(60),
-                        gradert = false
+                        gradert = false,
+                        tidspunkt = LocalDateTime.now(),
                     )
-                    oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelsetilfelleMottattForst)
 
                     oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelsetilfelleMottattSist)
 
@@ -292,6 +295,27 @@ object OversikthendelstilfelleServiceSpek : Spek({
                 checkPersonOppfolgingstilfelle(oppfolgingstilfellerSist.first(), oversikthendelsetilfelleMottattSist, personSist.id)
             }
 
+            it("Skal ikke oppdatere person, med oppfolgingstilfelle, med nytt virksomhetsnavn hvis den har fra før") {
+                val utenVirksomhetsnavn = oversikthendelstilfelle.copy(
+                    virksomhetsnavn = null,
+                    tidspunkt = LocalDateTime.now(),
+                )
+
+                oversikthendelstilfelleService.oppdaterPersonMedHendelse(utenVirksomhetsnavn)
+                val person = database.hentPersonResultatInternal(utenVirksomhetsnavn.fnr)
+                person.size shouldBe 1
+                val oppfolgingstilfelle = database.hentOppfolgingstilfellerForPerson(person.first().id)
+                oppfolgingstilfelle.first().virksomhetsnavn shouldBeEqualTo null
+
+                oversikthendelstilfelleService.oppdaterPersonMedHendelse(
+                    utenVirksomhetsnavn.copy(
+                        virksomhetsnavn = VIRKSOMHETSNAVN_2,
+                    ),
+                )
+                val oppdatertOppfolingstilfelle = database.hentOppfolgingstilfellerForPerson(person.first().id)
+                oppdatertOppfolingstilfelle.first().virksomhetsnavn shouldBeEqualTo null
+            }
+
             it("Skal oppdatere person, med oppfolgingstilfelle, med nytt virksomhetsnavn hvis den ikke har fra før") {
                 val utenVirksomhetsnavn = oversikthendelstilfelle.copy(
                     virksomhetsnavn = null
@@ -303,7 +327,12 @@ object OversikthendelstilfelleServiceSpek : Spek({
                 val oppfolgingstilfelle = database.hentOppfolgingstilfellerForPerson(person.first().id)
                 oppfolgingstilfelle.first().virksomhetsnavn shouldBeEqualTo null
 
-                oversikthendelstilfelleService.oppdaterPersonMedHendelse(utenVirksomhetsnavn.copy(virksomhetsnavn = VIRKSOMHETSNAVN_2))
+                oversikthendelstilfelleService.oppdaterPersonMedHendelse(
+                    utenVirksomhetsnavn.copy(
+                        virksomhetsnavn = VIRKSOMHETSNAVN_2,
+                        tidspunkt = LocalDateTime.now(),
+                    ),
+                )
                 val oppdatertOppfolingstilfelle = database.hentOppfolgingstilfellerForPerson(person.first().id)
                 oppdatertOppfolingstilfelle.first().virksomhetsnavn shouldBeEqualTo VIRKSOMHETSNAVN_2
             }

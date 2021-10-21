@@ -4,6 +4,7 @@ import no.nav.syfo.LOG
 import no.nav.syfo.db.DatabaseInterface
 import no.nav.syfo.metric.*
 import no.nav.syfo.oversikthendelsetilfelle.domain.KOversikthendelsetilfelle
+import no.nav.syfo.oversikthendelsetilfelle.domain.previouslyProcessed
 import no.nav.syfo.personstatus.domain.PPersonOversiktStatus
 import no.nav.syfo.personstatus.hentPersonResultatInternal
 import no.nav.syfo.util.callIdArgument
@@ -19,20 +20,36 @@ class OversikthendelstilfelleService(private val database: DatabaseInterface) {
             COUNT_OVERSIKTHENDELSETILFELLE_UGDYLGIG_MOTTATT.inc()
             return
         } else {
-            val person = database.hentPersonResultatInternal(oversikthendelsetilfelle.fnr)
+            val pPersonOversiktStatus = database.hentPersonResultatInternal(oversikthendelsetilfelle.fnr)
 
-            when {
-                person.isEmpty() -> {
-                    database.opprettPersonOppfolgingstilfelleMottatt(oversikthendelsetilfelle)
-                    countOpprett(oversikthendelsetilfelle, callId)
-                }
-                erPersonsEnhetOppdatert(person, oversikthendelsetilfelle.enhetId) -> {
-                    database.oppdaterPersonOppfolgingstilfelleNyEnhetMottatt(person.first().id, oversikthendelsetilfelle)
-                    countOppdaterNyEnhet(oversikthendelsetilfelle, callId)
-                }
-                else -> {
-                    database.oppdaterPersonOppfolgingstilfelleMottatt(person.first().id, oversikthendelsetilfelle)
-                    countOppdater(oversikthendelsetilfelle, callId)
+            if (pPersonOversiktStatus.isEmpty()) {
+                database.opprettPersonOppfolgingstilfelleMottatt(oversikthendelsetilfelle)
+                countOpprett(oversikthendelsetilfelle, callId)
+            } else {
+                val pPersonOversiktStatusId = pPersonOversiktStatus.first().id
+                val pPersonOppfolgingstilfelleList = database.hentOppfolgingstilfelleResultat(
+                    personId = pPersonOversiktStatusId,
+                    virksomhetsnummer = oversikthendelsetilfelle.virksomhetsnummer,
+                )
+                val isOppfolgingstilfellePreviouslyProcessed = oversikthendelsetilfelle.previouslyProcessed(
+                    lastUpdatedAt = pPersonOppfolgingstilfelleList.firstOrNull()?.sistEndret
+                )
+                if (isOppfolgingstilfellePreviouslyProcessed) {
+                    LOG.info("Hopper over KOversikthendelsetilfelle med tidspunkt=${oversikthendelsetilfelle.tidspunkt}: Allerede mottatt og prossesert KOversikthendelsetilfelle")
+                } else {
+                    if (erPersonsEnhetOppdatert(pPersonOversiktStatus, oversikthendelsetilfelle.enhetId)) {
+                        database.oppdaterPersonOppfolgingstilfelleNyEnhetMottatt(
+                            personId = pPersonOversiktStatusId,
+                            oversikthendelsetilfelle = oversikthendelsetilfelle,
+                        )
+                        countOppdaterNyEnhet(oversikthendelsetilfelle, callId)
+                    } else {
+                        database.oppdaterPersonOppfolgingstilfelleMottatt(
+                            personId = pPersonOversiktStatusId,
+                            oversikthendelsetilfelle = oversikthendelsetilfelle,
+                        )
+                        countOppdater(oversikthendelsetilfelle, callId)
+                    }
                 }
             }
         }
