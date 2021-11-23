@@ -8,8 +8,8 @@ import io.ktor.server.netty.*
 import no.nav.syfo.application.*
 import no.nav.syfo.application.api.apiModule
 import no.nav.syfo.application.api.authentication.getWellKnown
+import no.nav.syfo.application.database.database
 import no.nav.syfo.application.database.databaseModule
-import no.nav.syfo.db.DatabaseInterface
 import no.nav.syfo.kafka.launchKafkaTask
 import org.slf4j.LoggerFactory
 import java.util.concurrent.TimeUnit
@@ -69,8 +69,6 @@ fun main() {
 
     server.start(wait = false)
 }
-
-lateinit var database: DatabaseInterface
 
 val Application.envKind get() = environment.config.property("ktor.environment").getString()
 
