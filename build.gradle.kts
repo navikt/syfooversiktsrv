@@ -24,10 +24,6 @@ val spekVersion = "2.0.12"
 val smCommonVersion = "1.0.22"
 val vaultJavaDriveVersion = "3.1.0"
 
-tasks.withType<Jar> {
-    manifest.attributes["Main-Class"] = "no.nav.syfo.SyfooversiktApplicationKt"
-}
-
 plugins {
     kotlin("jvm") version "1.5.10"
     id("com.github.johnrengelman.shadow") version "6.1.0"
@@ -90,6 +86,10 @@ dependencies {
 }
 
 tasks {
+    withType<Jar> {
+        manifest.attributes["Main-Class"] = "no.nav.syfo.AppKt"
+    }
+
     create("printVersion") {
         println(project.version)
     }

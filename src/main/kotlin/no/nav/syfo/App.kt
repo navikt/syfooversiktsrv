@@ -24,7 +24,7 @@ data class ApplicationState(
     var initialized: Boolean = false
 )
 
-val LOG: org.slf4j.Logger = LoggerFactory.getLogger("no.nav.syfo.SyfooversiktApplicationKt")
+val LOG: org.slf4j.Logger = LoggerFactory.getLogger("no.nav.syfo.AppKt")
 
 val backgroundTasksContext = Executors.newFixedThreadPool(4).asCoroutineDispatcher() + MDCContext()
 
