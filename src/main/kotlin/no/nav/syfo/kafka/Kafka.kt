@@ -6,7 +6,7 @@ import io.netty.util.internal.StringUtil
 import kotlinx.coroutines.delay
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.application.*
-import no.nav.syfo.database
+import no.nav.syfo.application.database.database
 import no.nav.syfo.oversikthendelsetilfelle.OversikthendelstilfelleService
 import no.nav.syfo.oversikthendelsetilfelle.domain.KOversikthendelsetilfelle
 import no.nav.syfo.personstatus.OversiktHendelseService
@@ -103,7 +103,7 @@ suspend fun blockingApplicationLogic(
     kafkaConsumer: KafkaConsumer<String, String>,
     oversiktHendelseService: OversiktHendelseService,
 ) {
-    while (applicationState.alive) {
+    while (applicationState.ready) {
         var logValues = arrayOf(
             StructuredArguments.keyValue("oversikthendelseId", "missing"),
             StructuredArguments.keyValue("Harfnr", "missing"),
@@ -138,7 +138,7 @@ suspend fun blockingApplicationLogic(
     kafkaConsumer: KafkaConsumer<String, String>,
     oversikthendelstilfelleService: OversikthendelstilfelleService,
 ) {
-    while (applicationState.alive) {
+    while (applicationState.ready) {
         var logValues = arrayOf(
             StructuredArguments.keyValue("oversikthendelsetilfelleId", "missing"),
             StructuredArguments.keyValue("harFnr", "missing"),
