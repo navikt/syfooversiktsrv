@@ -4,19 +4,19 @@ import com.fasterxml.jackson.databind.*
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import io.ktor.application.*
 import io.netty.util.internal.StringUtil
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import net.logstash.logback.argument.StructuredArguments
-import no.nav.syfo.Environment
+import no.nav.syfo.*
 import no.nav.syfo.application.ApplicationState
-import no.nav.syfo.createListener
+import no.nav.syfo.application.launchBackgroundTask
 import no.nav.syfo.oversikthendelsetilfelle.OversikthendelstilfelleService
 import no.nav.syfo.oversikthendelsetilfelle.domain.KOversikthendelsetilfelle
 import no.nav.syfo.personstatus.OversiktHendelseService
 import no.nav.syfo.personstatus.domain.KOversikthendelse
-import no.nav.syfo.util.callIdArgument
-import no.nav.syfo.util.kafkaCallId
+import no.nav.syfo.util.*
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.slf4j.Logger
@@ -33,14 +33,39 @@ private val objectMapper: ObjectMapper = ObjectMapper().apply {
 
 private val LOG: Logger = LoggerFactory.getLogger("no.nav.syfo.Kafka")
 
-suspend fun CoroutineScope.setupKafka(
+fun Application.kafkaModule(
+    applicationState: ApplicationState,
+    environment: Environment,
+) {
+    val oversiktHendelseService = OversiktHendelseService(
+        database = database,
+    )
+    val oversikthendelstilfelleService = OversikthendelstilfelleService(
+        database = database,
+    )
+
+    launch(backgroundTasksContext) {
+        val vaultSecrets = VaultSecrets(
+            serviceuserPassword = getFileAsString("/secrets/serviceuser/syfooversiktsrv/password"),
+            serviceuserUsername = getFileAsString("/secrets/serviceuser/syfooversiktsrv/username"),
+        )
+        setupKafka(
+            applicationState = applicationState,
+            environment = environment,
+            oversiktHendelseService = oversiktHendelseService,
+            oversikthendelstilfelleService = oversikthendelstilfelleService,
+            vaultSecrets = vaultSecrets,
+        )
+    }
+}
+
+suspend fun setupKafka(
     applicationState: ApplicationState,
     environment: Environment,
     oversiktHendelseService: OversiktHendelseService,
     oversikthendelstilfelleService: OversikthendelstilfelleService,
     vaultSecrets: KafkaCredentials,
 ) {
-
     LOG.info("Setting up kafka consumer")
 
     // Kafka
@@ -141,41 +166,45 @@ suspend fun blockingApplicationLogic(
     }
 }
 
-suspend fun CoroutineScope.launchListeners(
+suspend fun launchListeners(
     applicationState: ApplicationState,
     environment: Environment,
     consumerProperties: Properties,
     oversiktHendelseService: OversiktHendelseService,
-    oversikthendelstilfelleService: OversikthendelstilfelleService
+    oversikthendelstilfelleService: OversikthendelstilfelleService,
 ) {
 
     val kafkaconsumerOversikthendelse = KafkaConsumer<String, String>(consumerProperties)
     kafkaconsumerOversikthendelse.subscribe(
         listOf(
-            "aapen-syfo-oversikthendelse-v1"
+            "aapen-syfo-oversikthendelse-v1",
         )
     )
 
     val kafkaconsumerTilfelle = KafkaConsumer<String, String>(consumerProperties)
     kafkaconsumerTilfelle.subscribe(
         listOf(
-            environment.oversikthendelseOppfolgingstilfelleTopic
+            environment.oversikthendelseOppfolgingstilfelleTopic,
         )
     )
 
-    createListener(applicationState) {
+    launchBackgroundTask(
+        applicationState = applicationState,
+    ) {
         blockingApplicationLogic(
             applicationState,
             kafkaconsumerOversikthendelse,
-            oversiktHendelseService
+            oversiktHendelseService,
         )
     }
 
-    createListener(applicationState) {
+    launchBackgroundTask(
+        applicationState = applicationState,
+    ) {
         blockingApplicationLogic(
             applicationState,
             kafkaconsumerTilfelle,
-            oversikthendelstilfelleService
+            oversikthendelstilfelleService,
         )
     }
 
