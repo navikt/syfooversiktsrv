@@ -62,9 +62,8 @@ dependencies {
     implementation("org.flywaydb:flyway-core:$flywayVersion")
     implementation("com.bettercloud:vault-java-driver:$vaultJavaDriveVersion")
 
+    // Kafka
     implementation("org.apache.kafka:kafka_2.12:$kafkaVersion")
-    implementation("no.nav.syfo.sm:syfosm-common-models:$smCommonVersion")
-    implementation("no.nav.syfo.sm:syfosm-common-kafka:$smCommonVersion")
 
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$kotlinSerializationVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:$kotlinSerializationVersion")

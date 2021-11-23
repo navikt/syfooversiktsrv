@@ -20,6 +20,7 @@ import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER_2
 import no.nav.syfo.testutil.generator.generateKOversikthendelse
 import no.nav.syfo.util.bearerHeader
+import no.nav.syfo.util.configuredJacksonMapper
 import org.amshove.kluent.shouldBeEqualTo
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
@@ -28,7 +29,7 @@ import java.time.LocalDateTime
 
 @InternalAPI
 object PersonoversiktStatusApiSpek : Spek({
-    val objectMapper: ObjectMapper = apiConsumerObjectMapper()
+    val objectMapper: ObjectMapper = configuredJacksonMapper()
 
     describe("PersonoversiktApi") {
 
@@ -77,7 +78,12 @@ object PersonoversiktStatusApiSpek : Spek({
                 }
 
                 it("skal returnere NoContent med ubehandlet motebehovsvar og ikke har oppfolgingstilfelle") {
-                    val oversiktHendelse = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
+                    val oversiktHendelse = KOversikthendelse(
+                        ARBEIDSTAKER_FNR,
+                        OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name,
+                        NAV_ENHET,
+                        LocalDateTime.now()
+                    )
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
                     val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
@@ -93,7 +99,12 @@ object PersonoversiktStatusApiSpek : Spek({
                 }
 
                 it("skal returnere NoContent med ubehandlet moteplanleggersvar og ikke har oppfolgingstilfelle") {
-                    val oversiktHendelse = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
+                    val oversiktHendelse = KOversikthendelse(
+                        ARBEIDSTAKER_FNR,
+                        OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name,
+                        NAV_ENHET,
+                        LocalDateTime.now()
+                    )
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
                     val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
@@ -109,19 +120,39 @@ object PersonoversiktStatusApiSpek : Spek({
                 }
 
                 it("skal returnere NoContent, om alle personer i personoversikt er behandlet og ikke har oppfolgingstilfelle") {
-                    val oversiktHendelse = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
+                    val oversiktHendelse = KOversikthendelse(
+                        ARBEIDSTAKER_FNR,
+                        OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name,
+                        NAV_ENHET,
+                        LocalDateTime.now()
+                    )
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
                     val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
                     database.lagreBrukerKnytningPaEnhet(tilknytning)
 
-                    val oversiktHendelseNy = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET.name, NAV_ENHET, LocalDateTime.now())
+                    val oversiktHendelseNy = KOversikthendelse(
+                        ARBEIDSTAKER_FNR,
+                        OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET.name,
+                        NAV_ENHET,
+                        LocalDateTime.now()
+                    )
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseNy)
 
-                    val oversiktHendelseMoteplanleggerMottatt = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
+                    val oversiktHendelseMoteplanleggerMottatt = KOversikthendelse(
+                        ARBEIDSTAKER_FNR,
+                        OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name,
+                        NAV_ENHET,
+                        LocalDateTime.now()
+                    )
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerMottatt)
 
-                    val oversiktHendelseMoteplanleggerBehandlet = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_BEHANDLET.name, NAV_ENHET, LocalDateTime.now())
+                    val oversiktHendelseMoteplanleggerBehandlet = KOversikthendelse(
+                        ARBEIDSTAKER_FNR,
+                        OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_BEHANDLET.name,
+                        NAV_ENHET,
+                        LocalDateTime.now()
+                    )
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerBehandlet)
 
                     with(
@@ -160,13 +191,24 @@ object PersonoversiktStatusApiSpek : Spek({
                     )
                     oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
 
-                    val oversiktHendelseMotebehovMottatt = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
+                    val oversiktHendelseMotebehovMottatt = KOversikthendelse(
+                        ARBEIDSTAKER_FNR,
+                        OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name,
+                        NAV_ENHET,
+                        LocalDateTime.now()
+                    )
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMotebehovMottatt)
 
-                    val oversiktHendelseMoteplanleggerMottatt = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
+                    val oversiktHendelseMoteplanleggerMottatt = KOversikthendelse(
+                        ARBEIDSTAKER_FNR,
+                        OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name,
+                        NAV_ENHET,
+                        LocalDateTime.now()
+                    )
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerMottatt)
 
-                    val oversiktHendelseOPLPSBistandMottatt = generateKOversikthendelse(OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT)
+                    val oversiktHendelseOPLPSBistandMottatt =
+                        generateKOversikthendelse(OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT)
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseOPLPSBistandMottatt)
 
                     with(
@@ -175,7 +217,8 @@ object PersonoversiktStatusApiSpek : Spek({
                         }
                     ) {
                         response.status() shouldBeEqualTo HttpStatusCode.OK
-                        val personOversiktStatus = objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!).first()
+                        val personOversiktStatus =
+                            objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!).first()
                         personOversiktStatus.veilederIdent shouldBeEqualTo null
                         personOversiktStatus.fnr shouldBeEqualTo oversikthendelstilfelle.fnr
                         personOversiktStatus.enhet shouldBeEqualTo oversikthendelstilfelle.enhetId
@@ -184,7 +227,10 @@ object PersonoversiktStatusApiSpek : Spek({
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
 
                         personOversiktStatus.oppfolgingstilfeller.size shouldBeEqualTo 1
-                        checkPersonOppfolgingstilfelle(personOversiktStatus.oppfolgingstilfeller.first(), oversikthendelstilfelle)
+                        checkPersonOppfolgingstilfelle(
+                            personOversiktStatus.oppfolgingstilfeller.first(),
+                            oversikthendelstilfelle
+                        )
                     }
                 }
 
@@ -203,7 +249,12 @@ object PersonoversiktStatusApiSpek : Spek({
                     oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
                     oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle2)
 
-                    val oversiktHendelseMotebehovMottatt = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
+                    val oversiktHendelseMotebehovMottatt = KOversikthendelse(
+                        ARBEIDSTAKER_FNR,
+                        OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name,
+                        NAV_ENHET,
+                        LocalDateTime.now()
+                    )
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMotebehovMottatt)
 
                     with(
@@ -212,7 +263,8 @@ object PersonoversiktStatusApiSpek : Spek({
                         }
                     ) {
                         response.status() shouldBeEqualTo HttpStatusCode.OK
-                        val personOversiktStatus = objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!).first()
+                        val personOversiktStatus =
+                            objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!).first()
                         personOversiktStatus.veilederIdent shouldBeEqualTo null
                         personOversiktStatus.fnr shouldBeEqualTo oversikthendelstilfelle.fnr
                         personOversiktStatus.navn shouldBeEqualTo oversikthendelstilfelle.navn
@@ -222,8 +274,14 @@ object PersonoversiktStatusApiSpek : Spek({
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo null
 
                         personOversiktStatus.oppfolgingstilfeller.size shouldBeEqualTo 2
-                        checkPersonOppfolgingstilfelle(personOversiktStatus.oppfolgingstilfeller.first(), oversikthendelstilfelle)
-                        checkPersonOppfolgingstilfelle(personOversiktStatus.oppfolgingstilfeller.last(), oversikthendelstilfelle2)
+                        checkPersonOppfolgingstilfelle(
+                            personOversiktStatus.oppfolgingstilfeller.first(),
+                            oversikthendelstilfelle
+                        )
+                        checkPersonOppfolgingstilfelle(
+                            personOversiktStatus.oppfolgingstilfeller.last(),
+                            oversikthendelstilfelle2
+                        )
                     }
                 }
 
@@ -236,7 +294,12 @@ object PersonoversiktStatusApiSpek : Spek({
                     )
                     oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
 
-                    val oversiktHendelseMoteplanleggerMottatt = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
+                    val oversiktHendelseMoteplanleggerMottatt = KOversikthendelse(
+                        ARBEIDSTAKER_FNR,
+                        OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name,
+                        NAV_ENHET,
+                        LocalDateTime.now()
+                    )
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerMottatt)
 
                     with(
@@ -245,7 +308,8 @@ object PersonoversiktStatusApiSpek : Spek({
                         }
                     ) {
                         response.status() shouldBeEqualTo HttpStatusCode.OK
-                        val personOversiktStatus = objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!).first()
+                        val personOversiktStatus =
+                            objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!).first()
                         personOversiktStatus.veilederIdent shouldBeEqualTo null
                         personOversiktStatus.fnr shouldBeEqualTo oversikthendelstilfelle.fnr
                         personOversiktStatus.navn shouldBeEqualTo oversikthendelstilfelle.navn
@@ -255,7 +319,10 @@ object PersonoversiktStatusApiSpek : Spek({
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo null
 
                         personOversiktStatus.oppfolgingstilfeller.size shouldBeEqualTo 1
-                        checkPersonOppfolgingstilfelle(personOversiktStatus.oppfolgingstilfeller.first(), oversikthendelstilfelle)
+                        checkPersonOppfolgingstilfelle(
+                            personOversiktStatus.oppfolgingstilfeller.first(),
+                            oversikthendelstilfelle
+                        )
                     }
                 }
 
@@ -314,16 +381,27 @@ object PersonoversiktStatusApiSpek : Spek({
                 }
 
                 it("should return Person, with MOTEBEHOV_SVAR_MOTTATT && MOTEPLANLEGGER_ALLE_SVAR_MOTTATT, and then receives Oppfolgingstilfelle and the OPPFOLGINGSPLANLPS_BISTAND_MOTTATT") {
-                    val oversiktHendelse = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
+                    val oversiktHendelse = KOversikthendelse(
+                        ARBEIDSTAKER_FNR,
+                        OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name,
+                        NAV_ENHET,
+                        LocalDateTime.now()
+                    )
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
                     val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
                     database.lagreBrukerKnytningPaEnhet(tilknytning)
 
-                    val oversiktHendelseMoteplanleggerMottatt = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
+                    val oversiktHendelseMoteplanleggerMottatt = KOversikthendelse(
+                        ARBEIDSTAKER_FNR,
+                        OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name,
+                        NAV_ENHET,
+                        LocalDateTime.now()
+                    )
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerMottatt)
 
-                    val oversiktHendelseOPLPSBistandMottatt = generateKOversikthendelse(OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT)
+                    val oversiktHendelseOPLPSBistandMottatt =
+                        generateKOversikthendelse(OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT)
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseOPLPSBistandMottatt)
 
                     val oversikthendelstilfelle = generateOversikthendelsetilfelle.copy(
@@ -340,7 +418,8 @@ object PersonoversiktStatusApiSpek : Spek({
                         }
                     ) {
                         response.status() shouldBeEqualTo HttpStatusCode.OK
-                        val personOversiktStatus = objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!).first()
+                        val personOversiktStatus =
+                            objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!).first()
                         personOversiktStatus.veilederIdent shouldBeEqualTo tilknytning.veilederIdent
                         personOversiktStatus.fnr shouldBeEqualTo oversikthendelstilfelle.fnr
                         personOversiktStatus.navn shouldBeEqualTo oversikthendelstilfelle.navn
@@ -350,7 +429,10 @@ object PersonoversiktStatusApiSpek : Spek({
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
 
                         personOversiktStatus.oppfolgingstilfeller.size shouldBeEqualTo 1
-                        checkPersonOppfolgingstilfelle(personOversiktStatus.oppfolgingstilfeller.first(), oversikthendelstilfelle)
+                        checkPersonOppfolgingstilfelle(
+                            personOversiktStatus.oppfolgingstilfeller.first(),
+                            oversikthendelstilfelle
+                        )
                     }
                 }
 
@@ -363,16 +445,27 @@ object PersonoversiktStatusApiSpek : Spek({
                     )
                     oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
 
-                    val oversiktHendelse = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
+                    val oversiktHendelse = KOversikthendelse(
+                        ARBEIDSTAKER_FNR,
+                        OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name,
+                        NAV_ENHET,
+                        LocalDateTime.now()
+                    )
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
                     val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
                     database.lagreBrukerKnytningPaEnhet(tilknytning)
 
-                    val oversiktHendelseMoteplanleggerMottatt = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
+                    val oversiktHendelseMoteplanleggerMottatt = KOversikthendelse(
+                        ARBEIDSTAKER_FNR,
+                        OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name,
+                        NAV_ENHET,
+                        LocalDateTime.now()
+                    )
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerMottatt)
 
-                    val oversiktHendelseOPLPSBistandMottatt = generateKOversikthendelse(OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT)
+                    val oversiktHendelseOPLPSBistandMottatt =
+                        generateKOversikthendelse(OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT)
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseOPLPSBistandMottatt)
 
                     with(
@@ -381,7 +474,8 @@ object PersonoversiktStatusApiSpek : Spek({
                         }
                     ) {
                         response.status() shouldBeEqualTo HttpStatusCode.OK
-                        val personOversiktStatus = objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!).first()
+                        val personOversiktStatus =
+                            objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!).first()
                         personOversiktStatus.veilederIdent shouldBeEqualTo tilknytning.veilederIdent
                         personOversiktStatus.fnr shouldBeEqualTo oversikthendelstilfelle.fnr
                         personOversiktStatus.navn shouldBeEqualTo oversikthendelstilfelle.navn
@@ -391,12 +485,16 @@ object PersonoversiktStatusApiSpek : Spek({
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
 
                         personOversiktStatus.oppfolgingstilfeller.size shouldBeEqualTo 1
-                        checkPersonOppfolgingstilfelle(personOversiktStatus.oppfolgingstilfeller.first(), oversikthendelstilfelle)
+                        checkPersonOppfolgingstilfelle(
+                            personOversiktStatus.oppfolgingstilfeller.first(),
+                            oversikthendelstilfelle
+                        )
                     }
                 }
 
                 it("should return Person, no Oppfolgingstilfelle, and then OPPFOLGINGSPLANLPS_BISTAND_MOTTATT") {
-                    val oversiktHendelseOPLPSBistandMottatt = generateKOversikthendelse(OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT)
+                    val oversiktHendelseOPLPSBistandMottatt =
+                        generateKOversikthendelse(OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT)
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseOPLPSBistandMottatt)
 
                     with(
@@ -405,7 +503,8 @@ object PersonoversiktStatusApiSpek : Spek({
                         }
                     ) {
                         response.status() shouldBeEqualTo HttpStatusCode.OK
-                        val personOversiktStatus = objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!).first()
+                        val personOversiktStatus =
+                            objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!).first()
                         personOversiktStatus.veilederIdent shouldBeEqualTo null
                         personOversiktStatus.fnr shouldBeEqualTo oversiktHendelseOPLPSBistandMottatt.fnr
                         personOversiktStatus.navn shouldBeEqualTo ""
@@ -422,7 +521,10 @@ object PersonoversiktStatusApiSpek : Spek({
     }
 })
 
-fun checkPersonOppfolgingstilfelle(oppfolgingstilfelle: Oppfolgingstilfelle, oversikthendelsetilfelle: KOversikthendelsetilfelle) {
+fun checkPersonOppfolgingstilfelle(
+    oppfolgingstilfelle: Oppfolgingstilfelle,
+    oversikthendelsetilfelle: KOversikthendelsetilfelle
+) {
     oppfolgingstilfelle.virksomhetsnummer shouldBeEqualTo oversikthendelsetilfelle.virksomhetsnummer
     oppfolgingstilfelle.fom shouldBeEqualTo oversikthendelsetilfelle.fom
     oppfolgingstilfelle.tom shouldBeEqualTo oversikthendelsetilfelle.tom

@@ -1,30 +1,23 @@
 package no.nav.syfo.kafka
 
-import com.fasterxml.jackson.databind.*
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import no.nav.common.KafkaEnvironment
 import no.nav.syfo.application.Environment
 import no.nav.syfo.application.VaultSecrets
 import no.nav.syfo.personstatus.domain.KOversikthendelse
 import no.nav.syfo.testutil.generator.generateOversikthendelse
+import no.nav.syfo.util.configuredJacksonMapper
 import org.amshove.kluent.shouldBeEqualTo
 import org.apache.kafka.clients.consumer.KafkaConsumer
-import org.apache.kafka.clients.producer.KafkaProducer
-import org.apache.kafka.clients.producer.ProducerRecord
-import org.apache.kafka.common.serialization.StringDeserializer
+import org.apache.kafka.clients.producer.*
+import org.apache.kafka.common.serialization.StringSerializer
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import java.time.Duration
 import java.util.*
 
-private val objectMapper: ObjectMapper = ObjectMapper().apply {
-    registerKotlinModule()
-    registerModule(JavaTimeModule())
-    configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-    configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-}
+private val objectMapper: ObjectMapper = configuredJacksonMapper()
 
 object KafkaITSpek : Spek({
     val oversiktHendelseTopic = "aapen-syfo-oversikthendelse-v1"
@@ -58,15 +51,17 @@ object KafkaITSpek : Spek({
         remove("sasl.mechanism")
     }
 
-    val baseConfig = loadBaseConfig(env, credentials).overrideForTest()
-
-    val producerProperties = baseConfig
-        .toProducerConfig("spek.integration", valueSerializer = JacksonKafkaSerializer::class)
-    val producer = KafkaProducer<String, KOversikthendelse>(producerProperties)
-
-    val consumerProperties = baseConfig
-        .toConsumerConfig("spek.integration-consumer", valueDeserializer = StringDeserializer::class)
+    val consumerProperties = kafkaConsumerConfig(
+        environment = env,
+        vaultSecrets = credentials,
+    ).overrideForTest()
     val consumer = KafkaConsumer<String, String>(consumerProperties)
+
+    val producerProperties = consumerProperties.apply {
+        this[ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG] = StringSerializer::class.java.canonicalName
+        this[ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG] = JacksonKafkaSerializer::class.java.canonicalName
+    }
+    val producer = KafkaProducer<String, KOversikthendelse>(producerProperties)
 
     consumer.subscribe(listOf(oversiktHendelseTopic))
 

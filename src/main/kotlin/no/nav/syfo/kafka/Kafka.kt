@@ -13,7 +13,6 @@ import no.nav.syfo.personstatus.OversiktHendelseService
 import no.nav.syfo.personstatus.domain.KOversikthendelse
 import no.nav.syfo.util.*
 import org.apache.kafka.clients.consumer.KafkaConsumer
-import org.apache.kafka.common.serialization.StringDeserializer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.Duration
@@ -42,10 +41,9 @@ fun launchKafkaTask(
     )
 
     // Kafka
-    val kafkaBaseConfig = loadBaseConfig(environment, vaultSecrets)
-        .envOverrides()
-    val consumerProperties = kafkaBaseConfig.toConsumerConfig(
-        "${environment.applicationName}-consumer", valueDeserializer = StringDeserializer::class
+    val consumerProperties = kafkaConsumerConfig(
+        environment = environment,
+        vaultSecrets = vaultSecrets,
     )
 
     launchListeners(

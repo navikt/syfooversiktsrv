@@ -12,13 +12,14 @@ import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testutil.UserConstants.NAV_ENHET
 import no.nav.syfo.testutil.UserConstants.VEILEDER_ID
 import no.nav.syfo.util.bearerHeader
+import no.nav.syfo.util.configuredJacksonMapper
 import org.amshove.kluent.shouldBeEqualTo
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 
 @InternalAPI
 object PersontildelingApiV2Spek : Spek({
-    val objectMapper: ObjectMapper = apiConsumerObjectMapper()
+    val objectMapper: ObjectMapper = configuredJacksonMapper()
 
     describe("PersontildelingApi") {
         with(TestApplicationEngine()) {
@@ -75,7 +76,8 @@ object PersontildelingApiV2Spek : Spek({
                         }
                     ) {
                         response.status() shouldBeEqualTo HttpStatusCode.OK
-                        val returnertVerdig = objectMapper.readValue<List<VeilederBrukerKnytning>>(response.content!!)[0]
+                        val returnertVerdig =
+                            objectMapper.readValue<List<VeilederBrukerKnytning>>(response.content!!)[0]
                         returnertVerdig.veilederIdent shouldBeEqualTo tilknytning.veilederIdent
                         returnertVerdig.fnr shouldBeEqualTo tilknytning.fnr
                         returnertVerdig.enhet shouldBeEqualTo tilknytning.enhet
