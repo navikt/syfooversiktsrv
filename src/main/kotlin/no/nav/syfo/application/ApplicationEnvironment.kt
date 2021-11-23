@@ -15,7 +15,7 @@ data class Environment(
     val syfooversiktsrvDBURL: String = getEnvVar("SYFOOVERSIKTSRV_DB_URL"),
 
     val mountPathVault: String = getEnvVar("MOUNT_PATH_VAULT"),
-    val oversikthendelseOppfolgingstilfelleTopic: String = getEnvVar("aapen-syfo-oversikthendelse-tilfelle-v1"),
+    val oversikthendelseOppfolgingstilfelleTopic: String = "aapen-syfo-oversikthendelse-tilfelle-v1",
 
     val kafkaBootstrapServers: String = getEnvVar("KAFKA_BOOTSTRAP_SERVERS_URL"),
     val kafkaSchemaRegistryUrl: String = "http://kafka-schema-registry.tpa.svc.nais.local:8081",
