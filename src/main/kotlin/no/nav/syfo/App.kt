@@ -5,7 +5,8 @@ import io.ktor.application.*
 import io.ktor.config.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
-import no.nav.syfo.application.*
+import no.nav.syfo.application.ApplicationState
+import no.nav.syfo.application.Environment
 import no.nav.syfo.application.api.apiModule
 import no.nav.syfo.application.api.authentication.getWellKnown
 import no.nav.syfo.application.database.database
@@ -35,7 +36,6 @@ fun main() {
 
         module {
             databaseModule(
-                applicationState = applicationState,
                 environment = environment,
             )
             apiModule(
@@ -55,10 +55,12 @@ fun main() {
     applicationEngineEnvironment.monitor.subscribe(ApplicationStarted) { application ->
         applicationState.ready = true
         application.environment.log.info("Application is ready")
-        launchKafkaTask(
-            applicationState = applicationState,
-            environment = environment,
-        )
+        if (environment.toggleKafkaConsumerEnabled) {
+            launchKafkaTask(
+                applicationState = applicationState,
+                environment = environment,
+            )
+        }
     }
 
     Runtime.getRuntime().addShutdownHook(
@@ -79,5 +81,3 @@ fun Application.isDev(block: () -> Unit) {
 fun Application.isProd(block: () -> Unit) {
     if (envKind == "production") block()
 }
-
-fun isPreProd(): Boolean = getEnvVar("NAIS_CLUSTER_NAME", "dev-fss") == "dev-fss"

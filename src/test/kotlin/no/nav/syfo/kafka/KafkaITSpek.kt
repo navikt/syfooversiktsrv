@@ -3,10 +3,9 @@ package no.nav.syfo.kafka
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.common.KafkaEnvironment
-import no.nav.syfo.application.Environment
-import no.nav.syfo.application.VaultSecrets
 import no.nav.syfo.personstatus.domain.KOversikthendelse
 import no.nav.syfo.testutil.generator.generateOversikthendelse
+import no.nav.syfo.testutil.testEnvironment
 import no.nav.syfo.util.configuredJacksonMapper
 import org.amshove.kluent.shouldBeEqualTo
 import org.apache.kafka.clients.consumer.KafkaConsumer
@@ -27,23 +26,8 @@ object KafkaITSpek : Spek({
         topics = listOf(oversiktHendelseTopic)
     )
 
-    val credentials = VaultSecrets(
-        "",
-        ""
-    )
-    val env = Environment(
-        azureAppClientId = "azureAppClientId",
-        azureAppClientSecret = "azureAppClientSecret",
-        azureAppWellKnownUrl = "azureAppWellKnownUrl",
-        azureTokenEndpoint = "azureTokenEndpoint",
-        oversikthendelseOppfolgingstilfelleTopic = "topic1",
+    val env = testEnvironment(
         kafkaBootstrapServers = embeddedEnvironment.brokersURL,
-        syfooversiktsrvDBURL = "12314.adeo.no",
-        mountPathVault = "vault.adeo.no",
-        databaseName = "syfooversiktsrv",
-        applicationName = "syfooversiktsrv",
-        syfotilgangskontrollClientId = "syfotilgangskontrollClientId",
-        syfotilgangskontrollUrl = "",
     )
 
     fun Properties.overrideForTest(): Properties = apply {
@@ -53,7 +37,6 @@ object KafkaITSpek : Spek({
 
     val consumerProperties = kafkaConsumerConfig(
         environment = env,
-        vaultSecrets = credentials,
     ).overrideForTest()
     val consumer = KafkaConsumer<String, String>(consumerProperties)
 

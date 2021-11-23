@@ -8,6 +8,11 @@ metadata:
 spec:
   image: {{ image }}
   port: 8080
+  startup:
+    path: /is_ready
+    initialDelay: 10
+    periodSeconds: 5
+    timeout: 5
   liveness:
     path: /is_alive
     initialDelay: 10
@@ -41,6 +46,10 @@ spec:
         - application: syfooversikt
           namespace: teamsykefravr
           cluster: prod-fss
+    outbound:
+      external:
+        - host: "kafka-schema-registry.nais.adeo.no"
+        - host: "syfo-tilgangskontroll.prod-fss-pub.nais.io"
   azure:
     application:
       enabled: true
@@ -48,22 +57,24 @@ spec:
       claims:
         extra:
           - "NAVident"
-  vault:
-    enabled: true
-    paths:
-      - kvPath: "/serviceuser/data/prod/srvsyfooversiktsrv"
-        mountPath: "/secrets/serviceuser/syfooversiktsrv"
-  webproxy: true
+  gcp:
+    sqlInstances:
+      - type: POSTGRES_12
+        databases:
+          - name: syfooversiktsrv-db
+        diskAutoresize: true
+  envFrom:
+    - secret: syfooversiktsrv-serviceuser
   env:
-    - name: SYFOOVERSIKTSRV_DB_URL
-      value: jdbc:postgresql://fsspgdb.adeo.no:5432/syfooversiktsrv
-    - name: MOUNT_PATH_VAULT
-      value: /postgresql/prod-fss
     - name: KTOR_ENV
       value: production
     - name: KAFKA_BOOTSTRAP_SERVERS_URL
       value: SASL_SSL://a01apvl00145.adeo.no:8443,SASL_SSL://a01apvl00146.adeo.no:8443,SASL_SSL://a01apvl00147.adeo.no:8443,SASL_SSL://a01apvl00149.adeo.no:8443
+    - name: KAFKA_SCHEMA_REGISTRY_URL
+      value: "https://kafka-schema-registry.nais.adeo.no"
     - name: SYFOTILGANGSKONTROLL_CLIENT_ID
       value: "prod-fss.teamsykefravr.syfo-tilgangskontroll"
     - name: SYFOTILGANGSKONTROLL_URL
-      value: "https://syfo-tilgangskontroll.intern.nav.no"
+      value: "https://syfo-tilgangskontroll.prod-fss-pub.nais.io"
+    - name: TOGGLE_KAFKA_CONSUMER_ENABLED
+      value: "false"
