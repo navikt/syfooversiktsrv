@@ -14,8 +14,6 @@ fun kafkaConsumerConfig(
 ) = Properties().apply {
     this[ConsumerConfig.GROUP_ID_CONFIG] = "${environment.applicationName}-consumer"
     this[ConsumerConfig.AUTO_OFFSET_RESET_CONFIG] = "earliest"
-    this[ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG] = false
-    this[ConsumerConfig.MAX_POLL_RECORDS_CONFIG] = "1"
     this[CommonClientConfigs.RETRIES_CONFIG] = "2"
     this[CommonClientConfigs.SECURITY_PROTOCOL_CONFIG] = "SASL_SSL"
     this[SaslConfigs.SASL_MECHANISM] = "PLAIN"
