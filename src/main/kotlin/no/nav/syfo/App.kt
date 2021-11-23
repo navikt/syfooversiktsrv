@@ -5,8 +5,6 @@ import io.ktor.application.*
 import io.ktor.config.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
-import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.slf4j.MDCContext
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.api.apiModule
 import no.nav.syfo.application.api.authentication.getWellKnown
@@ -14,12 +12,9 @@ import no.nav.syfo.application.database.databaseModule
 import no.nav.syfo.db.DatabaseInterface
 import no.nav.syfo.kafka.launchKafkaTask
 import org.slf4j.LoggerFactory
-import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 val LOG: org.slf4j.Logger = LoggerFactory.getLogger("no.nav.syfo.AppKt")
-
-val backgroundTasksContext = Executors.newFixedThreadPool(4).asCoroutineDispatcher() + MDCContext()
 
 fun main() {
     val applicationState = ApplicationState()
