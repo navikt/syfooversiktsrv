@@ -103,7 +103,7 @@ suspend fun blockingApplicationLogic(
     kafkaConsumer: KafkaConsumer<String, String>,
     oversiktHendelseService: OversiktHendelseService,
 ) {
-    while (applicationState.alive) {
+    while (applicationState.ready) {
         var logValues = arrayOf(
             StructuredArguments.keyValue("oversikthendelseId", "missing"),
             StructuredArguments.keyValue("Harfnr", "missing"),
@@ -138,7 +138,7 @@ suspend fun blockingApplicationLogic(
     kafkaConsumer: KafkaConsumer<String, String>,
     oversikthendelstilfelleService: OversikthendelstilfelleService,
 ) {
-    while (applicationState.alive) {
+    while (applicationState.ready) {
         var logValues = arrayOf(
             StructuredArguments.keyValue("oversikthendelsetilfelleId", "missing"),
             StructuredArguments.keyValue("harFnr", "missing"),
