@@ -46,8 +46,6 @@ spec:
     application:
       enabled: true
       tenant: nav.no
-      replyURLs:
-        - "https://syfooversiktsrv.intern.nav.no/oauth2/callback"
       claims:
         extra:
           - "NAVident"

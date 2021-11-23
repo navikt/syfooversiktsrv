@@ -46,8 +46,6 @@ spec:
     application:
       enabled: true
       tenant: trygdeetaten.no
-      replyURLs:
-        - "https://syfooversiktsrv.dev.intern.nav.no/oauth2/callback"
       claims:
         extra:
           - "NAVident"
