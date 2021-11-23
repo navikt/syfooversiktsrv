@@ -8,7 +8,7 @@ import no.nav.syfo.personstatus.toPPersonOversiktStatus
 import org.flywaydb.core.Flyway
 import java.sql.Connection
 
-class TestDB : DatabaseInterface {
+class TestDatabase : DatabaseInterface {
     private val pg: EmbeddedPostgres
 
     override val connection: Connection
@@ -28,6 +28,15 @@ class TestDB : DatabaseInterface {
 
     fun stop() {
         pg.close()
+    }
+}
+
+class TestDatabaseNotResponding : DatabaseInterface {
+
+    override val connection: Connection
+        get() = throw Exception("Not working")
+
+    fun stop() {
     }
 }
 

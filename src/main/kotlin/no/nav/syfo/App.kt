@@ -12,7 +12,7 @@ import no.nav.syfo.application.api.apiModule
 import no.nav.syfo.application.api.authentication.getWellKnown
 import no.nav.syfo.application.database.databaseModule
 import no.nav.syfo.db.DatabaseInterface
-import no.nav.syfo.kafka.kafkaModule
+import no.nav.syfo.kafka.launchKafkaTask
 import org.slf4j.LoggerFactory
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -47,10 +47,6 @@ fun main() {
                 environment = environment,
                 wellKnownVeilederV2 = wellKnownVeilederV2,
             )
-            kafkaModule(
-                applicationState = applicationState,
-                environment = environment,
-            )
         }
     }
 
@@ -58,6 +54,16 @@ fun main() {
         environment = applicationEngineEnvironment,
         factory = Netty,
     )
+
+    applicationEngineEnvironment.monitor.subscribe(ApplicationStarted) { application ->
+        applicationState.ready = true
+        application.environment.log.info("Application is ready")
+        launchKafkaTask(
+            applicationState = applicationState,
+            environment = environment,
+        )
+    }
+
     Runtime.getRuntime().addShutdownHook(
         Thread {
             server.stop(10, 10, TimeUnit.SECONDS)

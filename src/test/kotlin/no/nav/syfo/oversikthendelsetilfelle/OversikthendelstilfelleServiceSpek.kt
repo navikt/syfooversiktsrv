@@ -14,7 +14,7 @@ import no.nav.syfo.personstatus.domain.PPersonOversiktStatus
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
 import no.nav.syfo.personstatus.hentPersonResultatInternal
 import no.nav.syfo.personstatus.lagreBrukerKnytningPaEnhet
-import no.nav.syfo.testutil.TestDB
+import no.nav.syfo.testutil.TestDatabase
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_2_FNR
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_2_NAVN
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
@@ -37,7 +37,7 @@ object OversikthendelstilfelleServiceSpek : Spek({
 
     describe("OversikthendelstilfelleService") {
 
-        val database by lazy { TestDB() }
+        val database by lazy { TestDatabase() }
         val oversikthendelstilfelleService = OversikthendelstilfelleService(database)
 
         afterGroup {

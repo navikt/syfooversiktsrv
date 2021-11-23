@@ -55,13 +55,14 @@ fun Application.apiModule(
     )
 
     routing {
-        registerPodApi(applicationState)
+        registerPodApi(
+            applicationState = applicationState,
+            database = database,
+        )
         registerPrometheusApi()
         authenticate(JwtIssuerType.VEILEDER_V2.name) {
             registerPersonoversiktApiV2(tilgangskontrollConsumer, personoversiktStatusService)
             registerPersonTildelingApiV2(tilgangskontrollConsumer, personTildelingService)
         }
     }
-
-    applicationState.ready = true
 }

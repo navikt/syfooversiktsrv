@@ -26,7 +26,7 @@ object OversiktHendelseServiceSpek : Spek({
 
     describe("OversiktHendelseService") {
 
-        val database by lazy { TestDB() }
+        val database by lazy { TestDatabase() }
         val oversiktHendelseService = OversiktHendelseService(database)
 
         afterGroup {

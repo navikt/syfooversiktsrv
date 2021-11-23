@@ -1,13 +1,9 @@
 package no.nav.syfo.kafka
 
-import com.fasterxml.jackson.databind.*
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import io.ktor.application.*
 import io.netty.util.internal.StringUtil
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.*
 import no.nav.syfo.application.ApplicationState
@@ -24,19 +20,16 @@ import org.slf4j.LoggerFactory
 import java.time.Duration
 import java.util.*
 
-private val objectMapper: ObjectMapper = ObjectMapper().apply {
-    registerKotlinModule()
-    registerModule(JavaTimeModule())
-    configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-    configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-}
+private val objectMapper: ObjectMapper = configuredJacksonMapper()
 
-private val LOG: Logger = LoggerFactory.getLogger("no.nav.syfo.Kafka")
+private val log: Logger = LoggerFactory.getLogger("no.nav.syfo.Kafka")
 
-fun Application.kafkaModule(
+fun launchKafkaTask(
     applicationState: ApplicationState,
     environment: Environment,
 ) {
+    log.info("Setting up kafka consumer")
+
     val oversiktHendelseService = OversiktHendelseService(
         database = database,
     )
@@ -44,29 +37,10 @@ fun Application.kafkaModule(
         database = database,
     )
 
-    launch(backgroundTasksContext) {
-        val vaultSecrets = VaultSecrets(
-            serviceuserPassword = getFileAsString("/secrets/serviceuser/syfooversiktsrv/password"),
-            serviceuserUsername = getFileAsString("/secrets/serviceuser/syfooversiktsrv/username"),
-        )
-        setupKafka(
-            applicationState = applicationState,
-            environment = environment,
-            oversiktHendelseService = oversiktHendelseService,
-            oversikthendelstilfelleService = oversikthendelstilfelleService,
-            vaultSecrets = vaultSecrets,
-        )
-    }
-}
-
-suspend fun setupKafka(
-    applicationState: ApplicationState,
-    environment: Environment,
-    oversiktHendelseService: OversiktHendelseService,
-    oversikthendelstilfelleService: OversikthendelstilfelleService,
-    vaultSecrets: KafkaCredentials,
-) {
-    LOG.info("Setting up kafka consumer")
+    val vaultSecrets = VaultSecrets(
+        serviceuserPassword = getFileAsString("/secrets/serviceuser/syfooversiktsrv/password"),
+        serviceuserUsername = getFileAsString("/secrets/serviceuser/syfooversiktsrv/username"),
+    )
 
     // Kafka
     val kafkaBaseConfig = loadBaseConfig(environment, vaultSecrets)
@@ -82,6 +56,49 @@ suspend fun setupKafka(
         oversiktHendelseService = oversiktHendelseService,
         oversikthendelstilfelleService = oversikthendelstilfelleService,
     )
+}
+
+fun launchListeners(
+    applicationState: ApplicationState,
+    environment: Environment,
+    consumerProperties: Properties,
+    oversiktHendelseService: OversiktHendelseService,
+    oversikthendelstilfelleService: OversikthendelstilfelleService,
+) {
+
+    val kafkaconsumerOversikthendelse = KafkaConsumer<String, String>(consumerProperties)
+    kafkaconsumerOversikthendelse.subscribe(
+        listOf(
+            "aapen-syfo-oversikthendelse-v1",
+        )
+    )
+
+    val kafkaconsumerTilfelle = KafkaConsumer<String, String>(consumerProperties)
+    kafkaconsumerTilfelle.subscribe(
+        listOf(
+            environment.oversikthendelseOppfolgingstilfelleTopic,
+        )
+    )
+
+    launchBackgroundTask(
+        applicationState = applicationState,
+    ) {
+        blockingApplicationLogic(
+            applicationState,
+            kafkaconsumerOversikthendelse,
+            oversiktHendelseService,
+        )
+    }
+
+    launchBackgroundTask(
+        applicationState = applicationState,
+    ) {
+        blockingApplicationLogic(
+            applicationState,
+            kafkaconsumerTilfelle,
+            oversikthendelstilfelleService,
+        )
+    }
 }
 
 suspend fun blockingApplicationLogic(
@@ -111,7 +128,7 @@ suspend fun blockingApplicationLogic(
                 StructuredArguments.keyValue("enhetId", oversiktHendelse.enhetId),
                 StructuredArguments.keyValue("hendelseId", oversiktHendelse.hendelseId)
             )
-            LOG.info("Mottatt oversikthendelse, klar for oppdatering, $logKeys, {}", *logValues, callIdArgument(callId))
+            log.info("Mottatt oversikthendelse, klar for oppdatering, $logKeys, {}", *logValues, callIdArgument(callId))
 
             oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse, callId)
         }
@@ -164,49 +181,4 @@ suspend fun blockingApplicationLogic(
         }
         delay(100)
     }
-}
-
-suspend fun launchListeners(
-    applicationState: ApplicationState,
-    environment: Environment,
-    consumerProperties: Properties,
-    oversiktHendelseService: OversiktHendelseService,
-    oversikthendelstilfelleService: OversikthendelstilfelleService,
-) {
-
-    val kafkaconsumerOversikthendelse = KafkaConsumer<String, String>(consumerProperties)
-    kafkaconsumerOversikthendelse.subscribe(
-        listOf(
-            "aapen-syfo-oversikthendelse-v1",
-        )
-    )
-
-    val kafkaconsumerTilfelle = KafkaConsumer<String, String>(consumerProperties)
-    kafkaconsumerTilfelle.subscribe(
-        listOf(
-            environment.oversikthendelseOppfolgingstilfelleTopic,
-        )
-    )
-
-    launchBackgroundTask(
-        applicationState = applicationState,
-    ) {
-        blockingApplicationLogic(
-            applicationState,
-            kafkaconsumerOversikthendelse,
-            oversiktHendelseService,
-        )
-    }
-
-    launchBackgroundTask(
-        applicationState = applicationState,
-    ) {
-        blockingApplicationLogic(
-            applicationState,
-            kafkaconsumerTilfelle,
-            oversikthendelstilfelleService,
-        )
-    }
-
-    applicationState.ready = true
 }

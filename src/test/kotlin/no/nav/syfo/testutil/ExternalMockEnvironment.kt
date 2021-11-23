@@ -6,7 +6,7 @@ import no.nav.syfo.testutil.mock.*
 
 class ExternalMockEnvironment {
     val applicationState: ApplicationState = testAppState()
-    val database = TestDB()
+    val database = TestDatabase()
 
     val azureAdV2Mock = AzureAdV2Mock()
     val tilgangskontrollMock = VeilederTilgangskontrollMock()

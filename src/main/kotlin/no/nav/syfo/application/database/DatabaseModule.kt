@@ -27,8 +27,6 @@ fun Application.databaseModule(
                 username = "username"
             )
         )
-
-        applicationState.alive = true
     }
 
     isProd {
@@ -60,8 +58,6 @@ fun Application.databaseModule(
                 RenewCredentialsTaskData(environment.mountPathVault, environment.databaseName, Role.USER) {
                     prodDatabase.updateCredentials(username = it.username, password = it.password)
                 }
-
-            applicationState.alive = true
         }
 
         launch(backgroundTasksContext) {
@@ -69,6 +65,7 @@ fun Application.databaseModule(
                 Vault.renewVaultTokenTask(applicationState)
             } finally {
                 applicationState.alive = false
+                applicationState.ready = false
             }
         }
 
@@ -77,6 +74,7 @@ fun Application.databaseModule(
                 vaultCredentialService.runRenewCredentialsTask { applicationState.alive }
             } finally {
                 applicationState.alive = false
+                applicationState.ready = false
             }
         }
     }
