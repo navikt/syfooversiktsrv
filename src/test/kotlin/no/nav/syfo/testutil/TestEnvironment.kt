@@ -1,12 +1,12 @@
 package no.nav.syfo.testutil
 
-import no.nav.syfo.ApplicationState
 import no.nav.syfo.Environment
+import no.nav.syfo.application.ApplicationState
 import java.net.ServerSocket
 
 fun testEnvironment(
     azureTokenEndpoint: String = "azureTokenEndpoint",
-    syfotilgangskontrollUrl: String? = null
+    syfotilgangskontrollUrl: String? = null,
 ) = Environment(
     applicationPort = 8080,
     applicationThreads = 1,
@@ -25,8 +25,8 @@ fun testEnvironment(
 )
 
 fun testAppState() = ApplicationState(
-    running = true,
-    initialized = true
+    alive = true,
+    ready = true,
 )
 
 fun getRandomPort() = ServerSocket(0).use {

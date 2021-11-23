@@ -1,11 +1,12 @@
-package no.nav.syfo.api
+package no.nav.syfo.application.api
 
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.routing.*
-import no.nav.syfo.ApplicationState
 import no.nav.syfo.Environment
 import no.nav.syfo.api.authentication.*
+import no.nav.syfo.application.ApplicationState
+import no.nav.syfo.application.api.authentication.*
 import no.nav.syfo.client.azuread.AzureAdV2Client
 import no.nav.syfo.client.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.db.DatabaseInterface
@@ -18,7 +19,7 @@ fun Application.apiModule(
     applicationState: ApplicationState,
     database: DatabaseInterface,
     environment: Environment,
-    wellKnownVeilederV2: WellKnown
+    wellKnownVeilederV2: WellKnown,
 ) {
     installCallId()
     installContentNegotiation()
@@ -29,24 +30,28 @@ fun Application.apiModule(
             JwtIssuer(
                 acceptedAudienceList = listOf(environment.azureAppClientId),
                 jwtIssuerType = JwtIssuerType.VEILEDER_V2,
-                wellKnown = wellKnownVeilederV2
+                wellKnown = wellKnownVeilederV2,
             )
         )
     )
 
-    val personTildelingService = PersonTildelingService(database)
-    val personoversiktStatusService = PersonoversiktStatusService(database)
+    val personTildelingService = PersonTildelingService(
+        database = database,
+    )
+    val personoversiktStatusService = PersonoversiktStatusService(
+        database = database,
+    )
 
     val azureAdV2Client = AzureAdV2Client(
         aadAppClient = environment.azureAppClientId,
         aadAppSecret = environment.azureAppClientSecret,
-        aadTokenEndpoint = environment.azureTokenEndpoint
+        aadTokenEndpoint = environment.azureTokenEndpoint,
     )
     val syfotilgangskontrollClientId = environment.syfotilgangskontrollClientId
     val tilgangskontrollConsumer = VeilederTilgangskontrollClient(
         endpointUrl = environment.syfotilgangskontrollUrl,
         azureAdV2Client = azureAdV2Client,
-        syfotilgangskontrollClientId = syfotilgangskontrollClientId
+        syfotilgangskontrollClientId = syfotilgangskontrollClientId,
     )
 
     routing {
@@ -58,5 +63,5 @@ fun Application.apiModule(
         }
     }
 
-    applicationState.initialized = true
+    applicationState.ready = true
 }

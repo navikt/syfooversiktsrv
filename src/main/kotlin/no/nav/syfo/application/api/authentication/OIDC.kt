@@ -1,4 +1,4 @@
-package no.nav.syfo.api.authentication
+package no.nav.syfo.application.api.authentication
 
 import io.ktor.client.*
 import io.ktor.client.engine.apache.*
@@ -16,5 +16,5 @@ data class WellKnown(
     val authorization_endpoint: String,
     val token_endpoint: String,
     val jwks_uri: String,
-    val issuer: String
+    val issuer: String,
 )

@@ -9,6 +9,7 @@ import io.ktor.http.*
 import io.ktor.jackson.*
 import io.ktor.response.*
 import net.logstash.logback.argument.StructuredArguments
+import no.nav.syfo.application.api.authentication.JwtIssuer
 import no.nav.syfo.util.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -19,7 +20,7 @@ import java.util.concurrent.TimeUnit
 private val log: Logger = LoggerFactory.getLogger("no.nav.syfo.api.authentication")
 
 fun Application.installJwtAuthentication(
-    jwtIssuerList: List<JwtIssuer>
+    jwtIssuerList: List<JwtIssuer>,
 ) {
     install(Authentication) {
         jwtIssuerList.forEach { jwtIssuer ->
@@ -31,7 +32,7 @@ fun Application.installJwtAuthentication(
 }
 
 fun Authentication.Configuration.configureJwt(
-    jwtIssuer: JwtIssuer
+    jwtIssuer: JwtIssuer,
 ) {
     val jwkProvider = JwkProviderBuilder(URL(jwtIssuer.wellKnown.jwks_uri))
         .cached(10, 24, TimeUnit.HOURS)
@@ -54,7 +55,10 @@ fun Authentication.Configuration.configureJwt(
     }
 }
 
-fun hasExpectedAudience(credentials: JWTCredential, expectedAudience: List<String>): Boolean {
+fun hasExpectedAudience(
+    credentials: JWTCredential,
+    expectedAudience: List<String>,
+): Boolean {
     return expectedAudience.any { credentials.payload.audience.contains(it) }
 }
 

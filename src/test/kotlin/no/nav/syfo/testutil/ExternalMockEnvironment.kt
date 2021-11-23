@@ -1,7 +1,7 @@
 package no.nav.syfo.testutil
 
 import io.ktor.server.netty.*
-import no.nav.syfo.ApplicationState
+import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.testutil.mock.*
 
 class ExternalMockEnvironment {
@@ -13,12 +13,12 @@ class ExternalMockEnvironment {
 
     val externalApplicationMockMap = hashMapOf(
         azureAdV2Mock.name to azureAdV2Mock.server,
-        tilgangskontrollMock.name to tilgangskontrollMock.server
+        tilgangskontrollMock.name to tilgangskontrollMock.server,
     )
 
     val environment = testEnvironment(
         azureTokenEndpoint = azureAdV2Mock.url,
-        syfotilgangskontrollUrl = tilgangskontrollMock.url
+        syfotilgangskontrollUrl = tilgangskontrollMock.url,
     )
 
     val wellKnownVeilederV2 = wellKnownVeilederV2Mock()

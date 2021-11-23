@@ -1,7 +1,7 @@
 package no.nav.syfo.testutil
 
 import io.ktor.application.*
-import no.nav.syfo.api.apiModule
+import no.nav.syfo.application.api.apiModule
 
 fun Application.testApiModule(
     externalMockEnvironment: ExternalMockEnvironment
@@ -10,6 +10,6 @@ fun Application.testApiModule(
         applicationState = externalMockEnvironment.applicationState,
         database = externalMockEnvironment.database,
         environment = externalMockEnvironment.environment,
-        wellKnownVeilederV2 = externalMockEnvironment.wellKnownVeilederV2
+        wellKnownVeilederV2 = externalMockEnvironment.wellKnownVeilederV2,
     )
 }

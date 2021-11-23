@@ -1,22 +1,17 @@
 package no.nav.syfo
 
 import io.ktor.http.*
-import io.ktor.routing.routing
-import io.ktor.server.testing.TestApplicationEngine
-import io.ktor.server.testing.handleRequest
-import no.nav.syfo.api.registerPodApi
-import no.nav.syfo.api.registerPrometheusApi
+import io.ktor.routing.*
+import io.ktor.server.testing.*
+import no.nav.syfo.application.ApplicationState
+import no.nav.syfo.application.api.registerPodApi
+import no.nav.syfo.application.api.registerPrometheusApi
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeEqualTo
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
-import java.net.ServerSocket
 
 object SelftestSpek : Spek({
-    fun getRandomPort() = ServerSocket(0).use {
-        it.localPort
-    }
-
     val applicationState = ApplicationState()
 
     describe("Calling selftest with successful liveness and readyness tests") {
@@ -28,7 +23,7 @@ object SelftestSpek : Spek({
             }
 
             it("Returns ok on is_alive") {
-                applicationState.running = true
+                applicationState.alive = true
 
                 with(handleRequest(HttpMethod.Get, "/is_alive")) {
                     response.status()?.isSuccess() shouldBeEqualTo true
@@ -36,7 +31,7 @@ object SelftestSpek : Spek({
                 }
             }
             it("Returns ok on is_ready") {
-                applicationState.initialized = true
+                applicationState.ready = true
 
                 with(handleRequest(HttpMethod.Get, "/is_ready")) {
                     println(response.status())
@@ -45,7 +40,7 @@ object SelftestSpek : Spek({
                 }
             }
             it("Returns error on failed is_alive") {
-                applicationState.running = false
+                applicationState.alive = false
 
                 with(handleRequest(HttpMethod.Get, "/is_alive")) {
                     response.status()?.isSuccess() shouldNotBeEqualTo true
@@ -53,7 +48,7 @@ object SelftestSpek : Spek({
                 }
             }
             it("Returns error on failed is_ready") {
-                applicationState.initialized = false
+                applicationState.ready = false
 
                 with(handleRequest(HttpMethod.Get, "/is_ready")) {
                     response.status()?.isSuccess() shouldNotBeEqualTo true
@@ -67,7 +62,7 @@ object SelftestSpek : Spek({
         with(TestApplicationEngine()) {
             start()
             application.routing {
-                registerPodApi(ApplicationState(running = false))
+                registerPodApi(ApplicationState(alive = false))
             }
 
             it("Returns internal server error when liveness check fails") {
@@ -83,7 +78,7 @@ object SelftestSpek : Spek({
         with(TestApplicationEngine()) {
             start()
             application.routing {
-                registerPodApi(ApplicationState(initialized = false))
+                registerPodApi(ApplicationState(ready = false))
             }
 
             it("Returns internal server error when readyness check fails") {

@@ -4,12 +4,13 @@ import com.fasterxml.jackson.databind.*
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import io.ktor.util.KtorExperimentalAPI
 import io.netty.util.internal.StringUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import net.logstash.logback.argument.StructuredArguments
-import no.nav.syfo.*
+import no.nav.syfo.Environment
+import no.nav.syfo.application.ApplicationState
+import no.nav.syfo.createListener
 import no.nav.syfo.oversikthendelsetilfelle.OversikthendelstilfelleService
 import no.nav.syfo.oversikthendelsetilfelle.domain.KOversikthendelsetilfelle
 import no.nav.syfo.personstatus.OversiktHendelseService
@@ -33,35 +34,37 @@ private val objectMapper: ObjectMapper = ObjectMapper().apply {
 private val LOG: Logger = LoggerFactory.getLogger("no.nav.syfo.Kafka")
 
 suspend fun CoroutineScope.setupKafka(
-    vaultSecrets: KafkaCredentials,
+    applicationState: ApplicationState,
+    environment: Environment,
     oversiktHendelseService: OversiktHendelseService,
-    oversikthendelstilfelleService: OversikthendelstilfelleService
+    oversikthendelstilfelleService: OversikthendelstilfelleService,
+    vaultSecrets: KafkaCredentials,
 ) {
 
     LOG.info("Setting up kafka consumer")
 
     // Kafka
-    val kafkaBaseConfig = loadBaseConfig(env, vaultSecrets)
+    val kafkaBaseConfig = loadBaseConfig(environment, vaultSecrets)
         .envOverrides()
     val consumerProperties = kafkaBaseConfig.toConsumerConfig(
-        "${env.applicationName}-consumer", valueDeserializer = StringDeserializer::class
+        "${environment.applicationName}-consumer", valueDeserializer = StringDeserializer::class
     )
 
     launchListeners(
-        consumerProperties,
-        state,
-        oversiktHendelseService,
-        oversikthendelstilfelleService
+        applicationState = applicationState,
+        environment = environment,
+        consumerProperties = consumerProperties,
+        oversiktHendelseService = oversiktHendelseService,
+        oversikthendelstilfelleService = oversikthendelstilfelleService,
     )
 }
 
-@KtorExperimentalAPI
 suspend fun blockingApplicationLogic(
     applicationState: ApplicationState,
     kafkaConsumer: KafkaConsumer<String, String>,
-    oversiktHendelseService: OversiktHendelseService
+    oversiktHendelseService: OversiktHendelseService,
 ) {
-    while (applicationState.running) {
+    while (applicationState.alive) {
         var logValues = arrayOf(
             StructuredArguments.keyValue("oversikthendelseId", "missing"),
             StructuredArguments.keyValue("Harfnr", "missing"),
@@ -91,13 +94,12 @@ suspend fun blockingApplicationLogic(
     }
 }
 
-@KtorExperimentalAPI
 suspend fun blockingApplicationLogic(
     applicationState: ApplicationState,
     kafkaConsumer: KafkaConsumer<String, String>,
-    oversikthendelstilfelleService: OversikthendelstilfelleService
+    oversikthendelstilfelleService: OversikthendelstilfelleService,
 ) {
-    while (applicationState.running) {
+    while (applicationState.alive) {
         var logValues = arrayOf(
             StructuredArguments.keyValue("oversikthendelsetilfelleId", "missing"),
             StructuredArguments.keyValue("harFnr", "missing"),
@@ -120,7 +122,10 @@ suspend fun blockingApplicationLogic(
                 objectMapper.readValue(it.value())
             logValues = arrayOf(
                 StructuredArguments.keyValue("oversikthendelsetilfelleId", it.key()),
-                StructuredArguments.keyValue("harFnr", (!StringUtil.isNullOrEmpty(oversikthendelsetilfelle.fnr)).toString()),
+                StructuredArguments.keyValue(
+                    "harFnr",
+                    (!StringUtil.isNullOrEmpty(oversikthendelsetilfelle.fnr)).toString()
+                ),
                 StructuredArguments.keyValue("navn", oversikthendelsetilfelle.navn),
                 StructuredArguments.keyValue("enhetId", oversikthendelsetilfelle.enhetId),
                 StructuredArguments.keyValue("virksomhetsnummer", oversikthendelsetilfelle.virksomhetsnummer),
@@ -136,10 +141,10 @@ suspend fun blockingApplicationLogic(
     }
 }
 
-@KtorExperimentalAPI
 suspend fun CoroutineScope.launchListeners(
-    consumerProperties: Properties,
     applicationState: ApplicationState,
+    environment: Environment,
+    consumerProperties: Properties,
     oversiktHendelseService: OversiktHendelseService,
     oversikthendelstilfelleService: OversikthendelstilfelleService
 ) {
@@ -154,7 +159,7 @@ suspend fun CoroutineScope.launchListeners(
     val kafkaconsumerTilfelle = KafkaConsumer<String, String>(consumerProperties)
     kafkaconsumerTilfelle.subscribe(
         listOf(
-            env.oversikthendelseOppfolgingstilfelleTopic
+            environment.oversikthendelseOppfolgingstilfelleTopic
         )
     )
 
@@ -174,5 +179,5 @@ suspend fun CoroutineScope.launchListeners(
         )
     }
 
-    applicationState.initialized = true
+    applicationState.ready = true
 }
