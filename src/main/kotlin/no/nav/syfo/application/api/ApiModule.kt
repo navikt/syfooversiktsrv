@@ -3,9 +3,9 @@ package no.nav.syfo.application.api
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.routing.*
-import no.nav.syfo.Environment
 import no.nav.syfo.api.authentication.*
 import no.nav.syfo.application.ApplicationState
+import no.nav.syfo.application.Environment
 import no.nav.syfo.application.api.authentication.*
 import no.nav.syfo.client.azuread.AzureAdV2Client
 import no.nav.syfo.client.veiledertilgang.VeilederTilgangskontrollClient

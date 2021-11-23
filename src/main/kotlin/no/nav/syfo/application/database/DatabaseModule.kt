@@ -6,6 +6,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.slf4j.MDCContext
 import no.nav.syfo.*
 import no.nav.syfo.application.ApplicationState
+import no.nav.syfo.application.Environment
 import no.nav.syfo.db.*
 import no.nav.syfo.vault.Vault
 import java.util.concurrent.Executors

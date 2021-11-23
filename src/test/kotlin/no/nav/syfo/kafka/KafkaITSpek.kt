@@ -5,8 +5,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import no.nav.common.KafkaEnvironment
-import no.nav.syfo.Environment
-import no.nav.syfo.VaultSecrets
+import no.nav.syfo.application.Environment
+import no.nav.syfo.application.VaultSecrets
 import no.nav.syfo.personstatus.domain.KOversikthendelse
 import no.nav.syfo.testutil.generator.generateOversikthendelse
 import org.amshove.kluent.shouldBeEqualTo
@@ -16,7 +16,6 @@ import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
-import java.net.ServerSocket
 import java.time.Duration
 import java.util.*
 
@@ -28,10 +27,6 @@ private val objectMapper: ObjectMapper = ObjectMapper().apply {
 }
 
 object KafkaITSpek : Spek({
-    fun getRandomPort() = ServerSocket(0).use {
-        it.localPort
-    }
-
     val oversiktHendelseTopic = "aapen-syfo-oversikthendelse-v1"
 
     val embeddedEnvironment = KafkaEnvironment(
@@ -44,8 +39,6 @@ object KafkaITSpek : Spek({
         ""
     )
     val env = Environment(
-        applicationPort = getRandomPort(),
-        applicationThreads = 1,
         azureAppClientId = "azureAppClientId",
         azureAppClientSecret = "azureAppClientSecret",
         azureAppWellKnownUrl = "azureAppWellKnownUrl",

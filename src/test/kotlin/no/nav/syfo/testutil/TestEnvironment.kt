@@ -1,15 +1,13 @@
 package no.nav.syfo.testutil
 
-import no.nav.syfo.Environment
 import no.nav.syfo.application.ApplicationState
+import no.nav.syfo.application.Environment
 import java.net.ServerSocket
 
 fun testEnvironment(
     azureTokenEndpoint: String = "azureTokenEndpoint",
     syfotilgangskontrollUrl: String? = null,
 ) = Environment(
-    applicationPort = 8080,
-    applicationThreads = 1,
     azureAppClientId = "azureAppClientId",
     azureAppClientSecret = "azureAppClientSecret",
     azureAppWellKnownUrl = "azureAppWellKnownUrl",

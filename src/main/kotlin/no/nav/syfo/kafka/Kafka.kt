@@ -5,9 +5,8 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import io.netty.util.internal.StringUtil
 import kotlinx.coroutines.delay
 import net.logstash.logback.argument.StructuredArguments
-import no.nav.syfo.*
-import no.nav.syfo.application.ApplicationState
-import no.nav.syfo.application.launchBackgroundTask
+import no.nav.syfo.application.*
+import no.nav.syfo.database
 import no.nav.syfo.oversikthendelsetilfelle.OversikthendelstilfelleService
 import no.nav.syfo.oversikthendelsetilfelle.domain.KOversikthendelsetilfelle
 import no.nav.syfo.personstatus.OversiktHendelseService

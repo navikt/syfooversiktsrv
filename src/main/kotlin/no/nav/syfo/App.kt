@@ -5,7 +5,7 @@ import io.ktor.application.*
 import io.ktor.config.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
-import no.nav.syfo.application.ApplicationState
+import no.nav.syfo.application.*
 import no.nav.syfo.application.api.apiModule
 import no.nav.syfo.application.api.authentication.getWellKnown
 import no.nav.syfo.application.database.databaseModule
@@ -16,9 +16,11 @@ import java.util.concurrent.TimeUnit
 
 val LOG: org.slf4j.Logger = LoggerFactory.getLogger("no.nav.syfo.AppKt")
 
+const val applicationPort = 8080
+
 fun main() {
     val applicationState = ApplicationState()
-    val environment = getEnvironment()
+    val environment = Environment()
     val wellKnownVeilederV2 = getWellKnown(
         wellKnownUrl = environment.azureAppWellKnownUrl,
     )
@@ -28,7 +30,7 @@ fun main() {
         config = HoconApplicationConfig(ConfigFactory.load())
 
         connector {
-            port = environment.applicationPort
+            port = applicationPort
         }
 
         module {
