@@ -4,6 +4,7 @@ import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
 import io.ktor.routing.*
+import io.micrometer.core.instrument.Timer
 import no.nav.syfo.metric.COUNT_PERSONOVERSIKTSTATUS_ENHET_HENTET
 import no.nav.syfo.metric.HISTOGRAM_PERSONOVERSIKT
 import no.nav.syfo.personstatus.PersonoversiktStatusService
@@ -33,7 +34,7 @@ fun Route.registerPersonoversiktApiV2(
 
                 when (veilederTilgangskontrollClient.harVeilederTilgangTilEnhetMedOBO(enhet, token, callId)) {
                     true -> {
-                        val requestTimer = HISTOGRAM_PERSONOVERSIKT.startTimer()
+                        val requestTimer: Timer.Sample = Timer.start()
                         val personOversiktStatusList: List<PersonOversiktStatus> = personoversiktStatusService
                             .hentPersonoversiktStatusTilknyttetEnhet(enhet)
 
@@ -50,8 +51,8 @@ fun Route.registerPersonoversiktApiV2(
                             personList.isNotEmpty() -> call.respond(personList)
                             else -> call.respond(HttpStatusCode.NoContent)
                         }
-                        requestTimer.observeDuration()
-                        COUNT_PERSONOVERSIKTSTATUS_ENHET_HENTET.inc()
+                        requestTimer.stop(HISTOGRAM_PERSONOVERSIKT)
+                        COUNT_PERSONOVERSIKTSTATUS_ENHET_HENTET.increment()
                     }
                     else -> {
                         log.warn("Veileder mangler tilgang til enhet, {}", callIdArgument(callId))

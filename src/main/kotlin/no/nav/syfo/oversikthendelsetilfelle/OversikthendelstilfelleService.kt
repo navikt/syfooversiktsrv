@@ -17,7 +17,7 @@ class OversikthendelstilfelleService(private val database: DatabaseInterface) {
     ) {
         if (isInvalidOversikthendelsetilfelle(oversikthendelsetilfelle)) {
             LOG.error("Oppdaterte ikke person med oversikthendelsetilfelle med ugyldig EnhetId, for enhet {}, {}", oversikthendelsetilfelle.enhetId, callIdArgument(callId))
-            COUNT_OVERSIKTHENDELSETILFELLE_UGDYLGIG_MOTTATT.inc()
+            COUNT_OVERSIKTHENDELSETILFELLE_UGDYLGIG_MOTTATT.increment()
             return
         } else {
             val pPersonOversiktStatus = database.hentPersonResultatInternal(oversikthendelsetilfelle.fnr)
@@ -74,10 +74,10 @@ fun countOpprett(
 ) {
     if (oversikthendelsetilfelle.gradert) {
         LOG.info("Opprettet person basert pa gradert oversikthendelsetilfelle, for enhet {}, {}", oversikthendelsetilfelle.enhetId, callIdArgument(callId))
-        COUNT_OVERSIKTHENDELSETILFELLE_GRADERT_OPPRETT.inc()
+        COUNT_OVERSIKTHENDELSETILFELLE_GRADERT_OPPRETT.increment()
     } else {
         LOG.info("Opprettet person basert pa oversikthendelsetilfelle med ingen aktivitet, for enhet {}, {}", oversikthendelsetilfelle.enhetId, callIdArgument(callId))
-        COUNT_OVERSIKTHENDELSETILFELLE_INGEN_AKTIVITET_OPPRETT.inc()
+        COUNT_OVERSIKTHENDELSETILFELLE_INGEN_AKTIVITET_OPPRETT.increment()
     }
 }
 
@@ -87,10 +87,10 @@ fun countOppdaterNyEnhet(
 ) {
     if (oversikthendelsetilfelle.gradert) {
         LOG.info("Oppdatert person basert pa gradert oversikthendelsetilfelle mottatt med ny enhet, {}", callIdArgument(callId))
-        COUNT_OVERSIKTHENDELSETILFELLE_GRADERT_OPPDATER_ENHET.inc()
+        COUNT_OVERSIKTHENDELSETILFELLE_GRADERT_OPPDATER_ENHET.increment()
     } else {
         LOG.info("Oppdatert person basert pa oversikthendelsetilfelle med ingen aktivitet mottatt med ny enhet, {}", callIdArgument(callId))
-        COUNT_OVERSIKTHENDELSETILFELLE_INGEN_AKTIVITET_OPPDATER_ENHET.inc()
+        COUNT_OVERSIKTHENDELSETILFELLE_INGEN_AKTIVITET_OPPDATER_ENHET.increment()
     }
 }
 
@@ -100,9 +100,9 @@ fun countOppdater(
 ) {
     if (oversikthendelsetilfelle.gradert) {
         LOG.info("Oppdatert person basert pa gradert oversikthendelsetilfelle mottatt, {}", callIdArgument(callId))
-        COUNT_OVERSIKTHENDELSETILFELLE_GRADERT_OPPDATER.inc()
+        COUNT_OVERSIKTHENDELSETILFELLE_GRADERT_OPPDATER.increment()
     } else {
         LOG.info("Oppdatert person basert pa oversikthendelsetilfelle med ingen aktivitet mottatt, {}", callIdArgument(callId))
-        COUNT_OVERSIKTHENDELSETILFELLE_INGEN_AKTIVITET_OPPDATER.inc()
+        COUNT_OVERSIKTHENDELSETILFELLE_INGEN_AKTIVITET_OPPDATER.increment()
     }
 }
