@@ -5,7 +5,7 @@ import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
-import no.nav.syfo.api.authentication.installContentNegotiation
+import no.nav.syfo.application.api.authentication.installContentNegotiation
 import no.nav.syfo.application.api.authentication.WellKnown
 import no.nav.syfo.client.azuread.AadV2TokenResponse
 import no.nav.syfo.testutil.getRandomPort

@@ -1,4 +1,4 @@
-package no.nav.syfo.api.authentication
+package no.nav.syfo.application.api.authentication
 
 import com.auth0.jwk.JwkProviderBuilder
 import io.ktor.application.*
@@ -7,13 +7,16 @@ import io.ktor.auth.jwt.*
 import io.ktor.features.*
 import io.ktor.http.*
 import io.ktor.jackson.*
+import io.ktor.metrics.micrometer.*
 import io.ktor.response.*
+import io.micrometer.core.instrument.distribution.DistributionStatisticConfig
 import net.logstash.logback.argument.StructuredArguments
-import no.nav.syfo.application.api.authentication.JwtIssuer
+import no.nav.syfo.metric.METRICS_REGISTRY
 import no.nav.syfo.util.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.net.URL
+import java.time.Duration
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -84,5 +87,15 @@ fun Application.installStatusPages() {
             log.error("Caught exception callId=${getCallId()} ${getConsumerId()}", cause)
             throw cause
         }
+    }
+}
+
+fun Application.installMetrics() {
+    install(MicrometerMetrics) {
+        registry = METRICS_REGISTRY
+        distributionStatisticConfig = DistributionStatisticConfig.Builder()
+            .percentilesHistogram(true)
+            .maximumExpectedValue(Duration.ofSeconds(20).toNanos().toDouble())
+            .build()
     }
 }

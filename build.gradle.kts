@@ -23,6 +23,7 @@ object Versions {
     const val prometheus = "0.9.0"
     const val spek = "2.0.17"
     const val smCommon = "1.0.22"
+    const val micrometerRegistry = "1.7.5"
 }
 
 plugins {
@@ -43,8 +44,8 @@ dependencies {
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:${Versions.coroutines}")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}")
-    implementation("io.prometheus:simpleclient_hotspot:${Versions.prometheus}")
-    implementation("io.prometheus:simpleclient_common:${Versions.prometheus}")
+    implementation("io.ktor:ktor-metrics-micrometer:${Versions.ktor}")
+    implementation("io.micrometer:micrometer-registry-prometheus:${Versions.micrometerRegistry}")
     implementation("io.ktor:ktor-server-netty:${Versions.ktor}")
     implementation("io.ktor:ktor-client-apache:${Versions.ktor}")
     implementation("io.ktor:ktor-client-cio:${Versions.ktor}")

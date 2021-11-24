@@ -20,7 +20,7 @@ class OversiktHendelseService(private val database: DatabaseInterface) {
             OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_BEHANDLET.toString() -> oppdaterPersonMedHendelseOppfolgingsplanLPSBistandBehandlet(oversiktHendelse, callId)
             else -> {
                 log.error("Mottatt oversikthendelse med ukjent type, ${oversiktHendelse.hendelseId}, {}", callIdArgument(callId))
-                COUNT_OVERSIKTHENDELSE_UKJENT_MOTTATT.inc()
+                COUNT_OVERSIKTHENDELSE_UKJENT_MOTTATT.increment()
             }
         }
     }
@@ -30,15 +30,15 @@ class OversiktHendelseService(private val database: DatabaseInterface) {
         when {
             person.isEmpty() -> {
                 database.opprettPersonMedMoteplanleggerAlleSvarMottatt(oversiktHendelse)
-                COUNT_OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_MOTTATT_OPPRETT.inc()
+                COUNT_OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_MOTTATT_OPPRETT.increment()
             }
             erPersonsEnhetOppdatert(person, oversiktHendelse.enhetId) -> {
                 database.oppdaterPersonMedMoteplanleggerAlleSvarNyEnhet(oversiktHendelse)
-                COUNT_OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_MOTTATT_OPPDATER_ENHET.inc()
+                COUNT_OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_MOTTATT_OPPDATER_ENHET.increment()
             }
             else -> {
                 database.oppdaterPersonMedMoteplanleggerAlleSvarMottatt(oversiktHendelse)
-                COUNT_OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_MOTTATT_OPPDATER.inc()
+                COUNT_OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_MOTTATT_OPPDATER.increment()
             }
         }
     }
@@ -48,15 +48,15 @@ class OversiktHendelseService(private val database: DatabaseInterface) {
         when {
             person.isEmpty() -> {
                 log.error("Fant ikke person som skal oppdateres med hendelse {}, for enhet {}", oversiktHendelse.hendelseId, oversiktHendelse.enhetId)
-                COUNT_OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_BEHANDLET_FEILET.inc()
+                COUNT_OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_BEHANDLET_FEILET.increment()
             }
             erPersonsEnhetOppdatert(person, oversiktHendelse.enhetId) -> {
                 database.oppdaterPersonMedMoteplanleggerAlleSvarBehandletNyEnhet(oversiktHendelse)
-                COUNT_OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_BEHANDLET_OPPDATER_ENHET.inc()
+                COUNT_OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_BEHANDLET_OPPDATER_ENHET.increment()
             }
             else -> {
                 database.oppdaterPersonMedMoteplanleggerAlleSvarBehandlet(oversiktHendelse)
-                COUNT_OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_BEHANDLET_OPPDATER.inc()
+                COUNT_OVERSIKTHENDELSE_MOTEPLANLEGGER_ALLE_SVAR_BEHANDLET_OPPDATER.increment()
             }
         }
     }
@@ -66,15 +66,15 @@ class OversiktHendelseService(private val database: DatabaseInterface) {
         when {
             person.isEmpty() -> {
                 log.error("Fant ikke person som skal oppdateres med hendelse {}, for enhet {}, {}", oversiktHendelse.hendelseId, oversiktHendelse.enhetId, callIdArgument(callId))
-                COUNT_OVERSIKTHENDELSE_MOTEBEHOVSSVAR_BEHANDLET_FEILET.inc()
+                COUNT_OVERSIKTHENDELSE_MOTEBEHOVSSVAR_BEHANDLET_FEILET.increment()
             }
             erPersonsEnhetOppdatert(person, oversiktHendelse.enhetId) -> {
                 database.oppdaterPersonMedMotebehovBehandletNyEnhet(oversiktHendelse)
-                COUNT_OVERSIKTHENDELSE_MOTEBEHOVSSVAR_BEHANDLET_OPPDATER_ENHET.inc()
+                COUNT_OVERSIKTHENDELSE_MOTEBEHOVSSVAR_BEHANDLET_OPPDATER_ENHET.increment()
             }
             else -> {
                 database.oppdaterPersonMedMotebehovBehandlet(oversiktHendelse)
-                COUNT_OVERSIKTHENDELSE_MOTEBEHOVSSVAR_BEHANDLET.inc()
+                COUNT_OVERSIKTHENDELSE_MOTEBEHOVSSVAR_BEHANDLET.increment()
             }
         }
     }
@@ -84,15 +84,15 @@ class OversiktHendelseService(private val database: DatabaseInterface) {
         when {
             person.isEmpty() -> {
                 database.opprettPersonMedMotebehovMottatt(oversiktHendelse)
-                COUNT_OVERSIKTHENDELSE_MOTEBEHOV_SVAR_MOTTATT_OPPRETT.inc()
+                COUNT_OVERSIKTHENDELSE_MOTEBEHOV_SVAR_MOTTATT_OPPRETT.increment()
             }
             erPersonsEnhetOppdatert(person, oversiktHendelse.enhetId) -> {
                 database.oppdaterPersonMedMotebehovMottattNyEnhet(oversiktHendelse)
-                COUNT_OVERSIKTHENDELSE_MOTEBEHOV_SVAR_MOTTATT_OPPDATER_ENHET.inc()
+                COUNT_OVERSIKTHENDELSE_MOTEBEHOV_SVAR_MOTTATT_OPPDATER_ENHET.increment()
             }
             else -> {
                 database.oppdaterPersonMedMotebehovMottatt(oversiktHendelse)
-                COUNT_OVERSIKTHENDELSE_MOTEBEHOV_SVAR_MOTTATT_OPPDATER.inc()
+                COUNT_OVERSIKTHENDELSE_MOTEBEHOV_SVAR_MOTTATT_OPPDATER.increment()
             }
         }
     }
@@ -102,15 +102,15 @@ class OversiktHendelseService(private val database: DatabaseInterface) {
         when {
             person.isEmpty() -> {
                 database.opprettPersonMedOPLPSBistandMottatt(oversiktHendelse)
-                COUNT_OVERSIKTHENDELSE_MOTEBEHOV_SVAR_MOTTATT_OPPRETT.inc()
+                COUNT_OVERSIKTHENDELSE_MOTEBEHOV_SVAR_MOTTATT_OPPRETT.increment()
             }
             erPersonsEnhetOppdatert(person, oversiktHendelse.enhetId) -> {
                 database.oppdaterPersonMedOPLPSBistandMottattNyEnhet(oversiktHendelse)
-                COUNT_OVERSIKTHENDELSE_MOTEBEHOV_SVAR_MOTTATT_OPPDATER_ENHET.inc()
+                COUNT_OVERSIKTHENDELSE_MOTEBEHOV_SVAR_MOTTATT_OPPDATER_ENHET.increment()
             }
             else -> {
                 database.oppdaterPersonMedOPLPSBistandMottatt(oversiktHendelse)
-                COUNT_OVERSIKTHENDELSE_MOTEBEHOV_SVAR_MOTTATT_OPPDATER.inc()
+                COUNT_OVERSIKTHENDELSE_MOTEBEHOV_SVAR_MOTTATT_OPPDATER.increment()
             }
         }
     }
@@ -120,15 +120,15 @@ class OversiktHendelseService(private val database: DatabaseInterface) {
         when {
             person.isEmpty() -> {
                 log.error("Fant ikke person som skal oppdateres med hendelse {}, for enhet {}, {}", oversiktHendelse.hendelseId, oversiktHendelse.enhetId, callIdArgument(callId))
-                COUNT_OVERSIKTHENDELSE_MOTEBEHOVSSVAR_BEHANDLET_FEILET.inc()
+                COUNT_OVERSIKTHENDELSE_MOTEBEHOVSSVAR_BEHANDLET_FEILET.increment()
             }
             erPersonsEnhetOppdatert(person, oversiktHendelse.enhetId) -> {
                 database.oppdaterPersonMedOPLPSBistandBehandletNyEnhet(oversiktHendelse)
-                COUNT_OVERSIKTHENDELSE_MOTEBEHOVSSVAR_BEHANDLET_OPPDATER_ENHET.inc()
+                COUNT_OVERSIKTHENDELSE_MOTEBEHOVSSVAR_BEHANDLET_OPPDATER_ENHET.increment()
             }
             else -> {
                 database.oppdaterPersonMedOPLPSBistandBehandlet(oversiktHendelse)
-                COUNT_OVERSIKTHENDELSE_MOTEBEHOVSSVAR_BEHANDLET.inc()
+                COUNT_OVERSIKTHENDELSE_MOTEBEHOVSSVAR_BEHANDLET.increment()
             }
         }
     }

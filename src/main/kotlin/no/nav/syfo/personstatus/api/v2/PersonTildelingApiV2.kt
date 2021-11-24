@@ -65,7 +65,7 @@ fun Route.registerPersonTildelingApiV2(
                 } else {
                     personTildelingService.lagreKnytningMellomVeilederOgBruker(veilederBrukerKnytninger)
 
-                    COUNT_PERSONTILDELING_TILDELT.inc(veilederBrukerKnytninger.size.toDouble())
+                    COUNT_PERSONTILDELING_TILDELT.increment(veilederBrukerKnytninger.size.toDouble())
 
                     call.respond(HttpStatusCode.OK)
                 }
