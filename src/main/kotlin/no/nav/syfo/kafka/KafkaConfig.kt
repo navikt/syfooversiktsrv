@@ -1,7 +1,6 @@
 package no.nav.syfo.kafka
 
 import no.nav.syfo.application.Environment
-import no.nav.syfo.application.VaultSecrets
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.config.SaslConfigs
@@ -10,7 +9,6 @@ import java.util.*
 
 fun kafkaConsumerConfig(
     environment: Environment,
-    vaultSecrets: VaultSecrets
 ) = Properties().apply {
     this[ConsumerConfig.GROUP_ID_CONFIG] = "${environment.applicationName}-consumer"
     this[ConsumerConfig.AUTO_OFFSET_RESET_CONFIG] = "earliest"
@@ -21,6 +19,6 @@ fun kafkaConsumerConfig(
     this[ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG] = StringDeserializer::class.java.canonicalName
     this[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = StringDeserializer::class.java.canonicalName
     this[SaslConfigs.SASL_JAAS_CONFIG] = "org.apache.kafka.common.security.plain.PlainLoginModule required " +
-        "username=\"${vaultSecrets.serviceuserUsername}\" password=\"${vaultSecrets.serviceuserPassword}\";"
+        "username=\"${environment.serviceuserUsername}\" password=\"${environment.serviceuserPassword}\";"
     this[CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG] = environment.kafkaBootstrapServers
 }

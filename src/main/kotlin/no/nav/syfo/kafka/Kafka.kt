@@ -35,15 +35,9 @@ fun launchKafkaTask(
         database = database,
     )
 
-    val vaultSecrets = VaultSecrets(
-        serviceuserPassword = getFileAsString("/secrets/serviceuser/syfooversiktsrv/password"),
-        serviceuserUsername = getFileAsString("/secrets/serviceuser/syfooversiktsrv/username"),
-    )
-
     // Kafka
     val consumerProperties = kafkaConsumerConfig(
         environment = environment,
-        vaultSecrets = vaultSecrets,
     )
 
     launchListeners(

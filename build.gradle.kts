@@ -23,7 +23,6 @@ object Versions {
     const val prometheus = "0.9.0"
     const val spek = "2.0.17"
     const val smCommon = "1.0.22"
-    const val vaultJavaDrive = "3.1.0"
 }
 
 plugins {
@@ -62,7 +61,6 @@ dependencies {
     implementation("org.postgresql:postgresql:${Versions.postgres}")
     implementation("com.zaxxer:HikariCP:${Versions.hikari}")
     implementation("org.flywaydb:flyway-core:${Versions.flyway}")
-    implementation("com.bettercloud:vault-java-driver:${Versions.vaultJavaDrive}")
 
     // Kafka
     implementation("org.apache.kafka:kafka_2.12:${Versions.kafka}")
