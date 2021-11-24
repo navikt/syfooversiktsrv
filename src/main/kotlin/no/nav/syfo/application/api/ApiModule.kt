@@ -20,9 +20,9 @@ fun Application.apiModule(
     environment: Environment,
     wellKnownVeilederV2: WellKnown,
 ) {
-    installMetrics()
     installCallId()
     installContentNegotiation()
+    installMetrics()
     installStatusPages()
 
     installJwtAuthentication(

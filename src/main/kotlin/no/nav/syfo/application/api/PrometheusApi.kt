@@ -6,7 +6,7 @@ import io.ktor.routing.*
 import no.nav.syfo.metric.METRICS_REGISTRY
 
 fun Routing.registerPrometheusApi() {
-    get("/metrics") {
+    get("/prometheus") {
         call.respondText(METRICS_REGISTRY.scrape())
     }
 }
