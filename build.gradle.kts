@@ -16,16 +16,16 @@ object Versions {
     const val kluent = "1.68"
     const val logback = "1.2.6"
     const val logstashEncoder = "6.6"
-    const val mockk = "1.12.0"
+    const val mockk = "1.12.1"
+    const val micrometerRegistry = "1.8.0"
     const val nimbusjosejwt = "7.5.1"
     const val postgresEmbedded = "0.13.3"
     const val postgres = "42.3.1"
     const val spek = "2.0.17"
-    const val micrometerRegistry = "1.7.5"
 }
 
 plugins {
-    kotlin("jvm") version "1.5.10"
+    kotlin("jvm") version "1.6.0"
     id("com.github.johnrengelman.shadow") version "7.1.0"
     id("org.jlleitschuh.gradle.ktlint") version "10.2.0"
 }
