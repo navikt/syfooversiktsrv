@@ -20,7 +20,6 @@ object Versions {
     const val nimbusjosejwt = "7.5.1"
     const val postgresEmbedded = "0.13.3"
     const val postgres = "42.3.1"
-    const val prometheus = "0.9.0"
     const val spek = "2.0.17"
     const val smCommon = "1.0.22"
     const val micrometerRegistry = "1.7.5"
