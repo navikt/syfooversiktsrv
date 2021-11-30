@@ -23,7 +23,7 @@ object KafkaITSpek : Spek({
 
     val embeddedEnvironment = KafkaEnvironment(
         autoStart = false,
-        topics = listOf(oversiktHendelseTopic)
+        topicNames = listOf(oversiktHendelseTopic)
     )
 
     val env = testEnvironment(

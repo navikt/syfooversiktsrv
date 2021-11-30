@@ -8,8 +8,8 @@ object Versions {
     const val flyway = "8.1.0"
     const val hikari = "5.0.0"
     const val jackson = "2.13.0"
-    const val kafka = "2.0.0"
-    const val kafkaEmbedded = "2.0.2"
+    const val kafka = "2.7.0"
+    const val kafkaEmbedded = "2.5.0"
     const val kluent = "1.68"
     const val kotlinSerialization = "0.20.0"
     const val ktor = "1.6.5"
@@ -32,6 +32,7 @@ plugins {
 repositories {
     mavenCentral()
     maven(url = "https://packages.confluent.io/maven/")
+    maven(url = "https://jitpack.io")
 }
 
 dependencies {
