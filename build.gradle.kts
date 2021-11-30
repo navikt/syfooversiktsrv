@@ -11,7 +11,6 @@ object Versions {
     const val kafka = "2.7.0"
     const val kafkaEmbedded = "2.5.0"
     const val kluent = "1.68"
-    const val kotlinSerialization = "0.20.0"
     const val ktor = "1.6.5"
     const val logback = "1.2.7"
     const val logstashEncoder = "7.0.1"
@@ -60,9 +59,6 @@ dependencies {
 
     // Kafka
     implementation("org.apache.kafka:kafka_2.12:${Versions.kafka}")
-
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:${Versions.kotlinSerialization}")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:${Versions.kotlinSerialization}")
 
     implementation("io.ktor:ktor-jackson:${Versions.ktor}")
     implementation("io.ktor:ktor-client-jackson:${Versions.ktor}")
