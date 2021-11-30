@@ -5,7 +5,6 @@ group = "no.nav.syfo"
 version = "1.0-SNAPSHOT"
 
 object Versions {
-    const val coroutines = "1.5.2"
     const val flyway = "8.1.0"
     const val hikari = "5.0.0"
     const val jackson = "2.13.0"
@@ -39,8 +38,6 @@ dependencies {
     implementation(kotlin("stdlib"))
     implementation(kotlin("reflect"))
 
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:${Versions.coroutines}")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}")
     implementation("io.ktor:ktor-metrics-micrometer:${Versions.ktor}")
     implementation("io.micrometer:micrometer-registry-prometheus:${Versions.micrometerRegistry}")
     implementation("io.ktor:ktor-server-netty:${Versions.ktor}")
