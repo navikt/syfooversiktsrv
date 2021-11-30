@@ -6,8 +6,8 @@ version = "1.0-SNAPSHOT"
 
 object Versions {
     const val coroutines = "1.5.2"
-    const val flyway = "7.15.0"
-    const val hikari = "4.0.1"
+    const val flyway = "8.1.0"
+    const val hikari = "5.0.0"
     const val jackson = "2.13.0"
     const val kafka = "2.0.0"
     const val kafkaEmbedded = "2.0.2"
