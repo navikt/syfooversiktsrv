@@ -38,42 +38,44 @@ dependencies {
     implementation(kotlin("stdlib"))
     implementation(kotlin("reflect"))
 
-    implementation("io.ktor:ktor-metrics-micrometer:${Versions.ktor}")
-    implementation("io.micrometer:micrometer-registry-prometheus:${Versions.micrometerRegistry}")
-    implementation("io.ktor:ktor-server-netty:${Versions.ktor}")
+    implementation("io.ktor:ktor-auth-jwt:${Versions.ktor}")
     implementation("io.ktor:ktor-client-apache:${Versions.ktor}")
     implementation("io.ktor:ktor-client-cio:${Versions.ktor}")
-    implementation("io.ktor:ktor-client-logging:${Versions.ktor}")
-    implementation("io.ktor:ktor-client-logging-jvm:${Versions.ktor}")
+    implementation("io.ktor:ktor-client-jackson:${Versions.ktor}")
+    implementation("io.ktor:ktor-jackson:${Versions.ktor}")
+    implementation("io.ktor:ktor-server-netty:${Versions.ktor}")
 
+    // Logging
     implementation("ch.qos.logback:logback-classic:${Versions.logback}")
     implementation("net.logstash.logback:logstash-logback-encoder:${Versions.logstashEncoder}")
-    implementation("com.fasterxml.jackson.core:jackson-databind:${Versions.jackson}")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:${Versions.jackson}")
+
+    // Metrics and Prometheus
+    implementation("io.ktor:ktor-metrics-micrometer:${Versions.ktor}")
+    implementation("io.micrometer:micrometer-registry-prometheus:${Versions.micrometerRegistry}")
+
+    // (De-)serialization
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${Versions.jackson}")
 
     // Database
     implementation("org.postgresql:postgresql:${Versions.postgres}")
     implementation("com.zaxxer:HikariCP:${Versions.hikari}")
     implementation("org.flywaydb:flyway-core:${Versions.flyway}")
+    testImplementation("com.opentable.components:otj-pg-embedded:${Versions.postgresEmbedded}")
 
     // Kafka
     implementation("org.apache.kafka:kafka_2.12:${Versions.kafka}")
-
-    implementation("io.ktor:ktor-jackson:${Versions.ktor}")
-    implementation("io.ktor:ktor-client-jackson:${Versions.ktor}")
-    implementation("io.ktor:ktor-auth:${Versions.ktor}")
-    implementation("io.ktor:ktor-auth-jwt:${Versions.ktor}")
+    testImplementation("no.nav:kafka-embedded-env:${Versions.kafkaEmbedded}")
 
     testImplementation("com.nimbusds:nimbus-jose-jwt:${Versions.nimbusjosejwt}")
-    testImplementation("no.nav:kafka-embedded-env:${Versions.kafkaEmbedded}")
-    testImplementation("org.amshove.kluent:kluent:${Versions.kluent}")
-    testImplementation("org.spekframework.spek2:spek-dsl-jvm:${Versions.spek}")
     testImplementation("io.ktor:ktor-server-test-host:${Versions.ktor}")
     testImplementation("io.mockk:mockk:${Versions.mockk}")
-    testImplementation("com.opentable.components:otj-pg-embedded:${Versions.postgresEmbedded}")
-    testRuntimeOnly("org.spekframework.spek2:spek-runtime-jvm:${Versions.spek}")
-    testRuntimeOnly("org.spekframework.spek2:spek-runner-junit5:${Versions.spek}")
+    testImplementation("org.amshove.kluent:kluent:${Versions.kluent}")
+    testImplementation("org.spekframework.spek2:spek-dsl-jvm:${Versions.spek}") {
+        exclude(group = "org.jetbrains.kotlin")
+    }
+    testRuntimeOnly("org.spekframework.spek2:spek-runner-junit5:${Versions.spek}") {
+        exclude(group = "org.jetbrains.kotlin")
+    }
 }
 
 tasks {
