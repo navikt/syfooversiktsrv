@@ -5,19 +5,19 @@ group = "no.nav.syfo"
 version = "1.0-SNAPSHOT"
 
 object Versions {
-    const val flyway = "8.2.2"
+    const val flyway = "8.3.0"
     const val hikari = "5.0.0"
-    const val jackson = "2.13.0"
-    const val kafka = "2.7.0"
-    const val kafkaEmbedded = "2.5.0"
+    const val jackson = "2.13.1"
+    const val kafka = "2.8.1"
+    const val kafkaEmbedded = "2.8.1"
     const val kluent = "1.68"
     const val ktor = "1.6.7"
-    const val logback = "1.2.9"
+    const val logback = "1.2.10"
     const val logstashEncoder = "7.0.1"
-    const val mockk = "1.12.1"
+    const val mockk = "1.12.2"
     const val micrometerRegistry = "1.8.1"
     const val nimbusjosejwt = "9.15.2"
-    const val postgresEmbedded = "0.13.3"
+    const val postgresEmbedded = "0.13.4"
     const val postgres = "42.3.1"
     const val spek = "2.0.17"
 }
@@ -63,7 +63,7 @@ dependencies {
     testImplementation("com.opentable.components:otj-pg-embedded:${Versions.postgresEmbedded}")
 
     // Kafka
-    implementation("org.apache.kafka:kafka_2.12:${Versions.kafka}")
+    implementation("org.apache.kafka:kafka_2.13:${Versions.kafka}")
     testImplementation("no.nav:kafka-embedded-env:${Versions.kafkaEmbedded}")
 
     testImplementation("com.nimbusds:nimbus-jose-jwt:${Versions.nimbusjosejwt}")
