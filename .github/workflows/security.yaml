@@ -18,5 +18,5 @@ jobs:
           ORG_GRADLE_PROJECT_githubUser: x-access-token
           ORG_GRADLE_PROJECT_githubPassword: ${{ secrets.GITHUB_TOKEN }}
         with:
-          command: monitor 
-          args: --project-name=${{ github.repository }}
+          command: monitor
+          args: --org=teamsykefravr --project-name=${{ github.repository }}
