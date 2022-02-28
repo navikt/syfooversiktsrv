@@ -3,17 +3,9 @@ package no.nav.syfo.personstatus
 import no.nav.syfo.db.DatabaseInterface
 import no.nav.syfo.db.toList
 import no.nav.syfo.personstatus.domain.*
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.sql.ResultSet
-import java.sql.Timestamp
-import java.time.Instant
-import java.util.*
 
 const val KNYTNING_IKKE_FUNNET = 0L
-
-val DatabaseInterface.LOG: Logger
-    get() = LoggerFactory.getLogger("no.nav.syfo.DatabaseInterface")
 
 const val queryHentPersonResultatInternal = """
                          SELECT *
@@ -74,36 +66,23 @@ fun DatabaseInterface.hentBrukereTilknyttetVeileder(veileder: String): List<Veil
     }
 }
 
-const val queryLagreBrukerKnytningPaEnhet = """INSERT INTO PERSON_OVERSIKT_STATUS (
-            id,
-            uuid,
-            fnr,
-            tildelt_veileder,
-            tildelt_enhet,
-            opprettet,
-            sist_endret) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?)"""
-
 fun DatabaseInterface.lagreBrukerKnytningPaEnhet(veilederBrukerKnytning: VeilederBrukerKnytning) {
     val id = oppdaterEnhetDersomKnytningFinnes(veilederBrukerKnytning)
 
     if (id == KNYTNING_IKKE_FUNNET) {
-        val uuid = UUID.randomUUID().toString()
-        val tidspunkt = Timestamp.from(Instant.now())
-
-        connection.use { connection ->
-
-            connection.prepareStatement(queryLagreBrukerKnytningPaEnhet).use {
-                it.setString(1, uuid)
-                it.setString(2, veilederBrukerKnytning.fnr)
-                it.setString(3, veilederBrukerKnytning.veilederIdent.trim())
-                it.setString(4, veilederBrukerKnytning.enhet)
-                it.setTimestamp(5, tidspunkt)
-                it.setTimestamp(6, tidspunkt)
-
-                it.execute()
-            }
-            connection.commit()
-        }
+        val personOversiktStatus = PersonOversiktStatus(
+            veilederIdent = veilederBrukerKnytning.veilederIdent,
+            fnr = veilederBrukerKnytning.fnr,
+            navn = "",
+            enhet = veilederBrukerKnytning.enhet,
+            motebehovUbehandlet = null,
+            moteplanleggerUbehandlet = null,
+            oppfolgingsplanLPSBistandUbehandlet = null,
+            oppfolgingstilfeller = emptyList(),
+        )
+        createPersonOversiktStatus(
+            personOversiktStatus = personOversiktStatus,
+        )
     }
 }
 

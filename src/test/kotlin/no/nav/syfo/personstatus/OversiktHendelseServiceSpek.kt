@@ -87,7 +87,7 @@ object OversiktHendelseServiceSpek : Spek({
                 it("skal oppdatere person, om person eksisterer i oversikt med motebehov-hendelse") {
                     val oversiktHendelse = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
 
-                    database.opprettPersonMedMotebehovMottatt(oversiktHendelse)
+                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse = oversiktHendelse)
 
                     val oversiktHendelseNy = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name, NAV_ENHET_2, LocalDateTime.now())
 
@@ -158,7 +158,7 @@ object OversiktHendelseServiceSpek : Spek({
                 it("skal oppdatere person, om person eksisterer i oversikt") {
                     val oversiktHendelseMotebehovMottatt = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
 
-                    database.opprettPersonMedMotebehovMottatt(oversiktHendelseMotebehovMottatt)
+                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse = oversiktHendelseMotebehovMottatt)
 
                     val oversiktHendelseMotebehovUbehandlet = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET.name, NAV_ENHET_2, LocalDateTime.now())
 
@@ -184,7 +184,7 @@ object OversiktHendelseServiceSpek : Spek({
 
                     val oversiktHendelseMotebehovMottatt = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
 
-                    database.oppdaterPersonMedMotebehovMottatt(oversiktHendelseMotebehovMottatt)
+                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse = oversiktHendelseMotebehovMottatt)
 
                     val oversiktHendelseMotebehovUbehandlet = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET.name, NAV_ENHET_2, LocalDateTime.now())
 
