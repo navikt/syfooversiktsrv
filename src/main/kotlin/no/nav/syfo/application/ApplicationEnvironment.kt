@@ -19,6 +19,10 @@ data class Environment(
 
     val oversikthendelseOppfolgingstilfelleTopic: String = "aapen-syfo-oversikthendelse-tilfelle-v1",
 
+    val redisHost: String = getEnvVar("REDIS_HOST"),
+    val redisPort: Int = getEnvVar("REDIS_PORT", "6379").toInt(),
+    val redisSecret: String = getEnvVar("REDIS_PASSWORD"),
+
     val serviceuserUsername: String = getEnvVar("SERVICEUSER_USERNAME"),
     val serviceuserPassword: String = getEnvVar("SERVICEUSER_PASSWORD"),
 

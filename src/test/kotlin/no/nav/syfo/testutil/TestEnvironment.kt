@@ -22,6 +22,8 @@ fun testEnvironment(
     kafkaBootstrapServers = kafkaBootstrapServers,
     kafkaSchemaRegistryUrl = "http://kafka-schema-registry.tpa.svc.nais.local:8081",
     applicationName = "syfooversiktsrv",
+    redisHost = "localhost",
+    redisSecret = "password",
     serviceuserUsername = "",
     serviceuserPassword = "",
     syfotilgangskontrollClientId = "syfotilgangskontrollClientId",

@@ -64,6 +64,7 @@ spec:
           - name: syfooversiktsrv-db
         diskAutoresize: true
   envFrom:
+    - secret: syfooversiktsrv-redis-password
     - secret: syfooversiktsrv-serviceuser
   env:
     - name: KTOR_ENV
@@ -72,6 +73,8 @@ spec:
       value: SSL://b27apvl00045.preprod.local:8443,SSL://b27apvl00046.preprod.local:8443,SSL://b27apvl00047.preprod.local:8443
     - name: KAFKA_SCHEMA_REGISTRY_URL
       value: "https://kafka-schema-registry.nais-q.adeo.no"
+    - name: REDIS_HOST
+      value: "syfooversiktsrv-redis.teamsykefravr.svc.cluster.local"
     - name: SYFOTILGANGSKONTROLL_CLIENT_ID
       value: "dev-fss.teamsykefravr.syfo-tilgangskontroll"
     - name: SYFOTILGANGSKONTROLL_URL
