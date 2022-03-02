@@ -516,6 +516,28 @@ object PersonoversiktStatusApiSpek : Spek({
                         personOversiktStatus.oppfolgingstilfeller.size shouldBeEqualTo 0
                     }
                 }
+
+                it("should not return Person if OversikthendelseType for Behandling is received without exisiting Person") {
+                    val oversiktHendelseMotebehovSvarBehandlet =
+                        generateKOversikthendelse(OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET)
+                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMotebehovSvarBehandlet)
+
+                    val oversiktHendelseMoteplanleggerAlleSvarBehandlet =
+                        generateKOversikthendelse(OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_BEHANDLET)
+                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerAlleSvarBehandlet)
+
+                    val oversiktHendelseOPLPSBistandMottatt =
+                        generateKOversikthendelse(OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_BEHANDLET)
+                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseOPLPSBistandMottatt)
+
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        }
+                    ) {
+                        response.status() shouldBeEqualTo HttpStatusCode.NoContent
+                    }
+                }
             }
         }
     }

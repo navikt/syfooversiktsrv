@@ -8,3 +8,8 @@ enum class OversikthendelseType {
     OPPFOLGINGSPLANLPS_BISTAND_MOTTATT,
     OPPFOLGINGSPLANLPS_BISTAND_BEHANDLET,
 }
+
+fun OversikthendelseType.isNotBehandling() =
+    this == OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT ||
+        this == OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT ||
+        this == OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT

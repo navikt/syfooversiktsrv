@@ -1,219 +1,103 @@
 package no.nav.syfo.personstatus
 
 import no.nav.syfo.db.DatabaseInterface
-import no.nav.syfo.personstatus.domain.KOversikthendelse
+import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import java.sql.Timestamp
 import java.sql.Types.NULL
 import java.time.Instant
 import java.util.*
 
-const val queryOppdaterPersonMedMotebehovBehandlet = """
-                        UPDATE PERSON_OVERSIKT_STATUS
-                        SET motebehov_ubehandlet = ?, sist_endret = ?
-                        WHERE fnr = ?
-                """
-
-fun DatabaseInterface.oppdaterPersonMedMotebehovBehandlet(oversiktHendelse: KOversikthendelse) {
-    val tidspunkt = Timestamp.from(Instant.now())
-    connection.use { connection ->
-        connection.prepareStatement(queryOppdaterPersonMedMotebehovBehandlet).use {
-            it.setBoolean(1, false)
-            it.setTimestamp(2, tidspunkt)
-            it.setString(3, oversiktHendelse.fnr)
-            it.execute()
-        }
-        connection.commit()
-    }
-}
-
-fun DatabaseInterface.oppdaterPersonMedMotebehovBehandletNyEnhet(oversiktHendelse: KOversikthendelse) {
-    val tidspunkt = Timestamp.from(Instant.now())
-    val query = """
-                        UPDATE PERSON_OVERSIKT_STATUS
-                        SET tildelt_veileder = ?, motebehov_ubehandlet = ?, tildelt_enhet = ?, sist_endret = ?
-                        WHERE fnr = ?
-                """
-    connection.use { connection ->
-        connection.prepareStatement(query).use {
-            it.setNull(1, NULL)
-            it.setBoolean(2, false)
-            it.setString(3, oversiktHendelse.enhetId)
-            it.setTimestamp(4, tidspunkt)
-            it.setString(5, oversiktHendelse.fnr)
-            it.execute()
-        }
-        connection.commit()
-    }
-}
-
-fun DatabaseInterface.oppdaterPersonMedMotebehovMottattNyEnhet(oversiktHendelse: KOversikthendelse) {
-    val tidspunkt = Timestamp.from(Instant.now())
-    val query = """
-                        UPDATE PERSON_OVERSIKT_STATUS
-                        SET tildelt_veileder = ?, motebehov_ubehandlet = ?, tildelt_enhet = ?, sist_endret = ?
-                        WHERE fnr = ?
-                """
-    connection.use { connection ->
-        connection.prepareStatement(query).use {
-            it.setNull(1, NULL)
-            it.setBoolean(2, true)
-            it.setString(3, oversiktHendelse.enhetId)
-            it.setTimestamp(4, tidspunkt)
-            it.setString(5, oversiktHendelse.fnr)
-            it.execute()
-        }
-        connection.commit()
-    }
-}
-
-const val queryOppdaterPersonMedMotebehovMottatt = """
-                        UPDATE PERSON_OVERSIKT_STATUS
-                        SET motebehov_ubehandlet = ?, tildelt_enhet = ?, sist_endret = ?
-                        WHERE fnr = ?
-                """
-
-fun DatabaseInterface.oppdaterPersonMedMotebehovMottatt(oversiktHendelse: KOversikthendelse) {
-    val tidspunkt = Timestamp.from(Instant.now())
-    connection.use { connection ->
-        connection.prepareStatement(queryOppdaterPersonMedMotebehovMottatt).use {
-            it.setBoolean(1, true)
-            it.setString(2, oversiktHendelse.enhetId)
-            it.setTimestamp(3, tidspunkt)
-            it.setString(4, oversiktHendelse.fnr)
-            it.execute()
-        }
-        connection.commit()
-    }
-}
-
-const val queryOpprettPersonMedMotebehovMottatt = """INSERT INTO PERSON_OVERSIKT_STATUS (
+const val queryCreatePersonOversiktStatus =
+    """
+    INSERT INTO PERSON_OVERSIKT_STATUS (
         id,
         uuid,
         fnr,
+        navn,
+        tildelt_veileder,
         tildelt_enhet,
+        opprettet,
+        sist_endret,
         motebehov_ubehandlet,
-        opprettet,
-        sist_endret) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?)"""
-
-fun DatabaseInterface.opprettPersonMedMotebehovMottatt(oversiktHendelse: KOversikthendelse) {
-    val uuid = UUID.randomUUID().toString()
-    val tidspunkt = Timestamp.from(Instant.now())
-
-    connection.use { connection ->
-        connection.prepareStatement(queryOpprettPersonMedMotebehovMottatt).use {
-            it.setString(1, uuid)
-            it.setString(2, oversiktHendelse.fnr)
-            it.setString(3, oversiktHendelse.enhetId)
-            it.setBoolean(4, true)
-            it.setTimestamp(5, tidspunkt)
-            it.setTimestamp(6, tidspunkt)
-            it.execute()
-        }
-        connection.commit()
-    }
-}
-
-fun DatabaseInterface.oppdaterPersonMedMoteplanleggerAlleSvarNyEnhet(oversiktHendelse: KOversikthendelse) {
-    val tidspunkt = Timestamp.from(Instant.now())
-    val query = """
-                        UPDATE PERSON_OVERSIKT_STATUS
-                        SET tildelt_veileder = ?, moteplanlegger_ubehandlet = ?, tildelt_enhet = ?, sist_endret = ?
-                        WHERE fnr = ?
-                """
-    connection.use { connection ->
-        connection.prepareStatement(query).use {
-            it.setNull(1, NULL)
-            it.setBoolean(2, true)
-            it.setString(3, oversiktHendelse.enhetId)
-            it.setTimestamp(4, tidspunkt)
-            it.setString(5, oversiktHendelse.fnr)
-            it.execute()
-        }
-        connection.commit()
-    }
-}
-
-const val queryOppdaterPersonMedMoteplanleggerAlleSvarMottatt = """
-                        UPDATE PERSON_OVERSIKT_STATUS
-                        SET moteplanlegger_ubehandlet = ?, tildelt_enhet = ?, sist_endret = ?
-                        WHERE fnr = ?
-                """
-
-fun DatabaseInterface.oppdaterPersonMedMoteplanleggerAlleSvarMottatt(oversiktHendelse: KOversikthendelse) {
-    val tidspunkt = Timestamp.from(Instant.now())
-    connection.use { connection ->
-        connection.prepareStatement(queryOppdaterPersonMedMoteplanleggerAlleSvarMottatt).use {
-            it.setBoolean(1, true)
-            it.setString(2, oversiktHendelse.enhetId)
-            it.setTimestamp(3, tidspunkt)
-            it.setString(4, oversiktHendelse.fnr)
-            it.execute()
-        }
-        connection.commit()
-    }
-}
-
-const val queryOpprettPersonMedMoteplanleggerAlleSvar = """INSERT INTO PERSON_OVERSIKT_STATUS (
-        id,
-        uuid,
-        fnr,
-        tildelt_enhet,
         moteplanlegger_ubehandlet,
-        opprettet,
-        sist_endret) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?)"""
+        oppfolgingsplan_lps_bistand_ubehandlet
+    ) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """
 
-fun DatabaseInterface.opprettPersonMedMoteplanleggerAlleSvarMottatt(oversiktHendelse: KOversikthendelse) {
+fun DatabaseInterface.createPersonOversiktStatus(
+    personOversiktStatus: PersonOversiktStatus,
+) {
     val uuid = UUID.randomUUID().toString()
     val tidspunkt = Timestamp.from(Instant.now())
 
     connection.use { connection ->
-        connection.prepareStatement(queryOpprettPersonMedMoteplanleggerAlleSvar).use {
+        connection.prepareStatement(queryCreatePersonOversiktStatus).use {
             it.setString(1, uuid)
-            it.setString(2, oversiktHendelse.fnr)
-            it.setString(3, oversiktHendelse.enhetId)
-            it.setBoolean(4, true)
-            it.setTimestamp(5, tidspunkt)
+            it.setString(2, personOversiktStatus.fnr)
+            it.setString(3, personOversiktStatus.navn)
+            it.setString(4, personOversiktStatus.veilederIdent)
+            it.setString(5, personOversiktStatus.enhet)
             it.setTimestamp(6, tidspunkt)
+            it.setTimestamp(7, tidspunkt)
+            if (personOversiktStatus.motebehovUbehandlet != null) {
+                it.setBoolean(8, personOversiktStatus.motebehovUbehandlet)
+            } else {
+                it.setNull(8, NULL)
+            }
+            if (personOversiktStatus.moteplanleggerUbehandlet != null) {
+                it.setBoolean(9, personOversiktStatus.moteplanleggerUbehandlet)
+            } else {
+                it.setNull(9, NULL)
+            }
+            if (personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet != null) {
+                it.setBoolean(10, personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet)
+            } else {
+                it.setNull(10, NULL)
+            }
             it.execute()
         }
         connection.commit()
     }
 }
 
-const val queryOppdaterPersonMedMoteplanleggerAlleSvarBehandlet = """
-                        UPDATE PERSON_OVERSIKT_STATUS
-                        SET moteplanlegger_ubehandlet = ?, sist_endret = ?
-                        WHERE fnr = ?
-                """
+const val queryUpdatePersonOversiktStatus =
+    """
+    UPDATE PERSON_OVERSIKT_STATUS
+    SET tildelt_veileder = ?,
+    tildelt_enhet = ?,
+    sist_endret = ?,
+    motebehov_ubehandlet = ?,
+    moteplanlegger_ubehandlet = ?,
+    oppfolgingsplan_lps_bistand_ubehandlet = ?
+    WHERE fnr = ?
+    """
 
-fun DatabaseInterface.oppdaterPersonMedMoteplanleggerAlleSvarBehandlet(oversiktHendelse: KOversikthendelse) {
+fun DatabaseInterface.updatePersonOversiktStatus(
+    personOversiktStatus: PersonOversiktStatus,
+) {
     val tidspunkt = Timestamp.from(Instant.now())
-    connection.use { connection ->
-        connection.prepareStatement(queryOppdaterPersonMedMoteplanleggerAlleSvarBehandlet).use {
-            it.setBoolean(1, false)
-            it.setTimestamp(2, tidspunkt)
-            it.setString(3, oversiktHendelse.fnr)
-            it.execute()
-        }
-        connection.commit()
-    }
-}
 
-const val queryOppdaterPersonMedMoteplanleggerAlleSvarBehandletNyEnhet = """
-                        UPDATE PERSON_OVERSIKT_STATUS
-                        SET tildelt_veileder = ?, moteplanlegger_ubehandlet = ?, tildelt_enhet = ?, sist_endret = ?
-                        WHERE fnr = ?
-                """
-
-fun DatabaseInterface.oppdaterPersonMedMoteplanleggerAlleSvarBehandletNyEnhet(oversiktHendelse: KOversikthendelse) {
-    val tidspunkt = Timestamp.from(Instant.now())
     connection.use { connection ->
-        connection.prepareStatement(queryOppdaterPersonMedMoteplanleggerAlleSvarBehandletNyEnhet).use {
-            it.setNull(1, NULL)
-            it.setBoolean(2, false)
-            it.setString(3, oversiktHendelse.enhetId)
-            it.setTimestamp(4, tidspunkt)
-            it.setString(5, oversiktHendelse.fnr)
+        connection.prepareStatement(queryUpdatePersonOversiktStatus).use {
+            it.setString(1, personOversiktStatus.veilederIdent)
+            it.setString(2, personOversiktStatus.enhet)
+            it.setTimestamp(3, tidspunkt)
+            if (personOversiktStatus.motebehovUbehandlet != null) {
+                it.setBoolean(4, personOversiktStatus.motebehovUbehandlet)
+            } else {
+                it.setNull(4, NULL)
+            }
+            if (personOversiktStatus.moteplanleggerUbehandlet != null) {
+                it.setBoolean(5, personOversiktStatus.moteplanleggerUbehandlet)
+            } else {
+                it.setNull(5, NULL)
+            }
+            if (personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet != null) {
+                it.setBoolean(6, personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet)
+            } else {
+                it.setNull(6, NULL)
+            }
+            it.setString(7, personOversiktStatus.fnr)
             it.execute()
         }
         connection.commit()
