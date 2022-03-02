@@ -6,13 +6,15 @@ import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import no.nav.syfo.application.cache.RedisStore
 import no.nav.syfo.client.httpClientProxy
 import org.slf4j.LoggerFactory
 
 class AzureAdClient(
     private val aadAppClient: String,
     private val aadAppSecret: String,
-    private val aadTokenEndpoint: String
+    private val aadTokenEndpoint: String,
+    private val redisStore: RedisStore,
 ) {
     private val httpClient = httpClientProxy()
 
@@ -31,6 +33,36 @@ class AzureAdClient(
                 append("requested_token_use", "on_behalf_of")
             }
         )?.toAzureAdToken()
+
+    suspend fun getSystemToken(
+        scopeClientId: String,
+    ): AzureAdToken? {
+        val cacheKey = "${CACHE_AZUREAD_TOKEN_SYSTEM_KEY_PREFIX}$scopeClientId"
+        val cachedToken = redisStore.getObject<AzureAdToken>(key = cacheKey)
+        return if (cachedToken?.isExpired() == false) {
+            COUNT_CALL_AZUREAD_TOKEN_SYSTEM_CACHE_HIT.increment()
+            cachedToken
+        } else {
+            val azureAdTokenResponse = getAccessToken(
+                Parameters.build {
+                    append("client_id", aadAppClient)
+                    append("client_secret", aadAppSecret)
+                    append("grant_type", "client_credentials")
+                    append("scope", "api://$scopeClientId/.default")
+                }
+            )
+            azureAdTokenResponse?.let { token ->
+                val azureAdToken = token.toAzureAdToken()
+                COUNT_CALL_AZUREAD_TOKEN_SYSTEM_CACHE_MISS.increment()
+                redisStore.setObject(
+                    key = cacheKey,
+                    value = azureAdToken,
+                    expireSeconds = token.expires_in
+                )
+                azureAdToken
+            }
+        }
+    }
 
     private suspend fun getAccessToken(
         formParameters: Parameters,
@@ -58,6 +90,8 @@ class AzureAdClient(
     }
 
     companion object {
+        const val CACHE_AZUREAD_TOKEN_SYSTEM_KEY_PREFIX = "azuread-token-system-"
+
         private val log = LoggerFactory.getLogger(AzureAdClient::class.java)
     }
 }

@@ -10,6 +10,9 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 
+const val ALLE_TEMA_HEADERVERDI = "GEN"
+const val TEMA_HEADER = "Tema"
+
 const val NAV_CALL_ID_HEADER = "Nav-Call-Id"
 
 fun PipelineContext<out Unit, ApplicationCall>.getCallId(): String {

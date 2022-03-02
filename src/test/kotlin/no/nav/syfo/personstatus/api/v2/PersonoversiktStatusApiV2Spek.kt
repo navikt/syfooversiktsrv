@@ -13,6 +13,7 @@ import no.nav.syfo.personstatus.domain.*
 import no.nav.syfo.personstatus.lagreBrukerKnytningPaEnhet
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
+import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_NO_NAME_FNR
 import no.nav.syfo.testutil.UserConstants.NAV_ENHET
 import no.nav.syfo.testutil.UserConstants.VEILEDER_ID
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNAVN_2
@@ -218,7 +219,7 @@ object PersonoversiktStatusApiSpek : Spek({
                     ) {
                         response.status() shouldBeEqualTo HttpStatusCode.OK
                         val personOversiktStatus =
-                            objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!).first()
+                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
                         personOversiktStatus.veilederIdent shouldBeEqualTo null
                         personOversiktStatus.fnr shouldBeEqualTo oversikthendelstilfelle.fnr
                         personOversiktStatus.enhet shouldBeEqualTo oversikthendelstilfelle.enhetId
@@ -264,10 +265,10 @@ object PersonoversiktStatusApiSpek : Spek({
                     ) {
                         response.status() shouldBeEqualTo HttpStatusCode.OK
                         val personOversiktStatus =
-                            objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!).first()
+                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
                         personOversiktStatus.veilederIdent shouldBeEqualTo null
                         personOversiktStatus.fnr shouldBeEqualTo oversikthendelstilfelle.fnr
-                        personOversiktStatus.navn shouldBeEqualTo oversikthendelstilfelle.navn
+                        personOversiktStatus.navn shouldBeEqualTo getIdentName(ident = oversikthendelstilfelle.fnr)
                         personOversiktStatus.enhet shouldBeEqualTo oversikthendelstilfelle.enhetId
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
                         personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo null
@@ -309,10 +310,10 @@ object PersonoversiktStatusApiSpek : Spek({
                     ) {
                         response.status() shouldBeEqualTo HttpStatusCode.OK
                         val personOversiktStatus =
-                            objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!).first()
+                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
                         personOversiktStatus.veilederIdent shouldBeEqualTo null
                         personOversiktStatus.fnr shouldBeEqualTo oversikthendelstilfelle.fnr
-                        personOversiktStatus.navn shouldBeEqualTo oversikthendelstilfelle.navn
+                        personOversiktStatus.navn shouldBeEqualTo getIdentName(ident = oversikthendelstilfelle.fnr)
                         personOversiktStatus.enhet shouldBeEqualTo oversikthendelstilfelle.enhetId
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo null
                         personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo true
@@ -419,10 +420,10 @@ object PersonoversiktStatusApiSpek : Spek({
                     ) {
                         response.status() shouldBeEqualTo HttpStatusCode.OK
                         val personOversiktStatus =
-                            objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!).first()
+                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
                         personOversiktStatus.veilederIdent shouldBeEqualTo tilknytning.veilederIdent
                         personOversiktStatus.fnr shouldBeEqualTo oversikthendelstilfelle.fnr
-                        personOversiktStatus.navn shouldBeEqualTo oversikthendelstilfelle.navn
+                        personOversiktStatus.navn shouldBeEqualTo getIdentName(ident = oversikthendelstilfelle.fnr)
                         personOversiktStatus.enhet shouldBeEqualTo oversikthendelstilfelle.enhetId
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
                         personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo true
@@ -475,10 +476,10 @@ object PersonoversiktStatusApiSpek : Spek({
                     ) {
                         response.status() shouldBeEqualTo HttpStatusCode.OK
                         val personOversiktStatus =
-                            objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!).first()
+                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
                         personOversiktStatus.veilederIdent shouldBeEqualTo tilknytning.veilederIdent
                         personOversiktStatus.fnr shouldBeEqualTo oversikthendelstilfelle.fnr
-                        personOversiktStatus.navn shouldBeEqualTo oversikthendelstilfelle.navn
+                        personOversiktStatus.navn shouldBeEqualTo getIdentName(ident = oversikthendelstilfelle.fnr)
                         personOversiktStatus.enhet shouldBeEqualTo oversikthendelstilfelle.enhetId
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
                         personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo true
@@ -504,7 +505,34 @@ object PersonoversiktStatusApiSpek : Spek({
                     ) {
                         response.status() shouldBeEqualTo HttpStatusCode.OK
                         val personOversiktStatus =
-                            objectMapper.readValue<List<PersonOversiktStatus>>(response.content!!).first()
+                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
+                        personOversiktStatus.veilederIdent shouldBeEqualTo null
+                        personOversiktStatus.fnr shouldBeEqualTo oversiktHendelseOPLPSBistandMottatt.fnr
+                        personOversiktStatus.navn shouldBeEqualTo getIdentName(ident = oversiktHendelseOPLPSBistandMottatt.fnr)
+                        personOversiktStatus.enhet shouldBeEqualTo oversiktHendelseOPLPSBistandMottatt.enhetId
+                        personOversiktStatus.motebehovUbehandlet shouldBeEqualTo null
+                        personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo null
+                        personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
+
+                        personOversiktStatus.oppfolgingstilfeller.size shouldBeEqualTo 0
+                    }
+                }
+
+                it("should return Person with no Oppfolgingstilfelle and no Navn for OPPFOLGINGSPLANLPS_BISTAND_MOTTATT") {
+                    val oversiktHendelseOPLPSBistandMottatt =
+                        generateKOversikthendelse(OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT).copy(
+                            fnr = ARBEIDSTAKER_NO_NAME_FNR,
+                        )
+                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseOPLPSBistandMottatt)
+
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        }
+                    ) {
+                        response.status() shouldBeEqualTo HttpStatusCode.OK
+                        val personOversiktStatus =
+                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
                         personOversiktStatus.veilederIdent shouldBeEqualTo null
                         personOversiktStatus.fnr shouldBeEqualTo oversiktHendelseOPLPSBistandMottatt.fnr
                         personOversiktStatus.navn shouldBeEqualTo ""
@@ -544,7 +572,7 @@ object PersonoversiktStatusApiSpek : Spek({
 })
 
 fun checkPersonOppfolgingstilfelle(
-    oppfolgingstilfelle: Oppfolgingstilfelle,
+    oppfolgingstilfelle: OppfolgingstilfelleDTO,
     oversikthendelsetilfelle: KOversikthendelsetilfelle
 ) {
     oppfolgingstilfelle.virksomhetsnummer shouldBeEqualTo oversikthendelsetilfelle.virksomhetsnummer

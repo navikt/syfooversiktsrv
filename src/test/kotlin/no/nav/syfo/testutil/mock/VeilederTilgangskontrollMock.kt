@@ -19,7 +19,11 @@ class VeilederTilgangskontrollMock {
     val url = "http://localhost:$port"
 
     val responseAccessEnhet = Tilgang(true, "")
-    val responseAccessPersons = listOf(UserConstants.ARBEIDSTAKER_FNR)
+    val responseAccessPersons = listOf(
+        UserConstants.ARBEIDSTAKER_FNR,
+        UserConstants.ARBEIDSTAKER_2_FNR,
+        UserConstants.ARBEIDSTAKER_NO_NAME_FNR,
+    )
 
     val name = "veiledertilgangskontroll"
     val server = embeddedServer(

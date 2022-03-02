@@ -28,6 +28,7 @@ object KafkaITSpek : Spek({
 
     val env = testEnvironment(
         kafkaBootstrapServers = embeddedEnvironment.brokersURL,
+        pdlUrl = "pdlUrl",
     )
 
     fun Properties.overrideForTest(): Properties = apply {

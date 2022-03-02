@@ -14,17 +14,14 @@ import no.nav.syfo.personstatus.domain.PPersonOversiktStatus
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
 import no.nav.syfo.personstatus.hentPersonResultatInternal
 import no.nav.syfo.personstatus.lagreBrukerKnytningPaEnhet
-import no.nav.syfo.testutil.TestDatabase
+import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_2_FNR
-import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_2_NAVN
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
-import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_NAVN
 import no.nav.syfo.testutil.UserConstants.NAV_ENHET_2
 import no.nav.syfo.testutil.UserConstants.VEILEDER_ID
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNAVN_2
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER_2
-import no.nav.syfo.testutil.dropData
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.spekframework.spek2.Spek
@@ -147,7 +144,7 @@ object OversikthendelstilfelleServiceSpek : Spek({
                     database.lagreBrukerKnytningPaEnhet(tilknytning)
 
                     val hendelse = oversikthendelstilfelle.copy(
-                        navn = ARBEIDSTAKER_2_NAVN,
+                        navn = getIdentName(ident = ARBEIDSTAKER_2_FNR),
                         enhetId = NAV_ENHET_2,
                         gradert = false
                     )
@@ -169,7 +166,7 @@ object OversikthendelstilfelleServiceSpek : Spek({
                     database.lagreBrukerKnytningPaEnhet(tilknytning)
 
                     val hendelse = oversikthendelstilfelle.copy(
-                        navn = ARBEIDSTAKER_2_NAVN,
+                        navn = getIdentName(ident = ARBEIDSTAKER_2_FNR),
                         enhetId = NAV_ENHET_2,
                         gradert = true
                     )
@@ -258,7 +255,7 @@ object OversikthendelstilfelleServiceSpek : Spek({
 
                 val oversikthendelsetilfelleMottattForst = oversikthendelstilfelle.copy(
                     fnr = ARBEIDSTAKER_FNR,
-                    navn = ARBEIDSTAKER_NAVN,
+                    navn = getIdentName(ident = ARBEIDSTAKER_FNR),
                     virksomhetsnummer = VIRKSOMHETSNUMMER,
                     fom = LocalDate.now().plusDays(120),
                     tom = LocalDate.now().plusDays(120),
@@ -266,7 +263,7 @@ object OversikthendelstilfelleServiceSpek : Spek({
                 )
                 val oversikthendelsetilfelleMottattSist = oversikthendelstilfelle.copy(
                     fnr = ARBEIDSTAKER_2_FNR,
-                    navn = ARBEIDSTAKER_2_NAVN,
+                    navn = getIdentName(ident = ARBEIDSTAKER_2_FNR),
                     virksomhetsnummer = VIRKSOMHETSNUMMER,
                     fom = LocalDate.now().plusDays(60),
                     tom = LocalDate.now().plusDays(60),
@@ -342,7 +339,7 @@ object OversikthendelstilfelleServiceSpek : Spek({
 
 fun checkPersonOversiktStatus(pPersonOversiktStatus: PPersonOversiktStatus, oversikthendelsetilfelle: KOversikthendelsetilfelle, veilederIdent: String?) {
     pPersonOversiktStatus.fnr shouldBeEqualTo oversikthendelsetilfelle.fnr
-    pPersonOversiktStatus.navn shouldBeEqualTo oversikthendelsetilfelle.navn
+    pPersonOversiktStatus.navn shouldBeEqualTo null
     pPersonOversiktStatus.veilederIdent shouldBeEqualTo veilederIdent
     pPersonOversiktStatus.enhet shouldBeEqualTo oversikthendelsetilfelle.enhetId
     pPersonOversiktStatus.motebehovUbehandlet shouldBeEqualTo null
