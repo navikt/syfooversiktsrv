@@ -6,6 +6,7 @@ import io.netty.util.internal.StringUtil
 import kotlinx.coroutines.delay
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.application.*
+import no.nav.syfo.application.backgroundtask.launchBackgroundTask
 import no.nav.syfo.application.database.database
 import no.nav.syfo.oversikthendelsetilfelle.OversikthendelstilfelleService
 import no.nav.syfo.oversikthendelsetilfelle.domain.KOversikthendelsetilfelle

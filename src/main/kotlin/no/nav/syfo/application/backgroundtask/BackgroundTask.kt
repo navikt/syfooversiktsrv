@@ -1,6 +1,7 @@
-package no.nav.syfo.application
+package no.nav.syfo.application.backgroundtask
 
 import kotlinx.coroutines.*
+import no.nav.syfo.application.ApplicationState
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 

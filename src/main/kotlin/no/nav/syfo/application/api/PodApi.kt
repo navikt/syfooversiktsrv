@@ -6,7 +6,7 @@ import io.ktor.response.respondText
 import io.ktor.routing.Routing
 import io.ktor.routing.get
 import no.nav.syfo.application.ApplicationState
-import no.nav.syfo.db.DatabaseInterface
+import no.nav.syfo.application.database.DatabaseInterface
 
 const val podLivenessPath = "/is_alive"
 const val podReadinessPath = "/is_ready"

@@ -2,7 +2,6 @@ package no.nav.syfo.application.database
 
 import io.ktor.application.*
 import no.nav.syfo.application.Environment
-import no.nav.syfo.db.*
 import no.nav.syfo.isDev
 import no.nav.syfo.isProd
 

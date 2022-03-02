@@ -1,6 +1,6 @@
 package no.nav.syfo.personstatus
 
-import no.nav.syfo.db.DatabaseInterface
+import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import java.sql.Timestamp
 import java.sql.Types.NULL

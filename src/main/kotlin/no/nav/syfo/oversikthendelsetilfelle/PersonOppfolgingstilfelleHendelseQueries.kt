@@ -2,8 +2,8 @@
 
 package no.nav.syfo.oversikthendelsetilfelle
 
-import no.nav.syfo.db.DatabaseInterface
-import no.nav.syfo.db.toList
+import no.nav.syfo.application.database.DatabaseInterface
+import no.nav.syfo.application.database.toList
 import no.nav.syfo.oversikthendelsetilfelle.domain.*
 import no.nav.syfo.util.convert
 import java.sql.*

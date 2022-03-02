@@ -1,6 +1,6 @@
 package no.nav.syfo.personstatus
 
-import no.nav.syfo.db.DatabaseInterface
+import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.metric.*
 import no.nav.syfo.personstatus.domain.*
 import no.nav.syfo.util.callIdArgument

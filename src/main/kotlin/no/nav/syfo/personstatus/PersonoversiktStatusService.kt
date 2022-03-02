@@ -1,6 +1,6 @@
 package no.nav.syfo.personstatus
 
-import no.nav.syfo.db.DatabaseInterface
+import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.oversikthendelsetilfelle.domain.toOppfolgingstilfelle
 import no.nav.syfo.oversikthendelsetilfelle.hentOppfolgingstilfellerForPerson
 import no.nav.syfo.personstatus.domain.*

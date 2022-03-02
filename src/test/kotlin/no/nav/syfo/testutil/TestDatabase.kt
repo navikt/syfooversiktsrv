@@ -1,8 +1,8 @@
 package no.nav.syfo.testutil
 
 import com.opentable.db.postgres.embedded.EmbeddedPostgres
-import no.nav.syfo.db.DatabaseInterface
-import no.nav.syfo.db.toList
+import no.nav.syfo.application.database.DatabaseInterface
+import no.nav.syfo.application.database.toList
 import no.nav.syfo.personstatus.domain.PPersonOversiktStatus
 import no.nav.syfo.personstatus.toPPersonOversiktStatus
 import org.flywaydb.core.Flyway
