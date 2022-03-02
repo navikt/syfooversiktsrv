@@ -9,7 +9,7 @@ import io.ktor.http.*
 import no.nav.syfo.client.httpClientProxy
 import org.slf4j.LoggerFactory
 
-class AzureAdV2Client(
+class AzureAdClient(
     private val aadAppClient: String,
     private val aadAppSecret: String,
     private val aadTokenEndpoint: String
@@ -19,7 +19,7 @@ class AzureAdV2Client(
     suspend fun getOnBehalfOfToken(
         scopeClientId: String,
         token: String
-    ): AadV2TokenResponse? =
+    ): AzureAdToken? =
         getAccessToken(
             Parameters.build {
                 append("client_id", aadAppClient)
@@ -30,25 +30,26 @@ class AzureAdV2Client(
                 append("scope", "api://$scopeClientId/.default")
                 append("requested_token_use", "on_behalf_of")
             }
-        )
+        )?.toAzureAdToken()
 
-    private suspend fun getAccessToken(formParameters: Parameters): AadV2TokenResponse? {
-        return try {
+    private suspend fun getAccessToken(
+        formParameters: Parameters,
+    ): AzureAdTokenResponse? =
+        try {
             val response: HttpResponse = httpClient.post(aadTokenEndpoint) {
                 accept(ContentType.Application.Json)
                 body = FormDataContent(formParameters)
             }
-            response.receive<AadV2TokenResponse>()
+            response.receive<AzureAdTokenResponse>()
         } catch (e: ClientRequestException) {
             handleUnexpectedResponseException(e)
         } catch (e: ServerResponseException) {
             handleUnexpectedResponseException(e)
         }
-    }
 
     private fun handleUnexpectedResponseException(
         responseException: ResponseException
-    ): AadV2TokenResponse? {
+    ): AzureAdTokenResponse? {
         log.error(
             "Error while requesting AzureAdAccessToken with statusCode=${responseException.response.status.value}",
             responseException
@@ -57,6 +58,6 @@ class AzureAdV2Client(
     }
 
     companion object {
-        private val log = LoggerFactory.getLogger(AzureAdV2Client::class.java)
+        private val log = LoggerFactory.getLogger(AzureAdClient::class.java)
     }
 }

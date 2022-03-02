@@ -5,9 +5,9 @@ import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
-import no.nav.syfo.application.api.authentication.installContentNegotiation
 import no.nav.syfo.application.api.authentication.WellKnown
-import no.nav.syfo.client.azuread.AadV2TokenResponse
+import no.nav.syfo.application.api.authentication.installContentNegotiation
+import no.nav.syfo.client.azuread.AzureAdTokenResponse
 import no.nav.syfo.testutil.getRandomPort
 import java.nio.file.Paths
 
@@ -22,31 +22,25 @@ fun wellKnownVeilederV2Mock(): WellKnown {
     )
 }
 
-class AzureAdV2Mock {
+class AzureAdMock {
     private val port = getRandomPort()
     val url = "http://localhost:$port"
 
-    val aadV2TokenResponse = AadV2TokenResponse(
+    val azureAdTokenResponse = AzureAdTokenResponse(
         access_token = "token",
         expires_in = 3600,
         token_type = "type"
     )
 
-    val name = "azureadv2"
-    val server = mockAzureAdV2Server(port = port)
-
-    private fun mockAzureAdV2Server(
-        port: Int
-    ): NettyApplicationEngine {
-        return embeddedServer(
-            factory = Netty,
-            port = port
-        ) {
-            installContentNegotiation()
-            routing {
-                post {
-                    call.respond(aadV2TokenResponse)
-                }
+    val name = "azuread"
+    val server = embeddedServer(
+        factory = Netty,
+        port = port,
+    ) {
+        installContentNegotiation()
+        routing {
+            post {
+                call.respond(azureAdTokenResponse)
             }
         }
     }

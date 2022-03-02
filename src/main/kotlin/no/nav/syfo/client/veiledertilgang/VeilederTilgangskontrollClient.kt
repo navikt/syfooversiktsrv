@@ -6,7 +6,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.micrometer.core.instrument.Timer
-import no.nav.syfo.client.azuread.AzureAdV2Client
+import no.nav.syfo.client.azuread.AzureAdClient
 import no.nav.syfo.client.httpClientDefault
 import no.nav.syfo.metric.*
 import no.nav.syfo.util.NAV_CALL_ID_HEADER
@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory
 
 class VeilederTilgangskontrollClient(
     private val endpointUrl: String,
-    private val azureAdV2Client: AzureAdV2Client,
+    private val azureAdClient: AzureAdClient,
     private val syfotilgangskontrollClientId: String
 ) {
     private val httpClient = httpClientDefault()
@@ -28,10 +28,10 @@ class VeilederTilgangskontrollClient(
         token: String,
         callId: String
     ): List<String>? {
-        val oboToken = azureAdV2Client.getOnBehalfOfToken(
+        val oboToken = azureAdClient.getOnBehalfOfToken(
             scopeClientId = syfotilgangskontrollClientId,
             token = token
-        )?.access_token
+        )?.accessToken
             ?: throw RuntimeException("Failed to request access to list of persons: Failed to get OBO token")
 
         try {
@@ -70,10 +70,10 @@ class VeilederTilgangskontrollClient(
         token: String,
         callId: String
     ): Boolean {
-        val oboToken = azureAdV2Client.getOnBehalfOfToken(
+        val oboToken = azureAdClient.getOnBehalfOfToken(
             scopeClientId = syfotilgangskontrollClientId,
             token = token
-        )?.access_token ?: throw RuntimeException("Failed to request access to Enhet: Failed to get OBO token")
+        )?.accessToken ?: throw RuntimeException("Failed to request access to Enhet: Failed to get OBO token")
 
         try {
             val requestTimer: Timer.Sample = Timer.start()

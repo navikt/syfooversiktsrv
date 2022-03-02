@@ -7,7 +7,7 @@ import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.Environment
 import no.nav.syfo.application.api.authentication.*
 import no.nav.syfo.application.database.DatabaseInterface
-import no.nav.syfo.client.azuread.AzureAdV2Client
+import no.nav.syfo.client.azuread.AzureAdClient
 import no.nav.syfo.client.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.personstatus.PersonTildelingService
 import no.nav.syfo.personstatus.PersonoversiktStatusService
@@ -42,7 +42,7 @@ fun Application.apiModule(
         database = database,
     )
 
-    val azureAdV2Client = AzureAdV2Client(
+    val azureAdClient = AzureAdClient(
         aadAppClient = environment.azureAppClientId,
         aadAppSecret = environment.azureAppClientSecret,
         aadTokenEndpoint = environment.azureTokenEndpoint,
@@ -50,7 +50,7 @@ fun Application.apiModule(
     val syfotilgangskontrollClientId = environment.syfotilgangskontrollClientId
     val tilgangskontrollConsumer = VeilederTilgangskontrollClient(
         endpointUrl = environment.syfotilgangskontrollUrl,
-        azureAdV2Client = azureAdV2Client,
+        azureAdClient = azureAdClient,
         syfotilgangskontrollClientId = syfotilgangskontrollClientId,
     )
 
