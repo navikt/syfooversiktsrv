@@ -6,13 +6,16 @@ import io.ktor.routing.*
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.Environment
 import no.nav.syfo.application.api.authentication.*
+import no.nav.syfo.application.cache.RedisStore
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.client.azuread.AzureAdClient
+import no.nav.syfo.client.pdl.PdlClient
 import no.nav.syfo.client.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.personstatus.PersonTildelingService
 import no.nav.syfo.personstatus.PersonoversiktStatusService
 import no.nav.syfo.personstatus.api.v2.registerPersonTildelingApiV2
 import no.nav.syfo.personstatus.api.v2.registerPersonoversiktApiV2
+import redis.clients.jedis.*
 
 fun Application.apiModule(
     applicationState: ApplicationState,
@@ -38,15 +41,36 @@ fun Application.apiModule(
     val personTildelingService = PersonTildelingService(
         database = database,
     )
-    val personoversiktStatusService = PersonoversiktStatusService(
-        database = database,
+
+    val redisStore = RedisStore(
+        jedisPool = JedisPool(
+            JedisPoolConfig(),
+            environment.redisHost,
+            environment.redisPort,
+            Protocol.DEFAULT_TIMEOUT,
+            environment.redisSecret,
+        ),
     )
 
     val azureAdClient = AzureAdClient(
         aadAppClient = environment.azureAppClientId,
         aadAppSecret = environment.azureAppClientSecret,
         aadTokenEndpoint = environment.azureTokenEndpoint,
+        redisStore = redisStore,
     )
+
+    val pdlClient = PdlClient(
+        azureAdClient = azureAdClient,
+        pdlClientId = environment.pdlClientId,
+        pdlBaseUrl = environment.pdlUrl,
+        redisStore = redisStore,
+    )
+
+    val personoversiktStatusService = PersonoversiktStatusService(
+        database = database,
+        pdlClient = pdlClient,
+    )
+
     val syfotilgangskontrollClientId = environment.syfotilgangskontrollClientId
     val tilgangskontrollConsumer = VeilederTilgangskontrollClient(
         endpointUrl = environment.syfotilgangskontrollUrl,

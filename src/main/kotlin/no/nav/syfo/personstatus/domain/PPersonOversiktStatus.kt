@@ -15,7 +15,7 @@ fun PPersonOversiktStatus.toPersonOversiktStatus(
     oppfolgingstilfeller: List<Oppfolgingstilfelle>,
 ) = PersonOversiktStatus(
     fnr = this.fnr,
-    navn = this.navn ?: "",
+    navn = this.navn,
     enhet = this.enhet,
     veilederIdent = this.veilederIdent,
     motebehovUbehandlet = this.motebehovUbehandlet,

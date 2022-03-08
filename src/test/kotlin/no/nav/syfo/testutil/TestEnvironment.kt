@@ -7,6 +7,7 @@ import java.net.ServerSocket
 fun testEnvironment(
     azureTokenEndpoint: String = "azureTokenEndpoint",
     kafkaBootstrapServers: String = "boostrapserver",
+    pdlUrl: String,
     syfotilgangskontrollUrl: String? = null,
 ) = Environment(
     azureAppClientId = "azureAppClientId",
@@ -22,6 +23,8 @@ fun testEnvironment(
     kafkaBootstrapServers = kafkaBootstrapServers,
     kafkaSchemaRegistryUrl = "http://kafka-schema-registry.tpa.svc.nais.local:8081",
     applicationName = "syfooversiktsrv",
+    pdlClientId = "dev-fss.pdl.pdl-api",
+    pdlUrl = pdlUrl,
     redisHost = "localhost",
     redisSecret = "password",
     serviceuserUsername = "",

@@ -1,15 +1,50 @@
 package no.nav.syfo.personstatus.domain
 
+import no.nav.syfo.personstatus.api.v2.PersonOversiktStatusDTO
+import no.nav.syfo.personstatus.api.v2.toOppfolgingstilfelleDTO
+
 data class PersonOversiktStatus(
     val veilederIdent: String?,
     val fnr: String,
-    val navn: String,
+    val navn: String?,
     val enhet: String,
     val motebehovUbehandlet: Boolean?,
     val moteplanleggerUbehandlet: Boolean?,
     val oppfolgingsplanLPSBistandUbehandlet: Boolean?,
     val oppfolgingstilfeller: List<Oppfolgingstilfelle>
 )
+
+fun List<PersonOversiktStatus>.addPersonName(
+    personIdentNameMap: Map<String, String>,
+): List<PersonOversiktStatus> {
+    if (personIdentNameMap.isEmpty()) {
+        return this
+    }
+    return this.map { personOversiktStatus ->
+        val personIdent = personOversiktStatus.fnr
+        if (personOversiktStatus.navn.isNullOrEmpty()) {
+            personOversiktStatus.copy(
+                navn = personIdentNameMap[personIdent]
+            )
+        } else {
+            personOversiktStatus
+        }
+    }
+}
+
+fun PersonOversiktStatus.toPersonOversiktStatusDTO() =
+    PersonOversiktStatusDTO(
+        veilederIdent = this.veilederIdent,
+        fnr = this.fnr,
+        navn = this.navn ?: "",
+        enhet = this.enhet,
+        motebehovUbehandlet = this.motebehovUbehandlet,
+        moteplanleggerUbehandlet = this.moteplanleggerUbehandlet,
+        oppfolgingsplanLPSBistandUbehandlet = this.oppfolgingsplanLPSBistandUbehandlet,
+        oppfolgingstilfeller = this.oppfolgingstilfeller.map { oppfolgingstilfelle ->
+            oppfolgingstilfelle.toOppfolgingstilfelleDTO()
+        }
+    )
 
 fun PersonOversiktStatus.applyHendelse(
     oversikthendelseType: OversikthendelseType,

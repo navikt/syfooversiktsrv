@@ -9,15 +9,18 @@ class ExternalMockEnvironment {
     val database = TestDatabase()
 
     val azureAdMock = AzureAdMock()
+    val pdlMock = PdlMock()
     val tilgangskontrollMock = VeilederTilgangskontrollMock()
 
     val externalApplicationMockMap = hashMapOf(
         azureAdMock.name to azureAdMock.server,
+        pdlMock.name to pdlMock.server,
         tilgangskontrollMock.name to tilgangskontrollMock.server,
     )
 
     val environment = testEnvironment(
         azureTokenEndpoint = azureAdMock.url,
+        pdlUrl = pdlMock.url,
         syfotilgangskontrollUrl = tilgangskontrollMock.url,
     )
 

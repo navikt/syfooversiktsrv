@@ -1,15 +1,15 @@
 package no.nav.syfo.personstatus.api.v2
 
-import io.ktor.application.call
-import io.ktor.http.HttpStatusCode
-import io.ktor.response.respond
+import io.ktor.application.*
+import io.ktor.http.*
+import io.ktor.response.*
 import io.ktor.routing.*
 import io.micrometer.core.instrument.Timer
+import no.nav.syfo.client.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.metric.COUNT_PERSONOVERSIKTSTATUS_ENHET_HENTET
 import no.nav.syfo.metric.HISTOGRAM_PERSONOVERSIKT
 import no.nav.syfo.personstatus.PersonoversiktStatusService
-import no.nav.syfo.personstatus.domain.PersonOversiktStatus
-import no.nav.syfo.client.veiledertilgang.VeilederTilgangskontrollClient
+import no.nav.syfo.personstatus.domain.*
 import no.nav.syfo.util.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -44,13 +44,22 @@ fun Route.registerPersonoversiktApiV2(
                             callId
                         ) ?: emptyList()
 
-                        val personList = personOversiktStatusList
+                        val personListNoPdlName = personOversiktStatusList
                             .filter { personFnrListWithVeilederAccess.contains(it.fnr) }
 
-                        when {
-                            personList.isNotEmpty() -> call.respond(personList)
-                            else -> call.respond(HttpStatusCode.NoContent)
+                        if (personListNoPdlName.isNotEmpty()) {
+                            val personList = personoversiktStatusService.getPersonOversiktStatusListWithName(
+                                callId = callId,
+                                personOversiktStatusList = personListNoPdlName
+                            ).map { personOversiktStatus ->
+                                personOversiktStatus.toPersonOversiktStatusDTO()
+                            }
+
+                            call.respond(personList)
+                        } else {
+                            call.respond(HttpStatusCode.NoContent)
                         }
+
                         requestTimer.stop(HISTOGRAM_PERSONOVERSIKT)
                         COUNT_PERSONOVERSIKTSTATUS_ENHET_HENTET.increment()
                     }

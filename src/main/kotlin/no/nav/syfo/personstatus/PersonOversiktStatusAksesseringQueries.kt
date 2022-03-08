@@ -73,7 +73,7 @@ fun DatabaseInterface.lagreBrukerKnytningPaEnhet(veilederBrukerKnytning: Veilede
         val personOversiktStatus = PersonOversiktStatus(
             veilederIdent = veilederBrukerKnytning.veilederIdent,
             fnr = veilederBrukerKnytning.fnr,
-            navn = "",
+            navn = null,
             enhet = veilederBrukerKnytning.enhet,
             motebehovUbehandlet = null,
             moteplanleggerUbehandlet = null,

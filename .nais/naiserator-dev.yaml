@@ -49,6 +49,7 @@ spec:
     outbound:
       external:
         - host: "kafka-schema-registry.nais-q.adeo.no"
+        - host: "pdl-api.dev-fss-pub.nais.io"
         - host: "syfo-tilgangskontroll.dev-fss-pub.nais.io"
   azure:
     application:
@@ -75,6 +76,10 @@ spec:
       value: "https://kafka-schema-registry.nais-q.adeo.no"
     - name: REDIS_HOST
       value: "syfooversiktsrv-redis.teamsykefravr.svc.cluster.local"
+    - name: PDL_CLIENT_ID
+      value: "dev-fss.pdl.pdl-api"
+    - name: PDL_URL
+      value: "https://pdl-api.dev-fss-pub.nais.io/graphql"
     - name: SYFOTILGANGSKONTROLL_CLIENT_ID
       value: "dev-fss.teamsykefravr.syfo-tilgangskontroll"
     - name: SYFOTILGANGSKONTROLL_URL

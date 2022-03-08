@@ -1,11 +1,14 @@
 package no.nav.syfo.testutil
 
+import no.nav.syfo.testutil.mock.generatePdlPersonNavn
+
 object UserConstants {
 
     const val ARBEIDSTAKER_FNR = "12345678912"
-    const val ARBEIDSTAKER_NAVN = "Fornavn Mellomnavn Etternavn"
     const val ARBEIDSTAKER_2_FNR = "12345678911"
-    const val ARBEIDSTAKER_2_NAVN = "First Middle Last"
+
+    val ARBEIDSTAKER_NO_NAME_FNR = ARBEIDSTAKER_FNR.replace("2", "1")
+
     const val NAV_ENHET = "0330"
     const val NAV_ENHET_2 = "0331"
     const val VEILEDER_ID = "Z999999"
@@ -15,4 +18,11 @@ object UserConstants {
     const val VIRKSOMHETSNUMMER_2 = "123456781"
     const val VIRKSOMHETSNAVN = "EGJ Security"
     const val VIRKSOMHETSNAVN_2 = "JML Investments"
+}
+
+fun getIdentName(
+    ident: String,
+): String {
+    val pdlPersonNavn = generatePdlPersonNavn(ident = UserConstants.ARBEIDSTAKER_FNR)
+    return "${pdlPersonNavn.fornavn} ${pdlPersonNavn.mellomnavn} ${pdlPersonNavn.etternavn}"
 }
