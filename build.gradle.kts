@@ -5,7 +5,7 @@ group = "no.nav.syfo"
 version = "1.0-SNAPSHOT"
 
 object Versions {
-    const val flyway = "8.5.1"
+    const val flyway = "8.5.2"
     const val hikari = "5.0.1"
     const val jackson = "2.13.1"
     const val jedis = "4.1.1"
@@ -13,15 +13,15 @@ object Versions {
     const val kafkaEmbedded = "2.8.1"
     const val kluent = "1.68"
     const val ktor = "1.6.7"
-    const val logback = "1.2.10"
+    const val logback = "1.2.11"
     const val logstashEncoder = "7.0.1"
     const val mockk = "1.12.3"
     const val micrometerRegistry = "1.8.3"
-    const val nimbusjosejwt = "9.20"
+    const val nimbusjosejwt = "9.21"
     const val postgresEmbedded = "0.13.4"
     const val postgres = "42.3.3"
     const val redisEmbedded = "0.7.3"
-    const val spek = "2.0.17"
+    const val spek = "2.0.18"
 }
 
 plugins {
