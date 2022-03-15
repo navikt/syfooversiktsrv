@@ -22,8 +22,7 @@ import no.nav.syfo.testutil.UserConstants.VEILEDER_ID
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNAVN_2
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER_2
-import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.*
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import java.time.LocalDate
@@ -342,6 +341,7 @@ fun checkPersonOversiktStatus(pPersonOversiktStatus: PPersonOversiktStatus, over
     pPersonOversiktStatus.navn shouldBeEqualTo null
     pPersonOversiktStatus.veilederIdent shouldBeEqualTo veilederIdent
     pPersonOversiktStatus.enhet shouldBeEqualTo oversikthendelsetilfelle.enhetId
+    pPersonOversiktStatus.tildeltEnhetUpdatedAt.shouldNotBeNull()
     pPersonOversiktStatus.motebehovUbehandlet shouldBeEqualTo null
     pPersonOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo null
 }

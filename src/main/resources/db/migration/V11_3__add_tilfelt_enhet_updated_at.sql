@@ -1,0 +1,1 @@
+ALTER TABLE PERSON_OVERSIKT_STATUS ADD COLUMN tildelt_enhet_updated_at timestamptz DEFAULT NULL;

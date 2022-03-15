@@ -2,6 +2,7 @@ package no.nav.syfo.personstatus
 
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
+import no.nav.syfo.util.nowUTC
 import java.sql.Timestamp
 import java.sql.Types.NULL
 import java.time.Instant
@@ -16,12 +17,13 @@ const val queryCreatePersonOversiktStatus =
         navn,
         tildelt_veileder,
         tildelt_enhet,
+        tildelt_enhet_updated_at,
         opprettet,
         sist_endret,
         motebehov_ubehandlet,
         moteplanlegger_ubehandlet,
         oppfolgingsplan_lps_bistand_ubehandlet
-    ) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """
 
 fun DatabaseInterface.createPersonOversiktStatus(
@@ -29,6 +31,7 @@ fun DatabaseInterface.createPersonOversiktStatus(
 ) {
     val uuid = UUID.randomUUID().toString()
     val tidspunkt = Timestamp.from(Instant.now())
+    val now = nowUTC()
 
     connection.use { connection ->
         connection.prepareStatement(queryCreatePersonOversiktStatus).use {
@@ -37,22 +40,23 @@ fun DatabaseInterface.createPersonOversiktStatus(
             it.setString(3, personOversiktStatus.navn)
             it.setString(4, personOversiktStatus.veilederIdent)
             it.setString(5, personOversiktStatus.enhet)
-            it.setTimestamp(6, tidspunkt)
+            it.setObject(6, now)
             it.setTimestamp(7, tidspunkt)
+            it.setTimestamp(8, tidspunkt)
             if (personOversiktStatus.motebehovUbehandlet != null) {
-                it.setBoolean(8, personOversiktStatus.motebehovUbehandlet)
-            } else {
-                it.setNull(8, NULL)
-            }
-            if (personOversiktStatus.moteplanleggerUbehandlet != null) {
-                it.setBoolean(9, personOversiktStatus.moteplanleggerUbehandlet)
+                it.setBoolean(9, personOversiktStatus.motebehovUbehandlet)
             } else {
                 it.setNull(9, NULL)
             }
-            if (personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet != null) {
-                it.setBoolean(10, personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet)
+            if (personOversiktStatus.moteplanleggerUbehandlet != null) {
+                it.setBoolean(10, personOversiktStatus.moteplanleggerUbehandlet)
             } else {
                 it.setNull(10, NULL)
+            }
+            if (personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet != null) {
+                it.setBoolean(11, personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet)
+            } else {
+                it.setNull(11, NULL)
             }
             it.execute()
         }
