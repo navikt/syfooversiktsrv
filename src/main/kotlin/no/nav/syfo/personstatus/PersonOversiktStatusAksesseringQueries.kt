@@ -4,6 +4,7 @@ import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.application.database.toList
 import no.nav.syfo.personstatus.domain.*
 import java.sql.ResultSet
+import java.time.OffsetDateTime
 
 const val KNYTNING_IKKE_FUNNET = 0L
 
@@ -128,6 +129,7 @@ fun ResultSet.toPPersonOversiktStatus(): PPersonOversiktStatus =
         fnr = getString("fnr"),
         navn = getString("navn"),
         enhet = getString("tildelt_enhet"),
+        tildeltEnhetUpdatedAt = getObject("tildelt_enhet_updated_at", OffsetDateTime::class.java),
         motebehovUbehandlet = getObject("motebehov_ubehandlet") as Boolean?,
         moteplanleggerUbehandlet = getObject("moteplanlegger_ubehandlet") as Boolean?,
         oppfolgingsplanLPSBistandUbehandlet = getObject("oppfolgingsplan_lps_bistand_ubehandlet") as Boolean?

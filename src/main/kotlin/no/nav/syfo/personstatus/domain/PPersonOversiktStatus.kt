@@ -1,11 +1,14 @@
 package no.nav.syfo.personstatus.domain
 
+import java.time.OffsetDateTime
+
 data class PPersonOversiktStatus(
     val veilederIdent: String?,
     val fnr: String,
     val navn: String?,
     val id: Int,
     val enhet: String,
+    val tildeltEnhetUpdatedAt: OffsetDateTime?,
     val motebehovUbehandlet: Boolean?,
     val moteplanleggerUbehandlet: Boolean?,
     val oppfolgingsplanLPSBistandUbehandlet: Boolean?,
