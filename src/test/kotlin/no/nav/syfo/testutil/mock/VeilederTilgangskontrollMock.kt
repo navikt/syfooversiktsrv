@@ -18,7 +18,7 @@ class VeilederTilgangskontrollMock {
     private val port = getRandomPort()
     val url = "http://localhost:$port"
 
-    val responseAccessEnhet = Tilgang(true, "")
+    val responseAccessEnhet = Tilgang(harTilgang = true)
     val responseAccessPersons = listOf(
         UserConstants.ARBEIDSTAKER_FNR,
         UserConstants.ARBEIDSTAKER_2_FNR,
