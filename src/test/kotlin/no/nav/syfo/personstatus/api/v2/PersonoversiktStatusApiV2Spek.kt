@@ -545,7 +545,7 @@ object PersonoversiktStatusApiSpek : Spek({
                     }
                 }
 
-                it("should not return Person if OversikthendelseType for Behandling is received without exisiting Person") {
+                it("should not return Person if OversikthendelseType for Behandling is received without existing Person") {
                     val oversiktHendelseMotebehovSvarBehandlet =
                         generateKOversikthendelse(OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET)
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMotebehovSvarBehandlet)
