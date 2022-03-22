@@ -54,7 +54,12 @@ object OversiktHendelseServiceSpek : Spek({
             describe("Oppdater person basert paa hendelse MOTEBEHOV_SVAR_MOTTATT") {
 
                 it("skal opprette person, om person ikke eksisterer i oversikt") {
-                    val oversiktHendelse = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
+                    val oversiktHendelse = KOversikthendelse(
+                        ARBEIDSTAKER_FNR,
+                        OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name,
+                        NAV_ENHET,
+                        LocalDateTime.now()
+                    )
 
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
@@ -69,7 +74,12 @@ object OversiktHendelseServiceSpek : Spek({
 
                 it("skal oppdatere person, om person eksisterer i oversikt") {
                     val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
-                    val oversiktHendelse = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
+                    val oversiktHendelse = KOversikthendelse(
+                        ARBEIDSTAKER_FNR,
+                        OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name,
+                        NAV_ENHET,
+                        LocalDateTime.now()
+                    )
 
                     database.lagreBrukerKnytningPaEnhet(tilknytning)
 
@@ -85,11 +95,21 @@ object OversiktHendelseServiceSpek : Spek({
                 }
 
                 it("skal oppdatere person, om person eksisterer i oversikt med motebehov-hendelse") {
-                    val oversiktHendelse = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
+                    val oversiktHendelse = KOversikthendelse(
+                        ARBEIDSTAKER_FNR,
+                        OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name,
+                        NAV_ENHET,
+                        LocalDateTime.now()
+                    )
 
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse = oversiktHendelse)
 
-                    val oversiktHendelseNy = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name, NAV_ENHET_2, LocalDateTime.now())
+                    val oversiktHendelseNy = KOversikthendelse(
+                        ARBEIDSTAKER_FNR,
+                        OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name,
+                        NAV_ENHET_2,
+                        LocalDateTime.now()
+                    )
 
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseNy)
 
@@ -111,7 +131,12 @@ object OversiktHendelseServiceSpek : Spek({
 
                     database.lagreBrukerKnytningPaEnhet(tilknytning)
 
-                    val oversiktHendelse = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name, NAV_ENHET_2, LocalDateTime.now())
+                    val oversiktHendelse = KOversikthendelse(
+                        ARBEIDSTAKER_FNR,
+                        OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name,
+                        NAV_ENHET_2,
+                        LocalDateTime.now()
+                    )
 
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
@@ -128,7 +153,12 @@ object OversiktHendelseServiceSpek : Spek({
             describe("Oppdater person basert paa hendelse ${OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET.name}") {
 
                 it("skal ikke oppdatere person, om person ikke eksisterer i oversikt") {
-                    val oversiktHendelse = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET.name, NAV_ENHET, LocalDateTime.now())
+                    val oversiktHendelse = KOversikthendelse(
+                        ARBEIDSTAKER_FNR,
+                        OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET.name,
+                        NAV_ENHET,
+                        LocalDateTime.now()
+                    )
 
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
@@ -142,7 +172,12 @@ object OversiktHendelseServiceSpek : Spek({
 
                     database.lagreBrukerKnytningPaEnhet(tilknytning)
 
-                    val oversiktHendelseMotebehovUbehandlet = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET.name, NAV_ENHET, LocalDateTime.now())
+                    val oversiktHendelseMotebehovUbehandlet = KOversikthendelse(
+                        ARBEIDSTAKER_FNR,
+                        OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET.name,
+                        NAV_ENHET,
+                        LocalDateTime.now()
+                    )
 
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMotebehovUbehandlet)
 
@@ -156,11 +191,21 @@ object OversiktHendelseServiceSpek : Spek({
                 }
 
                 it("skal oppdatere person, om person eksisterer i oversikt") {
-                    val oversiktHendelseMotebehovMottatt = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
+                    val oversiktHendelseMotebehovMottatt = KOversikthendelse(
+                        ARBEIDSTAKER_FNR,
+                        OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name,
+                        NAV_ENHET,
+                        LocalDateTime.now()
+                    )
 
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse = oversiktHendelseMotebehovMottatt)
 
-                    val oversiktHendelseMotebehovUbehandlet = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET.name, NAV_ENHET_2, LocalDateTime.now())
+                    val oversiktHendelseMotebehovUbehandlet = KOversikthendelse(
+                        ARBEIDSTAKER_FNR,
+                        OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET.name,
+                        NAV_ENHET_2,
+                        LocalDateTime.now()
+                    )
 
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMotebehovUbehandlet)
 
@@ -182,11 +227,21 @@ object OversiktHendelseServiceSpek : Spek({
 
                     database.lagreBrukerKnytningPaEnhet(tilknytning)
 
-                    val oversiktHendelseMotebehovMottatt = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
+                    val oversiktHendelseMotebehovMottatt = KOversikthendelse(
+                        ARBEIDSTAKER_FNR,
+                        OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name,
+                        NAV_ENHET,
+                        LocalDateTime.now()
+                    )
 
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse = oversiktHendelseMotebehovMottatt)
 
-                    val oversiktHendelseMotebehovUbehandlet = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET.name, NAV_ENHET_2, LocalDateTime.now())
+                    val oversiktHendelseMotebehovUbehandlet = KOversikthendelse(
+                        ARBEIDSTAKER_FNR,
+                        OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET.name,
+                        NAV_ENHET_2,
+                        LocalDateTime.now()
+                    )
 
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMotebehovUbehandlet)
 
@@ -203,7 +258,12 @@ object OversiktHendelseServiceSpek : Spek({
             describe("Oppdater person basert paa hendelse ${OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name}") {
 
                 it("skal opprette person, om person ikke eksisterer i oversikt") {
-                    val oversiktHendelse = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
+                    val oversiktHendelse = KOversikthendelse(
+                        ARBEIDSTAKER_FNR,
+                        OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name,
+                        NAV_ENHET,
+                        LocalDateTime.now()
+                    )
 
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
@@ -219,7 +279,12 @@ object OversiktHendelseServiceSpek : Spek({
 
                 it("skal oppdatere person, om person eksisterer i oversikt") {
                     val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
-                    val oversiktHendelse = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
+                    val oversiktHendelse = KOversikthendelse(
+                        ARBEIDSTAKER_FNR,
+                        OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name,
+                        NAV_ENHET,
+                        LocalDateTime.now()
+                    )
 
                     database.lagreBrukerKnytningPaEnhet(tilknytning)
 
@@ -236,11 +301,21 @@ object OversiktHendelseServiceSpek : Spek({
                 }
 
                 it("skal oppdatere person, om person eksisterer i oversikt med moteplanlegger_svar_mottatt-hendelse") {
-                    val oversiktHendelse = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
+                    val oversiktHendelse = KOversikthendelse(
+                        ARBEIDSTAKER_FNR,
+                        OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name,
+                        NAV_ENHET,
+                        LocalDateTime.now()
+                    )
 
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
-                    val oversiktHendelseNy = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name, NAV_ENHET_2, LocalDateTime.now())
+                    val oversiktHendelseNy = KOversikthendelse(
+                        ARBEIDSTAKER_FNR,
+                        OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name,
+                        NAV_ENHET_2,
+                        LocalDateTime.now()
+                    )
 
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseNy)
 
@@ -263,7 +338,12 @@ object OversiktHendelseServiceSpek : Spek({
 
                     database.lagreBrukerKnytningPaEnhet(tilknytning)
 
-                    val oversiktHendelse = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name, NAV_ENHET_2, LocalDateTime.now())
+                    val oversiktHendelse = KOversikthendelse(
+                        ARBEIDSTAKER_FNR,
+                        OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name,
+                        NAV_ENHET_2,
+                        LocalDateTime.now()
+                    )
 
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
@@ -281,7 +361,12 @@ object OversiktHendelseServiceSpek : Spek({
             describe("Oppdater person basert paa hendelse ${OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_BEHANDLET.name}") {
 
                 it("skal ikke oppdatere person, om person ikke eksisterer i oversikt") {
-                    val oversiktHendelse = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_BEHANDLET.name, NAV_ENHET, LocalDateTime.now())
+                    val oversiktHendelse = KOversikthendelse(
+                        ARBEIDSTAKER_FNR,
+                        OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_BEHANDLET.name,
+                        NAV_ENHET,
+                        LocalDateTime.now()
+                    )
 
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
@@ -291,13 +376,23 @@ object OversiktHendelseServiceSpek : Spek({
                 }
 
                 it("skal oppdatere person, om person eksisterer i oversikt") {
-                    val oversiktHendelseMotebehovMottatt = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
+                    val oversiktHendelseMotebehovMottatt = KOversikthendelse(
+                        ARBEIDSTAKER_FNR,
+                        OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name,
+                        NAV_ENHET,
+                        LocalDateTime.now()
+                    )
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMotebehovMottatt)
 
                     val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
                     database.lagreBrukerKnytningPaEnhet(tilknytning)
 
-                    val oversiktHendelseMoteplanleggerSvarUbehandlet = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_BEHANDLET.name, NAV_ENHET, LocalDateTime.now())
+                    val oversiktHendelseMoteplanleggerSvarUbehandlet = KOversikthendelse(
+                        ARBEIDSTAKER_FNR,
+                        OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_BEHANDLET.name,
+                        NAV_ENHET,
+                        LocalDateTime.now()
+                    )
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerSvarUbehandlet)
 
                     val personListe = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET)
@@ -311,10 +406,20 @@ object OversiktHendelseServiceSpek : Spek({
                 }
 
                 it("skal oppdatere person, om person eksisterer i oversikt") {
-                    val oversiktHendelseMoteplanleggerSvarMottatt = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
+                    val oversiktHendelseMoteplanleggerSvarMottatt = KOversikthendelse(
+                        ARBEIDSTAKER_FNR,
+                        OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name,
+                        NAV_ENHET,
+                        LocalDateTime.now()
+                    )
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerSvarMottatt)
 
-                    val oversiktHendelseMoteplanleggerSvarUbehandlet = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_BEHANDLET.name, NAV_ENHET_2, LocalDateTime.now())
+                    val oversiktHendelseMoteplanleggerSvarUbehandlet = KOversikthendelse(
+                        ARBEIDSTAKER_FNR,
+                        OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_BEHANDLET.name,
+                        NAV_ENHET_2,
+                        LocalDateTime.now()
+                    )
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerSvarUbehandlet)
 
                     val personListeEnhetTidligere = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET)
@@ -332,13 +437,23 @@ object OversiktHendelseServiceSpek : Spek({
                 }
 
                 it("skal oppdatere person og nullstille tildelt veileder, om person eksisterer i oversikt og enhet er endret") {
-                    val oversiktHendelseMoteplanleggerSvarMottatt = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name, NAV_ENHET, LocalDateTime.now())
+                    val oversiktHendelseMoteplanleggerSvarMottatt = KOversikthendelse(
+                        ARBEIDSTAKER_FNR,
+                        OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name,
+                        NAV_ENHET,
+                        LocalDateTime.now()
+                    )
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerSvarMottatt)
 
                     val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
                     database.lagreBrukerKnytningPaEnhet(tilknytning)
 
-                    val oversiktHendelseMoteplanleggerSvarUbehandlet = KOversikthendelse(ARBEIDSTAKER_FNR, OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_BEHANDLET.name, NAV_ENHET_2, LocalDateTime.now())
+                    val oversiktHendelseMoteplanleggerSvarUbehandlet = KOversikthendelse(
+                        ARBEIDSTAKER_FNR,
+                        OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_BEHANDLET.name,
+                        NAV_ENHET_2,
+                        LocalDateTime.now()
+                    )
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerSvarUbehandlet)
 
                     val personListe = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET_2)

@@ -61,42 +61,62 @@ object OversikthendelstilfelleServiceSpek : Spek({
             val oversikthendelstilfelle = generateOversikthendelsetilfelle
 
             val tilknytning = VeilederBrukerKnytning(
-                VEILEDER_ID,
-                oversikthendelstilfelle.fnr,
-                oversikthendelstilfelle.enhetId
+                veilederIdent = VEILEDER_ID,
+                fnr = oversikthendelstilfelle.fnr,
+                enhet = oversikthendelstilfelle.enhetId,
             )
 
             describe("Person eksisterer ikke") {
                 it("skal opprette person, med oppfolgingstilfelle ikke gradert") {
                     val hendelse = oversikthendelstilfelle.copy(gradert = false)
-                    oversikthendelstilfelleService.oppdaterPersonMedHendelse(hendelse)
+                    oversikthendelstilfelleService.oppdaterPersonMedHendelse(
+                        oversikthendelsetilfelle = hendelse,
+                    )
 
-                    val personListe = database.hentPersonResultatInternal(hendelse.fnr)
+                    val personListe = database.hentPersonResultatInternal(fnr = hendelse.fnr)
                     val person = personListe.first()
 
                     personListe.size shouldBe 1
-                    checkPPersonOversiktStatus(person, hendelse, null)
+                    checkPPersonOversiktStatus(
+                        pPersonOversiktStatus = person,
+                        oversikthendelsetilfelle = hendelse,
+                        veilederIdent = null,
+                    )
 
-                    val oppfolgingstilfeller = database.hentOppfolgingstilfellerForPerson(person.id)
+                    val oppfolgingstilfeller = database.hentOppfolgingstilfellerForPerson(personId = person.id)
 
                     oppfolgingstilfeller.size shouldBe 1
-                    checkPPersonOppfolgingstilfelle(oppfolgingstilfeller.first(), hendelse, person.id)
+                    checkPPersonOppfolgingstilfelle(
+                        pPersonOppfolgingstilfelle = oppfolgingstilfeller.first(),
+                        oversikthendelsetilfelle = hendelse,
+                        personId = person.id,
+                    )
                 }
 
                 it("skal opprette person, med oppfolgingstilfelle gradert") {
                     val hendelse = oversikthendelstilfelle.copy(gradert = true)
-                    oversikthendelstilfelleService.oppdaterPersonMedHendelse(hendelse)
+                    oversikthendelstilfelleService.oppdaterPersonMedHendelse(
+                        oversikthendelsetilfelle = hendelse,
+                    )
 
-                    val personListe = database.hentPersonResultatInternal(hendelse.fnr)
+                    val personListe = database.hentPersonResultatInternal(fnr = hendelse.fnr)
                     val person = personListe.first()
 
                     personListe.size shouldBe 1
-                    checkPPersonOversiktStatus(person, hendelse, null)
+                    checkPPersonOversiktStatus(
+                        pPersonOversiktStatus = person,
+                        oversikthendelsetilfelle = hendelse,
+                        veilederIdent = null,
+                    )
 
-                    val oppfolgingstilfeller = database.hentOppfolgingstilfellerForPerson(person.id)
+                    val oppfolgingstilfeller = database.hentOppfolgingstilfellerForPerson(personId = person.id)
 
                     oppfolgingstilfeller.size shouldBe 1
-                    checkPPersonOppfolgingstilfelle(oppfolgingstilfeller.first(), hendelse, person.id)
+                    checkPPersonOppfolgingstilfelle(
+                        pPersonOppfolgingstilfelle = oppfolgingstilfeller.first(),
+                        oversikthendelsetilfelle = hendelse,
+                        personId = person.id,
+                    )
                 }
             }
 
@@ -105,36 +125,56 @@ object OversikthendelstilfelleServiceSpek : Spek({
                     database.lagreBrukerKnytningPaEnhet(tilknytning)
 
                     val hendelse = oversikthendelstilfelle.copy(gradert = false)
-                    oversikthendelstilfelleService.oppdaterPersonMedHendelse(hendelse)
+                    oversikthendelstilfelleService.oppdaterPersonMedHendelse(
+                        oversikthendelsetilfelle = hendelse,
+                    )
 
-                    val personListe = database.hentPersonResultatInternal(hendelse.fnr)
+                    val personListe = database.hentPersonResultatInternal(fnr = hendelse.fnr)
                     val person = personListe.first()
 
                     personListe.size shouldBe 1
-                    checkPPersonOversiktStatus(person, hendelse, tilknytning.veilederIdent)
+                    checkPPersonOversiktStatus(
+                        pPersonOversiktStatus = person,
+                        oversikthendelsetilfelle = hendelse,
+                        veilederIdent = tilknytning.veilederIdent,
+                    )
 
-                    val oppfolgingstilfeller = database.hentOppfolgingstilfellerForPerson(person.id)
+                    val oppfolgingstilfeller = database.hentOppfolgingstilfellerForPerson(personId = person.id)
 
                     oppfolgingstilfeller.size shouldBe 1
-                    checkPPersonOppfolgingstilfelle(oppfolgingstilfeller.first(), hendelse, person.id)
+                    checkPPersonOppfolgingstilfelle(
+                        pPersonOppfolgingstilfelle = oppfolgingstilfeller.first(),
+                        oversikthendelsetilfelle = hendelse,
+                        personId = person.id,
+                    )
                 }
 
                 it("skal oppdatere person, om person eksisterer i oversikt, med oppfolgingstilfelle gradert") {
                     database.lagreBrukerKnytningPaEnhet(tilknytning)
 
                     val hendelse = oversikthendelstilfelle.copy(gradert = true)
-                    oversikthendelstilfelleService.oppdaterPersonMedHendelse(hendelse)
+                    oversikthendelstilfelleService.oppdaterPersonMedHendelse(
+                        oversikthendelsetilfelle = hendelse,
+                    )
 
-                    val personListe = database.hentPersonResultatInternal(hendelse.fnr)
+                    val personListe = database.hentPersonResultatInternal(fnr = hendelse.fnr)
                     val person = personListe.first()
 
                     personListe.size shouldBe 1
-                    checkPPersonOversiktStatus(person, hendelse, tilknytning.veilederIdent)
+                    checkPPersonOversiktStatus(
+                        pPersonOversiktStatus = person,
+                        oversikthendelsetilfelle = hendelse,
+                        veilederIdent = tilknytning.veilederIdent,
+                    )
 
                     val oppfolgingstilfeller = database.hentOppfolgingstilfellerForPerson(person.id)
 
                     oppfolgingstilfeller.size shouldBe 1
-                    checkPPersonOppfolgingstilfelle(oppfolgingstilfeller.first(), hendelse, person.id)
+                    checkPPersonOppfolgingstilfelle(
+                        pPersonOppfolgingstilfelle = oppfolgingstilfeller.first(),
+                        oversikthendelsetilfelle = hendelse,
+                        personId = person.id,
+                    )
                 }
             }
 
@@ -145,20 +185,30 @@ object OversikthendelstilfelleServiceSpek : Spek({
                     val hendelse = oversikthendelstilfelle.copy(
                         navn = getIdentName(ident = ARBEIDSTAKER_2_FNR),
                         enhetId = NAV_ENHET_2,
-                        gradert = false
+                        gradert = false,
                     )
-                    oversikthendelstilfelleService.oppdaterPersonMedHendelse(hendelse)
+                    oversikthendelstilfelleService.oppdaterPersonMedHendelse(
+                        oversikthendelsetilfelle = hendelse,
+                    )
 
-                    val personListe = database.hentPersonResultatInternal(hendelse.fnr)
+                    val personListe = database.hentPersonResultatInternal(fnr = hendelse.fnr)
                     val person = personListe.first()
 
                     personListe.size shouldBe 1
-                    checkPPersonOversiktStatus(person, hendelse, null)
+                    checkPPersonOversiktStatus(
+                        pPersonOversiktStatus = person,
+                        oversikthendelsetilfelle = hendelse,
+                        veilederIdent = null,
+                    )
 
-                    val oppfolgingstilfeller = database.hentOppfolgingstilfellerForPerson(person.id)
+                    val oppfolgingstilfeller = database.hentOppfolgingstilfellerForPerson(personId = person.id)
 
                     oppfolgingstilfeller.size shouldBe 1
-                    checkPPersonOppfolgingstilfelle(oppfolgingstilfeller.first(), hendelse, person.id)
+                    checkPPersonOppfolgingstilfelle(
+                        pPersonOppfolgingstilfelle = oppfolgingstilfeller.first(),
+                        oversikthendelsetilfelle = hendelse,
+                        personId = person.id,
+                    )
                 }
 
                 it("skal oppdatere person og nullstille tildelt veileder, om person eksisterer i oversikt og enhet er endret, med oppfolgingstilfelle gradert mottatt") {
@@ -167,20 +217,30 @@ object OversikthendelstilfelleServiceSpek : Spek({
                     val hendelse = oversikthendelstilfelle.copy(
                         navn = getIdentName(ident = ARBEIDSTAKER_2_FNR),
                         enhetId = NAV_ENHET_2,
-                        gradert = true
+                        gradert = true,
                     )
-                    oversikthendelstilfelleService.oppdaterPersonMedHendelse(hendelse)
+                    oversikthendelstilfelleService.oppdaterPersonMedHendelse(
+                        oversikthendelsetilfelle = hendelse,
+                    )
 
-                    val personListe = database.hentPersonResultatInternal(hendelse.fnr)
+                    val personListe = database.hentPersonResultatInternal(fnr = hendelse.fnr)
                     val person = personListe.first()
 
                     personListe.size shouldBe 1
-                    checkPPersonOversiktStatus(person, hendelse, null)
+                    checkPPersonOversiktStatus(
+                        pPersonOversiktStatus = person,
+                        oversikthendelsetilfelle = hendelse,
+                        veilederIdent = null,
+                    )
 
-                    val oppfolgingstilfeller = database.hentOppfolgingstilfellerForPerson(person.id)
+                    val oppfolgingstilfeller = database.hentOppfolgingstilfellerForPerson(personId = person.id)
 
                     oppfolgingstilfeller.size shouldBe 1
-                    checkPPersonOppfolgingstilfelle(oppfolgingstilfeller.first(), hendelse, person.id)
+                    checkPPersonOppfolgingstilfelle(
+                        pPersonOppfolgingstilfelle = oppfolgingstilfeller.first(),
+                        oversikthendelsetilfelle = hendelse,
+                        personId = person.id,
+                    )
                 }
             }
 
@@ -191,9 +251,11 @@ object OversikthendelstilfelleServiceSpek : Spek({
                     val oversikthendelsetilfelleMottattForst = oversikthendelstilfelle.copy(
                         fom = LocalDate.now().plusDays(120),
                         tom = LocalDate.now().plusDays(120),
-                        gradert = true
+                        gradert = true,
                     )
-                    oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelsetilfelleMottattForst)
+                    oversikthendelstilfelleService.oppdaterPersonMedHendelse(
+                        oversikthendelsetilfelle = oversikthendelsetilfelleMottattForst,
+                    )
 
                     val oversikthendelsetilfelleMottattSist = oversikthendelstilfelle.copy(
                         fom = LocalDate.now().plusDays(60),
@@ -202,18 +264,28 @@ object OversikthendelstilfelleServiceSpek : Spek({
                         tidspunkt = LocalDateTime.now(),
                     )
 
-                    oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelsetilfelleMottattSist)
+                    oversikthendelstilfelleService.oppdaterPersonMedHendelse(
+                        oversikthendelsetilfelle = oversikthendelsetilfelleMottattSist,
+                    )
 
-                    val personListe = database.hentPersonResultatInternal(oversikthendelsetilfelleMottattSist.fnr)
+                    val personListe = database.hentPersonResultatInternal(fnr = oversikthendelsetilfelleMottattSist.fnr)
                     val person = personListe.first()
 
                     personListe.size shouldBe 1
-                    checkPPersonOversiktStatus(person, oversikthendelsetilfelleMottattForst, tilknytning.veilederIdent)
+                    checkPPersonOversiktStatus(
+                        pPersonOversiktStatus = person,
+                        oversikthendelsetilfelle = oversikthendelsetilfelleMottattForst,
+                        veilederIdent = tilknytning.veilederIdent,
+                    )
 
-                    val oppfolgingstilfeller = database.hentOppfolgingstilfellerForPerson(person.id)
+                    val oppfolgingstilfeller = database.hentOppfolgingstilfellerForPerson(personId = person.id)
 
                     oppfolgingstilfeller.size shouldBe 1
-                    checkPPersonOppfolgingstilfelle(oppfolgingstilfeller.first(), oversikthendelsetilfelleMottattSist, person.id)
+                    checkPPersonOppfolgingstilfelle(
+                        pPersonOppfolgingstilfelle = oppfolgingstilfeller.first(),
+                        oversikthendelsetilfelle = oversikthendelsetilfelleMottattSist,
+                        personId = person.id,
+                    )
                 }
             }
 
@@ -224,29 +296,45 @@ object OversikthendelstilfelleServiceSpek : Spek({
                     virksomhetsnummer = VIRKSOMHETSNUMMER,
                     fom = LocalDate.now().plusDays(120),
                     tom = LocalDate.now().plusDays(120),
-                    gradert = true
+                    gradert = true,
                 )
                 val oversikthendelsetilfelleMottattSist = oversikthendelstilfelle.copy(
                     virksomhetsnummer = VIRKSOMHETSNUMMER_2,
                     fom = LocalDate.now().plusDays(60),
                     tom = LocalDate.now().plusDays(60),
-                    gradert = false
+                    gradert = false,
                 )
-                oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelsetilfelleMottattForst)
+                oversikthendelstilfelleService.oppdaterPersonMedHendelse(
+                    oversikthendelsetilfelle = oversikthendelsetilfelleMottattForst,
+                )
 
-                oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelsetilfelleMottattSist)
+                oversikthendelstilfelleService.oppdaterPersonMedHendelse(
+                    oversikthendelsetilfelle = oversikthendelsetilfelleMottattSist,
+                )
 
                 val personListe = database.hentPersonResultatInternal(oversikthendelsetilfelleMottattSist.fnr)
                 val person = personListe.first()
 
                 personListe.size shouldBe 1
-                checkPPersonOversiktStatus(person, oversikthendelsetilfelleMottattForst, tilknytning.veilederIdent)
+                checkPPersonOversiktStatus(
+                    pPersonOversiktStatus = person,
+                    oversikthendelsetilfelle = oversikthendelsetilfelleMottattForst,
+                    veilederIdent = tilknytning.veilederIdent,
+                )
 
                 val oppfolgingstilfeller = database.hentOppfolgingstilfellerForPerson(person.id)
 
                 oppfolgingstilfeller.size shouldBe 2
-                checkPPersonOppfolgingstilfelle(oppfolgingstilfeller.first(), oversikthendelsetilfelleMottattForst, person.id)
-                checkPPersonOppfolgingstilfelle(oppfolgingstilfeller.last(), oversikthendelsetilfelleMottattSist, person.id)
+                checkPPersonOppfolgingstilfelle(
+                    pPersonOppfolgingstilfelle = oppfolgingstilfeller.first(),
+                    oversikthendelsetilfelle = oversikthendelsetilfelleMottattForst,
+                    personId = person.id,
+                )
+                checkPPersonOppfolgingstilfelle(
+                    pPersonOppfolgingstilfelle = oppfolgingstilfeller.last(),
+                    oversikthendelsetilfelle = oversikthendelsetilfelleMottattSist,
+                    personId = person.id,
+                )
             }
 
             it("skal oppdatere person, med flere oppfolgingstilfeller, ulik person, samme virksomhet") {
@@ -258,7 +346,7 @@ object OversikthendelstilfelleServiceSpek : Spek({
                     virksomhetsnummer = VIRKSOMHETSNUMMER,
                     fom = LocalDate.now().plusDays(120),
                     tom = LocalDate.now().plusDays(120),
-                    gradert = true
+                    gradert = true,
                 )
                 val oversikthendelsetilfelleMottattSist = oversikthendelstilfelle.copy(
                     fnr = ARBEIDSTAKER_2_FNR,
@@ -266,29 +354,50 @@ object OversikthendelstilfelleServiceSpek : Spek({
                     virksomhetsnummer = VIRKSOMHETSNUMMER,
                     fom = LocalDate.now().plusDays(60),
                     tom = LocalDate.now().plusDays(60),
-                    gradert = false
+                    gradert = false,
                 )
-                oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelsetilfelleMottattForst)
+                oversikthendelstilfelleService.oppdaterPersonMedHendelse(
+                    oversikthendelsetilfelle = oversikthendelsetilfelleMottattForst,
+                )
 
-                oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelsetilfelleMottattSist)
+                oversikthendelstilfelleService.oppdaterPersonMedHendelse(
+                    oversikthendelsetilfelle = oversikthendelsetilfelleMottattSist,
+                )
 
-                val personListeForst = database.hentPersonResultatInternal(oversikthendelsetilfelleMottattForst.fnr)
-                val personListeSist = database.hentPersonResultatInternal(oversikthendelsetilfelleMottattSist.fnr)
+                val personListeForst =
+                    database.hentPersonResultatInternal(fnr = oversikthendelsetilfelleMottattForst.fnr)
+                val personListeSist = database.hentPersonResultatInternal(fnr = oversikthendelsetilfelleMottattSist.fnr)
                 val personForst = personListeForst.first()
                 val personSist = personListeSist.last()
 
                 personListeForst.size shouldBe 1
                 personListeSist.size shouldBe 1
-                checkPPersonOversiktStatus(personForst, oversikthendelsetilfelleMottattForst, tilknytning.veilederIdent)
-                checkPPersonOversiktStatus(personSist, oversikthendelsetilfelleMottattSist, null)
+                checkPPersonOversiktStatus(
+                    pPersonOversiktStatus = personForst,
+                    oversikthendelsetilfelle = oversikthendelsetilfelleMottattForst,
+                    veilederIdent = tilknytning.veilederIdent,
+                )
+                checkPPersonOversiktStatus(
+                    pPersonOversiktStatus = personSist,
+                    oversikthendelsetilfelle = oversikthendelsetilfelleMottattSist,
+                    veilederIdent = null,
+                )
 
-                val oppfolgingstilfellerForst = database.hentOppfolgingstilfellerForPerson(personForst.id)
-                val oppfolgingstilfellerSist = database.hentOppfolgingstilfellerForPerson(personSist.id)
+                val oppfolgingstilfellerForst = database.hentOppfolgingstilfellerForPerson(personId = personForst.id)
+                val oppfolgingstilfellerSist = database.hentOppfolgingstilfellerForPerson(personId = personSist.id)
 
                 oppfolgingstilfellerForst.size shouldBe 1
                 oppfolgingstilfellerSist.size shouldBe 1
-                checkPPersonOppfolgingstilfelle(oppfolgingstilfellerForst.first(), oversikthendelsetilfelleMottattForst, personForst.id)
-                checkPPersonOppfolgingstilfelle(oppfolgingstilfellerSist.first(), oversikthendelsetilfelleMottattSist, personSist.id)
+                checkPPersonOppfolgingstilfelle(
+                    pPersonOppfolgingstilfelle = oppfolgingstilfellerForst.first(),
+                    oversikthendelsetilfelle = oversikthendelsetilfelleMottattForst,
+                    personId = personForst.id,
+                )
+                checkPPersonOppfolgingstilfelle(
+                    pPersonOppfolgingstilfelle = oppfolgingstilfellerSist.first(),
+                    oversikthendelsetilfelle = oversikthendelsetilfelleMottattSist,
+                    personId = personSist.id,
+                )
             }
 
             it("Skal ikke oppdatere person, med oppfolgingstilfelle, med nytt virksomhetsnavn hvis den har fra før") {
@@ -298,9 +407,9 @@ object OversikthendelstilfelleServiceSpek : Spek({
                 )
 
                 oversikthendelstilfelleService.oppdaterPersonMedHendelse(utenVirksomhetsnavn)
-                val person = database.hentPersonResultatInternal(utenVirksomhetsnavn.fnr)
+                val person = database.hentPersonResultatInternal(fnr = utenVirksomhetsnavn.fnr)
                 person.size shouldBe 1
-                val oppfolgingstilfelle = database.hentOppfolgingstilfellerForPerson(person.first().id)
+                val oppfolgingstilfelle = database.hentOppfolgingstilfellerForPerson(personId = person.first().id)
                 oppfolgingstilfelle.first().virksomhetsnavn shouldBeEqualTo null
 
                 oversikthendelstilfelleService.oppdaterPersonMedHendelse(
@@ -308,7 +417,8 @@ object OversikthendelstilfelleServiceSpek : Spek({
                         virksomhetsnavn = VIRKSOMHETSNAVN_2,
                     ),
                 )
-                val oppdatertOppfolingstilfelle = database.hentOppfolgingstilfellerForPerson(person.first().id)
+                val oppdatertOppfolingstilfelle =
+                    database.hentOppfolgingstilfellerForPerson(personId = person.first().id)
                 oppdatertOppfolingstilfelle.first().virksomhetsnavn shouldBeEqualTo null
             }
 
@@ -318,9 +428,9 @@ object OversikthendelstilfelleServiceSpek : Spek({
                 )
 
                 oversikthendelstilfelleService.oppdaterPersonMedHendelse(utenVirksomhetsnavn)
-                val person = database.hentPersonResultatInternal(utenVirksomhetsnavn.fnr)
+                val person = database.hentPersonResultatInternal(fnr = utenVirksomhetsnavn.fnr)
                 person.size shouldBe 1
-                val oppfolgingstilfelle = database.hentOppfolgingstilfellerForPerson(person.first().id)
+                val oppfolgingstilfelle = database.hentOppfolgingstilfellerForPerson(personId = person.first().id)
                 oppfolgingstilfelle.first().virksomhetsnavn shouldBeEqualTo null
 
                 oversikthendelstilfelleService.oppdaterPersonMedHendelse(
@@ -329,7 +439,8 @@ object OversikthendelstilfelleServiceSpek : Spek({
                         tidspunkt = LocalDateTime.now(),
                     ),
                 )
-                val oppdatertOppfolingstilfelle = database.hentOppfolgingstilfellerForPerson(person.first().id)
+                val oppdatertOppfolingstilfelle =
+                    database.hentOppfolgingstilfellerForPerson(personId = person.first().id)
                 oppdatertOppfolingstilfelle.first().virksomhetsnavn shouldBeEqualTo VIRKSOMHETSNAVN_2
             }
         }

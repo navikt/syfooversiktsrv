@@ -60,9 +60,9 @@ object PersonoversiktStatusApiV2Spek : Spek({
             }
 
             val validToken = generateJWT(
-                externalMockEnvironment.environment.azureAppClientId,
-                externalMockEnvironment.wellKnownVeilederV2.issuer,
-                VEILEDER_ID
+                audience = externalMockEnvironment.environment.azureAppClientId,
+                issuer = externalMockEnvironment.wellKnownVeilederV2.issuer,
+                navIdent = VEILEDER_ID,
             )
 
             describe("Hent personoversikt for enhet") {

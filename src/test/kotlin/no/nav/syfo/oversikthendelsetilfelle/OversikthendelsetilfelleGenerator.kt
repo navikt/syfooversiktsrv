@@ -16,5 +16,5 @@ val generateOversikthendelsetilfelle =
         gradert = false,
         fom = LocalDate.now().minusDays(56),
         tom = LocalDate.now().plusDays(16),
-        tidspunkt = LocalDateTime.now()
+        tidspunkt = LocalDateTime.now(),
     )
