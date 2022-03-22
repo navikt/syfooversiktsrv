@@ -8,9 +8,6 @@ import io.ktor.features.*
 import io.ktor.jackson.*
 import io.ktor.server.testing.*
 import io.ktor.util.*
-import no.nav.syfo.oversikthendelsetilfelle.domain.KOversikthendelsetilfelle
-import no.nav.syfo.oversikthendelsetilfelle.domain.PPersonOppfolgingstilfelle
-import no.nav.syfo.personstatus.domain.PPersonOversiktStatus
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
 import no.nav.syfo.personstatus.hentPersonResultatInternal
 import no.nav.syfo.personstatus.lagreBrukerKnytningPaEnhet
@@ -22,7 +19,10 @@ import no.nav.syfo.testutil.UserConstants.VEILEDER_ID
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNAVN_2
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER_2
-import org.amshove.kluent.*
+import no.nav.syfo.testutil.assertion.checkPPersonOppfolgingstilfelle
+import no.nav.syfo.testutil.assertion.checkPPersonOversiktStatus
+import org.amshove.kluent.shouldBe
+import org.amshove.kluent.shouldBeEqualTo
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import java.time.LocalDate
@@ -75,12 +75,12 @@ object OversikthendelstilfelleServiceSpek : Spek({
                     val person = personListe.first()
 
                     personListe.size shouldBe 1
-                    checkPersonOversiktStatus(person, hendelse, null)
+                    checkPPersonOversiktStatus(person, hendelse, null)
 
                     val oppfolgingstilfeller = database.hentOppfolgingstilfellerForPerson(person.id)
 
                     oppfolgingstilfeller.size shouldBe 1
-                    checkPersonOppfolgingstilfelle(oppfolgingstilfeller.first(), hendelse, person.id)
+                    checkPPersonOppfolgingstilfelle(oppfolgingstilfeller.first(), hendelse, person.id)
                 }
 
                 it("skal opprette person, med oppfolgingstilfelle gradert") {
@@ -91,12 +91,12 @@ object OversikthendelstilfelleServiceSpek : Spek({
                     val person = personListe.first()
 
                     personListe.size shouldBe 1
-                    checkPersonOversiktStatus(person, hendelse, null)
+                    checkPPersonOversiktStatus(person, hendelse, null)
 
                     val oppfolgingstilfeller = database.hentOppfolgingstilfellerForPerson(person.id)
 
                     oppfolgingstilfeller.size shouldBe 1
-                    checkPersonOppfolgingstilfelle(oppfolgingstilfeller.first(), hendelse, person.id)
+                    checkPPersonOppfolgingstilfelle(oppfolgingstilfeller.first(), hendelse, person.id)
                 }
             }
 
@@ -111,12 +111,12 @@ object OversikthendelstilfelleServiceSpek : Spek({
                     val person = personListe.first()
 
                     personListe.size shouldBe 1
-                    checkPersonOversiktStatus(person, hendelse, tilknytning.veilederIdent)
+                    checkPPersonOversiktStatus(person, hendelse, tilknytning.veilederIdent)
 
                     val oppfolgingstilfeller = database.hentOppfolgingstilfellerForPerson(person.id)
 
                     oppfolgingstilfeller.size shouldBe 1
-                    checkPersonOppfolgingstilfelle(oppfolgingstilfeller.first(), hendelse, person.id)
+                    checkPPersonOppfolgingstilfelle(oppfolgingstilfeller.first(), hendelse, person.id)
                 }
 
                 it("skal oppdatere person, om person eksisterer i oversikt, med oppfolgingstilfelle gradert") {
@@ -129,12 +129,12 @@ object OversikthendelstilfelleServiceSpek : Spek({
                     val person = personListe.first()
 
                     personListe.size shouldBe 1
-                    checkPersonOversiktStatus(person, hendelse, tilknytning.veilederIdent)
+                    checkPPersonOversiktStatus(person, hendelse, tilknytning.veilederIdent)
 
                     val oppfolgingstilfeller = database.hentOppfolgingstilfellerForPerson(person.id)
 
                     oppfolgingstilfeller.size shouldBe 1
-                    checkPersonOppfolgingstilfelle(oppfolgingstilfeller.first(), hendelse, person.id)
+                    checkPPersonOppfolgingstilfelle(oppfolgingstilfeller.first(), hendelse, person.id)
                 }
             }
 
@@ -153,12 +153,12 @@ object OversikthendelstilfelleServiceSpek : Spek({
                     val person = personListe.first()
 
                     personListe.size shouldBe 1
-                    checkPersonOversiktStatus(person, hendelse, null)
+                    checkPPersonOversiktStatus(person, hendelse, null)
 
                     val oppfolgingstilfeller = database.hentOppfolgingstilfellerForPerson(person.id)
 
                     oppfolgingstilfeller.size shouldBe 1
-                    checkPersonOppfolgingstilfelle(oppfolgingstilfeller.first(), hendelse, person.id)
+                    checkPPersonOppfolgingstilfelle(oppfolgingstilfeller.first(), hendelse, person.id)
                 }
 
                 it("skal oppdatere person og nullstille tildelt veileder, om person eksisterer i oversikt og enhet er endret, med oppfolgingstilfelle gradert mottatt") {
@@ -175,12 +175,12 @@ object OversikthendelstilfelleServiceSpek : Spek({
                     val person = personListe.first()
 
                     personListe.size shouldBe 1
-                    checkPersonOversiktStatus(person, hendelse, null)
+                    checkPPersonOversiktStatus(person, hendelse, null)
 
                     val oppfolgingstilfeller = database.hentOppfolgingstilfellerForPerson(person.id)
 
                     oppfolgingstilfeller.size shouldBe 1
-                    checkPersonOppfolgingstilfelle(oppfolgingstilfeller.first(), hendelse, person.id)
+                    checkPPersonOppfolgingstilfelle(oppfolgingstilfeller.first(), hendelse, person.id)
                 }
             }
 
@@ -208,12 +208,12 @@ object OversikthendelstilfelleServiceSpek : Spek({
                     val person = personListe.first()
 
                     personListe.size shouldBe 1
-                    checkPersonOversiktStatus(person, oversikthendelsetilfelleMottattForst, tilknytning.veilederIdent)
+                    checkPPersonOversiktStatus(person, oversikthendelsetilfelleMottattForst, tilknytning.veilederIdent)
 
                     val oppfolgingstilfeller = database.hentOppfolgingstilfellerForPerson(person.id)
 
                     oppfolgingstilfeller.size shouldBe 1
-                    checkPersonOppfolgingstilfelle(oppfolgingstilfeller.first(), oversikthendelsetilfelleMottattSist, person.id)
+                    checkPPersonOppfolgingstilfelle(oppfolgingstilfeller.first(), oversikthendelsetilfelleMottattSist, person.id)
                 }
             }
 
@@ -240,13 +240,13 @@ object OversikthendelstilfelleServiceSpek : Spek({
                 val person = personListe.first()
 
                 personListe.size shouldBe 1
-                checkPersonOversiktStatus(person, oversikthendelsetilfelleMottattForst, tilknytning.veilederIdent)
+                checkPPersonOversiktStatus(person, oversikthendelsetilfelleMottattForst, tilknytning.veilederIdent)
 
                 val oppfolgingstilfeller = database.hentOppfolgingstilfellerForPerson(person.id)
 
                 oppfolgingstilfeller.size shouldBe 2
-                checkPersonOppfolgingstilfelle(oppfolgingstilfeller.first(), oversikthendelsetilfelleMottattForst, person.id)
-                checkPersonOppfolgingstilfelle(oppfolgingstilfeller.last(), oversikthendelsetilfelleMottattSist, person.id)
+                checkPPersonOppfolgingstilfelle(oppfolgingstilfeller.first(), oversikthendelsetilfelleMottattForst, person.id)
+                checkPPersonOppfolgingstilfelle(oppfolgingstilfeller.last(), oversikthendelsetilfelleMottattSist, person.id)
             }
 
             it("skal oppdatere person, med flere oppfolgingstilfeller, ulik person, samme virksomhet") {
@@ -279,16 +279,16 @@ object OversikthendelstilfelleServiceSpek : Spek({
 
                 personListeForst.size shouldBe 1
                 personListeSist.size shouldBe 1
-                checkPersonOversiktStatus(personForst, oversikthendelsetilfelleMottattForst, tilknytning.veilederIdent)
-                checkPersonOversiktStatus(personSist, oversikthendelsetilfelleMottattSist, null)
+                checkPPersonOversiktStatus(personForst, oversikthendelsetilfelleMottattForst, tilknytning.veilederIdent)
+                checkPPersonOversiktStatus(personSist, oversikthendelsetilfelleMottattSist, null)
 
                 val oppfolgingstilfellerForst = database.hentOppfolgingstilfellerForPerson(personForst.id)
                 val oppfolgingstilfellerSist = database.hentOppfolgingstilfellerForPerson(personSist.id)
 
                 oppfolgingstilfellerForst.size shouldBe 1
                 oppfolgingstilfellerSist.size shouldBe 1
-                checkPersonOppfolgingstilfelle(oppfolgingstilfellerForst.first(), oversikthendelsetilfelleMottattForst, personForst.id)
-                checkPersonOppfolgingstilfelle(oppfolgingstilfellerSist.first(), oversikthendelsetilfelleMottattSist, personSist.id)
+                checkPPersonOppfolgingstilfelle(oppfolgingstilfellerForst.first(), oversikthendelsetilfelleMottattForst, personForst.id)
+                checkPPersonOppfolgingstilfelle(oppfolgingstilfellerSist.first(), oversikthendelsetilfelleMottattSist, personSist.id)
             }
 
             it("Skal ikke oppdatere person, med oppfolgingstilfelle, med nytt virksomhetsnavn hvis den har fra før") {
@@ -335,21 +335,3 @@ object OversikthendelstilfelleServiceSpek : Spek({
         }
     }
 })
-
-fun checkPersonOversiktStatus(pPersonOversiktStatus: PPersonOversiktStatus, oversikthendelsetilfelle: KOversikthendelsetilfelle, veilederIdent: String?) {
-    pPersonOversiktStatus.fnr shouldBeEqualTo oversikthendelsetilfelle.fnr
-    pPersonOversiktStatus.navn shouldBeEqualTo null
-    pPersonOversiktStatus.veilederIdent shouldBeEqualTo veilederIdent
-    pPersonOversiktStatus.enhet shouldBeEqualTo oversikthendelsetilfelle.enhetId
-    pPersonOversiktStatus.tildeltEnhetUpdatedAt.shouldNotBeNull()
-    pPersonOversiktStatus.motebehovUbehandlet shouldBeEqualTo null
-    pPersonOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo null
-}
-
-fun checkPersonOppfolgingstilfelle(pPersonOppfolgingstilfelle: PPersonOppfolgingstilfelle, oversikthendelsetilfelle: KOversikthendelsetilfelle, personId: Int) {
-    pPersonOppfolgingstilfelle.personOversiktStatusId shouldBeEqualTo personId
-    pPersonOppfolgingstilfelle.virksomhetsnummer shouldBeEqualTo oversikthendelsetilfelle.virksomhetsnummer
-    pPersonOppfolgingstilfelle.gradert shouldBeEqualTo oversikthendelsetilfelle.gradert
-    pPersonOppfolgingstilfelle.fom shouldBeEqualTo oversikthendelsetilfelle.fom
-    pPersonOppfolgingstilfelle.tom shouldBeEqualTo oversikthendelsetilfelle.tom
-}

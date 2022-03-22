@@ -6,7 +6,6 @@ import io.ktor.http.*
 import io.ktor.server.testing.*
 import io.ktor.util.*
 import no.nav.syfo.oversikthendelsetilfelle.OversikthendelstilfelleService
-import no.nav.syfo.oversikthendelsetilfelle.domain.KOversikthendelsetilfelle
 import no.nav.syfo.oversikthendelsetilfelle.generateOversikthendelsetilfelle
 import no.nav.syfo.personstatus.OversiktHendelseService
 import no.nav.syfo.personstatus.domain.*
@@ -19,6 +18,7 @@ import no.nav.syfo.testutil.UserConstants.VEILEDER_ID
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNAVN_2
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER_2
+import no.nav.syfo.testutil.assertion.checkPersonOppfolgingstilfelle
 import no.nav.syfo.testutil.generator.generateKOversikthendelse
 import no.nav.syfo.util.bearerHeader
 import no.nav.syfo.util.configuredJacksonMapper
@@ -29,7 +29,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 
 @InternalAPI
-object PersonoversiktStatusApiSpek : Spek({
+object PersonoversiktStatusApiV2Spek : Spek({
     val objectMapper: ObjectMapper = configuredJacksonMapper()
 
     describe("PersonoversiktApi") {
@@ -570,12 +570,3 @@ object PersonoversiktStatusApiSpek : Spek({
         }
     }
 })
-
-fun checkPersonOppfolgingstilfelle(
-    oppfolgingstilfelle: OppfolgingstilfelleDTO,
-    oversikthendelsetilfelle: KOversikthendelsetilfelle
-) {
-    oppfolgingstilfelle.virksomhetsnummer shouldBeEqualTo oversikthendelsetilfelle.virksomhetsnummer
-    oppfolgingstilfelle.fom shouldBeEqualTo oversikthendelsetilfelle.fom
-    oppfolgingstilfelle.tom shouldBeEqualTo oversikthendelsetilfelle.tom
-}
