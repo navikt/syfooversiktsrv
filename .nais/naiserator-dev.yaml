@@ -64,6 +64,8 @@ spec:
         databases:
           - name: syfooversiktsrv-db
         diskAutoresize: true
+  kafka:
+    pool: nav-dev
   envFrom:
     - secret: syfooversiktsrv-redis-password
     - secret: syfooversiktsrv-serviceuser
@@ -86,3 +88,5 @@ spec:
       value: "https://syfo-tilgangskontroll.dev-fss-pub.nais.io"
     - name: TOGGLE_KAFKA_CONSUMER_ENABLED
       value: "true"
+    - name: TOGGLE_KAFKA_OPPFOLGINGSTILFELLE_PERSON_PROCESSING_ENABLED
+      value: "false"
