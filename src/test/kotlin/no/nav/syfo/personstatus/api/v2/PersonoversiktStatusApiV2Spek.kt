@@ -505,8 +505,9 @@ object PersonoversiktStatusApiV2Spek : Spek({
                 }
 
                 it("should return Person, no Oppfolgingstilfelle, and then OPPFOLGINGSPLANLPS_BISTAND_MOTTATT") {
-                    val oversiktHendelseOPLPSBistandMottatt =
-                        generateKOversikthendelse(OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT)
+                    val oversiktHendelseOPLPSBistandMottatt = generateKOversikthendelse(
+                        oversikthendelseType = OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT
+                    )
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseOPLPSBistandMottatt)
 
                     with(

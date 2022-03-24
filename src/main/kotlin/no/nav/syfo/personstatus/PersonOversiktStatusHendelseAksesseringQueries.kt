@@ -2,7 +2,7 @@ package no.nav.syfo.personstatus
 
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.application.database.toList
-import no.nav.syfo.personstatus.domain.PersonOversiktStatus
+import no.nav.syfo.personstatus.domain.*
 import no.nav.syfo.util.nowUTC
 import java.sql.*
 import java.sql.Types.NULL
@@ -23,9 +23,15 @@ const val queryCreatePersonOversiktStatus =
         sist_endret,
         motebehov_ubehandlet,
         moteplanlegger_ubehandlet,
-        oppfolgingsplan_lps_bistand_ubehandlet
-    ) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-   RETURNING id
+        oppfolgingsplan_lps_bistand_ubehandlet,
+        oppfolgingstilfelle_updated_at,
+        oppfolgingstilfelle_generated_at,
+        oppfolgingstilfelle_start,
+        oppfolgingstilfelle_end,
+        oppfolgingstilfelle_bit_referanse_uuid,
+        oppfolgingstilfelle_bit_referanse_inntruffet
+    ) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    RETURNING id
     """
 
 fun Connection.createPersonOversiktStatus(
@@ -60,6 +66,19 @@ fun Connection.createPersonOversiktStatus(
         } else {
             it.setNull(11, NULL)
         }
+        it.setObject(12, personOversiktStatus.latestOppfolgingstilfelle?.oppfolgingstilfelleUpdatedAt)
+        it.setObject(13, personOversiktStatus.latestOppfolgingstilfelle?.oppfolgingstilfelleGeneratedAt)
+        it.setObject(14, personOversiktStatus.latestOppfolgingstilfelle?.oppfolgingstilfelleStart)
+        it.setObject(15, personOversiktStatus.latestOppfolgingstilfelle?.oppfolgingstilfelleEnd)
+        if (personOversiktStatus.latestOppfolgingstilfelle != null) {
+            it.setString(
+                16,
+                personOversiktStatus.latestOppfolgingstilfelle.oppfolgingstilfelleBitReferanseUuid.toString()
+            )
+        } else {
+            it.setNull(16, Types.CHAR)
+        }
+        it.setObject(17, personOversiktStatus.latestOppfolgingstilfelle?.oppfolgingstilfelleBitReferanseInntruffet)
         it.executeQuery().toList { getInt("id") }.firstOrNull()
     } ?: throw SQLException("Creating Dialogmote failed, no rows affected.")
 
@@ -117,4 +136,37 @@ fun DatabaseInterface.updatePersonOversiktStatus(
         }
         connection.commit()
     }
+}
+
+const val queryUpdatePersonOversiktStatusOppfolgingstilfelle =
+    """
+    UPDATE PERSON_OVERSIKT_STATUS
+    SET oppfolgingstilfelle_updated_at = ?,
+    oppfolgingstilfelle_generated_at = ?,
+    oppfolgingstilfelle_start = ?,
+    oppfolgingstilfelle_end = ?,
+    oppfolgingstilfelle_bit_referanse_uuid = ?,
+    oppfolgingstilfelle_bit_referanse_inntruffet = ?
+    WHERE fnr = ?
+    """
+
+fun Connection.updatePersonOversiktStatusOppfolgingstilfelle(
+    pPersonOversiktStatus: PPersonOversiktStatus,
+    personOppfolgingstilfelle: PersonOppfolgingstilfelle,
+) {
+    this.prepareStatement(queryUpdatePersonOversiktStatusOppfolgingstilfelle).use {
+        it.setObject(1, personOppfolgingstilfelle.oppfolgingstilfelleUpdatedAt)
+        it.setObject(2, personOppfolgingstilfelle.oppfolgingstilfelleGeneratedAt)
+        it.setObject(3, personOppfolgingstilfelle.oppfolgingstilfelleStart)
+        it.setObject(4, personOppfolgingstilfelle.oppfolgingstilfelleEnd)
+        it.setString(5, personOppfolgingstilfelle.oppfolgingstilfelleBitReferanseUuid.toString())
+        it.setObject(6, personOppfolgingstilfelle.oppfolgingstilfelleBitReferanseInntruffet)
+        it.setString(7, pPersonOversiktStatus.fnr)
+        it.execute()
+    }
+    createPersonOppfolgingstilfelleVirksomhetList(
+        commit = false,
+        personOversiktStatusId = pPersonOversiktStatus.id,
+        personOppfolgingstilfelleVirksomhetList = personOppfolgingstilfelle.virksomhetList,
+    )
 }

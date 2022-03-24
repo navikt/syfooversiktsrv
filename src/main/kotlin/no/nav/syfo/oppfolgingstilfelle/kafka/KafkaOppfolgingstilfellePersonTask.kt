@@ -15,6 +15,7 @@ const val OPPFOLGINGSTILFELLE_PERSON_TOPIC =
 fun launchKafkaTaskOppfolgingstilfellePerson(
     applicationState: ApplicationState,
     applicationEnvironmentKafka: ApplicationEnvironmentKafka,
+    kafkaOppfolgingstilfellePersonService: KafkaOppfolgingstilfellePersonService,
 ) {
     launchBackgroundTask(
         applicationState = applicationState,
@@ -22,6 +23,7 @@ fun launchKafkaTaskOppfolgingstilfellePerson(
         blockingApplicationLogicOppfolgingstilfellePerson(
             applicationState = applicationState,
             applicationEnvironmentKafka = applicationEnvironmentKafka,
+            kafkaOppfolgingstilfellePersonService = kafkaOppfolgingstilfellePersonService,
         )
     }
 }
@@ -29,6 +31,7 @@ fun launchKafkaTaskOppfolgingstilfellePerson(
 fun blockingApplicationLogicOppfolgingstilfellePerson(
     applicationState: ApplicationState,
     applicationEnvironmentKafka: ApplicationEnvironmentKafka,
+    kafkaOppfolgingstilfellePersonService: KafkaOppfolgingstilfellePersonService,
 ) {
     log.info("Setting up kafka consumer for ${KafkaOppfolgingstilfellePerson::class.java.simpleName}")
 
@@ -42,5 +45,8 @@ fun blockingApplicationLogicOppfolgingstilfellePerson(
         listOf(OPPFOLGINGSTILFELLE_PERSON_TOPIC)
     )
     while (applicationState.ready) {
+        kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+            kafkaConsumerOppfolgingstilfellePerson = kafkaConsumerOppfolgingstilfellePerson,
+        )
     }
 }

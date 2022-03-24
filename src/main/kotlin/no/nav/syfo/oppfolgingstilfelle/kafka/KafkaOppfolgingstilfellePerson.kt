@@ -1,7 +1,11 @@
 package no.nav.syfo.oppfolgingstilfelle.kafka
 
+import no.nav.syfo.domain.Virksomhetsnummer
+import no.nav.syfo.personstatus.domain.*
+import no.nav.syfo.util.nowUTC
 import java.time.LocalDate
 import java.time.OffsetDateTime
+import java.util.*
 
 data class KafkaOppfolgingstilfellePerson(
     val uuid: String,
@@ -17,4 +21,39 @@ data class KafkaOppfolgingstilfelle(
     val start: LocalDate,
     val end: LocalDate,
     val virksomhetsnummerList: List<String>,
+)
+
+fun KafkaOppfolgingstilfellePerson.toPersonOversiktStatus(
+    latestKafkaOppfolgingstilfelle: KafkaOppfolgingstilfelle,
+) = PersonOversiktStatus(
+    veilederIdent = null,
+    fnr = this.personIdentNumber,
+    navn = null,
+    enhet = null,
+    motebehovUbehandlet = null,
+    moteplanleggerUbehandlet = null,
+    oppfolgingsplanLPSBistandUbehandlet = null,
+    oppfolgingstilfeller = emptyList(),
+    latestOppfolgingstilfelle = this.toPersonOppfolgingstilfelle(
+        latestKafkaOppfolgingstilfelle = latestKafkaOppfolgingstilfelle,
+    ),
+)
+
+fun KafkaOppfolgingstilfellePerson.toPersonOppfolgingstilfelle(
+    latestKafkaOppfolgingstilfelle: KafkaOppfolgingstilfelle,
+) = PersonOppfolgingstilfelle(
+    oppfolgingstilfelleUpdatedAt = nowUTC(),
+    oppfolgingstilfelleGeneratedAt = this.createdAt,
+    oppfolgingstilfelleStart = latestKafkaOppfolgingstilfelle.start,
+    oppfolgingstilfelleEnd = latestKafkaOppfolgingstilfelle.end,
+    oppfolgingstilfelleBitReferanseInntruffet = this.referanseTilfelleBitInntruffet,
+    oppfolgingstilfelleBitReferanseUuid = UUID.fromString(this.referanseTilfelleBitUuid),
+    virksomhetList = latestKafkaOppfolgingstilfelle.virksomhetsnummerList.map { virksomhetsnummer ->
+        PersonOppfolgingstilfelleVirksomhet(
+            uuid = UUID.randomUUID(),
+            createdAt = nowUTC(),
+            virksomhetsnummer = Virksomhetsnummer(virksomhetsnummer),
+            virksomhetsnavn = null,
+        )
+    },
 )
