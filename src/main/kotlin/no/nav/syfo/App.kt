@@ -12,6 +12,7 @@ import no.nav.syfo.application.api.authentication.getWellKnown
 import no.nav.syfo.application.database.database
 import no.nav.syfo.application.database.databaseModule
 import no.nav.syfo.kafka.launchKafkaTask
+import no.nav.syfo.oppfolgingstilfelle.kafka.launchKafkaTaskOppfolgingstilfellePerson
 import org.slf4j.LoggerFactory
 import java.util.concurrent.TimeUnit
 
@@ -59,6 +60,12 @@ fun main() {
             launchKafkaTask(
                 applicationState = applicationState,
                 environment = environment,
+            )
+        }
+        if (environment.kafkaOppfolgingstilfellePersonProcessingEnabled) {
+            launchKafkaTaskOppfolgingstilfellePerson(
+                applicationState = applicationState,
+                applicationEnvironmentKafka = environment.kafka,
             )
         }
     }

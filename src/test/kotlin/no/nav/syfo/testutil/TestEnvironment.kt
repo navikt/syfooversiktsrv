@@ -1,7 +1,6 @@
 package no.nav.syfo.testutil
 
-import no.nav.syfo.application.ApplicationState
-import no.nav.syfo.application.Environment
+import no.nav.syfo.application.*
 import java.net.ServerSocket
 
 fun testEnvironment(
@@ -22,6 +21,14 @@ fun testEnvironment(
     oversikthendelseOppfolgingstilfelleTopic = "topic1",
     kafkaBootstrapServers = kafkaBootstrapServers,
     kafkaSchemaRegistryUrl = "http://kafka-schema-registry.tpa.svc.nais.local:8081",
+    kafka = ApplicationEnvironmentKafka(
+        aivenBootstrapServers = kafkaBootstrapServers,
+        aivenCredstorePassword = "credstorepassord",
+        aivenKeystoreLocation = "keystore",
+        aivenSecurityProtocol = "SSL",
+        aivenTruststoreLocation = "truststore",
+    ),
+    kafkaOppfolgingstilfellePersonProcessingEnabled = true,
     applicationName = "syfooversiktsrv",
     pdlClientId = "dev-fss.pdl.pdl-api",
     pdlUrl = pdlUrl,
