@@ -7,7 +7,7 @@ data class PPersonOversiktStatus(
     val fnr: String,
     val navn: String?,
     val id: Int,
-    val enhet: String,
+    val enhet: String?,
     val tildeltEnhetUpdatedAt: OffsetDateTime?,
     val motebehovUbehandlet: Boolean?,
     val moteplanleggerUbehandlet: Boolean?,
