@@ -2,6 +2,8 @@ package no.nav.syfo.personstatus.domain
 
 import no.nav.syfo.personstatus.api.v2.PersonOversiktStatusDTO
 import no.nav.syfo.personstatus.api.v2.toOppfolgingstilfelleDTO
+import java.time.LocalDate
+import java.time.OffsetDateTime
 
 data class PersonOversiktStatus(
     val veilederIdent: String?,
@@ -11,7 +13,22 @@ data class PersonOversiktStatus(
     val motebehovUbehandlet: Boolean?,
     val moteplanleggerUbehandlet: Boolean?,
     val oppfolgingsplanLPSBistandUbehandlet: Boolean?,
-    val oppfolgingstilfeller: List<Oppfolgingstilfelle>
+    val oppfolgingstilfeller: List<Oppfolgingstilfelle>,
+    val latestOppfolgingstilfelle: PersonOppfolgingstilfelle?
+)
+
+data class PersonOppfolgingstilfelle(
+    val oppfolgingstilfelleUpdatedAt: OffsetDateTime,
+    val oppfolgingstilfelleGeneratedAt: OffsetDateTime,
+    val oppfolgingstilfelleStart: LocalDate,
+    val oppfolgingstilfelleEnd: LocalDate,
+    val oppfolgingstilfelleBitReferanseInntruffet: OffsetDateTime,
+    val virksomhetList: List<PersonOppfolgingstilfelleVirskomhet>,
+)
+
+data class PersonOppfolgingstilfelleVirskomhet(
+    val virksomhetsnummer: String,
+    val virskomhetsnavn: String?,
 )
 
 fun List<PersonOversiktStatus>.addPersonName(
