@@ -9,7 +9,7 @@ import io.ktor.jackson.*
 import io.ktor.server.testing.*
 import io.ktor.util.*
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
-import no.nav.syfo.personstatus.hentPersonResultatInternal
+import no.nav.syfo.personstatus.getPersonOversiktStatusList
 import no.nav.syfo.personstatus.lagreBrukerKnytningPaEnhet
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_2_FNR
@@ -73,7 +73,7 @@ object OversikthendelstilfelleServiceSpek : Spek({
                         oversikthendelsetilfelle = hendelse,
                     )
 
-                    val personListe = database.hentPersonResultatInternal(fnr = hendelse.fnr)
+                    val personListe = database.getPersonOversiktStatusList(fnr = hendelse.fnr)
                     val person = personListe.first()
 
                     personListe.size shouldBe 1
@@ -99,7 +99,7 @@ object OversikthendelstilfelleServiceSpek : Spek({
                         oversikthendelsetilfelle = hendelse,
                     )
 
-                    val personListe = database.hentPersonResultatInternal(fnr = hendelse.fnr)
+                    val personListe = database.getPersonOversiktStatusList(fnr = hendelse.fnr)
                     val person = personListe.first()
 
                     personListe.size shouldBe 1
@@ -129,7 +129,7 @@ object OversikthendelstilfelleServiceSpek : Spek({
                         oversikthendelsetilfelle = hendelse,
                     )
 
-                    val personListe = database.hentPersonResultatInternal(fnr = hendelse.fnr)
+                    val personListe = database.getPersonOversiktStatusList(fnr = hendelse.fnr)
                     val person = personListe.first()
 
                     personListe.size shouldBe 1
@@ -157,7 +157,7 @@ object OversikthendelstilfelleServiceSpek : Spek({
                         oversikthendelsetilfelle = hendelse,
                     )
 
-                    val personListe = database.hentPersonResultatInternal(fnr = hendelse.fnr)
+                    val personListe = database.getPersonOversiktStatusList(fnr = hendelse.fnr)
                     val person = personListe.first()
 
                     personListe.size shouldBe 1
@@ -191,7 +191,7 @@ object OversikthendelstilfelleServiceSpek : Spek({
                         oversikthendelsetilfelle = hendelse,
                     )
 
-                    val personListe = database.hentPersonResultatInternal(fnr = hendelse.fnr)
+                    val personListe = database.getPersonOversiktStatusList(fnr = hendelse.fnr)
                     val person = personListe.first()
 
                     personListe.size shouldBe 1
@@ -223,7 +223,7 @@ object OversikthendelstilfelleServiceSpek : Spek({
                         oversikthendelsetilfelle = hendelse,
                     )
 
-                    val personListe = database.hentPersonResultatInternal(fnr = hendelse.fnr)
+                    val personListe = database.getPersonOversiktStatusList(fnr = hendelse.fnr)
                     val person = personListe.first()
 
                     personListe.size shouldBe 1
@@ -268,7 +268,7 @@ object OversikthendelstilfelleServiceSpek : Spek({
                         oversikthendelsetilfelle = oversikthendelsetilfelleMottattSist,
                     )
 
-                    val personListe = database.hentPersonResultatInternal(fnr = oversikthendelsetilfelleMottattSist.fnr)
+                    val personListe = database.getPersonOversiktStatusList(fnr = oversikthendelsetilfelleMottattSist.fnr)
                     val person = personListe.first()
 
                     personListe.size shouldBe 1
@@ -312,7 +312,7 @@ object OversikthendelstilfelleServiceSpek : Spek({
                     oversikthendelsetilfelle = oversikthendelsetilfelleMottattSist,
                 )
 
-                val personListe = database.hentPersonResultatInternal(oversikthendelsetilfelleMottattSist.fnr)
+                val personListe = database.getPersonOversiktStatusList(oversikthendelsetilfelleMottattSist.fnr)
                 val person = personListe.first()
 
                 personListe.size shouldBe 1
@@ -365,8 +365,8 @@ object OversikthendelstilfelleServiceSpek : Spek({
                 )
 
                 val personListeForst =
-                    database.hentPersonResultatInternal(fnr = oversikthendelsetilfelleMottattForst.fnr)
-                val personListeSist = database.hentPersonResultatInternal(fnr = oversikthendelsetilfelleMottattSist.fnr)
+                    database.getPersonOversiktStatusList(fnr = oversikthendelsetilfelleMottattForst.fnr)
+                val personListeSist = database.getPersonOversiktStatusList(fnr = oversikthendelsetilfelleMottattSist.fnr)
                 val personForst = personListeForst.first()
                 val personSist = personListeSist.last()
 
@@ -407,7 +407,7 @@ object OversikthendelstilfelleServiceSpek : Spek({
                 )
 
                 oversikthendelstilfelleService.oppdaterPersonMedHendelse(utenVirksomhetsnavn)
-                val person = database.hentPersonResultatInternal(fnr = utenVirksomhetsnavn.fnr)
+                val person = database.getPersonOversiktStatusList(fnr = utenVirksomhetsnavn.fnr)
                 person.size shouldBe 1
                 val oppfolgingstilfelle = database.hentOppfolgingstilfellerForPerson(personId = person.first().id)
                 oppfolgingstilfelle.first().virksomhetsnavn shouldBeEqualTo null
@@ -428,7 +428,7 @@ object OversikthendelstilfelleServiceSpek : Spek({
                 )
 
                 oversikthendelstilfelleService.oppdaterPersonMedHendelse(utenVirksomhetsnavn)
-                val person = database.hentPersonResultatInternal(fnr = utenVirksomhetsnavn.fnr)
+                val person = database.getPersonOversiktStatusList(fnr = utenVirksomhetsnavn.fnr)
                 person.size shouldBe 1
                 val oppfolgingstilfelle = database.hentOppfolgingstilfellerForPerson(personId = person.first().id)
                 oppfolgingstilfelle.first().virksomhetsnavn shouldBeEqualTo null

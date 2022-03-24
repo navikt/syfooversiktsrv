@@ -8,29 +8,18 @@ import java.time.OffsetDateTime
 
 const val KNYTNING_IKKE_FUNNET = 0L
 
-const val queryHentPersonResultatInternal = """
-                         SELECT *
-                         FROM PERSON_OVERSIKT_STATUS
-                         WHERE fnr=?
-                """
+const val querygetPersonOversiktStatusList =
+    """
+    SELECT *
+    FROM PERSON_OVERSIKT_STATUS
+    WHERE fnr = ?
+    """
 
-fun DatabaseInterface.hentPersonResultatInternal(fnr: String): List<PPersonOversiktStatus> {
+fun DatabaseInterface.getPersonOversiktStatusList(
+    fnr: String,
+): List<PPersonOversiktStatus> {
     return connection.use { connection ->
-        connection.prepareStatement(queryHentPersonResultatInternal).use {
-            it.setString(1, fnr)
-            it.executeQuery().toList { toPPersonOversiktStatus() }
-        }
-    }
-}
-
-fun DatabaseInterface.hentPersonResultat(fnr: String): List<PPersonOversiktStatus> {
-    val query = """
-                         SELECT *
-                         FROM PERSON_OVERSIKT_STATUS
-                         WHERE fnr=?
-                """
-    return connection.use { connection ->
-        connection.prepareStatement(query).use {
+        connection.prepareStatement(querygetPersonOversiktStatusList).use {
             it.setString(1, fnr)
             it.executeQuery().toList { toPPersonOversiktStatus() }
         }

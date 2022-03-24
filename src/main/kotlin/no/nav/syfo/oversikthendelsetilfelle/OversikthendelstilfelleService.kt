@@ -6,7 +6,7 @@ import no.nav.syfo.metric.*
 import no.nav.syfo.oversikthendelsetilfelle.domain.KOversikthendelsetilfelle
 import no.nav.syfo.oversikthendelsetilfelle.domain.previouslyProcessed
 import no.nav.syfo.personstatus.domain.PPersonOversiktStatus
-import no.nav.syfo.personstatus.hentPersonResultatInternal
+import no.nav.syfo.personstatus.getPersonOversiktStatusList
 import no.nav.syfo.util.callIdArgument
 
 class OversikthendelstilfelleService(
@@ -26,7 +26,7 @@ class OversikthendelstilfelleService(
             COUNT_OVERSIKTHENDELSETILFELLE_UGDYLGIG_MOTTATT.increment()
             return
         } else {
-            val pPersonOversiktStatus = database.hentPersonResultatInternal(oversikthendelsetilfelle.fnr)
+            val pPersonOversiktStatus = database.getPersonOversiktStatusList(oversikthendelsetilfelle.fnr)
 
             if (pPersonOversiktStatus.isEmpty()) {
                 database.opprettPersonOppfolgingstilfelleMottatt(oversikthendelsetilfelle)

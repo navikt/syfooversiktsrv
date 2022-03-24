@@ -24,7 +24,7 @@ class OversiktHendelseService(
             )
             COUNT_OVERSIKTHENDELSE_UKJENT_MOTTATT.increment()
         } else {
-            val personOversiktStatus = database.hentPersonResultat(
+            val personOversiktStatus = database.getPersonOversiktStatusList(
                 fnr = oversiktHendelse.fnr,
             ).firstOrNull()?.toPersonOversiktStatus(oppfolgingstilfeller = emptyList())
 
