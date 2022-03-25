@@ -3,6 +3,7 @@ package no.nav.syfo.personstatus
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.application.database.toList
 import no.nav.syfo.personstatus.domain.*
+import java.sql.Connection
 import java.sql.ResultSet
 import java.time.LocalDate
 import java.time.OffsetDateTime
@@ -17,14 +18,19 @@ const val querygetPersonOversiktStatusList =
     WHERE fnr = ?
     """
 
+fun Connection.getPersonOversiktStatusList(
+    fnr: String,
+): List<PPersonOversiktStatus> =
+    this.prepareStatement(querygetPersonOversiktStatusList).use {
+        it.setString(1, fnr)
+        it.executeQuery().toList { toPPersonOversiktStatus() }
+    }
+
 fun DatabaseInterface.getPersonOversiktStatusList(
     fnr: String,
 ): List<PPersonOversiktStatus> {
     return connection.use { connection ->
-        connection.prepareStatement(querygetPersonOversiktStatusList).use {
-            it.setString(1, fnr)
-            it.executeQuery().toList { toPPersonOversiktStatus() }
-        }
+        connection.getPersonOversiktStatusList(fnr = fnr)
     }
 }
 
@@ -73,9 +79,12 @@ fun DatabaseInterface.lagreBrukerKnytningPaEnhet(veilederBrukerKnytning: Veilede
             oppfolgingstilfeller = emptyList(),
             latestOppfolgingstilfelle = null,
         )
-        createPersonOversiktStatus(
-            personOversiktStatus = personOversiktStatus,
-        )
+        this.connection.use { connection ->
+            connection.createPersonOversiktStatus(
+                commit = true,
+                personOversiktStatus = personOversiktStatus,
+            )
+        }
     }
 }
 
@@ -129,7 +138,11 @@ fun ResultSet.toPPersonOversiktStatus(): PPersonOversiktStatus =
         oppfolgingstilfelleGeneratedAt = getObject("oppfolgingstilfelle_generated_at", OffsetDateTime::class.java),
         oppfolgingstilfelleStart = getObject("oppfolgingstilfelle_start", LocalDate::class.java),
         oppfolgingstilfelleEnd = getObject("oppfolgingstilfelle_end", LocalDate::class.java),
-        oppfolgingstilfelleBitReferanseUuid = getString("oppfolgingstilfelle_bit_referanse_uuid")?.let { UUID.fromString(it) },
+        oppfolgingstilfelleBitReferanseUuid = getString("oppfolgingstilfelle_bit_referanse_uuid")?.let {
+            UUID.fromString(
+                it
+            )
+        },
         oppfolgingstilfelleBitReferanseInntruffet = getObject(
             "oppfolgingstilfelle_bit_referanse_inntruffet",
             OffsetDateTime::class.java

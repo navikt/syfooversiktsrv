@@ -3,6 +3,7 @@ package no.nav.syfo.personstatus
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.util.nowUTC
+import java.sql.Connection
 import java.sql.Timestamp
 import java.sql.Types.NULL
 import java.time.Instant
@@ -26,41 +27,42 @@ const val queryCreatePersonOversiktStatus =
     ) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """
 
-fun DatabaseInterface.createPersonOversiktStatus(
+fun Connection.createPersonOversiktStatus(
+    commit: Boolean,
     personOversiktStatus: PersonOversiktStatus,
 ) {
     val uuid = UUID.randomUUID().toString()
     val tidspunkt = Timestamp.from(Instant.now())
     val now = nowUTC()
 
-    connection.use { connection ->
-        connection.prepareStatement(queryCreatePersonOversiktStatus).use {
-            it.setString(1, uuid)
-            it.setString(2, personOversiktStatus.fnr)
-            it.setString(3, personOversiktStatus.navn)
-            it.setString(4, personOversiktStatus.veilederIdent)
-            it.setString(5, personOversiktStatus.enhet)
-            it.setObject(6, now)
-            it.setTimestamp(7, tidspunkt)
-            it.setTimestamp(8, tidspunkt)
-            if (personOversiktStatus.motebehovUbehandlet != null) {
-                it.setBoolean(9, personOversiktStatus.motebehovUbehandlet)
-            } else {
-                it.setNull(9, NULL)
-            }
-            if (personOversiktStatus.moteplanleggerUbehandlet != null) {
-                it.setBoolean(10, personOversiktStatus.moteplanleggerUbehandlet)
-            } else {
-                it.setNull(10, NULL)
-            }
-            if (personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet != null) {
-                it.setBoolean(11, personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet)
-            } else {
-                it.setNull(11, NULL)
-            }
-            it.execute()
+    this.prepareStatement(queryCreatePersonOversiktStatus).use {
+        it.setString(1, uuid)
+        it.setString(2, personOversiktStatus.fnr)
+        it.setString(3, personOversiktStatus.navn)
+        it.setString(4, personOversiktStatus.veilederIdent)
+        it.setString(5, personOversiktStatus.enhet)
+        it.setObject(6, now)
+        it.setTimestamp(7, tidspunkt)
+        it.setTimestamp(8, tidspunkt)
+        if (personOversiktStatus.motebehovUbehandlet != null) {
+            it.setBoolean(9, personOversiktStatus.motebehovUbehandlet)
+        } else {
+            it.setNull(9, NULL)
         }
-        connection.commit()
+        if (personOversiktStatus.moteplanleggerUbehandlet != null) {
+            it.setBoolean(10, personOversiktStatus.moteplanleggerUbehandlet)
+        } else {
+            it.setNull(10, NULL)
+        }
+        if (personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet != null) {
+            it.setBoolean(11, personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet)
+        } else {
+            it.setNull(11, NULL)
+        }
+        it.execute()
+    }
+    if (commit) {
+        this.commit()
     }
 }
 

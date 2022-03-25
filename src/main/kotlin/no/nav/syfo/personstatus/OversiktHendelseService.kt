@@ -62,9 +62,12 @@ class OversiktHendelseService(
         val personOversiktStatus = oversiktHendelse.toPersonOversiktStatus(
             oversikthendelseType = oversikthendelseType,
         )
-        database.createPersonOversiktStatus(
-            personOversiktStatus = personOversiktStatus,
-        )
+        database.connection.use { connection ->
+            connection.createPersonOversiktStatus(
+                commit = true,
+                personOversiktStatus = personOversiktStatus,
+            )
+        }
         countCreated(
             oversikthendelseType = oversikthendelseType,
         )
