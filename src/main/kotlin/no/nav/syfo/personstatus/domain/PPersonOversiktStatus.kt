@@ -44,7 +44,8 @@ fun PPersonOversiktStatus.toPersonOppfolgingstilfelle(): PersonOppfolgingstilfel
         this.oppfolgingstilfelleGeneratedAt != null &&
         this.oppfolgingstilfelleStart != null &&
         this.oppfolgingstilfelleEnd != null &&
-        this.oppfolgingstilfelleBitReferanseInntruffet != null
+        this.oppfolgingstilfelleBitReferanseInntruffet != null &&
+        this.oppfolgingstilfelleBitReferanseUuid != null
     ) {
         PersonOppfolgingstilfelle(
             oppfolgingstilfelleUpdatedAt = this.oppfolgingstilfelleUpdatedAt,
@@ -52,6 +53,7 @@ fun PPersonOversiktStatus.toPersonOppfolgingstilfelle(): PersonOppfolgingstilfel
             oppfolgingstilfelleStart = this.oppfolgingstilfelleStart,
             oppfolgingstilfelleEnd = this.oppfolgingstilfelleEnd,
             oppfolgingstilfelleBitReferanseInntruffet = this.oppfolgingstilfelleBitReferanseInntruffet,
+            oppfolgingstilfelleBitReferanseUuid = this.oppfolgingstilfelleBitReferanseUuid,
             virksomhetList = emptyList()
         )
     } else {

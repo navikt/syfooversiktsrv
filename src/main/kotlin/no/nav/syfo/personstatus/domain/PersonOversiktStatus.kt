@@ -4,6 +4,7 @@ import no.nav.syfo.personstatus.api.v2.PersonOversiktStatusDTO
 import no.nav.syfo.personstatus.api.v2.toOppfolgingstilfelleDTO
 import java.time.LocalDate
 import java.time.OffsetDateTime
+import java.util.*
 
 data class PersonOversiktStatus(
     val veilederIdent: String?,
@@ -14,7 +15,7 @@ data class PersonOversiktStatus(
     val moteplanleggerUbehandlet: Boolean?,
     val oppfolgingsplanLPSBistandUbehandlet: Boolean?,
     val oppfolgingstilfeller: List<Oppfolgingstilfelle>,
-    val latestOppfolgingstilfelle: PersonOppfolgingstilfelle?
+    val latestOppfolgingstilfelle: PersonOppfolgingstilfelle?,
 )
 
 data class PersonOppfolgingstilfelle(
@@ -23,6 +24,7 @@ data class PersonOppfolgingstilfelle(
     val oppfolgingstilfelleStart: LocalDate,
     val oppfolgingstilfelleEnd: LocalDate,
     val oppfolgingstilfelleBitReferanseInntruffet: OffsetDateTime,
+    val oppfolgingstilfelleBitReferanseUuid: UUID,
     val virksomhetList: List<PersonOppfolgingstilfelleVirskomhet>,
 )
 
