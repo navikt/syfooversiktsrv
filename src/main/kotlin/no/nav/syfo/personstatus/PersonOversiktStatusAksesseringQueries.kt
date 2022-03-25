@@ -4,7 +4,9 @@ import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.application.database.toList
 import no.nav.syfo.personstatus.domain.*
 import java.sql.ResultSet
+import java.time.LocalDate
 import java.time.OffsetDateTime
+import java.util.*
 
 const val KNYTNING_IKKE_FUNNET = 0L
 
@@ -69,6 +71,7 @@ fun DatabaseInterface.lagreBrukerKnytningPaEnhet(veilederBrukerKnytning: Veilede
             moteplanleggerUbehandlet = null,
             oppfolgingsplanLPSBistandUbehandlet = null,
             oppfolgingstilfeller = emptyList(),
+            latestOppfolgingstilfelle = null,
         )
         createPersonOversiktStatus(
             personOversiktStatus = personOversiktStatus,
@@ -121,7 +124,16 @@ fun ResultSet.toPPersonOversiktStatus(): PPersonOversiktStatus =
         tildeltEnhetUpdatedAt = getObject("tildelt_enhet_updated_at", OffsetDateTime::class.java),
         motebehovUbehandlet = getObject("motebehov_ubehandlet") as Boolean?,
         moteplanleggerUbehandlet = getObject("moteplanlegger_ubehandlet") as Boolean?,
-        oppfolgingsplanLPSBistandUbehandlet = getObject("oppfolgingsplan_lps_bistand_ubehandlet") as Boolean?
+        oppfolgingsplanLPSBistandUbehandlet = getObject("oppfolgingsplan_lps_bistand_ubehandlet") as Boolean?,
+        oppfolgingstilfelleUpdatedAt = getObject("oppfolgingstilfelle_updated_at", OffsetDateTime::class.java),
+        oppfolgingstilfelleGeneratedAt = getObject("oppfolgingstilfelle_generated_at", OffsetDateTime::class.java),
+        oppfolgingstilfelleStart = getObject("oppfolgingstilfelle_start", LocalDate::class.java),
+        oppfolgingstilfelleEnd = getObject("oppfolgingstilfelle_end", LocalDate::class.java),
+        oppfolgingstilfelleBitReferanseUuid = getString("oppfolgingstilfelle_bit_referanse_uuid")?.let { UUID.fromString(it) },
+        oppfolgingstilfelleBitReferanseInntruffet = getObject(
+            "oppfolgingstilfelle_bit_referanse_inntruffet",
+            OffsetDateTime::class.java
+        ),
     )
 
 fun ResultSet.toVeilederBrukerKnytning(): VeilederBrukerKnytning =
