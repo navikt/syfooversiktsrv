@@ -24,6 +24,7 @@ data class PPersonOversiktStatus(
 
 fun PPersonOversiktStatus.toPersonOversiktStatus(
     oppfolgingstilfeller: List<Oppfolgingstilfelle>,
+    personOppfolgingstilfelleVirksomhetList: List<PersonOppfolgingstilfelleVirksomhet>,
 ): PersonOversiktStatus {
     return PersonOversiktStatus(
         fnr = this.fnr,
@@ -33,12 +34,16 @@ fun PPersonOversiktStatus.toPersonOversiktStatus(
         motebehovUbehandlet = this.motebehovUbehandlet,
         moteplanleggerUbehandlet = this.moteplanleggerUbehandlet,
         oppfolgingsplanLPSBistandUbehandlet = this.oppfolgingsplanLPSBistandUbehandlet,
-        latestOppfolgingstilfelle = this.toPersonOppfolgingstilfelle(),
+        latestOppfolgingstilfelle = this.toPersonOppfolgingstilfelle(
+            personOppfolgingstilfelleVirksomhetList = personOppfolgingstilfelleVirksomhetList,
+        ),
         oppfolgingstilfeller = oppfolgingstilfeller,
     )
 }
 
-fun PPersonOversiktStatus.toPersonOppfolgingstilfelle(): PersonOppfolgingstilfelle? {
+fun PPersonOversiktStatus.toPersonOppfolgingstilfelle(
+    personOppfolgingstilfelleVirksomhetList: List<PersonOppfolgingstilfelleVirksomhet>,
+): PersonOppfolgingstilfelle? {
     return if (
         this.oppfolgingstilfelleUpdatedAt != null &&
         this.oppfolgingstilfelleGeneratedAt != null &&
@@ -54,7 +59,7 @@ fun PPersonOversiktStatus.toPersonOppfolgingstilfelle(): PersonOppfolgingstilfel
             oppfolgingstilfelleEnd = this.oppfolgingstilfelleEnd,
             oppfolgingstilfelleBitReferanseInntruffet = this.oppfolgingstilfelleBitReferanseInntruffet,
             oppfolgingstilfelleBitReferanseUuid = this.oppfolgingstilfelleBitReferanseUuid,
-            virksomhetList = emptyList()
+            virksomhetList = personOppfolgingstilfelleVirksomhetList
         )
     } else {
         null

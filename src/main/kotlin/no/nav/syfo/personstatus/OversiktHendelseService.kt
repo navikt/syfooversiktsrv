@@ -26,7 +26,10 @@ class OversiktHendelseService(
         } else {
             val personOversiktStatus = database.getPersonOversiktStatusList(
                 fnr = oversiktHendelse.fnr,
-            ).firstOrNull()?.toPersonOversiktStatus(oppfolgingstilfeller = emptyList())
+            ).firstOrNull()?.toPersonOversiktStatus(
+                oppfolgingstilfeller = emptyList(),
+                personOppfolgingstilfelleVirksomhetList = emptyList(),
+            )
 
             if (personOversiktStatus == null) {
                 if (oversikthendelseType.isNotBehandling()) {

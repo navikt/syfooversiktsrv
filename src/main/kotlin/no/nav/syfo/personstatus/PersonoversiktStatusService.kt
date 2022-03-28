@@ -18,11 +18,24 @@ class PersonoversiktStatusService(
             val oppfolgingstilfeller: List<Oppfolgingstilfelle> = pOppfolgingstilfeller.map { pOppfolgingstilfelle ->
                 pOppfolgingstilfelle.toOppfolgingstilfelle()
             }
-            pPersonOversikStatus.toPersonOversiktStatus(oppfolgingstilfeller = oppfolgingstilfeller)
+            val personOppfolgingstilfelleVirksomhetList = getPersonOppfolgingstilfelleVirksomhetList(
+                pPersonOversikStatusId = pPersonOversikStatus.id,
+            )
+            pPersonOversikStatus.toPersonOversiktStatus(
+                oppfolgingstilfeller = oppfolgingstilfeller,
+                personOppfolgingstilfelleVirksomhetList = personOppfolgingstilfelleVirksomhetList,
+            )
         }.filter { pPersonOversikStatus ->
             pPersonOversikStatus.oppfolgingsplanLPSBistandUbehandlet == true || pPersonOversikStatus.oppfolgingstilfeller.isNotEmpty()
         }
     }
+
+    fun getPersonOppfolgingstilfelleVirksomhetList(
+        pPersonOversikStatusId: Int,
+    ): List<PersonOppfolgingstilfelleVirksomhet> =
+        database.getPersonOppfolgingstilfelleVirksomhetList(
+            pPersonOversikStatusId = pPersonOversikStatusId,
+        ).toPersonOppfolgingstilfelleVirksomhet()
 
     suspend fun getPersonOversiktStatusListWithName(
         callId: String,
