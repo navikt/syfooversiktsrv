@@ -23,6 +23,7 @@ import no.nav.syfo.testutil.generator.generateKOversikthendelse
 import no.nav.syfo.util.bearerHeader
 import no.nav.syfo.util.configuredJacksonMapper
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeNull
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import java.time.LocalDate
@@ -274,6 +275,8 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo null
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo null
 
+                        personOversiktStatus.latestOppfolgingstilfelle.shouldBeNull()
+
                         personOversiktStatus.oppfolgingstilfeller.size shouldBeEqualTo 2
                         checkPersonOppfolgingstilfelle(
                             personOversiktStatus.oppfolgingstilfeller.first(),
@@ -318,6 +321,8 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo null
                         personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo true
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo null
+
+                        personOversiktStatus.latestOppfolgingstilfelle.shouldBeNull()
 
                         personOversiktStatus.oppfolgingstilfeller.size shouldBeEqualTo 1
                         checkPersonOppfolgingstilfelle(
@@ -429,6 +434,8 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo true
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
 
+                        personOversiktStatus.latestOppfolgingstilfelle.shouldBeNull()
+
                         personOversiktStatus.oppfolgingstilfeller.size shouldBeEqualTo 1
                         checkPersonOppfolgingstilfelle(
                             personOversiktStatus.oppfolgingstilfeller.first(),
@@ -485,6 +492,8 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo true
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
 
+                        personOversiktStatus.latestOppfolgingstilfelle.shouldBeNull()
+
                         personOversiktStatus.oppfolgingstilfeller.size shouldBeEqualTo 1
                         checkPersonOppfolgingstilfelle(
                             personOversiktStatus.oppfolgingstilfeller.first(),
@@ -514,6 +523,8 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo null
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
 
+                        personOversiktStatus.latestOppfolgingstilfelle.shouldBeNull()
+
                         personOversiktStatus.oppfolgingstilfeller.size shouldBeEqualTo 0
                     }
                 }
@@ -540,6 +551,8 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo null
                         personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo null
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
+
+                        personOversiktStatus.latestOppfolgingstilfelle.shouldBeNull()
 
                         personOversiktStatus.oppfolgingstilfeller.size shouldBeEqualTo 0
                     }

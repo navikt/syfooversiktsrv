@@ -1,8 +1,7 @@
 package no.nav.syfo.personstatus.domain
 
 import no.nav.syfo.domain.Virksomhetsnummer
-import no.nav.syfo.personstatus.api.v2.PersonOversiktStatusDTO
-import no.nav.syfo.personstatus.api.v2.toOppfolgingstilfelleDTO
+import no.nav.syfo.personstatus.api.v2.*
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.*
@@ -15,8 +14,8 @@ data class PersonOversiktStatus(
     val motebehovUbehandlet: Boolean?,
     val moteplanleggerUbehandlet: Boolean?,
     val oppfolgingsplanLPSBistandUbehandlet: Boolean?,
-    val oppfolgingstilfeller: List<Oppfolgingstilfelle>,
     val latestOppfolgingstilfelle: PersonOppfolgingstilfelle?,
+    val oppfolgingstilfeller: List<Oppfolgingstilfelle>,
 )
 
 data class PersonOppfolgingstilfelle(
@@ -29,12 +28,27 @@ data class PersonOppfolgingstilfelle(
     val virksomhetList: List<PersonOppfolgingstilfelleVirksomhet>,
 )
 
+fun PersonOppfolgingstilfelle.toPersonOppfolgingstilfelleDTO() =
+    PersonOppfolgingstilfelleDTO(
+        oppfolgingstilfelleStart = this.oppfolgingstilfelleStart,
+        oppfolgingstilfelleEnd = this.oppfolgingstilfelleEnd,
+        virksomhetList = this.virksomhetList.toPersonOppfolgingstilfelleVirksomhetDTO()
+    )
+
 data class PersonOppfolgingstilfelleVirksomhet(
     val uuid: UUID,
     val createdAt: OffsetDateTime,
     val virksomhetsnummer: Virksomhetsnummer,
     val virksomhetsnavn: String?,
 )
+
+fun List<PersonOppfolgingstilfelleVirksomhet>.toPersonOppfolgingstilfelleVirksomhetDTO() =
+    this.map { virksomhet ->
+        PersonOppfolgingstilfelleVirksomhetDTO(
+            virksomhetsnummer = virksomhet.virksomhetsnummer,
+            virksomhetsnavn = virksomhet.virksomhetsnavn,
+        )
+    }
 
 fun List<PersonOversiktStatus>.addPersonName(
     personIdentNameMap: Map<String, String>,
@@ -63,9 +77,10 @@ fun PersonOversiktStatus.toPersonOversiktStatusDTO() =
         motebehovUbehandlet = this.motebehovUbehandlet,
         moteplanleggerUbehandlet = this.moteplanleggerUbehandlet,
         oppfolgingsplanLPSBistandUbehandlet = this.oppfolgingsplanLPSBistandUbehandlet,
+        latestOppfolgingstilfelle = this.latestOppfolgingstilfelle?.toPersonOppfolgingstilfelleDTO(),
         oppfolgingstilfeller = this.oppfolgingstilfeller.map { oppfolgingstilfelle ->
             oppfolgingstilfelle.toOppfolgingstilfelleDTO()
-        }
+        },
     )
 
 fun PersonOversiktStatus.applyHendelse(

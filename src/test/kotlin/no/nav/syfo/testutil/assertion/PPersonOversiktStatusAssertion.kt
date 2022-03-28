@@ -17,4 +17,11 @@ fun checkPPersonOversiktStatus(
     pPersonOversiktStatus.tildeltEnhetUpdatedAt.shouldNotBeNull()
     pPersonOversiktStatus.motebehovUbehandlet shouldBeEqualTo null
     pPersonOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo null
+
+    pPersonOversiktStatus.oppfolgingstilfelleGeneratedAt shouldBeEqualTo null
+    pPersonOversiktStatus.oppfolgingstilfelleUpdatedAt shouldBeEqualTo null
+    pPersonOversiktStatus.oppfolgingstilfelleStart shouldBeEqualTo null
+    pPersonOversiktStatus.oppfolgingstilfelleEnd shouldBeEqualTo null
+    pPersonOversiktStatus.oppfolgingstilfelleBitReferanseInntruffet shouldBeEqualTo null
+    pPersonOversiktStatus.oppfolgingstilfelleBitReferanseUuid shouldBeEqualTo null
 }
