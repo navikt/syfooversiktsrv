@@ -48,6 +48,9 @@ fun Connection.dropData() {
         """
         DELETE FROM PERSON_OPPFOLGINGSTILFELLE
         """.trimIndent(),
+        """
+        DELETE FROM PERSON_OPPFOLGINGSTILFELLE_VIRKSOMHET
+        """.trimIndent(),
     )
     use { connection ->
         queryList.forEach { query ->
