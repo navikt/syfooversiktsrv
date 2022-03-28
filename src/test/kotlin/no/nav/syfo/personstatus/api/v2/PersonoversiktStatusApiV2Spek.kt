@@ -228,6 +228,8 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo true
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
 
+                        personOversiktStatus.latestOppfolgingstilfelle.shouldBeNull()
+
                         personOversiktStatus.oppfolgingstilfeller.size shouldBeEqualTo 1
                         checkPersonOppfolgingstilfelle(
                             personOversiktStatus.oppfolgingstilfeller.first(),
