@@ -1,10 +1,10 @@
 package no.nav.syfo.personstatus
 
 import no.nav.syfo.application.database.DatabaseInterface
+import no.nav.syfo.application.database.toList
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.util.nowUTC
-import java.sql.Connection
-import java.sql.Timestamp
+import java.sql.*
 import java.sql.Types.NULL
 import java.time.Instant
 import java.util.*
@@ -25,6 +25,7 @@ const val queryCreatePersonOversiktStatus =
         moteplanlegger_ubehandlet,
         oppfolgingsplan_lps_bistand_ubehandlet
     ) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+   RETURNING id
     """
 
 fun Connection.createPersonOversiktStatus(
@@ -35,7 +36,7 @@ fun Connection.createPersonOversiktStatus(
     val tidspunkt = Timestamp.from(Instant.now())
     val now = nowUTC()
 
-    this.prepareStatement(queryCreatePersonOversiktStatus).use {
+    val personOversiktStatusId: Int = this.prepareStatement(queryCreatePersonOversiktStatus).use {
         it.setString(1, uuid)
         it.setString(2, personOversiktStatus.fnr)
         it.setString(3, personOversiktStatus.navn)
@@ -59,7 +60,15 @@ fun Connection.createPersonOversiktStatus(
         } else {
             it.setNull(11, NULL)
         }
-        it.execute()
+        it.executeQuery().toList { getInt("id") }.firstOrNull()
+    } ?: throw SQLException("Creating Dialogmote failed, no rows affected.")
+
+    personOversiktStatus.latestOppfolgingstilfelle?.let { personOppfolgingstilfelle ->
+        createPersonOppfolgingstilfelleVirksomhetList(
+            commit = commit,
+            personOversiktStatusId = personOversiktStatusId,
+            personOppfolgingstilfelleVirksomhetList = personOppfolgingstilfelle.virksomhetList,
+        )
     }
     if (commit) {
         this.commit()

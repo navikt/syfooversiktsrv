@@ -59,7 +59,7 @@ fun PPersonOversiktStatus.toPersonOppfolgingstilfelle(
             oppfolgingstilfelleEnd = this.oppfolgingstilfelleEnd,
             oppfolgingstilfelleBitReferanseInntruffet = this.oppfolgingstilfelleBitReferanseInntruffet,
             oppfolgingstilfelleBitReferanseUuid = this.oppfolgingstilfelleBitReferanseUuid,
-            virksomhetList = personOppfolgingstilfelleVirksomhetList
+            virksomhetList = personOppfolgingstilfelleVirksomhetList,
         )
     } else {
         null
