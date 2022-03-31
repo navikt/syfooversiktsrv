@@ -18,6 +18,8 @@ object UserConstants {
     const val VIRKSOMHETSNUMMER_2 = "123456781"
     const val VIRKSOMHETSNAVN = "EGJ Security"
     const val VIRKSOMHETSNAVN_2 = "JML Investments"
+
+    const val VIRKSOMHETSNUMMER_3 = "123456783"
 }
 
 fun getIdentName(

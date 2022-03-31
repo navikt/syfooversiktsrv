@@ -33,9 +33,11 @@ class PersonoversiktStatusService(
     fun getPersonOppfolgingstilfelleVirksomhetList(
         pPersonOversikStatusId: Int,
     ): List<PersonOppfolgingstilfelleVirksomhet> =
-        database.getPersonOppfolgingstilfelleVirksomhetList(
-            pPersonOversikStatusId = pPersonOversikStatusId,
-        ).toPersonOppfolgingstilfelleVirksomhet()
+        database.connection.use { connection ->
+            connection.getPersonOppfolgingstilfelleVirksomhetList(
+                pPersonOversikStatusId = pPersonOversikStatusId,
+            ).toPersonOppfolgingstilfelleVirksomhet()
+        }
 
     suspend fun getPersonOversiktStatusListWithName(
         callId: String,

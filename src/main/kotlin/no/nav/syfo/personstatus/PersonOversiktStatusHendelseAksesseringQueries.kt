@@ -164,8 +164,7 @@ fun Connection.updatePersonOversiktStatusOppfolgingstilfelle(
         it.setString(7, pPersonOversiktStatus.fnr)
         it.execute()
     }
-    createPersonOppfolgingstilfelleVirksomhetList(
-        commit = false,
+    updatePersonOppfolgingstilfelleVirksomhetList(
         personOversiktStatusId = pPersonOversiktStatus.id,
         personOppfolgingstilfelleVirksomhetList = personOppfolgingstilfelle.virksomhetList,
     )
