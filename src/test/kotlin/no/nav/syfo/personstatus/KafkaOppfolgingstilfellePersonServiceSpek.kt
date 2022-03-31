@@ -181,7 +181,82 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                 val kafkaOppfolgingstilfellePersonServiceRelevantNewest = generateKafkaOppfolgingstilfellePerson(
                     personIdent = PersonIdent(kafkaOppfolgingstilfellePersonServiceRelevantFirst.personIdentNumber),
                 ).copy(
-                    referanseTilfelleBitInntruffet = kafkaOppfolgingstilfellePersonServiceRelevantFirst.referanseTilfelleBitInntruffet.plusSeconds(1)
+                    referanseTilfelleBitInntruffet = kafkaOppfolgingstilfellePersonServiceRelevantFirst.referanseTilfelleBitInntruffet.plusSeconds(
+                        1
+                    )
+                )
+                val kafkaOppfolgingstilfellePersonServiceRecordRelevantNewest = ConsumerRecord(
+                    OPPFOLGINGSTILFELLE_PERSON_TOPIC,
+                    partition,
+                    2,
+                    "key2",
+                    kafkaOppfolgingstilfellePersonServiceRelevantNewest,
+                )
+
+                every { mockKafkaConsumerOppfolgingstilfellePerson.poll(any<Duration>()) } returns ConsumerRecords(
+                    mapOf(
+                        oppfolgingstilfellePersonTopicPartition to listOf(
+                            kafkaOppfolgingstilfellePersonServiceRecordRelevantNewest,
+                            kafkaOppfolgingstilfellePersonServiceRecordRelevantFirst,
+                        )
+                    )
+                )
+                kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                    kafkaConsumerOppfolgingstilfellePerson = mockKafkaConsumerOppfolgingstilfellePerson,
+                )
+
+                val recordValue = kafkaOppfolgingstilfellePersonServiceRecordRelevantNewest.value()
+
+                database.connection.use { connection ->
+                    val pPersonOversiktStatusList = connection.getPersonOversiktStatusList(
+                        fnr = recordValue.personIdentNumber,
+                    )
+
+                    pPersonOversiktStatusList.size shouldBeEqualTo 1
+
+                    val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+
+                    pPersonOversiktStatus.fnr shouldBeEqualTo recordValue.personIdentNumber
+                    pPersonOversiktStatus.enhet.shouldBeNull()
+                    pPersonOversiktStatus.veilederIdent.shouldBeNull()
+
+                    pPersonOversiktStatus.motebehovUbehandlet.shouldBeNull()
+                    pPersonOversiktStatus.moteplanleggerUbehandlet.shouldBeNull()
+                    pPersonOversiktStatus.oppfolgingsplanLPSBistandUbehandlet.shouldBeNull()
+
+                    checkPPersonOversiktStatusOppfolgingstilfelle(
+                        pPersonOversiktStatus = pPersonOversiktStatus,
+                        kafkaOppfolgingstilfellePerson = recordValue,
+                    )
+
+                    val pPersonOppfolgingstilfelleVirksomhetList =
+                        connection.getPersonOppfolgingstilfelleVirksomhetList(
+                            pPersonOversikStatusId = pPersonOversiktStatus.id,
+                        )
+
+                    pPersonOppfolgingstilfelleVirksomhetList.size shouldBeEqualTo recordValue.oppfolgingstilfelleList.first().virksomhetsnummerList.size
+
+                    pPersonOppfolgingstilfelleVirksomhetList.first().virksomhetsnummer.value shouldBeEqualTo recordValue.oppfolgingstilfelleList.first().virksomhetsnummerList.first()
+                }
+            }
+
+            it("should only update latest OppfolgingstilfellPerson with the newest createdAt, if multiple relevant records on same personIdent is received in same poll with same referanseTilfelleBitInntruffet") {
+                val kafkaOppfolgingstilfellePersonServiceRelevantFirst = generateKafkaOppfolgingstilfellePerson(
+                    personIdent = personIdentDefault,
+                )
+                val kafkaOppfolgingstilfellePersonServiceRecordRelevantFirst = ConsumerRecord(
+                    OPPFOLGINGSTILFELLE_PERSON_TOPIC,
+                    partition,
+                    1,
+                    "key1",
+                    kafkaOppfolgingstilfellePersonServiceRelevantFirst,
+                )
+
+                val kafkaOppfolgingstilfellePersonServiceRelevantNewest = generateKafkaOppfolgingstilfellePerson(
+                    personIdent = PersonIdent(kafkaOppfolgingstilfellePersonServiceRelevantFirst.personIdentNumber),
+                ).copy(
+                    createdAt = kafkaOppfolgingstilfellePersonServiceRelevantFirst.createdAt.plusSeconds(1),
+                    referanseTilfelleBitInntruffet = kafkaOppfolgingstilfellePersonServiceRelevantFirst.referanseTilfelleBitInntruffet
                 )
                 val kafkaOppfolgingstilfellePersonServiceRecordRelevantNewest = ConsumerRecord(
                     OPPFOLGINGSTILFELLE_PERSON_TOPIC,
