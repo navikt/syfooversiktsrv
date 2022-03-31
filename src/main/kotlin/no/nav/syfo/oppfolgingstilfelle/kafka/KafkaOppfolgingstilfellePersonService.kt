@@ -37,7 +37,9 @@ class KafkaOppfolgingstilfellePersonService(
 
         val recordsRelevant = recordsValid
             .sortedWith(
-                compareBy({ it.value().referanseTilfelleBitInntruffet }, { it.value().createdAt })
+                compareByDescending<ConsumerRecord<String, KafkaOppfolgingstilfellePerson>> { record ->
+                    record.value().referanseTilfelleBitInntruffet
+                }.thenByDescending { it.value().createdAt }
             ).groupBy { record ->
                 record.value().personIdentNumber
             }.map { record ->
