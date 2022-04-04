@@ -240,7 +240,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                 }
             }
 
-            it("should only update latest OppfolgingstilfellPerson with the newest createdAt, if multiple relevant records on same personIdent is received in same poll with same referanseTilfelleBitInntruffet") {
+            it("should only update latest OppfolgingstilfellPerson with the newest createdAt, if multiple relevant records on same personIdent with same referanseTilfelleBitInntruffet is received in same poll ") {
                 val kafkaOppfolgingstilfellePersonServiceRelevantFirst = generateKafkaOppfolgingstilfellePerson(
                     personIdent = personIdentDefault,
                 )
@@ -313,7 +313,295 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                 }
             }
 
-            it("should first receive and create Virksomhet1 and Virksomhet2, then delete Virksomhet1, keep Viksomhet2 and crete Virskomhet3") {
+            it("should update latest OppfolgingstilfellPerson with the newest referanseTilfelleBitInntruffet, if multiple relevant records on same personIdent is received in different polls") {
+                val kafkaOppfolgingstilfellePersonServiceRelevantFirst = generateKafkaOppfolgingstilfellePerson(
+                    personIdent = personIdentDefault,
+                )
+                val kafkaOppfolgingstilfellePersonServiceRecordRelevantFirst = ConsumerRecord(
+                    OPPFOLGINGSTILFELLE_PERSON_TOPIC,
+                    partition,
+                    1,
+                    "key1",
+                    kafkaOppfolgingstilfellePersonServiceRelevantFirst,
+                )
+
+                val kafkaOppfolgingstilfellePersonServiceRelevantSecond = generateKafkaOppfolgingstilfellePerson(
+                    personIdent = PersonIdent(kafkaOppfolgingstilfellePersonServiceRelevantFirst.personIdentNumber),
+                ).copy(
+                    referanseTilfelleBitInntruffet = kafkaOppfolgingstilfellePersonServiceRelevantFirst.referanseTilfelleBitInntruffet.plusSeconds(
+                        1
+                    )
+                )
+                val kafkaOppfolgingstilfellePersonServiceRecordRelevantSecond = ConsumerRecord(
+                    OPPFOLGINGSTILFELLE_PERSON_TOPIC,
+                    partition,
+                    2,
+                    "key3",
+                    kafkaOppfolgingstilfellePersonServiceRelevantSecond,
+                )
+
+                val kafkaOppfolgingstilfellePersonServiceRelevantNewest = generateKafkaOppfolgingstilfellePerson(
+                    personIdent = PersonIdent(kafkaOppfolgingstilfellePersonServiceRelevantFirst.personIdentNumber),
+                ).copy(
+                    referanseTilfelleBitInntruffet = kafkaOppfolgingstilfellePersonServiceRelevantSecond.referanseTilfelleBitInntruffet.plusSeconds(
+                        1
+                    )
+                )
+                val kafkaOppfolgingstilfellePersonServiceRecordRelevantNewest = ConsumerRecord(
+                    OPPFOLGINGSTILFELLE_PERSON_TOPIC,
+                    partition,
+                    3,
+                    "key3",
+                    kafkaOppfolgingstilfellePersonServiceRelevantNewest,
+                )
+
+                every { mockKafkaConsumerOppfolgingstilfellePerson.poll(any<Duration>()) } returns ConsumerRecords(
+                    mapOf(
+                        oppfolgingstilfellePersonTopicPartition to listOf(
+                            kafkaOppfolgingstilfellePersonServiceRecordRelevantSecond,
+                        )
+                    )
+                )
+                kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                    kafkaConsumerOppfolgingstilfellePerson = mockKafkaConsumerOppfolgingstilfellePerson,
+                )
+
+                every { mockKafkaConsumerOppfolgingstilfellePerson.poll(any<Duration>()) } returns ConsumerRecords(
+                    mapOf(
+                        oppfolgingstilfellePersonTopicPartition to listOf(
+                            kafkaOppfolgingstilfellePersonServiceRecordRelevantFirst,
+                        )
+                    )
+                )
+                kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                    kafkaConsumerOppfolgingstilfellePerson = mockKafkaConsumerOppfolgingstilfellePerson,
+                )
+
+                val recordValueSecond = kafkaOppfolgingstilfellePersonServiceRecordRelevantSecond.value()
+
+                database.connection.use { connection ->
+                    val pPersonOversiktStatusList = connection.getPersonOversiktStatusList(
+                        fnr = recordValueSecond.personIdentNumber,
+                    )
+
+                    pPersonOversiktStatusList.size shouldBeEqualTo 1
+
+                    val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+
+                    pPersonOversiktStatus.fnr shouldBeEqualTo recordValueSecond.personIdentNumber
+                    pPersonOversiktStatus.enhet.shouldBeNull()
+                    pPersonOversiktStatus.veilederIdent.shouldBeNull()
+
+                    pPersonOversiktStatus.motebehovUbehandlet.shouldBeNull()
+                    pPersonOversiktStatus.moteplanleggerUbehandlet.shouldBeNull()
+                    pPersonOversiktStatus.oppfolgingsplanLPSBistandUbehandlet.shouldBeNull()
+
+                    checkPPersonOversiktStatusOppfolgingstilfelle(
+                        pPersonOversiktStatus = pPersonOversiktStatus,
+                        kafkaOppfolgingstilfellePerson = recordValueSecond,
+                    )
+
+                    val pPersonOppfolgingstilfelleVirksomhetList =
+                        connection.getPersonOppfolgingstilfelleVirksomhetList(
+                            pPersonOversikStatusId = pPersonOversiktStatus.id,
+                        )
+
+                    pPersonOppfolgingstilfelleVirksomhetList.size shouldBeEqualTo recordValueSecond.oppfolgingstilfelleList.first().virksomhetsnummerList.size
+
+                    pPersonOppfolgingstilfelleVirksomhetList.first().virksomhetsnummer.value shouldBeEqualTo recordValueSecond.oppfolgingstilfelleList.first().virksomhetsnummerList.first()
+                }
+
+                every { mockKafkaConsumerOppfolgingstilfellePerson.poll(any<Duration>()) } returns ConsumerRecords(
+                    mapOf(
+                        oppfolgingstilfellePersonTopicPartition to listOf(
+                            kafkaOppfolgingstilfellePersonServiceRecordRelevantNewest,
+                        )
+                    )
+                )
+                kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                    kafkaConsumerOppfolgingstilfellePerson = mockKafkaConsumerOppfolgingstilfellePerson,
+                )
+
+                val recordValueNewest = kafkaOppfolgingstilfellePersonServiceRecordRelevantNewest.value()
+
+                database.connection.use { connection ->
+                    val pPersonOversiktStatusList = connection.getPersonOversiktStatusList(
+                        fnr = recordValueNewest.personIdentNumber,
+                    )
+
+                    pPersonOversiktStatusList.size shouldBeEqualTo 1
+
+                    val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+
+                    pPersonOversiktStatus.fnr shouldBeEqualTo recordValueNewest.personIdentNumber
+                    pPersonOversiktStatus.enhet.shouldBeNull()
+                    pPersonOversiktStatus.veilederIdent.shouldBeNull()
+
+                    pPersonOversiktStatus.motebehovUbehandlet.shouldBeNull()
+                    pPersonOversiktStatus.moteplanleggerUbehandlet.shouldBeNull()
+                    pPersonOversiktStatus.oppfolgingsplanLPSBistandUbehandlet.shouldBeNull()
+
+                    checkPPersonOversiktStatusOppfolgingstilfelle(
+                        pPersonOversiktStatus = pPersonOversiktStatus,
+                        kafkaOppfolgingstilfellePerson = recordValueNewest,
+                    )
+
+                    val pPersonOppfolgingstilfelleVirksomhetList =
+                        connection.getPersonOppfolgingstilfelleVirksomhetList(
+                            pPersonOversikStatusId = pPersonOversiktStatus.id,
+                        )
+
+                    pPersonOppfolgingstilfelleVirksomhetList.size shouldBeEqualTo recordValueNewest.oppfolgingstilfelleList.first().virksomhetsnummerList.size
+
+                    pPersonOppfolgingstilfelleVirksomhetList.first().virksomhetsnummer.value shouldBeEqualTo recordValueNewest.oppfolgingstilfelleList.first().virksomhetsnummerList.first()
+                }
+            }
+
+            it("should only update latest OppfolgingstilfellPerson with the newest createdAt, if multiple relevant records on same personIdent with same referanseTilfelleBitUuid is received in different polls ") {
+                val kafkaOppfolgingstilfellePersonServiceRelevantFirst = generateKafkaOppfolgingstilfellePerson(
+                    personIdent = personIdentDefault,
+                )
+                val kafkaOppfolgingstilfellePersonServiceRecordRelevantFirst = ConsumerRecord(
+                    OPPFOLGINGSTILFELLE_PERSON_TOPIC,
+                    partition,
+                    1,
+                    "key1",
+                    kafkaOppfolgingstilfellePersonServiceRelevantFirst,
+                )
+
+                val kafkaOppfolgingstilfellePersonServiceRelevantSecond = generateKafkaOppfolgingstilfellePerson(
+                    personIdent = PersonIdent(kafkaOppfolgingstilfellePersonServiceRelevantFirst.personIdentNumber),
+                ).copy(
+                    createdAt = kafkaOppfolgingstilfellePersonServiceRelevantFirst.createdAt.plusSeconds(1),
+                    referanseTilfelleBitInntruffet = kafkaOppfolgingstilfellePersonServiceRelevantFirst.referanseTilfelleBitInntruffet,
+                    referanseTilfelleBitUuid = kafkaOppfolgingstilfellePersonServiceRelevantFirst.referanseTilfelleBitUuid,
+                )
+                val kafkaOppfolgingstilfellePersonServiceRecordRelevantSecond = ConsumerRecord(
+                    OPPFOLGINGSTILFELLE_PERSON_TOPIC,
+                    partition,
+                    2,
+                    "key2",
+                    kafkaOppfolgingstilfellePersonServiceRelevantSecond,
+                )
+
+                val kafkaOppfolgingstilfellePersonServiceRelevantNewest = generateKafkaOppfolgingstilfellePerson(
+                    personIdent = PersonIdent(kafkaOppfolgingstilfellePersonServiceRelevantFirst.personIdentNumber),
+                ).copy(
+                    createdAt = kafkaOppfolgingstilfellePersonServiceRelevantSecond.createdAt.plusSeconds(1),
+                    referanseTilfelleBitInntruffet = kafkaOppfolgingstilfellePersonServiceRelevantFirst.referanseTilfelleBitInntruffet,
+                    referanseTilfelleBitUuid = kafkaOppfolgingstilfellePersonServiceRelevantFirst.referanseTilfelleBitUuid,
+                )
+                val kafkaOppfolgingstilfellePersonServiceRecordRelevantNewest = ConsumerRecord(
+                    OPPFOLGINGSTILFELLE_PERSON_TOPIC,
+                    partition,
+                    3,
+                    "key3",
+                    kafkaOppfolgingstilfellePersonServiceRelevantNewest,
+                )
+
+                every { mockKafkaConsumerOppfolgingstilfellePerson.poll(any<Duration>()) } returns ConsumerRecords(
+                    mapOf(
+                        oppfolgingstilfellePersonTopicPartition to listOf(
+                            kafkaOppfolgingstilfellePersonServiceRecordRelevantSecond,
+                        )
+                    )
+                )
+                kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                    kafkaConsumerOppfolgingstilfellePerson = mockKafkaConsumerOppfolgingstilfellePerson,
+                )
+
+                every { mockKafkaConsumerOppfolgingstilfellePerson.poll(any<Duration>()) } returns ConsumerRecords(
+                    mapOf(
+                        oppfolgingstilfellePersonTopicPartition to listOf(
+                            kafkaOppfolgingstilfellePersonServiceRecordRelevantFirst,
+                        )
+                    )
+                )
+                kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                    kafkaConsumerOppfolgingstilfellePerson = mockKafkaConsumerOppfolgingstilfellePerson,
+                )
+
+                val recordValueSecond = kafkaOppfolgingstilfellePersonServiceRecordRelevantSecond.value()
+
+                database.connection.use { connection ->
+                    val pPersonOversiktStatusList = connection.getPersonOversiktStatusList(
+                        fnr = recordValueSecond.personIdentNumber,
+                    )
+
+                    pPersonOversiktStatusList.size shouldBeEqualTo 1
+
+                    val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+
+                    pPersonOversiktStatus.fnr shouldBeEqualTo recordValueSecond.personIdentNumber
+                    pPersonOversiktStatus.enhet.shouldBeNull()
+                    pPersonOversiktStatus.veilederIdent.shouldBeNull()
+
+                    pPersonOversiktStatus.motebehovUbehandlet.shouldBeNull()
+                    pPersonOversiktStatus.moteplanleggerUbehandlet.shouldBeNull()
+                    pPersonOversiktStatus.oppfolgingsplanLPSBistandUbehandlet.shouldBeNull()
+
+                    checkPPersonOversiktStatusOppfolgingstilfelle(
+                        pPersonOversiktStatus = pPersonOversiktStatus,
+                        kafkaOppfolgingstilfellePerson = recordValueSecond,
+                    )
+
+                    val pPersonOppfolgingstilfelleVirksomhetList =
+                        connection.getPersonOppfolgingstilfelleVirksomhetList(
+                            pPersonOversikStatusId = pPersonOversiktStatus.id,
+                        )
+
+                    pPersonOppfolgingstilfelleVirksomhetList.size shouldBeEqualTo recordValueSecond.oppfolgingstilfelleList.first().virksomhetsnummerList.size
+
+                    pPersonOppfolgingstilfelleVirksomhetList.first().virksomhetsnummer.value shouldBeEqualTo recordValueSecond.oppfolgingstilfelleList.first().virksomhetsnummerList.first()
+                }
+
+                every { mockKafkaConsumerOppfolgingstilfellePerson.poll(any<Duration>()) } returns ConsumerRecords(
+                    mapOf(
+                        oppfolgingstilfellePersonTopicPartition to listOf(
+                            kafkaOppfolgingstilfellePersonServiceRecordRelevantNewest,
+                        )
+                    )
+                )
+                kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                    kafkaConsumerOppfolgingstilfellePerson = mockKafkaConsumerOppfolgingstilfellePerson,
+                )
+
+                val recordValueNewest = kafkaOppfolgingstilfellePersonServiceRecordRelevantNewest.value()
+
+                database.connection.use { connection ->
+                    val pPersonOversiktStatusList = connection.getPersonOversiktStatusList(
+                        fnr = recordValueNewest.personIdentNumber,
+                    )
+
+                    pPersonOversiktStatusList.size shouldBeEqualTo 1
+
+                    val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+
+                    pPersonOversiktStatus.fnr shouldBeEqualTo recordValueNewest.personIdentNumber
+                    pPersonOversiktStatus.enhet.shouldBeNull()
+                    pPersonOversiktStatus.veilederIdent.shouldBeNull()
+
+                    pPersonOversiktStatus.motebehovUbehandlet.shouldBeNull()
+                    pPersonOversiktStatus.moteplanleggerUbehandlet.shouldBeNull()
+                    pPersonOversiktStatus.oppfolgingsplanLPSBistandUbehandlet.shouldBeNull()
+
+                    checkPPersonOversiktStatusOppfolgingstilfelle(
+                        pPersonOversiktStatus = pPersonOversiktStatus,
+                        kafkaOppfolgingstilfellePerson = recordValueNewest,
+                    )
+
+                    val pPersonOppfolgingstilfelleVirksomhetList =
+                        connection.getPersonOppfolgingstilfelleVirksomhetList(
+                            pPersonOversikStatusId = pPersonOversiktStatus.id,
+                        )
+
+                    pPersonOppfolgingstilfelleVirksomhetList.size shouldBeEqualTo recordValueNewest.oppfolgingstilfelleList.first().virksomhetsnummerList.size
+
+                    pPersonOppfolgingstilfelleVirksomhetList.first().virksomhetsnummer.value shouldBeEqualTo recordValueNewest.oppfolgingstilfelleList.first().virksomhetsnummerList.first()
+                }
+            }
+
+            it("should first receive and create Virksomhet1 and Virksomhet2, then delete Virksomhet1, keep Viksomhet2 and create Virskomhet3") {
                 val virksomhetsnummerListFirst = listOf(
                     Virksomhetsnummer(VIRKSOMHETSNUMMER),
                     Virksomhetsnummer(VIRKSOMHETSNUMMER_2),

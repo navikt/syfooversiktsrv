@@ -122,7 +122,7 @@ class KafkaOppfolgingstilfellePersonService(
         }
     }
 
-    fun shouldUpdatePersonOppfolgingstilfelle(
+    private fun shouldUpdatePersonOppfolgingstilfelle(
         newPersonOppfolgingstilfelle: PersonOppfolgingstilfelle,
         exisitingPPersonOversiktStatus: PPersonOversiktStatus
     ): Boolean {
