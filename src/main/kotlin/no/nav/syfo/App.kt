@@ -76,6 +76,7 @@ fun main() {
         }
         launchCronjobModule(
             applicationState = applicationState,
+            database = database,
             environment = environment,
         )
     }

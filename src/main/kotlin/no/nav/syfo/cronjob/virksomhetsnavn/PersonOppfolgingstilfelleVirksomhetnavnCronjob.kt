@@ -1,13 +1,12 @@
 package no.nav.syfo.cronjob.virksomhetsnavn
 
 import net.logstash.logback.argument.StructuredArguments
-import no.nav.syfo.client.ereg.EregClient
 import no.nav.syfo.cronjob.Cronjob
 import no.nav.syfo.cronjob.CronjobResult
 import org.slf4j.LoggerFactory
 
 class PersonOppfolgingstilfelleVirksomhetnavnCronjob(
-    eregClient: EregClient,
+    private val personOppfolgingstilfelleVirksomhetsnavnService: PersonOppfolgingstilfelleVirksomhetsnavnService,
 ) : Cronjob {
 
     override val initialDelayMinutes: Long = 2
@@ -17,8 +16,26 @@ class PersonOppfolgingstilfelleVirksomhetnavnCronjob(
         runJob()
     }
 
-    private fun runJob(): CronjobResult {
+    suspend fun runJob(): CronjobResult {
         val result = CronjobResult()
+
+        personOppfolgingstilfelleVirksomhetsnavnService.getMissingVirksomhetsnavnList()
+            .forEach { idVirksomhetsnummerPair ->
+                try {
+                    personOppfolgingstilfelleVirksomhetsnavnService.updateVirksomhetsnavn(
+                        idVirksomhetsnummerPair = idVirksomhetsnummerPair,
+                    )
+                    result.updated++
+                    COUNT_CRONJOB_OPPFOLGINGSTILFELLE_VIRKSOMHETSNAVN_UPDATE.increment()
+                } catch (ex: Exception) {
+                    log.error(
+                        "Exception caught while attempting to update Virksomhetsnavn of PersonOppfolgingstilfelleVirksomhet",
+                        ex
+                    )
+                    result.failed++
+                    COUNT_CRONJOB_OPPFOLGINGSTILFELLE_VIRKSOMHETSNAVN_FAIL.increment()
+                }
+            }
 
         log.info(
             "Completed PersonOppfolgingstilfelleVirksomhetnavnCronjob with result: {}, {}",
