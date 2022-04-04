@@ -80,7 +80,7 @@ fun Connection.createPersonOversiktStatus(
         }
         it.setObject(17, personOversiktStatus.latestOppfolgingstilfelle?.oppfolgingstilfelleBitReferanseInntruffet)
         it.executeQuery().toList { getInt("id") }.firstOrNull()
-    } ?: throw SQLException("Creating Dialogmote failed, no rows affected.")
+    } ?: throw SQLException("Creating PersonOversikStatus failed, no rows affected.")
 
     personOversiktStatus.latestOppfolgingstilfelle?.let { personOppfolgingstilfelle ->
         createPersonOppfolgingstilfelleVirksomhetList(
