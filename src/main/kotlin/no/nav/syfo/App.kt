@@ -11,6 +11,7 @@ import no.nav.syfo.application.api.apiModule
 import no.nav.syfo.application.api.authentication.getWellKnown
 import no.nav.syfo.application.database.database
 import no.nav.syfo.application.database.databaseModule
+import no.nav.syfo.cronjob.launchCronjobModule
 import no.nav.syfo.kafka.launchKafkaTask
 import no.nav.syfo.oppfolgingstilfelle.kafka.KafkaOppfolgingstilfellePersonService
 import no.nav.syfo.oppfolgingstilfelle.kafka.launchKafkaTaskOppfolgingstilfellePerson
@@ -71,6 +72,12 @@ fun main() {
                 applicationState = applicationState,
                 applicationEnvironmentKafka = environment.kafka,
                 kafkaOppfolgingstilfellePersonService = kafkaOppfolgingstilfellePersonService,
+            )
+        }
+        if (environment.personOppfolgingstilfelleVirksomhetsnavnCronjobEnabled) {
+            launchCronjobModule(
+                applicationState = applicationState,
+                environment = environment,
             )
         }
     }

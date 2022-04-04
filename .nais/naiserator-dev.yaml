@@ -35,6 +35,7 @@ spec:
     min: 1
     max: 2
     cpuThresholdPercentage: 90
+  leaderElection: true
   prometheus:
     enabled: true
     path: /prometheus
@@ -90,3 +91,5 @@ spec:
       value: "true"
     - name: TOGGLE_KAFKA_OPPFOLGINGSTILFELLE_PERSON_PROCESSING_ENABLED
       value: "true"
+    - name: TOGGLE_PERSON_OPPFOLGINGSTILFELLE_VIRKSOMHETSNAVN_CRONJOB_ENABLED
+      value: "false"

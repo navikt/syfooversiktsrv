@@ -14,6 +14,8 @@ data class Environment(
     val databaseUsername: String = getEnvVar("NAIS_DATABASE_SYFOOVERSIKTSRV_SYFOOVERSIKTSRV_DB_USERNAME"),
     val databasePassword: String = getEnvVar("NAIS_DATABASE_SYFOOVERSIKTSRV_SYFOOVERSIKTSRV_DB_PASSWORD"),
 
+    val electorPath: String = getEnvVar("ELECTOR_PATH"),
+
     val kafkaBootstrapServers: String = getEnvVar("KAFKA_BOOTSTRAP_SERVERS_URL"),
     val kafkaSchemaRegistryUrl: String = getEnvVar("KAFKA_BOOTSTRAP_SERVERS_URL"),
 
@@ -41,6 +43,7 @@ data class Environment(
     val syfotilgangskontrollClientId: String = getEnvVar("SYFOTILGANGSKONTROLL_CLIENT_ID"),
     val syfotilgangskontrollUrl: String = getEnvVar("SYFOTILGANGSKONTROLL_URL"),
 
+    val personOppfolgingstilfelleVirksomhetsnavnCronjobEnabled: Boolean = getEnvVar("TOGGLE_PERSON_OPPFOLGINGSTILFELLE_VIRKSOMHETSNAVN_CRONJOB_ENABLED").toBoolean(),
     val toggleKafkaConsumerEnabled: Boolean = getEnvVar("TOGGLE_KAFKA_CONSUMER_ENABLED").toBoolean()
 ) {
     fun jdbcUrl(): String {
