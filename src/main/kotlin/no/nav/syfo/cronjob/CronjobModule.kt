@@ -39,11 +39,11 @@ fun launchCronjobModule(
     )
 
     val leaderPodClient = LeaderPodClient(
-        electorPath = environment.electorPath
+        electorPath = environment.electorPath,
     )
     val cronjobRunner = CronjobRunner(
         applicationState = applicationState,
-        leaderPodClient = leaderPodClient
+        leaderPodClient = leaderPodClient,
     )
     val personOppfolgingstilfelleVirksomhetnavnCronjob = PersonOppfolgingstilfelleVirksomhetnavnCronjob(
         eregClient = eregClient,
@@ -54,7 +54,7 @@ fun launchCronjobModule(
             applicationState = applicationState,
         ) {
             cronjobRunner.start(
-                cronjob = personOppfolgingstilfelleVirksomhetnavnCronjob
+                cronjob = personOppfolgingstilfelleVirksomhetnavnCronjob,
             )
         }
     }
