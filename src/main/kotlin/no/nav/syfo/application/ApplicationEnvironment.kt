@@ -30,6 +30,9 @@ data class Environment(
 
     val oversikthendelseOppfolgingstilfelleTopic: String = "aapen-syfo-oversikthendelse-tilfelle-v1",
 
+    val isproxyClientId: String = getEnvVar("ISPROXY_CLIENT_ID"),
+    val isproxyUrl: String = getEnvVar("ISPROXY_URL"),
+
     val pdlClientId: String = getEnvVar("PDL_CLIENT_ID"),
     val pdlUrl: String = getEnvVar("PDL_URL"),
 

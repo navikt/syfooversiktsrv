@@ -74,12 +74,10 @@ fun main() {
                 kafkaOppfolgingstilfellePersonService = kafkaOppfolgingstilfellePersonService,
             )
         }
-        if (environment.personOppfolgingstilfelleVirksomhetsnavnCronjobEnabled) {
-            launchCronjobModule(
-                applicationState = applicationState,
-                environment = environment,
-            )
-        }
+        launchCronjobModule(
+            applicationState = applicationState,
+            environment = environment,
+        )
     }
 
     Runtime.getRuntime().addShutdownHook(

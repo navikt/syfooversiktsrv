@@ -1,5 +1,6 @@
 package no.nav.syfo.testutil
 
+import no.nav.syfo.domain.Virksomhetsnummer
 import no.nav.syfo.testutil.mock.generatePdlPersonNavn
 
 object UserConstants {
@@ -20,6 +21,9 @@ object UserConstants {
     const val VIRKSOMHETSNAVN_2 = "JML Investments"
 
     const val VIRKSOMHETSNUMMER_3 = "123456783"
+
+    val VIRKSOMHETSNUMMER_DEFAULT = Virksomhetsnummer(VIRKSOMHETSNUMMER)
+    val VIRKSOMHETSNUMMER_NO_VIRKSOMHETSNAVN = Virksomhetsnummer(VIRKSOMHETSNUMMER_DEFAULT.value.replace("1", "3"))
 }
 
 fun getIdentName(

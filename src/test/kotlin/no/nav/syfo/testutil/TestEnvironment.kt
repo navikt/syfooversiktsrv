@@ -6,6 +6,7 @@ import java.net.ServerSocket
 fun testEnvironment(
     azureTokenEndpoint: String = "azureTokenEndpoint",
     kafkaBootstrapServers: String = "boostrapserver",
+    isproxyUrl: String = "isproxy",
     pdlUrl: String,
     syfotilgangskontrollUrl: String? = null,
 ) = Environment(
@@ -31,6 +32,8 @@ fun testEnvironment(
     ),
     kafkaOppfolgingstilfellePersonProcessingEnabled = true,
     applicationName = "syfooversiktsrv",
+    isproxyClientId = "dev-fss.teamsykefravr.isproxy",
+    isproxyUrl = isproxyUrl,
     pdlClientId = "dev-fss.pdl.pdl-api",
     pdlUrl = pdlUrl,
     redisHost = "localhost",

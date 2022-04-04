@@ -1,11 +1,14 @@
 package no.nav.syfo.cronjob.virksomhetsnavn
 
 import net.logstash.logback.argument.StructuredArguments
+import no.nav.syfo.client.ereg.EregClient
 import no.nav.syfo.cronjob.Cronjob
 import no.nav.syfo.cronjob.CronjobResult
 import org.slf4j.LoggerFactory
 
-class PersonOppfolgingstilfelleVirksomhetnavnCronjob : Cronjob {
+class PersonOppfolgingstilfelleVirksomhetnavnCronjob(
+    eregClient: EregClient,
+) : Cronjob {
 
     override val initialDelayMinutes: Long = 2
     override val intervalDelayMinutes: Long = 60L

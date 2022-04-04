@@ -50,6 +50,7 @@ spec:
     outbound:
       external:
         - host: "kafka-schema-registry.nais.adeo.no"
+        - host: "isproxy.prod-fss-pub.nais.io"
         - host: "pdl-api.prod-fss-pub.nais.io"
         - host: "syfo-tilgangskontroll.prod-fss-pub.nais.io"
   azure:
@@ -79,6 +80,10 @@ spec:
       value: "https://kafka-schema-registry.nais.adeo.no"
     - name: REDIS_HOST
       value: "syfooversiktsrv-redis.teamsykefravr.svc.cluster.local"
+    - name: ISPROXY_CLIENT_ID
+      value: "prod-fss.teamsykefravr.isproxy"
+    - name: ISPROXY_URL
+      value: "https://isproxy.prod-fss-pub.nais.io"
     - name: PDL_CLIENT_ID
       value: "prod-fss.pdl.pdl-api"
     - name: PDL_URL
