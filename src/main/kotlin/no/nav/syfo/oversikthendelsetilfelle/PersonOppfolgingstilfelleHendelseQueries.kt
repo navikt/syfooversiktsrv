@@ -13,21 +13,6 @@ import java.sql.Types.NULL
 import java.time.Instant
 import java.util.*
 
-const val queryHentPersonsOppfolgingstilfellerGjeldendeI8UkerUtenAktivitet = """
-                        SELECT *
-                        FROM PERSON_OPPFOLGINGSTILFELLE
-                        WHERE person_oversikt_status_id = ? AND gradert = 'f' AND fom <= now() - interval '8 week' AND tom > now() - interval '17 day'
-                """
-
-fun DatabaseInterface.hentPersonsOppfolgingstilfellerGjeldendeI8UkerUtenAktivitet(personId: Int): List<PPersonOppfolgingstilfelle> {
-    return connection.use { connection ->
-        connection.prepareStatement(queryHentPersonsOppfolgingstilfellerGjeldendeI8UkerUtenAktivitet).use {
-            it.setInt(1, personId)
-            it.executeQuery().toList { toPPersonOppfolgingstilfelle() }
-        }
-    }
-}
-
 const val queryHentOppfolgingstilfelleForPerson = """
                          SELECT *
                          FROM PERSON_OPPFOLGINGSTILFELLE
