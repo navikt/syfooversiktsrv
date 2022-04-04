@@ -89,4 +89,4 @@ spec:
     - name: TOGGLE_KAFKA_CONSUMER_ENABLED
       value: "true"
     - name: TOGGLE_KAFKA_OPPFOLGINGSTILFELLE_PERSON_PROCESSING_ENABLED
-      value: "false"
+      value: "true"
