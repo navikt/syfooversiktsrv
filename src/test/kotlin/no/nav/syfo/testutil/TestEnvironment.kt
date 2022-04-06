@@ -8,6 +8,7 @@ fun testEnvironment(
     kafkaBootstrapServers: String = "boostrapserver",
     isproxyUrl: String = "isproxy",
     pdlUrl: String,
+    syfobehandlendeenhetUrl: String = "syfobehandlendeenhet",
     syfotilgangskontrollUrl: String? = null,
 ) = Environment(
     azureAppClientId = "azureAppClientId",
@@ -40,6 +41,8 @@ fun testEnvironment(
     redisSecret = "password",
     serviceuserUsername = "",
     serviceuserPassword = "",
+    syfobehandlendeenhetClientId = "dev-gcp.teamsykefravr.syfobehandlendeenhet",
+    syfobehandlendeenhetUrl = syfobehandlendeenhetUrl,
     syfotilgangskontrollClientId = "syfotilgangskontrollClientId",
     syfotilgangskontrollUrl = syfotilgangskontrollUrl ?: "tilgangskontroll",
     personOppfolgingstilfelleVirksomhetsnavnCronjobEnabled = true,

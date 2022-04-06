@@ -10,6 +10,8 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 
+const val NAV_PERSONIDENT_HEADER = "nav-personident"
+
 const val ALLE_TEMA_HEADERVERDI = "GEN"
 const val TEMA_HEADER = "Tema"
 

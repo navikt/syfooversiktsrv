@@ -53,6 +53,8 @@ spec:
         - host: "isproxy.prod-fss-pub.nais.io"
         - host: "pdl-api.prod-fss-pub.nais.io"
         - host: "syfo-tilgangskontroll.prod-fss-pub.nais.io"
+      rules:
+        - application: syfobehandlendeenhet
   azure:
     application:
       enabled: true
@@ -88,6 +90,10 @@ spec:
       value: "prod-fss.pdl.pdl-api"
     - name: PDL_URL
       value: "https://pdl-api.prod-fss-pub.nais.io/graphql"
+    - name: SYFOBEHANDLENDEENHET_CLIENT_ID
+      value: "prod-gcp.teamsykefravr.syfobehandlendeenhet"
+    - name: SYFOBEHANDLENDEENHET_URL
+      value: "https://syfobehandlendeenhet.intern.nav.no"
     - name: SYFOTILGANGSKONTROLL_CLIENT_ID
       value: "prod-fss.teamsykefravr.syfo-tilgangskontroll"
     - name: SYFOTILGANGSKONTROLL_URL

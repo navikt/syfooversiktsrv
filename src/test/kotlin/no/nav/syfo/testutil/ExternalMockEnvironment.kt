@@ -11,12 +11,14 @@ class ExternalMockEnvironment {
     val azureAdMock = AzureAdMock()
     val isproxyMock = IsproxyMock()
     val pdlMock = PdlMock()
+    val syfobehandlendeenhetMock = SyfobehandlendeenhetMock()
     val tilgangskontrollMock = VeilederTilgangskontrollMock()
 
     val externalApplicationMockMap = hashMapOf(
         azureAdMock.name to azureAdMock.server,
         isproxyMock.name to isproxyMock.server,
         pdlMock.name to pdlMock.server,
+        syfobehandlendeenhetMock.name to syfobehandlendeenhetMock.server,
         tilgangskontrollMock.name to tilgangskontrollMock.server,
     )
 
@@ -24,6 +26,7 @@ class ExternalMockEnvironment {
         azureTokenEndpoint = azureAdMock.url,
         isproxyUrl = isproxyMock.url,
         pdlUrl = pdlMock.url,
+        syfobehandlendeenhetUrl = syfobehandlendeenhetMock.url,
         syfotilgangskontrollUrl = tilgangskontrollMock.url,
     )
 
