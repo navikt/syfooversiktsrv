@@ -4,14 +4,17 @@ import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.Environment
 import no.nav.syfo.application.backgroundtask.launchBackgroundTask
 import no.nav.syfo.application.cache.RedisStore
+import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.client.azuread.AzureAdClient
 import no.nav.syfo.client.ereg.EregClient
 import no.nav.syfo.cronjob.leaderelection.LeaderPodClient
 import no.nav.syfo.cronjob.virksomhetsnavn.PersonOppfolgingstilfelleVirksomhetnavnCronjob
+import no.nav.syfo.cronjob.virksomhetsnavn.PersonOppfolgingstilfelleVirksomhetsnavnService
 import redis.clients.jedis.*
 
 fun launchCronjobModule(
     applicationState: ApplicationState,
+    database: DatabaseInterface,
     environment: Environment,
 ) {
     val redisStore = RedisStore(
@@ -45,8 +48,12 @@ fun launchCronjobModule(
         applicationState = applicationState,
         leaderPodClient = leaderPodClient,
     )
-    val personOppfolgingstilfelleVirksomhetnavnCronjob = PersonOppfolgingstilfelleVirksomhetnavnCronjob(
+    val personOppfolgingstilfelleVirksomhetsnavnService = PersonOppfolgingstilfelleVirksomhetsnavnService(
+        database = database,
         eregClient = eregClient,
+    )
+    val personOppfolgingstilfelleVirksomhetnavnCronjob = PersonOppfolgingstilfelleVirksomhetnavnCronjob(
+        personOppfolgingstilfelleVirksomhetsnavnService = personOppfolgingstilfelleVirksomhetsnavnService,
     )
 
     if (environment.personOppfolgingstilfelleVirksomhetsnavnCronjobEnabled) {
