@@ -33,7 +33,7 @@ const val queryPersonOppfolgingstilfelleVirksomhetNoVirksomhetsnavnList =
     WHERE virksomhetsnavn IS NULL
     AND (motebehov_ubehandlet = 't' OR moteplanlegger_ubehandlet = 't' OR oppfolgingsplan_lps_bistand_ubehandlet = 't')
     ORDER BY PERSON_OPPFOLGINGSTILFELLE_VIRKSOMHET.created_at ASC
-    LIMIT 5000
+    LIMIT 1000
     """
 
 fun DatabaseInterface.getPersonOppfolgingstilfelleVirksomhetMissingVirksomhetsnavnList(): List<Pair<Int, Virksomhetsnummer>> =
