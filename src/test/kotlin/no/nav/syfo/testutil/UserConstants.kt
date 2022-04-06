@@ -1,5 +1,6 @@
 package no.nav.syfo.testutil
 
+import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.domain.Virksomhetsnummer
 import no.nav.syfo.testutil.mock.generatePdlPersonNavn
 
@@ -9,6 +10,7 @@ object UserConstants {
     const val ARBEIDSTAKER_2_FNR = "12345678911"
 
     val ARBEIDSTAKER_NO_NAME_FNR = ARBEIDSTAKER_FNR.replace("2", "1")
+    val ARBEIDSTAKER_NO_ENHET_PERSONIDENT = PersonIdent(ARBEIDSTAKER_FNR.replace("2", "3"))
 
     const val NAV_ENHET = "0330"
     const val NAV_ENHET_2 = "0331"

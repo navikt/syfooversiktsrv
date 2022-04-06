@@ -11,7 +11,6 @@ import no.nav.syfo.application.api.authentication.installContentNegotiation
 import no.nav.syfo.client.behandlendeenhet.BehandlendeEnhetClient.Companion.PERSON_V2_ENHET_PATH
 import no.nav.syfo.client.behandlendeenhet.BehandlendeEnhetDTO
 import no.nav.syfo.testutil.UserConstants
-import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testutil.getRandomPort
 import no.nav.syfo.util.NAV_PERSONIDENT_HEADER
 
@@ -38,11 +37,11 @@ class SyfobehandlendeenhetMock {
         routing {
             get(PERSON_V2_ENHET_PATH) {
                 if (
-                    getPersonIdentHeader() == ARBEIDSTAKER_FNR
+                    getPersonIdentHeader() == UserConstants.ARBEIDSTAKER_NO_ENHET_PERSONIDENT.value
                 ) {
-                    call.respond(behandlendeEnhetDTO())
-                } else {
                     call.respond(HttpStatusCode.InternalServerError, "")
+                } else {
+                    call.respond(behandlendeEnhetDTO())
                 }
             }
         }

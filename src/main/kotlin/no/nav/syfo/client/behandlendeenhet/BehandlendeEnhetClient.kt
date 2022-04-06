@@ -15,21 +15,19 @@ import org.slf4j.LoggerFactory
 class BehandlendeEnhetClient(
     private val azureAdClient: AzureAdClient,
     private val syfobehandlendeenhetClientId: String,
-    syfobehandlendeenhetBaseUrl: String
+    baseUrl: String
 ) {
-    private val behandlendeEnhetUrl = "$syfobehandlendeenhetBaseUrl$PERSON_V2_ENHET_PATH"
+    private val behandlendeEnhetUrl = "$baseUrl$PERSON_V2_ENHET_PATH"
 
     private val httpClient = httpClientDefault()
 
     suspend fun getEnhet(
         callId: String,
         personIdent: PersonIdent,
-        token: String,
     ): BehandlendeEnhetDTO? {
         val url = behandlendeEnhetUrl
-        val oboToken = azureAdClient.getOnBehalfOfToken(
+        val oboToken = azureAdClient.getSystemToken(
             scopeClientId = syfobehandlendeenhetClientId,
-            token = token
         )?.accessToken ?: throw RuntimeException("Failed to request access to Enhet: Failed to get OBO token")
         return try {
             val response: HttpResponse = httpClient.get(url) {

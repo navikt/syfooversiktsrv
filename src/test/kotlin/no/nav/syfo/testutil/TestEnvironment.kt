@@ -45,6 +45,7 @@ fun testEnvironment(
     syfobehandlendeenhetUrl = syfobehandlendeenhetUrl,
     syfotilgangskontrollClientId = "syfotilgangskontrollClientId",
     syfotilgangskontrollUrl = syfotilgangskontrollUrl ?: "tilgangskontroll",
+    personBehandlendeEnhetCronjobEnabled = true,
     personOppfolgingstilfelleVirksomhetsnavnCronjobEnabled = true,
     toggleKafkaConsumerEnabled = true,
 )

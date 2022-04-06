@@ -6,7 +6,10 @@ import no.nav.syfo.application.backgroundtask.launchBackgroundTask
 import no.nav.syfo.application.cache.RedisStore
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.client.azuread.AzureAdClient
+import no.nav.syfo.client.behandlendeenhet.BehandlendeEnhetClient
 import no.nav.syfo.client.ereg.EregClient
+import no.nav.syfo.cronjob.behandlendeenhet.PersonBehandlendeEnhetCronjob
+import no.nav.syfo.cronjob.behandlendeenhet.PersonBehandlendeEnhetService
 import no.nav.syfo.cronjob.leaderelection.LeaderPodClient
 import no.nav.syfo.cronjob.virksomhetsnavn.PersonOppfolgingstilfelleVirksomhetnavnCronjob
 import no.nav.syfo.cronjob.virksomhetsnavn.PersonOppfolgingstilfelleVirksomhetsnavnService
@@ -62,6 +65,31 @@ fun launchCronjobModule(
         ) {
             cronjobRunner.start(
                 cronjob = personOppfolgingstilfelleVirksomhetnavnCronjob,
+            )
+        }
+    }
+
+    val behandlendeEnhetClient = BehandlendeEnhetClient(
+        azureAdClient = azureAdClient,
+        baseUrl = environment.syfobehandlendeenhetUrl,
+        syfobehandlendeenhetClientId = environment.syfobehandlendeenhetClientId
+    )
+
+    val personBehandlendeEnhetService = PersonBehandlendeEnhetService(
+        database = database,
+        behandlendeEnhetClient = behandlendeEnhetClient,
+    )
+
+    val personBehandlendeEnhetCronjob = PersonBehandlendeEnhetCronjob(
+        personBehandlendeEnhetService = personBehandlendeEnhetService,
+    )
+
+    if (environment.personBehandlendeEnhetCronjobEnabled) {
+        launchBackgroundTask(
+            applicationState = applicationState,
+        ) {
+            cronjobRunner.start(
+                cronjob = personBehandlendeEnhetCronjob,
             )
         }
     }
