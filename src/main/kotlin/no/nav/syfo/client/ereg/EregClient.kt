@@ -87,7 +87,7 @@ class EregClient(
         const val EREG_PATH = "/api/v1/ereg/organisasjon"
 
         const val CACHE_EREG_VIRKSOMHETSNAVN_KEY_PREFIX = "ereg-virksomhetsnavn-"
-        const val CACHE_EREG_VIRKSOMHETSNAVN_TIME_TO_LIVE_SECONDS = 12 * 60 * 60L
+        const val CACHE_EREG_VIRKSOMHETSNAVN_TIME_TO_LIVE_SECONDS = 24 * 60 * 60L
 
         private val log = LoggerFactory.getLogger(EregClient::class.java)
     }
