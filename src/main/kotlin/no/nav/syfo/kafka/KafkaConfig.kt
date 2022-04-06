@@ -18,6 +18,7 @@ fun kafkaConsumerConfig(
     this["schema.registry.url"] = environment.kafkaSchemaRegistryUrl
     this[ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG] = StringDeserializer::class.java.canonicalName
     this[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = StringDeserializer::class.java.canonicalName
+    this[ConsumerConfig.MAX_POLL_RECORDS_CONFIG] = "100"
     this[SaslConfigs.SASL_JAAS_CONFIG] = "org.apache.kafka.common.security.plain.PlainLoginModule required " +
         "username=\"${environment.serviceuserUsername}\" password=\"${environment.serviceuserPassword}\";"
     this[CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG] = environment.kafkaBootstrapServers
