@@ -17,7 +17,7 @@ class BehandlendeEnhetClient(
     private val syfobehandlendeenhetClientId: String,
     baseUrl: String
 ) {
-    private val behandlendeEnhetUrl = "$baseUrl$PERSON_V2_ENHET_PATH"
+    private val behandlendeEnhetUrl = "$baseUrl$BEHANDLENDEENHET_PATH"
 
     private val httpClient = httpClientDefault()
 
@@ -59,7 +59,7 @@ class BehandlendeEnhetClient(
     }
 
     companion object {
-        const val PERSON_V2_ENHET_PATH = "/api/internad/v2/personident"
+        const val BEHANDLENDEENHET_PATH = "/api/system/v2/personident"
         private val log = LoggerFactory.getLogger(BehandlendeEnhetClient::class.java)
     }
 }

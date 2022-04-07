@@ -8,7 +8,7 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.util.pipeline.*
 import no.nav.syfo.application.api.authentication.installContentNegotiation
-import no.nav.syfo.client.behandlendeenhet.BehandlendeEnhetClient.Companion.PERSON_V2_ENHET_PATH
+import no.nav.syfo.client.behandlendeenhet.BehandlendeEnhetClient.Companion.BEHANDLENDEENHET_PATH
 import no.nav.syfo.client.behandlendeenhet.BehandlendeEnhetDTO
 import no.nav.syfo.testutil.UserConstants
 import no.nav.syfo.testutil.getRandomPort
@@ -35,7 +35,7 @@ class SyfobehandlendeenhetMock {
     ) {
         installContentNegotiation()
         routing {
-            get(PERSON_V2_ENHET_PATH) {
+            get(BEHANDLENDEENHET_PATH) {
                 if (
                     getPersonIdentHeader() == UserConstants.ARBEIDSTAKER_NO_ENHET_PERSONIDENT.value
                 ) {
