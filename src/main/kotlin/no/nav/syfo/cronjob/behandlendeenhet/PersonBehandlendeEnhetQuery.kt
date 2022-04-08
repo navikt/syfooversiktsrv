@@ -58,7 +58,7 @@ const val queryGetPersonIdentToUpdateTildeltEnhetList =
     WHERE (motebehov_ubehandlet = 't' OR moteplanlegger_ubehandlet = 't' OR oppfolgingsplan_lps_bistand_ubehandlet = 't')
     AND (tildelt_enhet_updated_at IS NULL OR tildelt_enhet_updated_at < oppfolgingstilfelle_updated_at)
     ORDER BY tildelt_enhet_updated_at ASC
-    LIMIT 100
+    LIMIT 1000
     """
 
 fun DatabaseInterface.getPersonIdentToUpdateTildeltEnhetList(): List<PersonIdent> =
