@@ -6,6 +6,27 @@ import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.util.nowUTC
 import java.sql.ResultSet
 
+const val queryUpdatePersonTildeltEnhetUpdatedAt =
+    """
+    UPDATE PERSON_OVERSIKT_STATUS
+    SET tildelt_enhet_updated_at = ?
+    WHERE fnr = ?
+    """
+
+fun DatabaseInterface.updatePersonTildeltEnhetUpdatedAt(
+    personIdent: PersonIdent,
+) {
+    val now = nowUTC()
+    this.connection.use { connection ->
+        connection.prepareStatement(queryUpdatePersonTildeltEnhetUpdatedAt).use {
+            it.setObject(1, now)
+            it.setString(2, personIdent.value)
+            it.execute()
+        }
+        connection.commit()
+    }
+}
+
 const val queryupdatePersonTildeltEnhet =
     """
     UPDATE PERSON_OVERSIKT_STATUS

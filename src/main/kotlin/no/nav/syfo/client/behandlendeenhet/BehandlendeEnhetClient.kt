@@ -36,26 +36,31 @@ class BehandlendeEnhetClient(
                 header(NAV_PERSONIDENT_HEADER, personIdent.value)
                 accept(ContentType.Application.Json)
             }
-            COUNT_CALL_BEHANDLENDEENHET_SUCCESS.increment()
-            response.receive()
+            if (response.status == HttpStatusCode.NoContent) {
+                return null
+            } else {
+                COUNT_CALL_BEHANDLENDEENHET_SUCCESS.increment()
+                response.receive()
+            }
         } catch (e: ClientRequestException) {
             handleUnexpectedResponseException(e.response, callId)
+            throw e
         } catch (e: ServerResponseException) {
             handleUnexpectedResponseException(e.response, callId)
+            throw e
         }
     }
 
     private fun handleUnexpectedResponseException(
         response: HttpResponse,
         callId: String,
-    ): BehandlendeEnhetDTO? {
+    ) {
         log.error(
             "Error while requesting BehandlendeEnhet of person from Syfobehandlendeenhet with {}, {}",
             StructuredArguments.keyValue("statusCode", response.status.value.toString()),
             callIdArgument(callId)
         )
         COUNT_CALL_BEHANDLENDEENHET_FAIL.increment()
-        return null
     }
 
     companion object {

@@ -18,11 +18,13 @@ class PersonBehandlendeEnhetService(
         behandlendeEnhetClient.getEnhet(
             callId = UUID.randomUUID().toString(),
             personIdent = personIdent,
-        )?.let { behandlendeEnhetDTO ->
+        )?.let {
             database.updatePersonTildeltEnhet(
                 personIdent = personIdent,
-                enhetId = behandlendeEnhetDTO.enhetId,
+                enhetId = it.enhetId,
             )
-        } ?: throw RuntimeException("Failed to update Behandlende Enhet: response from Syfobehandlendeenhet missing")
+        } ?: database.updatePersonTildeltEnhetUpdatedAt(
+            personIdent = personIdent,
+        )
     }
 }

@@ -12,8 +12,9 @@ import no.nav.syfo.oppfolgingstilfelle.kafka.*
 import no.nav.syfo.personstatus.*
 import no.nav.syfo.personstatus.domain.OversikthendelseType
 import no.nav.syfo.testutil.*
+import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_ENHET_ERROR_PERSONIDENT
+import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_ENHET_NOT_FOUND_PERSONIDENT
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
-import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_NO_ENHET_PERSONIDENT
 import no.nav.syfo.testutil.assertion.checkPPersonOppfolgingstilfelleVirksomhet
 import no.nav.syfo.testutil.generator.generateKOversikthendelse
 import no.nav.syfo.testutil.generator.generateKafkaOppfolgingstilfellePerson
@@ -25,6 +26,7 @@ import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import redis.clients.jedis.*
 import java.time.Duration
+import java.time.OffsetDateTime
 
 @InternalAPI
 object PersonBehandlendeEnhetCronjobSpek : Spek({
@@ -186,7 +188,10 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                         oversiktHendelseMotebehovSvarMottatt,
                         oversiktHendelseMoteplanleggerAlleSvarMottatt
                     )
-                    oversikthendelseList.forEach { oversikthendelse ->
+
+                    var tildeltEnhetUpdatedAtBeforeUpdate: OffsetDateTime? = null
+
+                    oversikthendelseList.forEachIndexed { index, oversikthendelse ->
                         database.connection.dropData()
 
                         oversiktHendelseService.oppdaterPersonMedHendelse(
@@ -224,6 +229,12 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                         } else {
                             pPersonOversiktStatus.oppfolgingsplanLPSBistandUbehandlet.shouldBeNull()
                         }
+
+                        pPersonOversiktStatus.enhet shouldBeEqualTo oversikthendelse.enhetId
+                        pPersonOversiktStatus.tildeltEnhetUpdatedAt.shouldNotBeNull()
+                        if (index == 0) {
+                            tildeltEnhetUpdatedAtBeforeUpdate = pPersonOversiktStatus.tildeltEnhetUpdatedAt
+                        }
                     }
 
                     runBlocking {
@@ -244,6 +255,90 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
 
                         pPersonOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
                         pPersonOversiktStatus.tildeltEnhetUpdatedAt.shouldNotBeNull()
+                        pPersonOversiktStatus.tildeltEnhetUpdatedAt!!.toInstant()
+                            .toEpochMilli() shouldBeGreaterThan tildeltEnhetUpdatedAtBeforeUpdate!!.toInstant()
+                            .toEpochMilli()
+                    }
+
+                    runBlocking {
+                        val result = personBehandlendeEnhetCronjob.runJob()
+
+                        result.failed shouldBeEqualTo 0
+                        result.updated shouldBeEqualTo 0
+                    }
+                }
+
+                it("should update tildeltEnhetUpdatedAt, but not tildeltEnhetUpdatedAt, of existing PersonOversiktStatus, if BehandlendeEnhet is not found and oppfolgingsplanLPSBistandUbehandlet is true") {
+                    val kafkaOppfolgingstilfellePersonServiceRelevantEnhetNotFound =
+                        generateKafkaOppfolgingstilfellePerson(
+                            personIdent = ARBEIDSTAKER_ENHET_NOT_FOUND_PERSONIDENT,
+                        )
+                    val kafkaOppfolgingstilfellePersonServiceRecordRelevantEnhetNotFound = ConsumerRecord(
+                        OPPFOLGINGSTILFELLE_PERSON_TOPIC,
+                        partition,
+                        1,
+                        "key1",
+                        kafkaOppfolgingstilfellePersonServiceRelevantEnhetNotFound,
+                    )
+
+                    every { mockKafkaConsumerOppfolgingstilfellePerson.poll(any<Duration>()) } returns ConsumerRecords(
+                        mapOf(
+                            oppfolgingstilfellePersonTopicPartition to listOf(
+                                kafkaOppfolgingstilfellePersonServiceRecordRelevantEnhetNotFound,
+                            )
+                        )
+                    )
+
+                    val oversikthendelse = generateKOversikthendelse(
+                        oversikthendelseType = OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT,
+                        personIdent = ARBEIDSTAKER_ENHET_NOT_FOUND_PERSONIDENT.value,
+                    )
+                    oversiktHendelseService.oppdaterPersonMedHendelse(
+                        oversiktHendelse = oversikthendelse,
+                    )
+
+                    kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                        kafkaConsumerOppfolgingstilfellePerson = mockKafkaConsumerOppfolgingstilfellePerson,
+                    )
+
+                    val recordValue = kafkaOppfolgingstilfellePersonServiceRecordRelevantEnhetNotFound.value()
+
+                    val tildeltEnhetUpdatedAtBeforeUpdate: OffsetDateTime?
+
+                    database.connection.use { connection ->
+                        val pPersonOversiktStatusList = connection.getPersonOversiktStatusList(
+                            fnr = recordValue.personIdentNumber,
+                        )
+
+                        pPersonOversiktStatusList.size shouldBeEqualTo 1
+
+                        val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+                        pPersonOversiktStatus.enhet shouldBeEqualTo oversikthendelse.enhetId
+                        pPersonOversiktStatus.tildeltEnhetUpdatedAt.shouldNotBeNull()
+
+                        tildeltEnhetUpdatedAtBeforeUpdate = pPersonOversiktStatus.tildeltEnhetUpdatedAt
+                    }
+
+                    runBlocking {
+                        val result = personBehandlendeEnhetCronjob.runJob()
+
+                        result.failed shouldBeEqualTo 0
+                        result.updated shouldBeEqualTo 1
+                    }
+
+                    database.connection.use { connection ->
+                        val pPersonOversiktStatusList = connection.getPersonOversiktStatusList(
+                            fnr = recordValue.personIdentNumber,
+                        )
+
+                        pPersonOversiktStatusList.size shouldBeEqualTo 1
+
+                        val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+                        pPersonOversiktStatus.enhet shouldBeEqualTo oversikthendelse.enhetId
+                        pPersonOversiktStatus.tildeltEnhetUpdatedAt.shouldNotBeNull()
+                        pPersonOversiktStatus.tildeltEnhetUpdatedAt!!.toInstant()
+                            .toEpochMilli() shouldBeGreaterThan tildeltEnhetUpdatedAtBeforeUpdate!!.toInstant()
+                            .toEpochMilli()
                     }
 
                     runBlocking {
@@ -258,7 +353,7 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
             describe("Unsuccessful processing") {
 
                 val kafkaOppfolgingstilfellePersonServiceRelevant = generateKafkaOppfolgingstilfellePerson(
-                    personIdent = ARBEIDSTAKER_NO_ENHET_PERSONIDENT,
+                    personIdent = ARBEIDSTAKER_ENHET_ERROR_PERSONIDENT,
                 )
                 val kafkaOppfolgingstilfellePersonServiceRecordRelevant = ConsumerRecord(
                     OPPFOLGINGSTILFELLE_PERSON_TOPIC,
@@ -281,7 +376,7 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                 it("should fail to update Enhet of existing PersonOversiktStatus exception is thrown when requesting Enhet from Syfobehandlendeenhet") {
                     val oversikthendelse = generateKOversikthendelse(
                         oversikthendelseType = OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT,
-                        personIdent = ARBEIDSTAKER_NO_ENHET_PERSONIDENT.value,
+                        personIdent = ARBEIDSTAKER_ENHET_ERROR_PERSONIDENT.value,
                     )
 
                     oversiktHendelseService.oppdaterPersonMedHendelse(

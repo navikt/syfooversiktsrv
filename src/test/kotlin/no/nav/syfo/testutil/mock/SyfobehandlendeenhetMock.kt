@@ -16,7 +16,7 @@ import no.nav.syfo.util.NAV_PERSONIDENT_HEADER
 
 fun behandlendeEnhetDTO() =
     BehandlendeEnhetDTO(
-        enhetId = UserConstants.NAV_ENHET,
+        enhetId = UserConstants.NAV_ENHET_2,
         navn = "Navkontor",
     )
 
@@ -37,9 +37,13 @@ class SyfobehandlendeenhetMock {
         routing {
             get(BEHANDLENDEENHET_PATH) {
                 if (
-                    getPersonIdentHeader() == UserConstants.ARBEIDSTAKER_NO_ENHET_PERSONIDENT.value
+                    getPersonIdentHeader() == UserConstants.ARBEIDSTAKER_ENHET_ERROR_PERSONIDENT.value
                 ) {
                     call.respond(HttpStatusCode.InternalServerError, "")
+                } else if (
+                    getPersonIdentHeader() == UserConstants.ARBEIDSTAKER_ENHET_NOT_FOUND_PERSONIDENT.value
+                ) {
+                    call.respond(HttpStatusCode.NoContent)
                 } else {
                     call.respond(behandlendeEnhetDTO())
                 }
