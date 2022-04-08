@@ -10,7 +10,7 @@ val generateOversikthendelsetilfelle =
     KOversikthendelsetilfelle(
         fnr = UserConstants.ARBEIDSTAKER_FNR,
         navn = getIdentName(ident = UserConstants.ARBEIDSTAKER_FNR),
-        enhetId = UserConstants.NAV_ENHET,
+        enhetId = "",
         virksomhetsnummer = UserConstants.VIRKSOMHETSNUMMER,
         virksomhetsnavn = UserConstants.VIRKSOMHETSNAVN,
         gradert = false,

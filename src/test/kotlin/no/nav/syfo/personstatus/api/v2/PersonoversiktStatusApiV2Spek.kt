@@ -5,6 +5,17 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import io.ktor.util.*
+import io.mockk.*
+import kotlinx.coroutines.runBlocking
+import no.nav.syfo.application.cache.RedisStore
+import no.nav.syfo.client.azuread.AzureAdClient
+import no.nav.syfo.client.behandlendeenhet.BehandlendeEnhetClient
+import no.nav.syfo.cronjob.behandlendeenhet.PersonBehandlendeEnhetCronjob
+import no.nav.syfo.cronjob.behandlendeenhet.PersonBehandlendeEnhetService
+import no.nav.syfo.domain.PersonIdent
+import no.nav.syfo.domain.Virksomhetsnummer
+import no.nav.syfo.oppfolgingstilfelle.kafka.KafkaOppfolgingstilfellePerson
+import no.nav.syfo.oppfolgingstilfelle.kafka.OPPFOLGINGSTILFELLE_PERSON_TOPIC
 import no.nav.syfo.oversikthendelsetilfelle.OversikthendelstilfelleService
 import no.nav.syfo.oversikthendelsetilfelle.generateOversikthendelsetilfelle
 import no.nav.syfo.personstatus.OversiktHendelseService
@@ -20,14 +31,17 @@ import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER_2
 import no.nav.syfo.testutil.assertion.checkPersonOppfolgingstilfelle
 import no.nav.syfo.testutil.generator.generateKOversikthendelse
+import no.nav.syfo.testutil.generator.generateKafkaOppfolgingstilfellePerson
 import no.nav.syfo.util.bearerHeader
 import no.nav.syfo.util.configuredJacksonMapper
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
+import org.apache.kafka.clients.consumer.*
+import org.apache.kafka.common.TopicPartition
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
-import java.time.LocalDate
-import java.time.LocalDateTime
+import redis.clients.jedis.*
+import java.time.*
 
 @InternalAPI
 object PersonoversiktStatusApiV2Spek : Spek({
@@ -40,16 +54,83 @@ object PersonoversiktStatusApiV2Spek : Spek({
 
             val externalMockEnvironment = ExternalMockEnvironment()
             val database = externalMockEnvironment.database
+            val environment = externalMockEnvironment.environment
 
             application.testApiModule(
                 externalMockEnvironment = externalMockEnvironment
             )
 
+            val redisStore = RedisStore(
+                jedisPool = JedisPool(
+                    JedisPoolConfig(),
+                    externalMockEnvironment.environment.redisHost,
+                    externalMockEnvironment.environment.redisPort,
+                    Protocol.DEFAULT_TIMEOUT,
+                    externalMockEnvironment.environment.redisSecret,
+                ),
+            )
+
+            val azureAdClient = AzureAdClient(
+                aadAppClient = environment.azureAppClientId,
+                aadAppSecret = environment.azureAppClientSecret,
+                aadTokenEndpoint = environment.azureTokenEndpoint,
+                redisStore = redisStore,
+            )
+
+            val behandlendeEnhetClient = BehandlendeEnhetClient(
+                azureAdClient = azureAdClient,
+                baseUrl = environment.syfobehandlendeenhetUrl,
+                syfobehandlendeenhetClientId = environment.syfobehandlendeenhetClientId
+            )
+
+            val personBehandlendeEnhetService = PersonBehandlendeEnhetService(
+                database = database,
+                behandlendeEnhetClient = behandlendeEnhetClient,
+            )
+
+            val personBehandlendeEnhetCronjob = PersonBehandlendeEnhetCronjob(
+                personBehandlendeEnhetService = personBehandlendeEnhetService,
+            )
+
             val oversiktHendelseService = OversiktHendelseService(database)
             val oversikthendelstilfelleService = OversikthendelstilfelleService(database)
 
-            afterEachTest {
+            val personIdentDefault = PersonIdent(ARBEIDSTAKER_FNR)
+
+            val mockKafkaConsumerOppfolgingstilfellePerson =
+                mockk<KafkaConsumer<String, KafkaOppfolgingstilfellePerson>>()
+            val partition = 0
+            val oppfolgingstilfellePersonTopicPartition = TopicPartition(
+                OPPFOLGINGSTILFELLE_PERSON_TOPIC,
+                partition,
+            )
+            val kafkaOppfolgingstilfellePersonServiceRelevant = generateKafkaOppfolgingstilfellePerson(
+                personIdent = personIdentDefault,
+                virksomhetsnummerList = listOf(
+                    UserConstants.VIRKSOMHETSNUMMER_DEFAULT,
+                    Virksomhetsnummer(VIRKSOMHETSNUMMER_2),
+                )
+            )
+            val kafkaOppfolgingstilfellePersonServiceRecordRelevant = ConsumerRecord(
+                OPPFOLGINGSTILFELLE_PERSON_TOPIC,
+                partition,
+                1,
+                "key1",
+                kafkaOppfolgingstilfellePersonServiceRelevant,
+            )
+
+            beforeEachTest {
                 database.connection.dropData()
+
+                clearMocks(mockKafkaConsumerOppfolgingstilfellePerson)
+                every { mockKafkaConsumerOppfolgingstilfellePerson.commitSync() } returns Unit
+                every { mockKafkaConsumerOppfolgingstilfellePerson.poll(any<Duration>()) } returns ConsumerRecords(
+                    mapOf(
+                        oppfolgingstilfellePersonTopicPartition to listOf(
+                            kafkaOppfolgingstilfellePersonServiceRecordRelevant,
+                        )
+                    )
+                )
             }
 
             beforeGroup {
@@ -88,6 +169,10 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     )
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
+                    runBlocking {
+                        personBehandlendeEnhetCronjob.runJob()
+                    }
+
                     val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
                     database.lagreBrukerKnytningPaEnhet(tilknytning)
 
@@ -109,6 +194,10 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     )
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
+                    runBlocking {
+                        personBehandlendeEnhetCronjob.runJob()
+                    }
+
                     val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
                     database.lagreBrukerKnytningPaEnhet(tilknytning)
 
@@ -129,9 +218,6 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         LocalDateTime.now()
                     )
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
-
-                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
-                    database.lagreBrukerKnytningPaEnhet(tilknytning)
 
                     val oversiktHendelseNy = KOversikthendelse(
                         ARBEIDSTAKER_FNR,
@@ -157,6 +243,13 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     )
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerBehandlet)
 
+                    runBlocking {
+                        personBehandlendeEnhetCronjob.runJob()
+                    }
+
+                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
+                    database.lagreBrukerKnytningPaEnhet(tilknytning)
+
                     with(
                         handleRequest(HttpMethod.Get, url) {
                             addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
@@ -174,6 +267,10 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         tom = LocalDate.now()
                     )
                     oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
+
+                    runBlocking {
+                        personBehandlendeEnhetCronjob.runJob()
+                    }
 
                     with(
                         handleRequest(HttpMethod.Get, url) {
@@ -212,6 +309,10 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     val oversiktHendelseOPLPSBistandMottatt =
                         generateKOversikthendelse(OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT)
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseOPLPSBistandMottatt)
+
+                    runBlocking {
+                        personBehandlendeEnhetCronjob.runJob()
+                    }
 
                     with(
                         handleRequest(HttpMethod.Get, url) {
@@ -261,6 +362,10 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     )
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMotebehovMottatt)
 
+                    runBlocking {
+                        personBehandlendeEnhetCronjob.runJob()
+                    }
+
                     with(
                         handleRequest(HttpMethod.Get, url) {
                             addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
@@ -308,6 +413,10 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     )
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerMottatt)
 
+                    runBlocking {
+                        personBehandlendeEnhetCronjob.runJob()
+                    }
+
                     with(
                         handleRequest(HttpMethod.Get, url) {
                             addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
@@ -343,6 +452,10 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     )
                     oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
 
+                    runBlocking {
+                        personBehandlendeEnhetCronjob.runJob()
+                    }
+
                     with(
                         handleRequest(HttpMethod.Get, url) {
                             addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
@@ -360,6 +473,10 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         tom = LocalDate.now().plusDays(16)
                     )
                     oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
+
+                    runBlocking {
+                        personBehandlendeEnhetCronjob.runJob()
+                    }
 
                     with(
                         handleRequest(HttpMethod.Get, url) {
@@ -379,6 +496,10 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     )
                     oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
 
+                    runBlocking {
+                        personBehandlendeEnhetCronjob.runJob()
+                    }
+
                     with(
                         handleRequest(HttpMethod.Get, url) {
                             addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
@@ -396,9 +517,6 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         LocalDateTime.now()
                     )
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
-
-                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
-                    database.lagreBrukerKnytningPaEnhet(tilknytning)
 
                     val oversiktHendelseMoteplanleggerMottatt = KOversikthendelse(
                         ARBEIDSTAKER_FNR,
@@ -419,6 +537,13 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         tom = LocalDate.now()
                     )
                     oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
+
+                    runBlocking {
+                        personBehandlendeEnhetCronjob.runJob()
+                    }
+
+                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
+                    database.lagreBrukerKnytningPaEnhet(tilknytning)
 
                     with(
                         handleRequest(HttpMethod.Get, url) {
@@ -463,9 +588,6 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     )
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
-                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
-                    database.lagreBrukerKnytningPaEnhet(tilknytning)
-
                     val oversiktHendelseMoteplanleggerMottatt = KOversikthendelse(
                         ARBEIDSTAKER_FNR,
                         OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name,
@@ -477,6 +599,13 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     val oversiktHendelseOPLPSBistandMottatt =
                         generateKOversikthendelse(OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT)
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseOPLPSBistandMottatt)
+
+                    runBlocking {
+                        personBehandlendeEnhetCronjob.runJob()
+                    }
+
+                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
+                    database.lagreBrukerKnytningPaEnhet(tilknytning)
 
                     with(
                         handleRequest(HttpMethod.Get, url) {
@@ -510,6 +639,10 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     )
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseOPLPSBistandMottatt)
 
+                    runBlocking {
+                        personBehandlendeEnhetCronjob.runJob()
+                    }
+
                     with(
                         handleRequest(HttpMethod.Get, url) {
                             addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
@@ -538,6 +671,10 @@ object PersonoversiktStatusApiV2Spek : Spek({
                             fnr = ARBEIDSTAKER_NO_NAME_FNR,
                         )
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseOPLPSBistandMottatt)
+
+                    runBlocking {
+                        personBehandlendeEnhetCronjob.runJob()
+                    }
 
                     with(
                         handleRequest(HttpMethod.Get, url) {
@@ -573,6 +710,10 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     val oversiktHendelseOPLPSBistandMottatt =
                         generateKOversikthendelse(OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_BEHANDLET)
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseOPLPSBistandMottatt)
+
+                    runBlocking {
+                        personBehandlendeEnhetCronjob.runJob()
+                    }
 
                     with(
                         handleRequest(HttpMethod.Get, url) {

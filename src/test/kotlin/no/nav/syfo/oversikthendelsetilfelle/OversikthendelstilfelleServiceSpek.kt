@@ -8,14 +8,11 @@ import io.ktor.features.*
 import io.ktor.jackson.*
 import io.ktor.server.testing.*
 import io.ktor.util.*
-import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
 import no.nav.syfo.personstatus.getPersonOversiktStatusList
-import no.nav.syfo.personstatus.lagreBrukerKnytningPaEnhet
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_2_FNR
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testutil.UserConstants.NAV_ENHET_2
-import no.nav.syfo.testutil.UserConstants.VEILEDER_ID
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNAVN_2
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER_2
@@ -60,12 +57,6 @@ object OversikthendelstilfelleServiceSpek : Spek({
 
             val oversikthendelstilfelle = generateOversikthendelsetilfelle
 
-            val tilknytning = VeilederBrukerKnytning(
-                veilederIdent = VEILEDER_ID,
-                fnr = oversikthendelstilfelle.fnr,
-                enhet = oversikthendelstilfelle.enhetId,
-            )
-
             describe("Person eksisterer ikke") {
                 it("skal opprette person, med oppfolgingstilfelle ikke gradert") {
                     val hendelse = oversikthendelstilfelle.copy(gradert = false)
@@ -80,7 +71,6 @@ object OversikthendelstilfelleServiceSpek : Spek({
                     checkPPersonOversiktStatus(
                         pPersonOversiktStatus = person,
                         oversikthendelsetilfelle = hendelse,
-                        veilederIdent = null,
                     )
 
                     val oppfolgingstilfeller = database.hentOppfolgingstilfellerForPerson(personId = person.id)
@@ -106,7 +96,6 @@ object OversikthendelstilfelleServiceSpek : Spek({
                     checkPPersonOversiktStatus(
                         pPersonOversiktStatus = person,
                         oversikthendelsetilfelle = hendelse,
-                        veilederIdent = null,
                     )
 
                     val oppfolgingstilfeller = database.hentOppfolgingstilfellerForPerson(personId = person.id)
@@ -122,8 +111,6 @@ object OversikthendelstilfelleServiceSpek : Spek({
 
             describe("Person eksisterer, uendret enhet") {
                 it("skal oppdatere person, om person eksisterer i oversikt, med oppfolgingstilfelle ikke gradert") {
-                    database.lagreBrukerKnytningPaEnhet(tilknytning)
-
                     val hendelse = oversikthendelstilfelle.copy(gradert = false)
                     oversikthendelstilfelleService.oppdaterPersonMedHendelse(
                         oversikthendelsetilfelle = hendelse,
@@ -136,7 +123,6 @@ object OversikthendelstilfelleServiceSpek : Spek({
                     checkPPersonOversiktStatus(
                         pPersonOversiktStatus = person,
                         oversikthendelsetilfelle = hendelse,
-                        veilederIdent = tilknytning.veilederIdent,
                     )
 
                     val oppfolgingstilfeller = database.hentOppfolgingstilfellerForPerson(personId = person.id)
@@ -150,8 +136,6 @@ object OversikthendelstilfelleServiceSpek : Spek({
                 }
 
                 it("skal oppdatere person, om person eksisterer i oversikt, med oppfolgingstilfelle gradert") {
-                    database.lagreBrukerKnytningPaEnhet(tilknytning)
-
                     val hendelse = oversikthendelstilfelle.copy(gradert = true)
                     oversikthendelstilfelleService.oppdaterPersonMedHendelse(
                         oversikthendelsetilfelle = hendelse,
@@ -164,7 +148,6 @@ object OversikthendelstilfelleServiceSpek : Spek({
                     checkPPersonOversiktStatus(
                         pPersonOversiktStatus = person,
                         oversikthendelsetilfelle = hendelse,
-                        veilederIdent = tilknytning.veilederIdent,
                     )
 
                     val oppfolgingstilfeller = database.hentOppfolgingstilfellerForPerson(person.id)
@@ -180,8 +163,6 @@ object OversikthendelstilfelleServiceSpek : Spek({
 
             describe("Person eksistere, endret enhet") {
                 it("skal oppdatere person og nullstille tildelt veileder, om person eksisterer i oversikt og enhet er endret, med oppfolgingstilfelle ikke gradert mottatt") {
-                    database.lagreBrukerKnytningPaEnhet(tilknytning)
-
                     val hendelse = oversikthendelstilfelle.copy(
                         navn = getIdentName(ident = ARBEIDSTAKER_2_FNR),
                         enhetId = NAV_ENHET_2,
@@ -198,7 +179,6 @@ object OversikthendelstilfelleServiceSpek : Spek({
                     checkPPersonOversiktStatus(
                         pPersonOversiktStatus = person,
                         oversikthendelsetilfelle = hendelse,
-                        veilederIdent = null,
                     )
 
                     val oppfolgingstilfeller = database.hentOppfolgingstilfellerForPerson(personId = person.id)
@@ -212,8 +192,6 @@ object OversikthendelstilfelleServiceSpek : Spek({
                 }
 
                 it("skal oppdatere person og nullstille tildelt veileder, om person eksisterer i oversikt og enhet er endret, med oppfolgingstilfelle gradert mottatt") {
-                    database.lagreBrukerKnytningPaEnhet(tilknytning)
-
                     val hendelse = oversikthendelstilfelle.copy(
                         navn = getIdentName(ident = ARBEIDSTAKER_2_FNR),
                         enhetId = NAV_ENHET_2,
@@ -230,7 +208,6 @@ object OversikthendelstilfelleServiceSpek : Spek({
                     checkPPersonOversiktStatus(
                         pPersonOversiktStatus = person,
                         oversikthendelsetilfelle = hendelse,
-                        veilederIdent = null,
                     )
 
                     val oppfolgingstilfeller = database.hentOppfolgingstilfellerForPerson(personId = person.id)
@@ -246,8 +223,6 @@ object OversikthendelstilfelleServiceSpek : Spek({
 
             describe("Flere oppfolgingstilfeller mottas") {
                 it("skal oppdatere person, med flere oppfolgingstilfeller med samme virksomhetsnummer") {
-                    database.lagreBrukerKnytningPaEnhet(tilknytning)
-
                     val oversikthendelsetilfelleMottattForst = oversikthendelstilfelle.copy(
                         fom = LocalDate.now().plusDays(120),
                         tom = LocalDate.now().plusDays(120),
@@ -268,14 +243,14 @@ object OversikthendelstilfelleServiceSpek : Spek({
                         oversikthendelsetilfelle = oversikthendelsetilfelleMottattSist,
                     )
 
-                    val personListe = database.getPersonOversiktStatusList(fnr = oversikthendelsetilfelleMottattSist.fnr)
+                    val personListe =
+                        database.getPersonOversiktStatusList(fnr = oversikthendelsetilfelleMottattSist.fnr)
                     val person = personListe.first()
 
                     personListe.size shouldBe 1
                     checkPPersonOversiktStatus(
                         pPersonOversiktStatus = person,
                         oversikthendelsetilfelle = oversikthendelsetilfelleMottattForst,
-                        veilederIdent = tilknytning.veilederIdent,
                     )
 
                     val oppfolgingstilfeller = database.hentOppfolgingstilfellerForPerson(personId = person.id)
@@ -290,8 +265,6 @@ object OversikthendelstilfelleServiceSpek : Spek({
             }
 
             it("skal oppdatere person, med flere oppfolgingstilfeller med ulike virksomhetsnummer") {
-                database.lagreBrukerKnytningPaEnhet(tilknytning)
-
                 val oversikthendelsetilfelleMottattForst = oversikthendelstilfelle.copy(
                     virksomhetsnummer = VIRKSOMHETSNUMMER,
                     fom = LocalDate.now().plusDays(120),
@@ -319,7 +292,6 @@ object OversikthendelstilfelleServiceSpek : Spek({
                 checkPPersonOversiktStatus(
                     pPersonOversiktStatus = person,
                     oversikthendelsetilfelle = oversikthendelsetilfelleMottattForst,
-                    veilederIdent = tilknytning.veilederIdent,
                 )
 
                 val oppfolgingstilfeller = database.hentOppfolgingstilfellerForPerson(person.id)
@@ -338,8 +310,6 @@ object OversikthendelstilfelleServiceSpek : Spek({
             }
 
             it("skal oppdatere person, med flere oppfolgingstilfeller, ulik person, samme virksomhet") {
-                database.lagreBrukerKnytningPaEnhet(tilknytning)
-
                 val oversikthendelsetilfelleMottattForst = oversikthendelstilfelle.copy(
                     fnr = ARBEIDSTAKER_FNR,
                     navn = getIdentName(ident = ARBEIDSTAKER_FNR),
@@ -366,7 +336,8 @@ object OversikthendelstilfelleServiceSpek : Spek({
 
                 val personListeForst =
                     database.getPersonOversiktStatusList(fnr = oversikthendelsetilfelleMottattForst.fnr)
-                val personListeSist = database.getPersonOversiktStatusList(fnr = oversikthendelsetilfelleMottattSist.fnr)
+                val personListeSist =
+                    database.getPersonOversiktStatusList(fnr = oversikthendelsetilfelleMottattSist.fnr)
                 val personForst = personListeForst.first()
                 val personSist = personListeSist.last()
 
@@ -375,12 +346,10 @@ object OversikthendelstilfelleServiceSpek : Spek({
                 checkPPersonOversiktStatus(
                     pPersonOversiktStatus = personForst,
                     oversikthendelsetilfelle = oversikthendelsetilfelleMottattForst,
-                    veilederIdent = tilknytning.veilederIdent,
                 )
                 checkPPersonOversiktStatus(
                     pPersonOversiktStatus = personSist,
                     oversikthendelsetilfelle = oversikthendelsetilfelleMottattSist,
-                    veilederIdent = null,
                 )
 
                 val oppfolgingstilfellerForst = database.hentOppfolgingstilfellerForPerson(personId = personForst.id)

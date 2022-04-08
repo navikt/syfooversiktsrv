@@ -16,7 +16,7 @@ import no.nav.syfo.util.NAV_PERSONIDENT_HEADER
 
 fun behandlendeEnhetDTO() =
     BehandlendeEnhetDTO(
-        enhetId = UserConstants.NAV_ENHET_2,
+        enhetId = UserConstants.NAV_ENHET,
         navn = "Navkontor",
     )
 

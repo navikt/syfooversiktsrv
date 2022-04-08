@@ -1,22 +1,17 @@
 package no.nav.syfo.personstatus
 
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import io.ktor.application.*
-import io.ktor.features.*
-import io.ktor.jackson.*
 import io.ktor.server.testing.*
 import io.ktor.util.*
+import no.nav.syfo.application.api.authentication.installContentNegotiation
 import no.nav.syfo.personstatus.domain.*
-import no.nav.syfo.testutil.*
+import no.nav.syfo.testutil.TestDatabase
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testutil.UserConstants.NAV_ENHET
 import no.nav.syfo.testutil.UserConstants.NAV_ENHET_2
 import no.nav.syfo.testutil.UserConstants.VEILEDER_ID
+import no.nav.syfo.testutil.dropData
 import no.nav.syfo.testutil.generator.generateKOversikthendelse
-import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.*
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import java.time.LocalDateTime
@@ -36,18 +31,9 @@ object OversiktHendelseServiceSpek : Spek({
         with(TestApplicationEngine()) {
             start()
 
-            application.install(ContentNegotiation) {
-                jackson {
-                    registerKotlinModule()
-                    registerModule(JavaTimeModule())
-                    configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-                }
-            }
+            application.installContentNegotiation()
 
             beforeEachTest {
-            }
-
-            afterEachTest {
                 database.connection.dropData()
             }
 
@@ -63,12 +49,14 @@ object OversiktHendelseServiceSpek : Spek({
 
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
-                    val personListe = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET)
+                    val personListe = database.connection.getPersonOversiktStatusList(
+                        fnr = oversiktHendelse.fnr,
+                    )
 
                     personListe.size shouldBe 1
                     personListe[0].fnr shouldBeEqualTo oversiktHendelse.fnr
                     personListe[0].veilederIdent shouldBeEqualTo null
-                    personListe[0].enhet shouldBeEqualTo oversiktHendelse.enhetId
+                    personListe[0].enhet.shouldBeNull()
                     personListe[0].motebehovUbehandlet shouldBeEqualTo true
                 }
 
@@ -81,16 +69,18 @@ object OversiktHendelseServiceSpek : Spek({
                         LocalDateTime.now()
                     )
 
-                    database.lagreBrukerKnytningPaEnhet(tilknytning)
-
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
-                    val personListe = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET)
+                    database.lagreBrukerKnytningPaEnhet(tilknytning)
+
+                    val personListe = database.connection.getPersonOversiktStatusList(
+                        fnr = oversiktHendelse.fnr,
+                    )
 
                     personListe.size shouldBe 1
                     personListe[0].fnr shouldBeEqualTo oversiktHendelse.fnr
                     personListe[0].veilederIdent shouldBeEqualTo tilknytning.veilederIdent
-                    personListe[0].enhet shouldBeEqualTo oversiktHendelse.enhetId
+                    personListe[0].enhet.shouldBeNull()
                     personListe[0].motebehovUbehandlet shouldBeEqualTo true
                 }
 
@@ -113,39 +103,14 @@ object OversiktHendelseServiceSpek : Spek({
 
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseNy)
 
-                    val personListeEnhetTidligere = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET)
-
-                    personListeEnhetTidligere.size shouldBe 0
-
-                    val personListe = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET_2)
+                    val personListe = database.connection.getPersonOversiktStatusList(
+                        fnr = oversiktHendelse.fnr,
+                    )
 
                     personListe.size shouldBe 1
                     personListe[0].fnr shouldBeEqualTo oversiktHendelseNy.fnr
                     personListe[0].veilederIdent shouldBeEqualTo null
-                    personListe[0].enhet shouldBeEqualTo oversiktHendelseNy.enhetId
-                    personListe[0].motebehovUbehandlet shouldBeEqualTo true
-                }
-
-                it("skal oppdatere person og nullstille tildelt veileder, om person eksisterer i oversikt og enhet er endret") {
-                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
-
-                    database.lagreBrukerKnytningPaEnhet(tilknytning)
-
-                    val oversiktHendelse = KOversikthendelse(
-                        ARBEIDSTAKER_FNR,
-                        OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name,
-                        NAV_ENHET_2,
-                        LocalDateTime.now()
-                    )
-
-                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
-
-                    val personListe = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET_2)
-
-                    personListe.size shouldBe 1
-                    personListe[0].fnr shouldBeEqualTo oversiktHendelse.fnr
-                    personListe[0].veilederIdent shouldBeEqualTo null
-                    personListe[0].enhet shouldBeEqualTo oversiktHendelse.enhetId
+                    personListe[0].enhet.shouldBeNull()
                     personListe[0].motebehovUbehandlet shouldBeEqualTo true
                 }
             }
@@ -162,15 +127,21 @@ object OversiktHendelseServiceSpek : Spek({
 
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
-                    val personListe = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET)
+                    val personListe = database.connection.getPersonOversiktStatusList(
+                        fnr = oversiktHendelse.fnr,
+                    )
 
                     personListe.size shouldBe 0
                 }
 
                 it("skal oppdatere person, om person eksisterer i oversikt") {
-                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
-
-                    database.lagreBrukerKnytningPaEnhet(tilknytning)
+                    val oversiktHendelseMoteplanleggerSvarUbehandlet = KOversikthendelse(
+                        ARBEIDSTAKER_FNR,
+                        OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name,
+                        NAV_ENHET,
+                        LocalDateTime.now()
+                    )
+                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerSvarUbehandlet)
 
                     val oversiktHendelseMotebehovUbehandlet = KOversikthendelse(
                         ARBEIDSTAKER_FNR,
@@ -178,15 +149,20 @@ object OversiktHendelseServiceSpek : Spek({
                         NAV_ENHET,
                         LocalDateTime.now()
                     )
-
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMotebehovUbehandlet)
 
-                    val personListe = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET)
+                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
+
+                    database.lagreBrukerKnytningPaEnhet(tilknytning)
+
+                    val personListe = database.connection.getPersonOversiktStatusList(
+                        fnr = oversiktHendelseMoteplanleggerSvarUbehandlet.fnr,
+                    )
 
                     personListe.size shouldBe 1
                     personListe[0].fnr shouldBeEqualTo oversiktHendelseMotebehovUbehandlet.fnr
                     personListe[0].veilederIdent shouldBeEqualTo tilknytning.veilederIdent
-                    personListe[0].enhet shouldBeEqualTo oversiktHendelseMotebehovUbehandlet.enhetId
+                    personListe[0].enhet.shouldBeNull()
                     personListe[0].motebehovUbehandlet shouldBeEqualTo false
                 }
 
@@ -209,48 +185,14 @@ object OversiktHendelseServiceSpek : Spek({
 
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMotebehovUbehandlet)
 
-                    val personListeEnhetTidligere = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET)
-
-                    personListeEnhetTidligere.size shouldBe 0
-
-                    val personListe = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET_2)
+                    val personListe = database.connection.getPersonOversiktStatusList(
+                        fnr = oversiktHendelseMotebehovMottatt.fnr,
+                    )
 
                     personListe.size shouldBe 1
                     personListe[0].fnr shouldBeEqualTo oversiktHendelseMotebehovUbehandlet.fnr
                     personListe[0].veilederIdent shouldBeEqualTo null
-                    personListe[0].enhet shouldBeEqualTo oversiktHendelseMotebehovUbehandlet.enhetId
-                    personListe[0].motebehovUbehandlet shouldBeEqualTo false
-                }
-
-                it("skal oppdatere person og nullstille tildelt veileder, om person eksisterer i oversikt og enhet er endret") {
-                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
-
-                    database.lagreBrukerKnytningPaEnhet(tilknytning)
-
-                    val oversiktHendelseMotebehovMottatt = KOversikthendelse(
-                        ARBEIDSTAKER_FNR,
-                        OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name,
-                        NAV_ENHET,
-                        LocalDateTime.now()
-                    )
-
-                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse = oversiktHendelseMotebehovMottatt)
-
-                    val oversiktHendelseMotebehovUbehandlet = KOversikthendelse(
-                        ARBEIDSTAKER_FNR,
-                        OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET.name,
-                        NAV_ENHET_2,
-                        LocalDateTime.now()
-                    )
-
-                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMotebehovUbehandlet)
-
-                    val personListe = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET_2)
-
-                    personListe.size shouldBe 1
-                    personListe[0].fnr shouldBeEqualTo oversiktHendelseMotebehovUbehandlet.fnr
-                    personListe[0].veilederIdent shouldBeEqualTo null
-                    personListe[0].enhet shouldBeEqualTo oversiktHendelseMotebehovUbehandlet.enhetId
+                    personListe[0].enhet.shouldBeNull()
                     personListe[0].motebehovUbehandlet shouldBeEqualTo false
                 }
             }
@@ -267,12 +209,14 @@ object OversiktHendelseServiceSpek : Spek({
 
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
-                    val personListe = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET)
+                    val personListe = database.connection.getPersonOversiktStatusList(
+                        fnr = oversiktHendelse.fnr,
+                    )
 
                     personListe.size shouldBe 1
                     personListe[0].fnr shouldBeEqualTo oversiktHendelse.fnr
                     personListe[0].veilederIdent shouldBeEqualTo null
-                    personListe[0].enhet shouldBeEqualTo oversiktHendelse.enhetId
+                    personListe[0].enhet.shouldBeNull()
                     personListe[0].motebehovUbehandlet shouldBeEqualTo null
                     personListe[0].moteplanleggerUbehandlet shouldBeEqualTo true
                 }
@@ -290,12 +234,14 @@ object OversiktHendelseServiceSpek : Spek({
 
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
-                    val personListe = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET)
+                    val personListe = database.connection.getPersonOversiktStatusList(
+                        fnr = oversiktHendelse.fnr,
+                    )
 
                     personListe.size shouldBe 1
                     personListe[0].fnr shouldBeEqualTo oversiktHendelse.fnr
                     personListe[0].veilederIdent shouldBeEqualTo tilknytning.veilederIdent
-                    personListe[0].enhet shouldBeEqualTo oversiktHendelse.enhetId
+                    personListe[0].enhet.shouldBeNull()
                     personListe[0].motebehovUbehandlet shouldBeEqualTo null
                     personListe[0].moteplanleggerUbehandlet shouldBeEqualTo true
                 }
@@ -319,40 +265,14 @@ object OversiktHendelseServiceSpek : Spek({
 
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseNy)
 
-                    val personListeEnhetTidligere = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET)
-
-                    personListeEnhetTidligere.size shouldBe 0
-
-                    val personListe = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET_2)
+                    val personListe = database.connection.getPersonOversiktStatusList(
+                        fnr = oversiktHendelse.fnr,
+                    )
 
                     personListe.size shouldBe 1
                     personListe[0].fnr shouldBeEqualTo oversiktHendelseNy.fnr
                     personListe[0].veilederIdent shouldBeEqualTo null
-                    personListe[0].enhet shouldBeEqualTo oversiktHendelseNy.enhetId
-                    personListe[0].motebehovUbehandlet shouldBeEqualTo null
-                    personListe[0].moteplanleggerUbehandlet shouldBeEqualTo true
-                }
-
-                it("skal oppdatere person og nullstille tildelt veileder, om person eksisterer i oversikt og enhet er endret") {
-                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
-
-                    database.lagreBrukerKnytningPaEnhet(tilknytning)
-
-                    val oversiktHendelse = KOversikthendelse(
-                        ARBEIDSTAKER_FNR,
-                        OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name,
-                        NAV_ENHET_2,
-                        LocalDateTime.now()
-                    )
-
-                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
-
-                    val personListe = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET_2)
-
-                    personListe.size shouldBe 1
-                    personListe[0].fnr shouldBeEqualTo oversiktHendelse.fnr
-                    personListe[0].veilederIdent shouldBeEqualTo null
-                    personListe[0].enhet shouldBeEqualTo oversiktHendelse.enhetId
+                    personListe[0].enhet.shouldBeNull()
                     personListe[0].motebehovUbehandlet shouldBeEqualTo null
                     personListe[0].moteplanleggerUbehandlet shouldBeEqualTo true
                 }
@@ -370,7 +290,9 @@ object OversiktHendelseServiceSpek : Spek({
 
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
-                    val personListe = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET)
+                    val personListe = database.connection.getPersonOversiktStatusList(
+                        fnr = oversiktHendelse.fnr,
+                    )
 
                     personListe.size shouldBe 0
                 }
@@ -395,12 +317,14 @@ object OversiktHendelseServiceSpek : Spek({
                     )
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerSvarUbehandlet)
 
-                    val personListe = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET)
+                    val personListe = database.connection.getPersonOversiktStatusList(
+                        fnr = oversiktHendelseMotebehovMottatt.fnr,
+                    )
 
                     personListe.size shouldBe 1
                     personListe[0].fnr shouldBeEqualTo oversiktHendelseMoteplanleggerSvarUbehandlet.fnr
                     personListe[0].veilederIdent shouldBeEqualTo tilknytning.veilederIdent
-                    personListe[0].enhet shouldBeEqualTo oversiktHendelseMoteplanleggerSvarUbehandlet.enhetId
+                    personListe[0].enhet.shouldBeNull()
                     personListe[0].motebehovUbehandlet shouldBeEqualTo true
                     personListe[0].moteplanleggerUbehandlet shouldBeEqualTo false
                 }
@@ -422,46 +346,14 @@ object OversiktHendelseServiceSpek : Spek({
                     )
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerSvarUbehandlet)
 
-                    val personListeEnhetTidligere = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET)
-
-                    personListeEnhetTidligere.size shouldBe 0
-
-                    val personListe = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET_2)
+                    val personListe = database.connection.getPersonOversiktStatusList(
+                        fnr = oversiktHendelseMoteplanleggerSvarMottatt.fnr,
+                    )
 
                     personListe.size shouldBe 1
                     personListe[0].fnr shouldBeEqualTo oversiktHendelseMoteplanleggerSvarUbehandlet.fnr
                     personListe[0].veilederIdent shouldBeEqualTo null
-                    personListe[0].enhet shouldBeEqualTo oversiktHendelseMoteplanleggerSvarUbehandlet.enhetId
-                    personListe[0].motebehovUbehandlet shouldBeEqualTo null
-                    personListe[0].moteplanleggerUbehandlet shouldBeEqualTo false
-                }
-
-                it("skal oppdatere person og nullstille tildelt veileder, om person eksisterer i oversikt og enhet er endret") {
-                    val oversiktHendelseMoteplanleggerSvarMottatt = KOversikthendelse(
-                        ARBEIDSTAKER_FNR,
-                        OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name,
-                        NAV_ENHET,
-                        LocalDateTime.now()
-                    )
-                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerSvarMottatt)
-
-                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
-                    database.lagreBrukerKnytningPaEnhet(tilknytning)
-
-                    val oversiktHendelseMoteplanleggerSvarUbehandlet = KOversikthendelse(
-                        ARBEIDSTAKER_FNR,
-                        OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_BEHANDLET.name,
-                        NAV_ENHET_2,
-                        LocalDateTime.now()
-                    )
-                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerSvarUbehandlet)
-
-                    val personListe = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET_2)
-
-                    personListe.size shouldBe 1
-                    personListe[0].fnr shouldBeEqualTo oversiktHendelseMoteplanleggerSvarUbehandlet.fnr
-                    personListe[0].veilederIdent shouldBeEqualTo null
-                    personListe[0].enhet shouldBeEqualTo oversiktHendelseMoteplanleggerSvarUbehandlet.enhetId
+                    personListe[0].enhet.shouldBeNull()
                     personListe[0].motebehovUbehandlet shouldBeEqualTo null
                     personListe[0].moteplanleggerUbehandlet shouldBeEqualTo false
                 }
@@ -476,13 +368,15 @@ object OversiktHendelseServiceSpek : Spek({
 
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
-                    val personListe = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET)
+                    val personListe = database.connection.getPersonOversiktStatusList(
+                        fnr = oversiktHendelse.fnr,
+                    )
 
                     personListe.size shouldBe 1
                     personListe[0].let {
                         it.fnr shouldBeEqualTo oversiktHendelse.fnr
                         it.veilederIdent shouldBeEqualTo null
-                        it.enhet shouldBeEqualTo oversiktHendelse.enhetId
+                        it.enhet.shouldBeNull()
                         it.motebehovUbehandlet shouldBeEqualTo null
                         it.moteplanleggerUbehandlet shouldBeEqualTo null
                         it.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
@@ -490,22 +384,23 @@ object OversiktHendelseServiceSpek : Spek({
                 }
 
                 it("skal oppdatere person, om person eksisterer i oversikt") {
-                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
                     val oversiktHendelse = generateKOversikthendelse(
                         OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT
                     )
-
-                    database.lagreBrukerKnytningPaEnhet(tilknytning)
-
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
-                    val personListe = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET)
+                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
+                    database.lagreBrukerKnytningPaEnhet(tilknytning)
+
+                    val personListe = database.connection.getPersonOversiktStatusList(
+                        fnr = oversiktHendelse.fnr,
+                    )
 
                     personListe.size shouldBe 1
                     personListe[0].let {
                         it.fnr shouldBeEqualTo oversiktHendelse.fnr
                         it.veilederIdent shouldBeEqualTo tilknytning.veilederIdent
-                        it.enhet shouldBeEqualTo oversiktHendelse.enhetId
+                        it.enhet.shouldBeNull()
                         it.motebehovUbehandlet shouldBeEqualTo null
                         it.moteplanleggerUbehandlet shouldBeEqualTo null
                         it.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
@@ -525,40 +420,15 @@ object OversiktHendelseServiceSpek : Spek({
 
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseNy)
 
-                    val personListeEnhetTidligere = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET)
-
-                    personListeEnhetTidligere.size shouldBe 0
-
-                    val personListe = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET_2)
+                    val personListe = database.connection.getPersonOversiktStatusList(
+                        fnr = oversiktHendelse.fnr,
+                    )
 
                     personListe.size shouldBe 1
                     personListe[0].let {
                         it.fnr shouldBeEqualTo oversiktHendelseNy.fnr
                         it.veilederIdent shouldBeEqualTo null
-                        it.enhet shouldBeEqualTo oversiktHendelseNy.enhetId
-                        it.motebehovUbehandlet shouldBeEqualTo null
-                        it.moteplanleggerUbehandlet shouldBeEqualTo null
-                        it.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
-                    }
-                }
-
-                it("skal oppdatere person og nullstille tildelt veileder, om person eksisterer i oversikt og enhet er endret") {
-                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
-
-                    database.lagreBrukerKnytningPaEnhet(tilknytning)
-
-                    val oversiktHendelse = generateKOversikthendelse(
-                        OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT
-                    ).copy(enhetId = NAV_ENHET_2)
-                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
-
-                    val personListe = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET_2)
-
-                    personListe.size shouldBe 1
-                    personListe[0].let {
-                        it.fnr shouldBeEqualTo oversiktHendelse.fnr
-                        it.veilederIdent shouldBeEqualTo null
-                        it.enhet shouldBeEqualTo oversiktHendelse.enhetId
+                        it.enhet.shouldBeNull()
                         it.motebehovUbehandlet shouldBeEqualTo null
                         it.moteplanleggerUbehandlet shouldBeEqualTo null
                         it.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
@@ -574,7 +444,9 @@ object OversiktHendelseServiceSpek : Spek({
                     )
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
-                    val personListe = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET)
+                    val personListe = database.connection.getPersonOversiktStatusList(
+                        fnr = oversiktHendelse.fnr,
+                    )
 
                     personListe.size shouldBe 0
                 }
@@ -593,69 +465,15 @@ object OversiktHendelseServiceSpek : Spek({
                     )
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseOPLPSBistandUbehandlet)
 
-                    val personListe = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET)
+                    val personListe = database.connection.getPersonOversiktStatusList(
+                        fnr = oversiktHendelseMotebehovMottatt.fnr,
+                    )
 
                     personListe.size shouldBe 1
                     personListe[0].let {
                         it.fnr shouldBeEqualTo oversiktHendelseOPLPSBistandUbehandlet.fnr
                         it.veilederIdent shouldBeEqualTo tilknytning.veilederIdent
-                        it.enhet shouldBeEqualTo oversiktHendelseOPLPSBistandUbehandlet.enhetId
-                        it.motebehovUbehandlet shouldBeEqualTo null
-                        it.moteplanleggerUbehandlet shouldBeEqualTo null
-                        it.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo false
-                    }
-                }
-
-                it("skal oppdatere person med ny enhet, om person eksisterer i oversikt") {
-                    val oversiktHendelseOPLPSBistandMottatt = generateKOversikthendelse(
-                        OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT
-                    )
-                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseOPLPSBistandMottatt)
-
-                    val oversiktHendelseOPLPSBistandUbehandlet = generateKOversikthendelse(
-                        OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_BEHANDLET
-                    ).copy(enhetId = NAV_ENHET_2)
-                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseOPLPSBistandUbehandlet)
-
-                    val personListeEnhetTidligere = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET)
-
-                    personListeEnhetTidligere.size shouldBe 0
-
-                    val personListe = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET_2)
-
-                    personListe.size shouldBe 1
-                    personListe[0].let {
-                        it.fnr shouldBeEqualTo oversiktHendelseOPLPSBistandUbehandlet.fnr
-                        it.veilederIdent shouldBeEqualTo null
-                        it.enhet shouldBeEqualTo oversiktHendelseOPLPSBistandUbehandlet.enhetId
-                        it.motebehovUbehandlet shouldBeEqualTo null
-                        it.moteplanleggerUbehandlet shouldBeEqualTo null
-                        it.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo false
-                    }
-                }
-
-                it("skal oppdatere person og nullstille tildelt veileder, om person eksisterer i oversikt og enhet er endret") {
-                    val oversiktHendelseOPLPSBistandMottatt = generateKOversikthendelse(
-                        OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT
-                    )
-                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseOPLPSBistandMottatt)
-
-                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
-                    database.lagreBrukerKnytningPaEnhet(tilknytning)
-
-                    val oversiktHendelseOPLPSBistandUbehandlet = generateKOversikthendelse(
-                        OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_BEHANDLET
-                    ).copy(enhetId = NAV_ENHET_2)
-
-                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseOPLPSBistandUbehandlet)
-
-                    val personListe = database.connection.hentPersonerTilknyttetEnhet(NAV_ENHET_2)
-
-                    personListe.size shouldBe 1
-                    personListe[0].let {
-                        it.fnr shouldBeEqualTo oversiktHendelseOPLPSBistandUbehandlet.fnr
-                        it.veilederIdent shouldBeEqualTo null
-                        it.enhet shouldBeEqualTo oversiktHendelseOPLPSBistandUbehandlet.enhetId
+                        it.enhet.shouldBeNull()
                         it.motebehovUbehandlet shouldBeEqualTo null
                         it.moteplanleggerUbehandlet shouldBeEqualTo null
                         it.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo false

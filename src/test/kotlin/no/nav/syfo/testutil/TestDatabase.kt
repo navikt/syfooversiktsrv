@@ -2,9 +2,6 @@ package no.nav.syfo.testutil
 
 import com.opentable.db.postgres.embedded.EmbeddedPostgres
 import no.nav.syfo.application.database.DatabaseInterface
-import no.nav.syfo.application.database.toList
-import no.nav.syfo.personstatus.domain.PPersonOversiktStatus
-import no.nav.syfo.personstatus.toPPersonOversiktStatus
 import org.flywaydb.core.Flyway
 import java.sql.Connection
 
@@ -57,20 +54,5 @@ fun Connection.dropData() {
             connection.prepareStatement(query).execute()
         }
         connection.commit()
-    }
-}
-
-const val queryHentPersonerTilknyttetEnhet = """
-                        SELECT *
-                        FROM PERSON_OVERSIKT_STATUS
-                        WHERE tildelt_enhet = ?
-                """
-
-fun Connection.hentPersonerTilknyttetEnhet(enhet: String): List<PPersonOversiktStatus> {
-    return use { connection ->
-        connection.prepareStatement(queryHentPersonerTilknyttetEnhet).use {
-            it.setString(1, enhet)
-            it.executeQuery().toList { toPPersonOversiktStatus() }
-        }
     }
 }

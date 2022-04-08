@@ -50,7 +50,6 @@ class OversiktHendelseService(
                 }
             } else {
                 updatePersonOversiktStatus(
-                    oversiktHendelse = oversiktHendelse,
                     oversikthendelseType = oversikthendelseType,
                     personOversiktStatus = personOversiktStatus,
                 )
@@ -77,14 +76,11 @@ class OversiktHendelseService(
     }
 
     private fun updatePersonOversiktStatus(
-        oversiktHendelse: KOversikthendelse,
         oversikthendelseType: OversikthendelseType,
         personOversiktStatus: PersonOversiktStatus,
     ) {
-        val updatedPersonOversiktStatus = oversiktHendelse.toPersonOversiktStatus(
-            oversikthendelseType = oversikthendelseType,
-            personOversiktStatus = personOversiktStatus,
-        )
+        val updatedPersonOversiktStatus =
+            personOversiktStatus.applyHendelse(oversikthendelseType = oversikthendelseType)
         database.updatePersonOversiktStatus(
             personOversiktStatus = updatedPersonOversiktStatus,
         )

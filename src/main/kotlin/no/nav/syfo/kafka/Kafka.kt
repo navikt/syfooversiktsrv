@@ -161,7 +161,6 @@ suspend fun blockingApplicationLogic(
                     (!StringUtil.isNullOrEmpty(oversikthendelsetilfelle.fnr)).toString()
                 ),
                 StructuredArguments.keyValue("navn", oversikthendelsetilfelle.navn),
-                StructuredArguments.keyValue("enhetId", oversikthendelsetilfelle.enhetId),
                 StructuredArguments.keyValue("virksomhetsnummer", oversikthendelsetilfelle.virksomhetsnummer),
                 StructuredArguments.keyValue("gradert", oversikthendelsetilfelle.gradert),
                 StructuredArguments.keyValue("fom", oversikthendelsetilfelle.fom),

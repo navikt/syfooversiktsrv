@@ -21,7 +21,7 @@ fun KOversikthendelse.toPersonOversiktStatus(
         veilederIdent = null,
         fnr = this.fnr,
         navn = "",
-        enhet = this.enhetId,
+        enhet = null,
         motebehovUbehandlet = null,
         moteplanleggerUbehandlet = null,
         oppfolgingsplanLPSBistandUbehandlet = null,
@@ -29,20 +29,4 @@ fun KOversikthendelse.toPersonOversiktStatus(
         latestOppfolgingstilfelle = null,
     )
     return personOversiktStatus.applyHendelse(oversikthendelseType = oversikthendelseType)
-}
-
-fun KOversikthendelse.toPersonOversiktStatus(
-    oversikthendelseType: OversikthendelseType,
-    personOversiktStatus: PersonOversiktStatus,
-): PersonOversiktStatus {
-    val newEnhetId = personOversiktStatus.enhet != this.enhetId
-    val updatedPersonOversiktStatus = if (newEnhetId) {
-        personOversiktStatus.copy(
-            veilederIdent = null,
-            enhet = this.enhetId,
-        )
-    } else {
-        personOversiktStatus
-    }
-    return updatedPersonOversiktStatus.applyHendelse(oversikthendelseType = oversikthendelseType)
 }

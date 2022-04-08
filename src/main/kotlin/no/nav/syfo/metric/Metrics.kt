@@ -42,17 +42,13 @@ const val OVERSIKTHENDELSE_OPPFOLGINGSPLANLPS_BISTAND_BEHANDLET_BASE = "${METRIC
 const val OVERSIKTHENDELSE_OPPFOLGINGSPLANLPS_BISTAND_BEHANDLET_OPPDATER = "${OVERSIKTHENDELSE_OPPFOLGINGSPLANLPS_BISTAND_BEHANDLET_BASE}_oppdater_count"
 const val OVERSIKTHENDELSE_OPPFOLGINGSPLANLPS_BISTAND_BEHANDLET_FEILET = "${OVERSIKTHENDELSE_OPPFOLGINGSPLANLPS_BISTAND_BEHANDLET_BASE}_feilet_count"
 
-const val OVERSIKTHENDELSETILFELLE_UGYLDIG_MOTTATT = "${METRICS_NS}_oversikthendelsetilfelle_ugyldig_mottatt"
-
 const val OVERSIKTHENDELSETILFELLE_INGEN_AKTIVITET_BASE = "${METRICS_NS}_oversikthendelsetilfelle_ingen_aktivitet"
 const val OVERSIKTHENDELSETILFELLE_INGEN_AKTIVITET_OPPRETT = "${OVERSIKTHENDELSETILFELLE_INGEN_AKTIVITET_BASE}_opprett_count"
 const val OVERSIKTHENDELSETILFELLE_INGEN_AKTIVITET_OPPDATER = "${OVERSIKTHENDELSETILFELLE_INGEN_AKTIVITET_BASE}_oppdater_count"
-const val OVERSIKTHENDELSETILFELLE_INGEN_AKTIVITET_ENHET = "${OVERSIKTHENDELSETILFELLE_INGEN_AKTIVITET_BASE}_oppdater_enhet_count"
 
 const val OVERSIKTHENDELSETILFELLE_GRADERT_BASE = "${METRICS_NS}_oversikthendelsetilfelle_gradert"
 const val OVERSIKTHENDELSETILFELLE_GRADERT_OPPRETT = "${OVERSIKTHENDELSETILFELLE_GRADERT_BASE}_opprett_count"
 const val OVERSIKTHENDELSETILFELLE_GRADERT_OPPDATER = "${OVERSIKTHENDELSETILFELLE_GRADERT_BASE}_oppdater_count"
-const val OVERSIKTHENDELSETILFELLE_GRADERT_OPPDATER_ENHET = "${OVERSIKTHENDELSETILFELLE_GRADERT_BASE}_oppdater_enhet_count"
 
 const val SYFOTILGANGSKONTROLL_HISTOGRAM_ENHET = "${METRICS_NS}_syfotilgangskontroll_histogram_enhet"
 const val SYFOTILGANGSKONTROLL_HISTOGRAM_PERSONER = "${METRICS_NS}_syfotilgangskontroll_histogram_personer"
@@ -134,10 +130,6 @@ val COUNT_OVERSIKTHENDELSE_OPPFOLGINGSPLANLPS_BISTAND_BEHANDLET_FEILET: Counter 
         .description("Counts the number of oversikthendelse of type OPPFOLGINGSPLANLPS_BISTAND_BEHANDLET that failed to update missing person")
         .register(METRICS_REGISTRY)
 
-val COUNT_OVERSIKTHENDELSETILFELLE_UGDYLGIG_MOTTATT: Counter = Counter.builder(OVERSIKTHENDELSETILFELLE_UGYLDIG_MOTTATT)
-    .description("Counts the number of oversikthendelsetilfeller skipped due to invalid data}")
-    .register(METRICS_REGISTRY)
-
 val COUNT_OVERSIKTHENDELSETILFELLE_INGEN_AKTIVITET_OPPRETT: Counter =
     Counter.builder(OVERSIKTHENDELSETILFELLE_INGEN_AKTIVITET_OPPRETT)
         .description("Counts the number of oversikthendelsetilfeller  with Ingen Aktivitetresulting in creation of PERSON_OVERSIKT_STATUS row")
@@ -146,10 +138,6 @@ val COUNT_OVERSIKTHENDELSETILFELLE_INGEN_AKTIVITET_OPPDATER: Counter =
     Counter.builder(OVERSIKTHENDELSETILFELLE_INGEN_AKTIVITET_OPPDATER)
         .description("Counts the number of oversikthendelsetilfeller with Ingen Aktivitet resulting in update}")
         .register(METRICS_REGISTRY)
-val COUNT_OVERSIKTHENDELSETILFELLE_INGEN_AKTIVITET_OPPDATER_ENHET: Counter =
-    Counter.builder(OVERSIKTHENDELSETILFELLE_INGEN_AKTIVITET_ENHET)
-        .description("Counts the number of oversikthendelsetilfeller  with Ingen Aktivitet resulting in update with new enhetId}")
-        .register(METRICS_REGISTRY)
 
 val COUNT_OVERSIKTHENDELSETILFELLE_GRADERT_OPPRETT: Counter = Counter.builder(OVERSIKTHENDELSETILFELLE_GRADERT_OPPRETT)
     .description("Counts the number of graderte oversikthendelsetilfeller resulting in creation of PERSON_OVERSIKT_STATUS row")
@@ -157,10 +145,6 @@ val COUNT_OVERSIKTHENDELSETILFELLE_GRADERT_OPPRETT: Counter = Counter.builder(OV
 val COUNT_OVERSIKTHENDELSETILFELLE_GRADERT_OPPDATER: Counter =
     Counter.builder(OVERSIKTHENDELSETILFELLE_GRADERT_OPPDATER)
         .description("Counts the number of graderte oversikthendelsetilfeller resulting in update}")
-        .register(METRICS_REGISTRY)
-val COUNT_OVERSIKTHENDELSETILFELLE_GRADERT_OPPDATER_ENHET: Counter =
-    Counter.builder(OVERSIKTHENDELSETILFELLE_GRADERT_OPPDATER_ENHET)
-        .description("Counts the number of graderte oversikthendelsetilfeller resulting in update with new enhetId}")
         .register(METRICS_REGISTRY)
 
 val HISTOGRAM_SYFOTILGANGSKONTROLL_PERSONER: Timer = Timer.builder(SYFOTILGANGSKONTROLL_HISTOGRAM_PERSONER)

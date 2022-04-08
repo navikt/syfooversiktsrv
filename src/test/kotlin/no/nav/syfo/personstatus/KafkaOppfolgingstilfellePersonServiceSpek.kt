@@ -153,7 +153,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                 val pPersonOversiktStatus = pPersonOversiktStatusList.first()
 
                 pPersonOversiktStatus.fnr shouldBeEqualTo recordValue.personIdentNumber
-                pPersonOversiktStatus.enhet shouldBeEqualTo oversiktHendelseOPLPSBistandMottatt.enhetId
+                pPersonOversiktStatus.enhet.shouldBeNull()
                 pPersonOversiktStatus.veilederIdent.shouldBeNull()
 
                 pPersonOversiktStatus.motebehovUbehandlet.shouldBeNull()

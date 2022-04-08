@@ -80,7 +80,7 @@ object PersontildelingApiV2Spek : Spek({
                             objectMapper.readValue<List<VeilederBrukerKnytning>>(response.content!!)[0]
                         returnertVerdig.veilederIdent shouldBeEqualTo tilknytning.veilederIdent
                         returnertVerdig.fnr shouldBeEqualTo tilknytning.fnr
-                        returnertVerdig.enhet shouldBeEqualTo tilknytning.enhet
+                        returnertVerdig.enhet shouldBeEqualTo ""
                     }
                 }
             }

@@ -72,7 +72,7 @@ fun DatabaseInterface.lagreBrukerKnytningPaEnhet(veilederBrukerKnytning: Veilede
             veilederIdent = veilederBrukerKnytning.veilederIdent,
             fnr = veilederBrukerKnytning.fnr,
             navn = null,
-            enhet = veilederBrukerKnytning.enhet,
+            enhet = null,
             motebehovUbehandlet = null,
             moteplanleggerUbehandlet = null,
             oppfolgingsplanLPSBistandUbehandlet = null,
@@ -153,5 +153,5 @@ fun ResultSet.toVeilederBrukerKnytning(): VeilederBrukerKnytning =
     VeilederBrukerKnytning(
         veilederIdent = getString("tildelt_veileder"),
         fnr = getString("fnr"),
-        enhet = getString("tildelt_enhet")
+        enhet = getString("tildelt_enhet") ?: ""
     )
