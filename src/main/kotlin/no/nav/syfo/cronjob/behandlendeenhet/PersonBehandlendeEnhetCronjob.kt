@@ -19,11 +19,13 @@ class PersonBehandlendeEnhetCronjob(
     suspend fun runJob(): CronjobResult {
         val result = CronjobResult()
 
-        personBehandlendeEnhetService.getPersonIdentToUpdateTildeltEnhetList()
-            .forEach { personIdent ->
+        personBehandlendeEnhetService.getPersonIdentWithTildeltToUpdateTildeltEnhetList()
+            .forEach { personIdentTildeltEnhetPair ->
                 try {
+                    val (personIdent, tildeltEnhet) = personIdentTildeltEnhetPair
                     personBehandlendeEnhetService.updateBehandlendeEnhet(
                         personIdent = personIdent,
+                        tildeltEnhet = tildeltEnhet,
                     )
                     result.updated++
                     COUNT_CRONJOB_PERSON_BEHANDLENDE_ENHET_UPDATE.increment()

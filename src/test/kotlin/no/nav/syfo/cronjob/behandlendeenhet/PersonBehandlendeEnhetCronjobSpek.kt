@@ -11,6 +11,7 @@ import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.oppfolgingstilfelle.kafka.*
 import no.nav.syfo.personstatus.*
 import no.nav.syfo.personstatus.domain.OversikthendelseType
+import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_ENHET_ERROR_PERSONIDENT
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_ENHET_NOT_FOUND_PERSONIDENT
@@ -149,6 +150,7 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
 
                         pPersonOversiktStatus.enhet.shouldBeNull()
                         pPersonOversiktStatus.tildeltEnhetUpdatedAt.shouldBeNull()
+                        pPersonOversiktStatus.veilederIdent.shouldBeNull()
 
                         val pPersonOppfolgingstilfelleVirksomhetList =
                             connection.getPersonOppfolgingstilfelleVirksomhetList(
@@ -198,6 +200,15 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                             oversiktHendelse = oversikthendelse,
                         )
 
+                        val veilederBrukerKnytning = VeilederBrukerKnytning(
+                            veilederIdent = UserConstants.VEILEDER_ID,
+                            fnr = oversikthendelse.fnr,
+                            enhet = oversikthendelse.enhetId,
+                        )
+                        database.lagreBrukerKnytningPaEnhet(
+                            veilederBrukerKnytning = veilederBrukerKnytning,
+                        )
+
                         kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
                             kafkaConsumerOppfolgingstilfellePerson = mockKafkaConsumerOppfolgingstilfellePerson,
                         )
@@ -235,6 +246,7 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                         if (index == 0) {
                             tildeltEnhetUpdatedAtBeforeUpdate = pPersonOversiktStatus.tildeltEnhetUpdatedAt
                         }
+                        pPersonOversiktStatus.veilederIdent shouldBeEqualTo veilederBrukerKnytning.veilederIdent
                     }
 
                     runBlocking {
@@ -258,6 +270,7 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                         pPersonOversiktStatus.tildeltEnhetUpdatedAt!!.toInstant()
                             .toEpochMilli() shouldBeGreaterThan tildeltEnhetUpdatedAtBeforeUpdate!!.toInstant()
                             .toEpochMilli()
+                        pPersonOversiktStatus.veilederIdent.shouldBeNull()
                     }
 
                     runBlocking {
@@ -315,6 +328,7 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                         val pPersonOversiktStatus = pPersonOversiktStatusList.first()
                         pPersonOversiktStatus.enhet shouldBeEqualTo oversikthendelse.enhetId
                         pPersonOversiktStatus.tildeltEnhetUpdatedAt.shouldNotBeNull()
+                        pPersonOversiktStatus.veilederIdent.shouldBeNull()
 
                         tildeltEnhetUpdatedAtBeforeUpdate = pPersonOversiktStatus.tildeltEnhetUpdatedAt
                     }
@@ -339,6 +353,7 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                         pPersonOversiktStatus.tildeltEnhetUpdatedAt!!.toInstant()
                             .toEpochMilli() shouldBeGreaterThan tildeltEnhetUpdatedAtBeforeUpdate!!.toInstant()
                             .toEpochMilli()
+                        pPersonOversiktStatus.veilederIdent.shouldBeNull()
                     }
 
                     runBlocking {

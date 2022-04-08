@@ -9,22 +9,26 @@ class PersonBehandlendeEnhetService(
     private val database: DatabaseInterface,
     private val behandlendeEnhetClient: BehandlendeEnhetClient,
 ) {
-    fun getPersonIdentToUpdateTildeltEnhetList(): List<PersonIdent> =
-        database.getPersonIdentToUpdateTildeltEnhetList()
+    fun getPersonIdentWithTildeltToUpdateTildeltEnhetList(): List<Pair<PersonIdent, String?>> =
+        database.getPersonIdentWithTildeltToUpdateTildeltEnhetList()
 
     suspend fun updateBehandlendeEnhet(
         personIdent: PersonIdent,
+        tildeltEnhet: String?,
     ) {
-        behandlendeEnhetClient.getEnhet(
+        val maybeNewBehandlendeEnhet = behandlendeEnhetClient.getEnhet(
             callId = UUID.randomUUID().toString(),
             personIdent = personIdent,
-        )?.let {
-            database.updatePersonTildeltEnhet(
-                personIdent = personIdent,
-                enhetId = it.enhetId,
-            )
-        } ?: database.updatePersonTildeltEnhetUpdatedAt(
-            personIdent = personIdent,
         )
+        if (maybeNewBehandlendeEnhet != null && maybeNewBehandlendeEnhet.enhetId != tildeltEnhet) {
+            database.updatePersonTildeltEnhetAndRemoveTildeltVeileder(
+                personIdent = personIdent,
+                enhetId = maybeNewBehandlendeEnhet.enhetId,
+            )
+        } else {
+            database.updatePersonTildeltEnhetUpdatedAt(
+                personIdent = personIdent,
+            )
+        }
     }
 }
