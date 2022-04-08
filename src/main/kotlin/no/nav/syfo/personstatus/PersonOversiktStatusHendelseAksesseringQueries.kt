@@ -48,7 +48,11 @@ fun Connection.createPersonOversiktStatus(
         it.setString(3, personOversiktStatus.navn)
         it.setString(4, personOversiktStatus.veilederIdent)
         it.setString(5, personOversiktStatus.enhet)
-        it.setObject(6, now)
+        if (personOversiktStatus.enhet != null) {
+            it.setObject(6, now)
+        } else {
+            it.setNull(6, Types.TIMESTAMP_WITH_TIMEZONE)
+        }
         it.setTimestamp(7, tidspunkt)
         it.setTimestamp(8, tidspunkt)
         if (personOversiktStatus.motebehovUbehandlet != null) {

@@ -148,7 +148,7 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                         pPersonOversiktStatus.oppfolgingsplanLPSBistandUbehandlet.shouldBeNull()
 
                         pPersonOversiktStatus.enhet.shouldBeNull()
-                        pPersonOversiktStatus.tildeltEnhetUpdatedAt.shouldNotBeNull()
+                        pPersonOversiktStatus.tildeltEnhetUpdatedAt.shouldBeNull()
 
                         val pPersonOppfolgingstilfelleVirksomhetList =
                             connection.getPersonOppfolgingstilfelleVirksomhetList(
