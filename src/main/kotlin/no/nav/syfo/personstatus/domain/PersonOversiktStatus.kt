@@ -45,7 +45,7 @@ data class PersonOppfolgingstilfelleVirksomhet(
 fun List<PersonOppfolgingstilfelleVirksomhet>.toPersonOppfolgingstilfelleVirksomhetDTO() =
     this.map { virksomhet ->
         PersonOppfolgingstilfelleVirksomhetDTO(
-            virksomhetsnummer = virksomhet.virksomhetsnummer,
+            virksomhetsnummer = virksomhet.virksomhetsnummer.value,
             virksomhetsnavn = virksomhet.virksomhetsnavn,
         )
     }

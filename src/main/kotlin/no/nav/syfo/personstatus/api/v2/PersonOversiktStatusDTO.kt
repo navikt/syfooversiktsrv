@@ -1,6 +1,5 @@
 package no.nav.syfo.personstatus.api.v2
 
-import no.nav.syfo.domain.Virksomhetsnummer
 import java.time.LocalDate
 
 data class PersonOversiktStatusDTO(
@@ -22,6 +21,6 @@ data class PersonOppfolgingstilfelleDTO(
 )
 
 data class PersonOppfolgingstilfelleVirksomhetDTO(
-    val virksomhetsnummer: Virksomhetsnummer,
+    val virksomhetsnummer: String,
     val virksomhetsnavn: String?,
 )

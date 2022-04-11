@@ -35,11 +35,7 @@ fun checkPersonOppfolgingstilfelleVirksomhetDTOList(
     personOppfolgingstilfelleVirksomhetDTOList.size shouldBeEqualTo virksomhetsnummerList.size
 
     personOppfolgingstilfelleVirksomhetDTOList.forEachIndexed { index, pPersonOppfolgingstilfelleVirksomhet ->
-        pPersonOppfolgingstilfelleVirksomhet.virksomhetsnummer.value shouldBeEqualTo virksomhetsnummerList[index]
-//        if (updated) {
+        pPersonOppfolgingstilfelleVirksomhet.virksomhetsnummer shouldBeEqualTo virksomhetsnummerList[index]
         pPersonOppfolgingstilfelleVirksomhet.virksomhetsnavn shouldBeEqualTo eregOrganisasjonResponse.navn.redigertnavn
-//        } else {
-//            pPersonOppfolgingstilfelleVirksomhet.virksomhetsnavn.shouldBeNull()
-//        }
     }
 }
