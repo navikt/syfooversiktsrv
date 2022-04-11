@@ -5,7 +5,8 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import io.netty.util.internal.StringUtil
 import kotlinx.coroutines.delay
 import net.logstash.logback.argument.StructuredArguments
-import no.nav.syfo.application.*
+import no.nav.syfo.application.ApplicationState
+import no.nav.syfo.application.Environment
 import no.nav.syfo.application.backgroundtask.launchBackgroundTask
 import no.nav.syfo.application.database.database
 import no.nav.syfo.oversikthendelsetilfelle.OversikthendelstilfelleService
@@ -102,7 +103,6 @@ suspend fun blockingApplicationLogic(
         var logValues = arrayOf(
             StructuredArguments.keyValue("oversikthendelseId", "missing"),
             StructuredArguments.keyValue("Harfnr", "missing"),
-            StructuredArguments.keyValue("enhetId", "missing"),
             StructuredArguments.keyValue("hendelseId", "missing")
         )
 
@@ -117,7 +117,6 @@ suspend fun blockingApplicationLogic(
             logValues = arrayOf(
                 StructuredArguments.keyValue("oversikthendelseId", it.key()),
                 StructuredArguments.keyValue("harFnr", (!StringUtil.isNullOrEmpty(oversiktHendelse.fnr)).toString()),
-                StructuredArguments.keyValue("enhetId", oversiktHendelse.enhetId),
                 StructuredArguments.keyValue("hendelseId", oversiktHendelse.hendelseId)
             )
             log.info("Mottatt oversikthendelse, klar for oppdatering, $logKeys, {}", *logValues, callIdArgument(callId))

@@ -39,9 +39,8 @@ class OversiktHendelseService(
                     )
                 } else {
                     log.error(
-                        "Fant ikke person som skal oppdateres med hendelse {}, for enhet {}, {}",
+                        "Fant ikke person som skal oppdateres med hendelse {}, {}",
                         oversiktHendelse.hendelseId,
-                        oversiktHendelse.enhetId,
                         callIdArgument(callId)
                     )
                     countFailed(

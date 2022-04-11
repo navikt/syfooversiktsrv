@@ -305,7 +305,7 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                     val veilederBrukerKnytning = VeilederBrukerKnytning(
                         veilederIdent = UserConstants.VEILEDER_ID,
                         fnr = oversikthendelse.fnr,
-                        enhet = oversikthendelse.enhetId,
+                        enhet = behandlendeEnhetDTO().enhetId,
                     )
                     database.lagreBrukerKnytningPaEnhet(
                         veilederBrukerKnytning = veilederBrukerKnytning,

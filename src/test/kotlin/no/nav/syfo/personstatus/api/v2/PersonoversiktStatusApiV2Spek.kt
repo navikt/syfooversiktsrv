@@ -32,6 +32,7 @@ import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER_2
 import no.nav.syfo.testutil.assertion.checkPersonOppfolgingstilfelle
 import no.nav.syfo.testutil.generator.generateKOversikthendelse
 import no.nav.syfo.testutil.generator.generateKafkaOppfolgingstilfellePerson
+import no.nav.syfo.testutil.mock.behandlendeEnhetDTO
 import no.nav.syfo.util.bearerHeader
 import no.nav.syfo.util.configuredJacksonMapper
 import org.amshove.kluent.shouldBeEqualTo
@@ -324,7 +325,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                             objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
                         personOversiktStatus.veilederIdent shouldBeEqualTo null
                         personOversiktStatus.fnr shouldBeEqualTo oversikthendelstilfelle.fnr
-                        personOversiktStatus.enhet shouldBeEqualTo oversikthendelstilfelle.enhetId
+                        personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
                         personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo true
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
@@ -377,7 +378,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.veilederIdent shouldBeEqualTo null
                         personOversiktStatus.fnr shouldBeEqualTo oversikthendelstilfelle.fnr
                         personOversiktStatus.navn shouldBeEqualTo getIdentName(ident = oversikthendelstilfelle.fnr)
-                        personOversiktStatus.enhet shouldBeEqualTo oversikthendelstilfelle.enhetId
+                        personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
                         personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo null
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo null
@@ -428,7 +429,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.veilederIdent shouldBeEqualTo null
                         personOversiktStatus.fnr shouldBeEqualTo oversikthendelstilfelle.fnr
                         personOversiktStatus.navn shouldBeEqualTo getIdentName(ident = oversikthendelstilfelle.fnr)
-                        personOversiktStatus.enhet shouldBeEqualTo oversikthendelstilfelle.enhetId
+                        personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo null
                         personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo true
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo null
@@ -556,7 +557,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.veilederIdent shouldBeEqualTo tilknytning.veilederIdent
                         personOversiktStatus.fnr shouldBeEqualTo oversikthendelstilfelle.fnr
                         personOversiktStatus.navn shouldBeEqualTo getIdentName(ident = oversikthendelstilfelle.fnr)
-                        personOversiktStatus.enhet shouldBeEqualTo oversikthendelstilfelle.enhetId
+                        personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
                         personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo true
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
@@ -618,7 +619,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.veilederIdent shouldBeEqualTo tilknytning.veilederIdent
                         personOversiktStatus.fnr shouldBeEqualTo oversikthendelstilfelle.fnr
                         personOversiktStatus.navn shouldBeEqualTo getIdentName(ident = oversikthendelstilfelle.fnr)
-                        personOversiktStatus.enhet shouldBeEqualTo oversikthendelstilfelle.enhetId
+                        personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
                         personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo true
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
@@ -654,7 +655,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.veilederIdent shouldBeEqualTo null
                         personOversiktStatus.fnr shouldBeEqualTo oversiktHendelseOPLPSBistandMottatt.fnr
                         personOversiktStatus.navn shouldBeEqualTo getIdentName(ident = oversiktHendelseOPLPSBistandMottatt.fnr)
-                        personOversiktStatus.enhet shouldBeEqualTo oversiktHendelseOPLPSBistandMottatt.enhetId
+                        personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo null
                         personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo null
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
@@ -687,7 +688,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.veilederIdent shouldBeEqualTo null
                         personOversiktStatus.fnr shouldBeEqualTo oversiktHendelseOPLPSBistandMottatt.fnr
                         personOversiktStatus.navn shouldBeEqualTo ""
-                        personOversiktStatus.enhet shouldBeEqualTo oversiktHendelseOPLPSBistandMottatt.enhetId
+                        personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo null
                         personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo null
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
