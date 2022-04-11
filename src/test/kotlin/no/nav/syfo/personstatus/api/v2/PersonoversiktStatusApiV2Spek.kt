@@ -10,12 +10,14 @@ import kotlinx.coroutines.runBlocking
 import no.nav.syfo.application.cache.RedisStore
 import no.nav.syfo.client.azuread.AzureAdClient
 import no.nav.syfo.client.behandlendeenhet.BehandlendeEnhetClient
+import no.nav.syfo.client.ereg.EregClient
 import no.nav.syfo.cronjob.behandlendeenhet.PersonBehandlendeEnhetCronjob
 import no.nav.syfo.cronjob.behandlendeenhet.PersonBehandlendeEnhetService
+import no.nav.syfo.cronjob.virksomhetsnavn.PersonOppfolgingstilfelleVirksomhetnavnCronjob
+import no.nav.syfo.cronjob.virksomhetsnavn.PersonOppfolgingstilfelleVirksomhetsnavnService
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.domain.Virksomhetsnummer
-import no.nav.syfo.oppfolgingstilfelle.kafka.KafkaOppfolgingstilfellePerson
-import no.nav.syfo.oppfolgingstilfelle.kafka.OPPFOLGINGSTILFELLE_PERSON_TOPIC
+import no.nav.syfo.oppfolgingstilfelle.kafka.*
 import no.nav.syfo.oversikthendelsetilfelle.OversikthendelstilfelleService
 import no.nav.syfo.oversikthendelsetilfelle.generateOversikthendelsetilfelle
 import no.nav.syfo.personstatus.OversiktHendelseService
@@ -30,13 +32,13 @@ import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNAVN_2
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER_2
 import no.nav.syfo.testutil.assertion.checkPersonOppfolgingstilfelle
+import no.nav.syfo.testutil.assertion.checkPersonOppfolgingstilfelleDTO
 import no.nav.syfo.testutil.generator.generateKOversikthendelse
 import no.nav.syfo.testutil.generator.generateKafkaOppfolgingstilfellePerson
 import no.nav.syfo.testutil.mock.behandlendeEnhetDTO
 import no.nav.syfo.util.bearerHeader
 import no.nav.syfo.util.configuredJacksonMapper
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeNull
+import org.amshove.kluent.*
 import org.apache.kafka.clients.consumer.*
 import org.apache.kafka.common.TopicPartition
 import org.spekframework.spek2.Spek
@@ -92,6 +94,19 @@ object PersonoversiktStatusApiV2Spek : Spek({
             val personBehandlendeEnhetCronjob = PersonBehandlendeEnhetCronjob(
                 personBehandlendeEnhetService = personBehandlendeEnhetService,
             )
+            val eregClient = EregClient(
+                azureAdClient = azureAdClient,
+                isproxyClientId = environment.isproxyClientId,
+                baseUrl = environment.isproxyUrl,
+                redisStore = redisStore,
+            )
+            val personOppfolgingstilfelleVirksomhetsnavnService = PersonOppfolgingstilfelleVirksomhetsnavnService(
+                database = externalMockEnvironment.database,
+                eregClient = eregClient,
+            )
+            val personOppfolgingstilfelleVirksomhetnavnCronjob = PersonOppfolgingstilfelleVirksomhetnavnCronjob(
+                personOppfolgingstilfelleVirksomhetsnavnService = personOppfolgingstilfelleVirksomhetsnavnService,
+            )
 
             val oversiktHendelseService = OversiktHendelseService(database)
             val oversikthendelstilfelleService = OversikthendelstilfelleService(database)
@@ -105,19 +120,22 @@ object PersonoversiktStatusApiV2Spek : Spek({
                 OPPFOLGINGSTILFELLE_PERSON_TOPIC,
                 partition,
             )
-            val kafkaOppfolgingstilfellePersonServiceRelevant = generateKafkaOppfolgingstilfellePerson(
+            val kafkaOppfolgingstilfellePersonRelevant = generateKafkaOppfolgingstilfellePerson(
                 personIdent = personIdentDefault,
                 virksomhetsnummerList = listOf(
                     UserConstants.VIRKSOMHETSNUMMER_DEFAULT,
                     Virksomhetsnummer(VIRKSOMHETSNUMMER_2),
                 )
             )
-            val kafkaOppfolgingstilfellePersonServiceRecordRelevant = ConsumerRecord(
+            val kafkaOppfolgingstilfellePersonRecordRelevant = ConsumerRecord(
                 OPPFOLGINGSTILFELLE_PERSON_TOPIC,
                 partition,
                 1,
                 "key1",
-                kafkaOppfolgingstilfellePersonServiceRelevant,
+                kafkaOppfolgingstilfellePersonRelevant,
+            )
+            val kafkaOppfolgingstilfellePersonService = KafkaOppfolgingstilfellePersonService(
+                database = database,
             )
 
             beforeEachTest {
@@ -128,7 +146,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                 every { mockKafkaConsumerOppfolgingstilfellePerson.poll(any<Duration>()) } returns ConsumerRecords(
                     mapOf(
                         oppfolgingstilfellePersonTopicPartition to listOf(
-                            kafkaOppfolgingstilfellePersonServiceRecordRelevant,
+                            kafkaOppfolgingstilfellePersonRecordRelevant,
                         )
                     )
                 )
@@ -269,6 +287,12 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     )
                     oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
 
+                    kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                        kafkaConsumerOppfolgingstilfellePerson = mockKafkaConsumerOppfolgingstilfellePerson,
+                    )
+                    runBlocking {
+                        personOppfolgingstilfelleVirksomhetnavnCronjob.runJob()
+                    }
                     runBlocking {
                         personBehandlendeEnhetCronjob.runJob()
                     }
@@ -291,6 +315,10 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     )
                     oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
 
+                    kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                        kafkaConsumerOppfolgingstilfellePerson = mockKafkaConsumerOppfolgingstilfellePerson,
+                    )
+
                     val oversiktHendelseMotebehovMottatt = KOversikthendelse(
                         ARBEIDSTAKER_FNR,
                         OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name,
@@ -312,6 +340,10 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseOPLPSBistandMottatt)
 
                     runBlocking {
+                        personOppfolgingstilfelleVirksomhetnavnCronjob.runJob()
+                    }
+
+                    runBlocking {
                         personBehandlendeEnhetCronjob.runJob()
                     }
 
@@ -330,7 +362,11 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo true
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
 
-                        personOversiktStatus.latestOppfolgingstilfelle.shouldBeNull()
+                        personOversiktStatus.latestOppfolgingstilfelle.shouldNotBeNull()
+                        checkPersonOppfolgingstilfelleDTO(
+                            personOppfolgingstilfelleDTO = personOversiktStatus.latestOppfolgingstilfelle,
+                            kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonRelevant,
+                        )
 
                         personOversiktStatus.oppfolgingstilfeller.size shouldBeEqualTo 1
                         checkPersonOppfolgingstilfelle(
@@ -355,6 +391,10 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
                     oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle2)
 
+                    kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                        kafkaConsumerOppfolgingstilfellePerson = mockKafkaConsumerOppfolgingstilfellePerson,
+                    )
+
                     val oversiktHendelseMotebehovMottatt = KOversikthendelse(
                         ARBEIDSTAKER_FNR,
                         OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name,
@@ -362,6 +402,10 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         LocalDateTime.now()
                     )
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMotebehovMottatt)
+
+                    runBlocking {
+                        personOppfolgingstilfelleVirksomhetnavnCronjob.runJob()
+                    }
 
                     runBlocking {
                         personBehandlendeEnhetCronjob.runJob()
@@ -383,7 +427,11 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo null
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo null
 
-                        personOversiktStatus.latestOppfolgingstilfelle.shouldBeNull()
+                        personOversiktStatus.latestOppfolgingstilfelle.shouldNotBeNull()
+                        checkPersonOppfolgingstilfelleDTO(
+                            personOppfolgingstilfelleDTO = personOversiktStatus.latestOppfolgingstilfelle,
+                            kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonRelevant,
+                        )
 
                         personOversiktStatus.oppfolgingstilfeller.size shouldBeEqualTo 2
                         checkPersonOppfolgingstilfelle(
@@ -406,6 +454,10 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     )
                     oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
 
+                    kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                        kafkaConsumerOppfolgingstilfellePerson = mockKafkaConsumerOppfolgingstilfellePerson,
+                    )
+
                     val oversiktHendelseMoteplanleggerMottatt = KOversikthendelse(
                         ARBEIDSTAKER_FNR,
                         OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name,
@@ -413,6 +465,10 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         LocalDateTime.now()
                     )
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerMottatt)
+
+                    runBlocking {
+                        personOppfolgingstilfelleVirksomhetnavnCronjob.runJob()
+                    }
 
                     runBlocking {
                         personBehandlendeEnhetCronjob.runJob()
@@ -434,7 +490,11 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo true
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo null
 
-                        personOversiktStatus.latestOppfolgingstilfelle.shouldBeNull()
+                        personOversiktStatus.latestOppfolgingstilfelle.shouldNotBeNull()
+                        checkPersonOppfolgingstilfelleDTO(
+                            personOppfolgingstilfelleDTO = personOversiktStatus.latestOppfolgingstilfelle,
+                            kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonRelevant,
+                        )
 
                         personOversiktStatus.oppfolgingstilfeller.size shouldBeEqualTo 1
                         checkPersonOppfolgingstilfelle(
@@ -452,6 +512,13 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         tom = LocalDate.now().minusDays(17)
                     )
                     oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
+
+                    kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                        kafkaConsumerOppfolgingstilfellePerson = mockKafkaConsumerOppfolgingstilfellePerson,
+                    )
+                    runBlocking {
+                        personOppfolgingstilfelleVirksomhetnavnCronjob.runJob()
+                    }
 
                     runBlocking {
                         personBehandlendeEnhetCronjob.runJob()
@@ -475,6 +542,13 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     )
                     oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
 
+                    kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                        kafkaConsumerOppfolgingstilfellePerson = mockKafkaConsumerOppfolgingstilfellePerson,
+                    )
+                    runBlocking {
+                        personOppfolgingstilfelleVirksomhetnavnCronjob.runJob()
+                    }
+
                     runBlocking {
                         personBehandlendeEnhetCronjob.runJob()
                     }
@@ -496,6 +570,13 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         tom = LocalDate.now().plusDays(16)
                     )
                     oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
+
+                    kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                        kafkaConsumerOppfolgingstilfellePerson = mockKafkaConsumerOppfolgingstilfellePerson,
+                    )
+                    runBlocking {
+                        personOppfolgingstilfelleVirksomhetnavnCronjob.runJob()
+                    }
 
                     runBlocking {
                         personBehandlendeEnhetCronjob.runJob()
@@ -539,6 +620,13 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     )
                     oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
 
+                    kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                        kafkaConsumerOppfolgingstilfellePerson = mockKafkaConsumerOppfolgingstilfellePerson,
+                    )
+                    runBlocking {
+                        personOppfolgingstilfelleVirksomhetnavnCronjob.runJob()
+                    }
+
                     runBlocking {
                         personBehandlendeEnhetCronjob.runJob()
                     }
@@ -562,7 +650,11 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo true
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
 
-                        personOversiktStatus.latestOppfolgingstilfelle.shouldBeNull()
+                        personOversiktStatus.latestOppfolgingstilfelle.shouldNotBeNull()
+                        checkPersonOppfolgingstilfelleDTO(
+                            personOppfolgingstilfelleDTO = personOversiktStatus.latestOppfolgingstilfelle,
+                            kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonRelevant,
+                        )
 
                         personOversiktStatus.oppfolgingstilfeller.size shouldBeEqualTo 1
                         checkPersonOppfolgingstilfelle(
@@ -580,6 +672,10 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         tom = LocalDate.now()
                     )
                     oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
+
+                    kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                        kafkaConsumerOppfolgingstilfellePerson = mockKafkaConsumerOppfolgingstilfellePerson,
+                    )
 
                     val oversiktHendelse = KOversikthendelse(
                         ARBEIDSTAKER_FNR,
@@ -602,6 +698,10 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseOPLPSBistandMottatt)
 
                     runBlocking {
+                        personOppfolgingstilfelleVirksomhetnavnCronjob.runJob()
+                    }
+
+                    runBlocking {
                         personBehandlendeEnhetCronjob.runJob()
                     }
 
@@ -624,7 +724,11 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo true
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
 
-                        personOversiktStatus.latestOppfolgingstilfelle.shouldBeNull()
+                        personOversiktStatus.latestOppfolgingstilfelle.shouldNotBeNull()
+                        checkPersonOppfolgingstilfelleDTO(
+                            personOppfolgingstilfelleDTO = personOversiktStatus.latestOppfolgingstilfelle,
+                            kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonRelevant,
+                        )
 
                         personOversiktStatus.oppfolgingstilfeller.size shouldBeEqualTo 1
                         checkPersonOppfolgingstilfelle(

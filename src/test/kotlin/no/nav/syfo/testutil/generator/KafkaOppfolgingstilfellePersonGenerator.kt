@@ -12,13 +12,14 @@ import java.util.*
 
 fun generateKafkaOppfolgingstilfellePerson(
     arbeidstakerAtTilfelleEnd: Boolean = true,
+    end: LocalDate = LocalDate.now().minusDays(1),
     oppfolgingstilfelleDurationInDays: Long = 2,
     personIdent: PersonIdent = PersonIdent(ARBEIDSTAKER_FNR),
     virksomhetsnummerList: List<Virksomhetsnummer> = listOf(
         Virksomhetsnummer(VIRKSOMHETSNUMMER)
     ),
 ): KafkaOppfolgingstilfellePerson {
-    val start = LocalDate.now().minusDays(1)
+    val start = end.minusDays(oppfolgingstilfelleDurationInDays)
     return KafkaOppfolgingstilfellePerson(
         uuid = UUID.randomUUID().toString(),
         createdAt = nowUTC(),
@@ -27,7 +28,7 @@ fun generateKafkaOppfolgingstilfellePerson(
             KafkaOppfolgingstilfelle(
                 arbeidstakerAtTilfelleEnd = arbeidstakerAtTilfelleEnd,
                 start = start,
-                end = start.plusDays(oppfolgingstilfelleDurationInDays),
+                end = end,
                 virksomhetsnummerList = virksomhetsnummerList.map { virksomhetsnummer ->
                     virksomhetsnummer.value
                 },
