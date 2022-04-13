@@ -26,7 +26,7 @@ class PersonoversiktStatusService(
                 personOppfolgingstilfelleVirksomhetList = personOppfolgingstilfelleVirksomhetList,
             )
         }.filter { personOversikStatus ->
-            personOversikStatus.oppfolgingsplanLPSBistandUbehandlet == true || (personOversikStatus.latestOppfolgingstilfelle != null || personOversikStatus.oppfolgingstilfeller.isNotEmpty())
+            personOversikStatus.oppfolgingsplanLPSBistandUbehandlet == true || personOversikStatus.latestOppfolgingstilfelle != null
         }
     }
 
