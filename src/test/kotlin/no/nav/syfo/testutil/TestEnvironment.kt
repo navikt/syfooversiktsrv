@@ -31,6 +31,7 @@ fun testEnvironment(
         aivenSecurityProtocol = "SSL",
         aivenTruststoreLocation = "truststore",
     ),
+    kafkaOversikthendelsetilfelleProcessingEnabled = false,
     kafkaOppfolgingstilfellePersonProcessingEnabled = true,
     applicationName = "syfooversiktsrv",
     isproxyClientId = "dev-fss.teamsykefravr.isproxy",
@@ -47,7 +48,6 @@ fun testEnvironment(
     syfotilgangskontrollUrl = syfotilgangskontrollUrl ?: "tilgangskontroll",
     personBehandlendeEnhetCronjobEnabled = true,
     personOppfolgingstilfelleVirksomhetsnavnCronjobEnabled = true,
-    toggleKafkaConsumerEnabled = true,
 )
 
 fun testAppState() = ApplicationState(

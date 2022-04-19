@@ -98,8 +98,8 @@ spec:
       value: "dev-fss.teamsykefravr.syfo-tilgangskontroll"
     - name: SYFOTILGANGSKONTROLL_URL
       value: "https://syfo-tilgangskontroll.dev-fss-pub.nais.io"
-    - name: TOGGLE_KAFKA_CONSUMER_ENABLED
-      value: "true"
+    - name: TOGGLE_KAFKA_OVERSIKTHENDELSETILFELLE_ENABLED
+      value: "false"
     - name: TOGGLE_KAFKA_OPPFOLGINGSTILFELLE_PERSON_PROCESSING_ENABLED
       value: "true"
     - name: TOGGLE_PERSON_BEHANDLENDE_ENHET_CRONJOB_ENABLED
