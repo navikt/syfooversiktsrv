@@ -5,7 +5,7 @@ group = "no.nav.syfo"
 version = "1.0-SNAPSHOT"
 
 object Versions {
-    const val flyway = "8.5.5"
+    const val flyway = "8.5.8"
     const val hikari = "5.0.1"
     const val jackson = "2.13.1"
     const val jedis = "4.2.1"
@@ -16,16 +16,16 @@ object Versions {
     const val logback = "1.2.11"
     const val logstashEncoder = "7.1.1"
     const val mockk = "1.12.3"
-    const val micrometerRegistry = "1.8.4"
+    const val micrometerRegistry = "1.8.5"
     const val nimbusjosejwt = "9.21"
     const val postgresEmbedded = "0.13.4"
-    const val postgres = "42.3.3"
+    const val postgres = "42.3.4"
     const val redisEmbedded = "0.7.3"
     const val spek = "2.0.18"
 }
 
 plugins {
-    kotlin("jvm") version "1.6.10"
+    kotlin("jvm") version "1.6.20"
     id("com.github.johnrengelman.shadow") version "7.1.2"
     id("org.jlleitschuh.gradle.ktlint") version "10.2.1"
 }
