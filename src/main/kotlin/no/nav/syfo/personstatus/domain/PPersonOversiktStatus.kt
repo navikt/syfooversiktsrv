@@ -23,23 +23,19 @@ data class PPersonOversiktStatus(
 )
 
 fun PPersonOversiktStatus.toPersonOversiktStatus(
-    oppfolgingstilfeller: List<Oppfolgingstilfelle>,
     personOppfolgingstilfelleVirksomhetList: List<PersonOppfolgingstilfelleVirksomhet>,
-): PersonOversiktStatus {
-    return PersonOversiktStatus(
-        fnr = this.fnr,
-        navn = this.navn,
-        enhet = this.enhet,
-        veilederIdent = this.veilederIdent,
-        motebehovUbehandlet = this.motebehovUbehandlet,
-        moteplanleggerUbehandlet = this.moteplanleggerUbehandlet,
-        oppfolgingsplanLPSBistandUbehandlet = this.oppfolgingsplanLPSBistandUbehandlet,
-        latestOppfolgingstilfelle = this.toPersonOppfolgingstilfelle(
-            personOppfolgingstilfelleVirksomhetList = personOppfolgingstilfelleVirksomhetList,
-        ),
-        oppfolgingstilfeller = oppfolgingstilfeller,
-    )
-}
+) = PersonOversiktStatus(
+    fnr = this.fnr,
+    navn = this.navn,
+    enhet = this.enhet,
+    veilederIdent = this.veilederIdent,
+    motebehovUbehandlet = this.motebehovUbehandlet,
+    moteplanleggerUbehandlet = this.moteplanleggerUbehandlet,
+    oppfolgingsplanLPSBistandUbehandlet = this.oppfolgingsplanLPSBistandUbehandlet,
+    latestOppfolgingstilfelle = this.toPersonOppfolgingstilfelle(
+        personOppfolgingstilfelleVirksomhetList = personOppfolgingstilfelleVirksomhetList,
+    ),
+)
 
 fun PPersonOversiktStatus.toPersonOppfolgingstilfelle(
     personOppfolgingstilfelleVirksomhetList: List<PersonOppfolgingstilfelleVirksomhet>,

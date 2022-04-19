@@ -25,7 +25,6 @@ fun testEnvironment(
         password = "password",
     ),
     electorPath = "/tmp",
-    oversikthendelseOppfolgingstilfelleTopic = "topic1",
     kafkaBootstrapServers = kafkaBootstrapServers,
     kafkaSchemaRegistryUrl = "http://kafka-schema-registry.tpa.svc.nais.local:8081",
     kafka = ApplicationEnvironmentKafka(
@@ -35,7 +34,6 @@ fun testEnvironment(
         aivenSecurityProtocol = "SSL",
         aivenTruststoreLocation = "truststore",
     ),
-    kafkaOversikthendelsetilfelleProcessingEnabled = false,
     kafkaOppfolgingstilfellePersonProcessingEnabled = true,
     redis = ApplicationEnvironmentRedis(
         host = "localhost",

@@ -18,8 +18,6 @@ import no.nav.syfo.cronjob.virksomhetsnavn.PersonOppfolgingstilfelleVirksomhetsn
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.domain.Virksomhetsnummer
 import no.nav.syfo.oppfolgingstilfelle.kafka.*
-import no.nav.syfo.oversikthendelsetilfelle.OversikthendelstilfelleService
-import no.nav.syfo.oversikthendelsetilfelle.generateOversikthendelsetilfelle
 import no.nav.syfo.personstatus.OversiktHendelseService
 import no.nav.syfo.personstatus.domain.*
 import no.nav.syfo.personstatus.lagreBrukerKnytningPaEnhet
@@ -28,10 +26,7 @@ import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_NO_NAME_FNR
 import no.nav.syfo.testutil.UserConstants.NAV_ENHET
 import no.nav.syfo.testutil.UserConstants.VEILEDER_ID
-import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNAVN_2
-import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER_2
-import no.nav.syfo.testutil.assertion.checkPersonOppfolgingstilfelle
 import no.nav.syfo.testutil.assertion.checkPersonOppfolgingstilfelleDTO
 import no.nav.syfo.testutil.generator.generateKOversikthendelse
 import no.nav.syfo.testutil.generator.generateKafkaOppfolgingstilfellePerson
@@ -43,7 +38,8 @@ import org.apache.kafka.clients.consumer.*
 import org.apache.kafka.common.TopicPartition
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
-import java.time.*
+import java.time.Duration
+import java.time.LocalDateTime
 
 @InternalAPI
 object PersonoversiktStatusApiV2Spek : Spek({
@@ -100,7 +96,10 @@ object PersonoversiktStatusApiV2Spek : Spek({
             )
 
             val oversiktHendelseService = OversiktHendelseService(database)
-            val oversikthendelstilfelleService = OversikthendelstilfelleService(database)
+
+            val kafkaOppfolgingstilfellePersonService = KafkaOppfolgingstilfellePersonService(
+                database = database,
+            )
 
             val personIdentDefault = PersonIdent(ARBEIDSTAKER_FNR)
 
@@ -124,9 +123,6 @@ object PersonoversiktStatusApiV2Spek : Spek({
                 1,
                 "key1",
                 kafkaOppfolgingstilfellePersonRelevant,
-            )
-            val kafkaOppfolgingstilfellePersonService = KafkaOppfolgingstilfellePersonService(
-                database = database,
             )
 
             beforeEachTest {
@@ -270,14 +266,6 @@ object PersonoversiktStatusApiV2Spek : Spek({
                 }
 
                 it("should return NoContent, if there is a person with a relevant active Oppfolgingstilfelle, but neither MOTEBEHOV_SVAR_MOTTATT nor MOTEPLANLEGGER_ALLE_SVAR_MOTTATT") {
-                    val oversikthendelstilfelle = generateOversikthendelsetilfelle.copy(
-                        enhetId = NAV_ENHET,
-                        gradert = false,
-                        fom = LocalDate.now().minusDays(56),
-                        tom = LocalDate.now()
-                    )
-                    oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
-
                     kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
                         kafkaConsumerOppfolgingstilfellePerson = mockKafkaConsumerOppfolgingstilfellePerson,
                     )
@@ -298,14 +286,6 @@ object PersonoversiktStatusApiV2Spek : Spek({
                 }
 
                 it("should return list of PersonOversiktStatus, if MOTEBEHOV_SVAR_MOTTATT and MOTEPLANLEGGER_ALLE_SVAR_MOTTATT and OPPFOLGINGSPLANLPS_BISTAND_MOTTATT, and there is a person with a relevant active Oppfolgingstilfelle") {
-                    val oversikthendelstilfelle = generateOversikthendelsetilfelle.copy(
-                        enhetId = NAV_ENHET,
-                        gradert = false,
-                        fom = LocalDate.now().minusDays(56),
-                        tom = LocalDate.now()
-                    )
-                    oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
-
                     kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
                         kafkaConsumerOppfolgingstilfellePerson = mockKafkaConsumerOppfolgingstilfellePerson,
                     )
@@ -347,7 +327,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         val personOversiktStatus =
                             objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
                         personOversiktStatus.veilederIdent shouldBeEqualTo null
-                        personOversiktStatus.fnr shouldBeEqualTo oversikthendelstilfelle.fnr
+                        personOversiktStatus.fnr shouldBeEqualTo oversiktHendelseMotebehovMottatt.fnr
                         personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
                         personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo true
@@ -358,30 +338,10 @@ object PersonoversiktStatusApiV2Spek : Spek({
                             personOppfolgingstilfelleDTO = personOversiktStatus.latestOppfolgingstilfelle,
                             kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonRelevant,
                         )
-
-                        personOversiktStatus.oppfolgingstilfeller.size shouldBeEqualTo 1
-                        checkPersonOppfolgingstilfelle(
-                            personOversiktStatus.oppfolgingstilfeller.first(),
-                            oversikthendelstilfelle
-                        )
                     }
                 }
 
                 it("should return list of PersonOversiktStatus, if MOTEBEHOV_SVAR_MOTTATT and if there is a person with 2 relevant active Oppfolgingstilfelle with different virksomhetsnummer") {
-                    val oversikthendelstilfelle = generateOversikthendelsetilfelle.copy(
-                        virksomhetsnummer = VIRKSOMHETSNUMMER,
-                        enhetId = NAV_ENHET,
-                        gradert = false,
-                        fom = LocalDate.now().minusDays(56),
-                        tom = LocalDate.now()
-                    )
-                    val oversikthendelstilfelle2 = oversikthendelstilfelle.copy(
-                        virksomhetsnummer = VIRKSOMHETSNUMMER_2,
-                        virksomhetsnavn = VIRKSOMHETSNAVN_2
-                    )
-                    oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
-                    oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle2)
-
                     kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
                         kafkaConsumerOppfolgingstilfellePerson = mockKafkaConsumerOppfolgingstilfellePerson,
                     )
@@ -411,8 +371,8 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         val personOversiktStatus =
                             objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
                         personOversiktStatus.veilederIdent shouldBeEqualTo null
-                        personOversiktStatus.fnr shouldBeEqualTo oversikthendelstilfelle.fnr
-                        personOversiktStatus.navn shouldBeEqualTo getIdentName(ident = oversikthendelstilfelle.fnr)
+                        personOversiktStatus.fnr shouldBeEqualTo oversiktHendelseMotebehovMottatt.fnr
+                        personOversiktStatus.navn shouldBeEqualTo getIdentName(ident = oversiktHendelseMotebehovMottatt.fnr)
                         personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
                         personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo null
@@ -423,28 +383,10 @@ object PersonoversiktStatusApiV2Spek : Spek({
                             personOppfolgingstilfelleDTO = personOversiktStatus.latestOppfolgingstilfelle,
                             kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonRelevant,
                         )
-
-                        personOversiktStatus.oppfolgingstilfeller.size shouldBeEqualTo 2
-                        checkPersonOppfolgingstilfelle(
-                            personOversiktStatus.oppfolgingstilfeller.first(),
-                            oversikthendelstilfelle
-                        )
-                        checkPersonOppfolgingstilfelle(
-                            personOversiktStatus.oppfolgingstilfeller.last(),
-                            oversikthendelstilfelle2
-                        )
                     }
                 }
 
                 it("should return list of PersonOversiktStatus, if MOTEPLANLEGGER_ALLE_SVAR_MOTTATT and  if there is a person with a relevant Oppfolgingstilfelle valid in Arbeidsgiverperiode") {
-                    val oversikthendelstilfelle = generateOversikthendelsetilfelle.copy(
-                        enhetId = NAV_ENHET,
-                        gradert = false,
-                        fom = LocalDate.now().minusDays(56),
-                        tom = LocalDate.now().minusDays(16)
-                    )
-                    oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
-
                     kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
                         kafkaConsumerOppfolgingstilfellePerson = mockKafkaConsumerOppfolgingstilfellePerson,
                     )
@@ -474,8 +416,8 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         val personOversiktStatus =
                             objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
                         personOversiktStatus.veilederIdent shouldBeEqualTo null
-                        personOversiktStatus.fnr shouldBeEqualTo oversikthendelstilfelle.fnr
-                        personOversiktStatus.navn shouldBeEqualTo getIdentName(ident = oversikthendelstilfelle.fnr)
+                        personOversiktStatus.fnr shouldBeEqualTo oversiktHendelseMoteplanleggerMottatt.fnr
+                        personOversiktStatus.navn shouldBeEqualTo getIdentName(ident = oversiktHendelseMoteplanleggerMottatt.fnr)
                         personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo null
                         personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo true
@@ -486,99 +428,6 @@ object PersonoversiktStatusApiV2Spek : Spek({
                             personOppfolgingstilfelleDTO = personOversiktStatus.latestOppfolgingstilfelle,
                             kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonRelevant,
                         )
-
-                        personOversiktStatus.oppfolgingstilfeller.size shouldBeEqualTo 1
-                        checkPersonOppfolgingstilfelle(
-                            personOversiktStatus.oppfolgingstilfeller.first(),
-                            oversikthendelstilfelle
-                        )
-                    }
-                }
-
-                it("should not return person with a Oppfolgingstilfelle that is not valid after today + Arbeidsgiverperiode") {
-                    val oversikthendelstilfelle = generateOversikthendelsetilfelle.copy(
-                        enhetId = NAV_ENHET,
-                        gradert = false,
-                        fom = LocalDate.now().minusDays(56),
-                        tom = LocalDate.now().minusDays(17)
-                    )
-                    oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
-
-                    kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
-                        kafkaConsumerOppfolgingstilfellePerson = mockKafkaConsumerOppfolgingstilfellePerson,
-                    )
-                    runBlocking {
-                        personOppfolgingstilfelleVirksomhetnavnCronjob.runJob()
-                    }
-
-                    runBlocking {
-                        personBehandlendeEnhetCronjob.runJob()
-                    }
-
-                    with(
-                        handleRequest(HttpMethod.Get, url) {
-                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                        }
-                    ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.NoContent
-                    }
-                }
-
-                it("should not return a person with a Oppfolgingstilfelle that is Gradert") {
-                    val oversikthendelstilfelle = generateOversikthendelsetilfelle.copy(
-                        enhetId = NAV_ENHET,
-                        gradert = true,
-                        fom = LocalDate.now().minusDays(56),
-                        tom = LocalDate.now().plusDays(16)
-                    )
-                    oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
-
-                    kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
-                        kafkaConsumerOppfolgingstilfellePerson = mockKafkaConsumerOppfolgingstilfellePerson,
-                    )
-                    runBlocking {
-                        personOppfolgingstilfelleVirksomhetnavnCronjob.runJob()
-                    }
-
-                    runBlocking {
-                        personBehandlendeEnhetCronjob.runJob()
-                    }
-
-                    with(
-                        handleRequest(HttpMethod.Get, url) {
-                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                        }
-                    ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.NoContent
-                    }
-                }
-
-                it("should not return a person with a Oppfolgingstilfelle that is not 8 weeks old") {
-                    val oversikthendelstilfelle = generateOversikthendelsetilfelle.copy(
-                        enhetId = NAV_ENHET,
-                        gradert = false,
-                        fom = LocalDate.now().minusDays(55),
-                        tom = LocalDate.now().plusDays(16)
-                    )
-                    oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
-
-                    kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
-                        kafkaConsumerOppfolgingstilfellePerson = mockKafkaConsumerOppfolgingstilfellePerson,
-                    )
-                    runBlocking {
-                        personOppfolgingstilfelleVirksomhetnavnCronjob.runJob()
-                    }
-
-                    runBlocking {
-                        personBehandlendeEnhetCronjob.runJob()
-                    }
-
-                    with(
-                        handleRequest(HttpMethod.Get, url) {
-                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                        }
-                    ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.NoContent
                     }
                 }
 
@@ -603,14 +452,6 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         generateKOversikthendelse(OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT)
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseOPLPSBistandMottatt)
 
-                    val oversikthendelstilfelle = generateOversikthendelsetilfelle.copy(
-                        enhetId = NAV_ENHET,
-                        gradert = false,
-                        fom = LocalDate.now().minusDays(56),
-                        tom = LocalDate.now()
-                    )
-                    oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
-
                     kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
                         kafkaConsumerOppfolgingstilfellePerson = mockKafkaConsumerOppfolgingstilfellePerson,
                     )
@@ -634,8 +475,8 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         val personOversiktStatus =
                             objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
                         personOversiktStatus.veilederIdent shouldBeEqualTo tilknytning.veilederIdent
-                        personOversiktStatus.fnr shouldBeEqualTo oversikthendelstilfelle.fnr
-                        personOversiktStatus.navn shouldBeEqualTo getIdentName(ident = oversikthendelstilfelle.fnr)
+                        personOversiktStatus.fnr shouldBeEqualTo oversiktHendelseMoteplanleggerMottatt.fnr
+                        personOversiktStatus.navn shouldBeEqualTo getIdentName(ident = oversiktHendelseMoteplanleggerMottatt.fnr)
                         personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
                         personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo true
@@ -646,24 +487,10 @@ object PersonoversiktStatusApiV2Spek : Spek({
                             personOppfolgingstilfelleDTO = personOversiktStatus.latestOppfolgingstilfelle,
                             kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonRelevant,
                         )
-
-                        personOversiktStatus.oppfolgingstilfeller.size shouldBeEqualTo 1
-                        checkPersonOppfolgingstilfelle(
-                            personOversiktStatus.oppfolgingstilfeller.first(),
-                            oversikthendelstilfelle
-                        )
                     }
                 }
 
                 it("should return Person, receives Oppfolgingstilfelle, and then MOTEBEHOV_SVAR_MOTTATT and MOTEPLANLEGGER_ALLE_SVAR_MOTTATT and OPPFOLGINGSPLANLPS_BISTAND_MOTTATT") {
-                    val oversikthendelstilfelle = generateOversikthendelsetilfelle.copy(
-                        enhetId = NAV_ENHET,
-                        gradert = false,
-                        fom = LocalDate.now().minusDays(56),
-                        tom = LocalDate.now()
-                    )
-                    oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelstilfelle)
-
                     kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
                         kafkaConsumerOppfolgingstilfellePerson = mockKafkaConsumerOppfolgingstilfellePerson,
                     )
@@ -708,8 +535,8 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         val personOversiktStatus =
                             objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
                         personOversiktStatus.veilederIdent shouldBeEqualTo tilknytning.veilederIdent
-                        personOversiktStatus.fnr shouldBeEqualTo oversikthendelstilfelle.fnr
-                        personOversiktStatus.navn shouldBeEqualTo getIdentName(ident = oversikthendelstilfelle.fnr)
+                        personOversiktStatus.fnr shouldBeEqualTo oversiktHendelse.fnr
+                        personOversiktStatus.navn shouldBeEqualTo getIdentName(ident = oversiktHendelse.fnr)
                         personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
                         personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo true
@@ -719,12 +546,6 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         checkPersonOppfolgingstilfelleDTO(
                             personOppfolgingstilfelleDTO = personOversiktStatus.latestOppfolgingstilfelle,
                             kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonRelevant,
-                        )
-
-                        personOversiktStatus.oppfolgingstilfeller.size shouldBeEqualTo 1
-                        checkPersonOppfolgingstilfelle(
-                            personOversiktStatus.oppfolgingstilfeller.first(),
-                            oversikthendelstilfelle
                         )
                     }
                 }
@@ -756,8 +577,6 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
 
                         personOversiktStatus.latestOppfolgingstilfelle.shouldBeNull()
-
-                        personOversiktStatus.oppfolgingstilfeller.size shouldBeEqualTo 0
                     }
                 }
 
@@ -789,8 +608,6 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
 
                         personOversiktStatus.latestOppfolgingstilfelle.shouldBeNull()
-
-                        personOversiktStatus.oppfolgingstilfeller.size shouldBeEqualTo 0
                     }
                 }
 

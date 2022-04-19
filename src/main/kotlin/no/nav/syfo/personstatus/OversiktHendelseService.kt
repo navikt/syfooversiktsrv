@@ -27,7 +27,6 @@ class OversiktHendelseService(
             val personOversiktStatus = database.getPersonOversiktStatusList(
                 fnr = oversiktHendelse.fnr,
             ).firstOrNull()?.toPersonOversiktStatus(
-                oppfolgingstilfeller = emptyList(),
                 personOppfolgingstilfelleVirksomhetList = emptyList(),
             )
 
