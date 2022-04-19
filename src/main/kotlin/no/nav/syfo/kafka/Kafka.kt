@@ -58,18 +58,10 @@ fun launchListeners(
     oversiktHendelseService: OversiktHendelseService,
     oversikthendelstilfelleService: OversikthendelstilfelleService,
 ) {
-
     val kafkaconsumerOversikthendelse = KafkaConsumer<String, String>(consumerProperties)
     kafkaconsumerOversikthendelse.subscribe(
         listOf(
             "aapen-syfo-oversikthendelse-v1",
-        )
-    )
-
-    val kafkaconsumerTilfelle = KafkaConsumer<String, String>(consumerProperties)
-    kafkaconsumerTilfelle.subscribe(
-        listOf(
-            environment.oversikthendelseOppfolgingstilfelleTopic,
         )
     )
 
@@ -83,14 +75,23 @@ fun launchListeners(
         )
     }
 
-    launchBackgroundTask(
-        applicationState = applicationState,
-    ) {
-        blockingApplicationLogic(
-            applicationState,
-            kafkaconsumerTilfelle,
-            oversikthendelstilfelleService,
+    if (environment.kafkaOversikthendelsetilfelleProcessingEnabled) {
+        val kafkaconsumerTilfelle = KafkaConsumer<String, String>(consumerProperties)
+        kafkaconsumerTilfelle.subscribe(
+            listOf(
+                environment.oversikthendelseOppfolgingstilfelleTopic,
+            )
         )
+
+        launchBackgroundTask(
+            applicationState = applicationState,
+        ) {
+            blockingApplicationLogic(
+                applicationState,
+                kafkaconsumerTilfelle,
+                oversikthendelstilfelleService,
+            )
+        }
     }
 }
 

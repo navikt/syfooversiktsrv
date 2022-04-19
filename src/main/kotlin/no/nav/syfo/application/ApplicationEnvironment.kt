@@ -26,6 +26,7 @@ data class Environment(
         aivenSecurityProtocol = "SSL",
         aivenTruststoreLocation = getEnvVar("KAFKA_TRUSTSTORE_PATH"),
     ),
+    val kafkaOversikthendelsetilfelleProcessingEnabled: Boolean = getEnvVar("TOGGLE_KAFKA_OVERSIKTHENDELSETILFELLE_ENABLED").toBoolean(),
     val kafkaOppfolgingstilfellePersonProcessingEnabled: Boolean = getEnvVar("TOGGLE_KAFKA_OPPFOLGINGSTILFELLE_PERSON_PROCESSING_ENABLED").toBoolean(),
 
     val oversikthendelseOppfolgingstilfelleTopic: String = "aapen-syfo-oversikthendelse-tilfelle-v1",
@@ -51,7 +52,6 @@ data class Environment(
 
     val personBehandlendeEnhetCronjobEnabled: Boolean = getEnvVar("TOGGLE_PERSON_BEHANDLENDE_ENHET_CRONJOB_ENABLED").toBoolean(),
     val personOppfolgingstilfelleVirksomhetsnavnCronjobEnabled: Boolean = getEnvVar("TOGGLE_PERSON_OPPFOLGINGSTILFELLE_VIRKSOMHETSNAVN_CRONJOB_ENABLED").toBoolean(),
-    val toggleKafkaConsumerEnabled: Boolean = getEnvVar("TOGGLE_KAFKA_CONSUMER_ENABLED").toBoolean()
 ) {
     fun jdbcUrl(): String {
         return "jdbc:postgresql://$databaseHost:$databasePort/$databaseName"

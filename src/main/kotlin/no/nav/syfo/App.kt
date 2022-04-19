@@ -58,12 +58,10 @@ fun main() {
     applicationEngineEnvironment.monitor.subscribe(ApplicationStarted) { application ->
         applicationState.ready = true
         application.environment.log.info("Application is ready")
-        if (environment.toggleKafkaConsumerEnabled) {
-            launchKafkaTask(
-                applicationState = applicationState,
-                environment = environment,
-            )
-        }
+        launchKafkaTask(
+            applicationState = applicationState,
+            environment = environment,
+        )
         val kafkaOppfolgingstilfellePersonService = KafkaOppfolgingstilfellePersonService(
             database = database,
         )
