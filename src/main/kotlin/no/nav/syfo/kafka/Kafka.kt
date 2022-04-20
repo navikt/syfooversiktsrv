@@ -9,8 +9,6 @@ import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.Environment
 import no.nav.syfo.application.backgroundtask.launchBackgroundTask
 import no.nav.syfo.application.database.database
-import no.nav.syfo.oversikthendelsetilfelle.OversikthendelstilfelleService
-import no.nav.syfo.oversikthendelsetilfelle.domain.KOversikthendelsetilfelle
 import no.nav.syfo.personstatus.OversiktHendelseService
 import no.nav.syfo.personstatus.domain.KOversikthendelse
 import no.nav.syfo.util.*
@@ -33,9 +31,6 @@ fun launchKafkaTask(
     val oversiktHendelseService = OversiktHendelseService(
         database = database,
     )
-    val oversikthendelstilfelleService = OversikthendelstilfelleService(
-        database = database,
-    )
 
     // Kafka
     val consumerProperties = kafkaConsumerConfig(
@@ -44,19 +39,15 @@ fun launchKafkaTask(
 
     launchListeners(
         applicationState = applicationState,
-        environment = environment,
         consumerProperties = consumerProperties,
         oversiktHendelseService = oversiktHendelseService,
-        oversikthendelstilfelleService = oversikthendelstilfelleService,
     )
 }
 
 fun launchListeners(
     applicationState: ApplicationState,
-    environment: Environment,
     consumerProperties: Properties,
     oversiktHendelseService: OversiktHendelseService,
-    oversikthendelstilfelleService: OversikthendelstilfelleService,
 ) {
     val kafkaconsumerOversikthendelse = KafkaConsumer<String, String>(consumerProperties)
     kafkaconsumerOversikthendelse.subscribe(
@@ -73,25 +64,6 @@ fun launchListeners(
             kafkaconsumerOversikthendelse,
             oversiktHendelseService,
         )
-    }
-
-    if (environment.kafkaOversikthendelsetilfelleProcessingEnabled) {
-        val kafkaconsumerTilfelle = KafkaConsumer<String, String>(consumerProperties)
-        kafkaconsumerTilfelle.subscribe(
-            listOf(
-                environment.oversikthendelseOppfolgingstilfelleTopic,
-            )
-        )
-
-        launchBackgroundTask(
-            applicationState = applicationState,
-        ) {
-            blockingApplicationLogic(
-                applicationState,
-                kafkaconsumerTilfelle,
-                oversikthendelstilfelleService,
-            )
-        }
     }
 }
 
@@ -123,52 +95,6 @@ suspend fun blockingApplicationLogic(
             log.info("Mottatt oversikthendelse, klar for oppdatering, $logKeys, {}", *logValues, callIdArgument(callId))
 
             oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse, callId)
-        }
-        delay(100)
-    }
-}
-
-suspend fun blockingApplicationLogic(
-    applicationState: ApplicationState,
-    kafkaConsumer: KafkaConsumer<String, String>,
-    oversikthendelstilfelleService: OversikthendelstilfelleService,
-) {
-    while (applicationState.ready) {
-        var logValues = arrayOf(
-            StructuredArguments.keyValue("oversikthendelsetilfelleId", "missing"),
-            StructuredArguments.keyValue("harFnr", "missing"),
-            StructuredArguments.keyValue("navn", "missing"),
-            StructuredArguments.keyValue("enhetId", "missing"),
-            StructuredArguments.keyValue("virksomhetsnummer", "missing"),
-            StructuredArguments.keyValue("gradert", "missing"),
-            StructuredArguments.keyValue("fom", "missing"),
-            StructuredArguments.keyValue("tom", "missing"),
-            StructuredArguments.keyValue("virksomhetsnavn", "missing")
-        )
-
-        val logKeys = logValues.joinToString(prefix = "(", postfix = ")", separator = ",") {
-            "{}"
-        }
-
-        kafkaConsumer.poll(Duration.ofMillis(0)).forEach {
-            val callId = kafkaCallId()
-            val oversikthendelsetilfelle: KOversikthendelsetilfelle =
-                objectMapper.readValue(it.value())
-            logValues = arrayOf(
-                StructuredArguments.keyValue("oversikthendelsetilfelleId", it.key()),
-                StructuredArguments.keyValue(
-                    "harFnr",
-                    (!StringUtil.isNullOrEmpty(oversikthendelsetilfelle.fnr)).toString()
-                ),
-                StructuredArguments.keyValue("navn", oversikthendelsetilfelle.navn),
-                StructuredArguments.keyValue("virksomhetsnummer", oversikthendelsetilfelle.virksomhetsnummer),
-                StructuredArguments.keyValue("gradert", oversikthendelsetilfelle.gradert),
-                StructuredArguments.keyValue("fom", oversikthendelsetilfelle.fom),
-                StructuredArguments.keyValue("tom", oversikthendelsetilfelle.tom),
-                StructuredArguments.keyValue("virksomhetsnavn", oversikthendelsetilfelle.virksomhetsnavn)
-            )
-
-            oversikthendelstilfelleService.oppdaterPersonMedHendelse(oversikthendelsetilfelle, callId)
         }
         delay(100)
     }

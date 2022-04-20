@@ -1,22 +1,9 @@
 package no.nav.syfo.testutil.assertion
 
 import no.nav.syfo.oppfolgingstilfelle.kafka.KafkaOppfolgingstilfellePerson
-import no.nav.syfo.oversikthendelsetilfelle.domain.KOversikthendelsetilfelle
 import no.nav.syfo.personstatus.domain.PPersonOversiktStatus
-import org.amshove.kluent.*
-
-fun checkPPersonOversiktStatus(
-    pPersonOversiktStatus: PPersonOversiktStatus,
-    oversikthendelsetilfelle: KOversikthendelsetilfelle,
-) {
-    pPersonOversiktStatus.fnr shouldBeEqualTo oversikthendelsetilfelle.fnr
-    pPersonOversiktStatus.navn shouldBeEqualTo null
-    pPersonOversiktStatus.veilederIdent.shouldBeNull()
-    pPersonOversiktStatus.enhet.shouldBeNull()
-    pPersonOversiktStatus.tildeltEnhetUpdatedAt.shouldBeNull()
-    pPersonOversiktStatus.motebehovUbehandlet shouldBeEqualTo null
-    pPersonOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo null
-}
+import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldNotBeNull
 
 fun checkPPersonOversiktStatusOppfolgingstilfelle(
     pPersonOversiktStatus: PPersonOversiktStatus,

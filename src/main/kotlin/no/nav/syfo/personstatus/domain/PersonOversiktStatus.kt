@@ -15,7 +15,6 @@ data class PersonOversiktStatus(
     val moteplanleggerUbehandlet: Boolean?,
     val oppfolgingsplanLPSBistandUbehandlet: Boolean?,
     val latestOppfolgingstilfelle: PersonOppfolgingstilfelle?,
-    val oppfolgingstilfeller: List<Oppfolgingstilfelle>,
 )
 
 data class PersonOppfolgingstilfelle(
@@ -78,9 +77,6 @@ fun PersonOversiktStatus.toPersonOversiktStatusDTO() =
         moteplanleggerUbehandlet = this.moteplanleggerUbehandlet,
         oppfolgingsplanLPSBistandUbehandlet = this.oppfolgingsplanLPSBistandUbehandlet,
         latestOppfolgingstilfelle = this.latestOppfolgingstilfelle?.toPersonOppfolgingstilfelleDTO(),
-        oppfolgingstilfeller = this.oppfolgingstilfeller.map { oppfolgingstilfelle ->
-            oppfolgingstilfelle.toOppfolgingstilfelleDTO()
-        },
     )
 
 fun PersonOversiktStatus.applyHendelse(

@@ -76,7 +76,6 @@ fun DatabaseInterface.lagreBrukerKnytningPaEnhet(veilederBrukerKnytning: Veilede
             motebehovUbehandlet = null,
             moteplanleggerUbehandlet = null,
             oppfolgingsplanLPSBistandUbehandlet = null,
-            oppfolgingstilfeller = emptyList(),
             latestOppfolgingstilfelle = null,
         )
         this.connection.use { connection ->

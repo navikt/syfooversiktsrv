@@ -32,10 +32,7 @@ data class Environment(
         aivenSecurityProtocol = "SSL",
         aivenTruststoreLocation = getEnvVar("KAFKA_TRUSTSTORE_PATH"),
     ),
-    val kafkaOversikthendelsetilfelleProcessingEnabled: Boolean = getEnvVar("TOGGLE_KAFKA_OVERSIKTHENDELSETILFELLE_ENABLED").toBoolean(),
     val kafkaOppfolgingstilfellePersonProcessingEnabled: Boolean = getEnvVar("TOGGLE_KAFKA_OPPFOLGINGSTILFELLE_PERSON_PROCESSING_ENABLED").toBoolean(),
-
-    val oversikthendelseOppfolgingstilfelleTopic: String = "aapen-syfo-oversikthendelse-tilfelle-v1",
 
     val redis: ApplicationEnvironmentRedis = ApplicationEnvironmentRedis(
         host = getEnvVar("REDIS_HOST"),
