@@ -4,8 +4,8 @@ import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import no.nav.syfo.application.ApplicationEnvironmentClient
 import no.nav.syfo.application.cache.RedisStore
+import no.nav.syfo.client.ApplicationEnvironmentClient
 import no.nav.syfo.client.azuread.AzureAdClient
 import no.nav.syfo.client.azuread.AzureAdToken
 import no.nav.syfo.client.httpClientDefault
@@ -115,7 +115,7 @@ class PdlClient(
             ),
         )
 
-        val response: HttpResponse = httpClient.post(clientEnvironment.url) {
+        val response: HttpResponse = httpClient.post(clientEnvironment.baseUrl) {
             body = request
             header(HttpHeaders.Authorization, bearerHeader(token.accessToken))
             header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
@@ -139,7 +139,7 @@ class PdlClient(
             }
             else -> {
                 COUNT_CALL_PDL_PERSONBOLK_FAIL.increment()
-                logger.error("Request with url: ${clientEnvironment.url} failed with reponse code ${response.status.value}")
+                logger.error("Request with url: ${clientEnvironment.baseUrl} failed with reponse code ${response.status.value}")
                 return null
             }
         }

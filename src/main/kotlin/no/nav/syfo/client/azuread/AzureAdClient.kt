@@ -6,13 +6,12 @@ import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import no.nav.syfo.application.ApplicationEnvironmentAzure
 import no.nav.syfo.application.cache.RedisStore
 import no.nav.syfo.client.httpClientProxy
 import org.slf4j.LoggerFactory
 
 class AzureAdClient(
-    private val azureEnviroment: ApplicationEnvironmentAzure,
+    private val azureEnviroment: AzureEnvironment,
     private val redisStore: RedisStore,
 ) {
     private val httpClient = httpClientProxy()

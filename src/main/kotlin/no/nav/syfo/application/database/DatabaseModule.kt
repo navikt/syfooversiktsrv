@@ -1,14 +1,13 @@
 package no.nav.syfo.application.database
 
 import io.ktor.application.*
-import no.nav.syfo.application.ApplicationEnvironmentDatabase
 import no.nav.syfo.isDev
 import no.nav.syfo.isProd
 
 lateinit var database: DatabaseInterface
 
 fun Application.databaseModule(
-    databaseEnvironment: ApplicationEnvironmentDatabase,
+    databaseEnvironment: DatabaseEnvironment,
 ) {
     isDev {
         database = Database(

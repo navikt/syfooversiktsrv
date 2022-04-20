@@ -68,7 +68,7 @@ fun main() {
         if (environment.kafkaOppfolgingstilfellePersonProcessingEnabled) {
             launchKafkaTaskOppfolgingstilfellePerson(
                 applicationState = applicationState,
-                applicationEnvironmentKafka = environment.kafka,
+                kafkaEnvironment = environment.kafka,
                 kafkaOppfolgingstilfellePersonService = kafkaOppfolgingstilfellePersonService,
             )
         }

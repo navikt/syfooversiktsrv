@@ -1,6 +1,13 @@
 package no.nav.syfo.testutil
 
-import no.nav.syfo.application.*
+import no.nav.syfo.application.ApplicationState
+import no.nav.syfo.application.Environment
+import no.nav.syfo.application.cache.RedisEnvironment
+import no.nav.syfo.application.database.DatabaseEnvironment
+import no.nav.syfo.application.kafka.KafkaEnvironment
+import no.nav.syfo.client.ApplicationEnvironmentClient
+import no.nav.syfo.client.ApplicationEnvironmentClients
+import no.nav.syfo.client.azuread.AzureEnvironment
 import java.net.ServerSocket
 
 fun testEnvironment(
@@ -12,13 +19,13 @@ fun testEnvironment(
     syfotilgangskontrollUrl: String = "syfotilgangskontroll",
 ) = Environment(
     applicationName = "syfooversiktsrv",
-    azure = ApplicationEnvironmentAzure(
+    azure = AzureEnvironment(
         appClientId = "appClientId",
         appClientSecret = "appClientSecret",
         appWellKnownUrl = "appWellKnownUrl",
         openidConfigTokenEndpoint = azureTokenEndpoint,
     ),
-    database = ApplicationEnvironmentDatabase(
+    database = DatabaseEnvironment(
         host = "localhost",
         port = "5432",
         name = "syfooversiktsrv_dev",
@@ -28,7 +35,7 @@ fun testEnvironment(
     electorPath = "/tmp",
     kafkaBootstrapServers = kafkaBootstrapServers,
     kafkaSchemaRegistryUrl = "http://kafka-schema-registry.tpa.svc.nais.local:8081",
-    kafka = ApplicationEnvironmentKafka(
+    kafka = KafkaEnvironment(
         aivenBootstrapServers = kafkaBootstrapServers,
         aivenCredstorePassword = "credstorepassord",
         aivenKeystoreLocation = "keystore",
@@ -38,23 +45,23 @@ fun testEnvironment(
     kafkaOppfolgingstilfellePersonProcessingEnabled = true,
     clients = ApplicationEnvironmentClients(
         isproxy = ApplicationEnvironmentClient(
+            baseUrl = isproxyUrl,
             clientId = "dev-fss.teamsykefravr.isproxy",
-            url = isproxyUrl,
         ),
         pdl = ApplicationEnvironmentClient(
+            baseUrl = pdlUrl,
             clientId = "dev-fss.pdl.pdl-api",
-            url = pdlUrl,
         ),
         syfobehandlendeenhet = ApplicationEnvironmentClient(
+            baseUrl = syfobehandlendeenhetUrl,
             clientId = "dev-gcp.teamsykefravr.syfobehandlendeenhet",
-            url = syfobehandlendeenhetUrl,
         ),
         syfotilgangskontroll = ApplicationEnvironmentClient(
+            baseUrl = syfotilgangskontrollUrl,
             clientId = "dev-fss.teamsykefravr.syfotilgangskontroll",
-            url = syfotilgangskontrollUrl,
         ),
     ),
-    redis = ApplicationEnvironmentRedis(
+    redis = RedisEnvironment(
         host = "localhost",
         port = 6379,
         secret = "password",

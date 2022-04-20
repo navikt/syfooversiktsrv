@@ -1,6 +1,6 @@
-package no.nav.syfo.application
+package no.nav.syfo.client.azuread
 
-data class ApplicationEnvironmentAzure(
+data class AzureEnvironment(
     val appClientId: String,
     val appClientSecret: String,
     val appWellKnownUrl: String,

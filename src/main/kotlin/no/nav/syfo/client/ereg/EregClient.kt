@@ -4,8 +4,8 @@ import io.ktor.client.features.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import net.logstash.logback.argument.StructuredArguments
-import no.nav.syfo.application.ApplicationEnvironmentClient
 import no.nav.syfo.application.cache.RedisStore
+import no.nav.syfo.client.ApplicationEnvironmentClient
 import no.nav.syfo.client.azuread.AzureAdClient
 import no.nav.syfo.client.httpClientDefault
 import no.nav.syfo.domain.Virksomhetsnummer
@@ -20,7 +20,7 @@ class EregClient(
 ) {
     private val httpClient = httpClientDefault()
 
-    private val eregOrganisasjonUrl: String = "${clientEnvironment.url}/$EREG_PATH"
+    private val eregOrganisasjonUrl: String = "${clientEnvironment.baseUrl}/$EREG_PATH"
 
     suspend fun organisasjonVirksomhetsnavn(
         callId: String,

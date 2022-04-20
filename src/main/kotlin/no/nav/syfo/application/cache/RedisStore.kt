@@ -1,7 +1,6 @@
 package no.nav.syfo.application.cache
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import no.nav.syfo.application.ApplicationEnvironmentRedis
 import no.nav.syfo.util.configuredJacksonMapper
 import org.slf4j.LoggerFactory
 import redis.clients.jedis.*
@@ -9,7 +8,7 @@ import redis.clients.jedis.exceptions.JedisConnectionException
 import kotlin.reflect.KClass
 
 class RedisStore(
-    redisEnvironment: ApplicationEnvironmentRedis,
+    redisEnvironment: RedisEnvironment,
 ) {
     val objectMapper: ObjectMapper = configuredJacksonMapper()
     private val jedisPool: JedisPool = JedisPool(

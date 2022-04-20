@@ -6,7 +6,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.micrometer.core.instrument.Timer
-import no.nav.syfo.application.ApplicationEnvironmentClient
+import no.nav.syfo.client.ApplicationEnvironmentClient
 import no.nav.syfo.client.azuread.AzureAdClient
 import no.nav.syfo.client.httpClientDefault
 import no.nav.syfo.metric.*
@@ -97,7 +97,7 @@ class VeilederTilgangskontrollClient(
     }
 
     private fun getTilgangskontrollUrl(path: String): String {
-        return "${clientEnvironment.url}/syfo-tilgangskontroll/api/tilgang$path"
+        return "${clientEnvironment.baseUrl}/syfo-tilgangskontroll/api/tilgang$path"
     }
 
     companion object {

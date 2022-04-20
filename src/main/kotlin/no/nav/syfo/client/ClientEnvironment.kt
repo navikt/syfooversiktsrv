@@ -1,4 +1,4 @@
-package no.nav.syfo.application
+package no.nav.syfo.client
 
 data class ApplicationEnvironmentClients(
     val isproxy: ApplicationEnvironmentClient,
@@ -8,6 +8,6 @@ data class ApplicationEnvironmentClients(
 )
 
 data class ApplicationEnvironmentClient(
+    val baseUrl: String,
     val clientId: String,
-    val url: String,
 )
