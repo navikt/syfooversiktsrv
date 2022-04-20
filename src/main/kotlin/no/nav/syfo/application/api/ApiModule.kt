@@ -31,7 +31,7 @@ fun Application.apiModule(
     installJwtAuthentication(
         jwtIssuerList = listOf(
             JwtIssuer(
-                acceptedAudienceList = listOf(environment.azureAppClientId),
+                acceptedAudienceList = listOf(environment.azure.appClientId),
                 jwtIssuerType = JwtIssuerType.VEILEDER_V2,
                 wellKnown = wellKnownVeilederV2,
             )
@@ -53,9 +53,7 @@ fun Application.apiModule(
     )
 
     val azureAdClient = AzureAdClient(
-        aadAppClient = environment.azureAppClientId,
-        aadAppSecret = environment.azureAppClientSecret,
-        aadTokenEndpoint = environment.azureTokenEndpoint,
+        azureEnviroment = environment.azure,
         redisStore = redisStore,
     )
 

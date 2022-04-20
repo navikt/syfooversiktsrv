@@ -31,9 +31,7 @@ fun launchCronjobModule(
     )
 
     val azureAdClient = AzureAdClient(
-        aadAppClient = environment.azureAppClientId,
-        aadAppSecret = environment.azureAppClientSecret,
-        aadTokenEndpoint = environment.azureTokenEndpoint,
+        azureEnviroment = environment.azure,
         redisStore = redisStore,
     )
 

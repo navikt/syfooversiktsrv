@@ -5,10 +5,12 @@ const val NAIS_DATABASE_ENV_PREFIX = "NAIS_DATABASE_SYFOOVERSIKTSRV_SYFOOVERSIKT
 data class Environment(
     val applicationName: String = "syfooversiktsrv",
 
-    val azureAppClientId: String = getEnvVar("AZURE_APP_CLIENT_ID"),
-    val azureAppClientSecret: String = getEnvVar("AZURE_APP_CLIENT_SECRET"),
-    val azureAppWellKnownUrl: String = getEnvVar("AZURE_APP_WELL_KNOWN_URL"),
-    val azureTokenEndpoint: String = getEnvVar("AZURE_OPENID_CONFIG_TOKEN_ENDPOINT"),
+    val azure: ApplicationEnvironmentAzure = ApplicationEnvironmentAzure(
+        appClientId = getEnvVar("AZURE_APP_CLIENT_ID"),
+        appClientSecret = getEnvVar("AZURE_APP_CLIENT_SECRET"),
+        appWellKnownUrl = getEnvVar("AZURE_APP_WELL_KNOWN_URL"),
+        tokenEndpoint = getEnvVar("AZURE_OPENID_CONFIG_TOKEN_ENDPOINT"),
+    ),
 
     val database: ApplicationEnvironmentDatabase = ApplicationEnvironmentDatabase(
         host = getEnvVar("${NAIS_DATABASE_ENV_PREFIX}_HOST"),
