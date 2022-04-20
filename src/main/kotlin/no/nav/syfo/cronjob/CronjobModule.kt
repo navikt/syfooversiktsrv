@@ -13,7 +13,6 @@ import no.nav.syfo.cronjob.behandlendeenhet.PersonBehandlendeEnhetService
 import no.nav.syfo.cronjob.leaderelection.LeaderPodClient
 import no.nav.syfo.cronjob.virksomhetsnavn.PersonOppfolgingstilfelleVirksomhetnavnCronjob
 import no.nav.syfo.cronjob.virksomhetsnavn.PersonOppfolgingstilfelleVirksomhetsnavnService
-import redis.clients.jedis.*
 
 fun launchCronjobModule(
     applicationState: ApplicationState,
@@ -21,13 +20,7 @@ fun launchCronjobModule(
     environment: Environment,
 ) {
     val redisStore = RedisStore(
-        jedisPool = JedisPool(
-            JedisPoolConfig(),
-            environment.redisHost,
-            environment.redisPort,
-            Protocol.DEFAULT_TIMEOUT,
-            environment.redisSecret,
-        ),
+        redisEnvironment = environment.redis,
     )
 
     val azureAdClient = AzureAdClient(

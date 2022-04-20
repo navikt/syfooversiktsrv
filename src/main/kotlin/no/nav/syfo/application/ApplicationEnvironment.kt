@@ -37,15 +37,17 @@ data class Environment(
 
     val oversikthendelseOppfolgingstilfelleTopic: String = "aapen-syfo-oversikthendelse-tilfelle-v1",
 
+    val redis: ApplicationEnvironmentRedis = ApplicationEnvironmentRedis(
+        host = getEnvVar("REDIS_HOST"),
+        port = getEnvVar("REDIS_PORT", "6379").toInt(),
+        secret = getEnvVar("REDIS_PASSWORD"),
+    ),
+
     val isproxyClientId: String = getEnvVar("ISPROXY_CLIENT_ID"),
     val isproxyUrl: String = getEnvVar("ISPROXY_URL"),
 
     val pdlClientId: String = getEnvVar("PDL_CLIENT_ID"),
     val pdlUrl: String = getEnvVar("PDL_URL"),
-
-    val redisHost: String = getEnvVar("REDIS_HOST"),
-    val redisPort: Int = getEnvVar("REDIS_PORT", "6379").toInt(),
-    val redisSecret: String = getEnvVar("REDIS_PASSWORD"),
 
     val serviceuserUsername: String = getEnvVar("SERVICEUSER_USERNAME"),
     val serviceuserPassword: String = getEnvVar("SERVICEUSER_PASSWORD"),
