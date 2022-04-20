@@ -43,7 +43,6 @@ import org.apache.kafka.clients.consumer.*
 import org.apache.kafka.common.TopicPartition
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
-import redis.clients.jedis.*
 import java.time.*
 
 @InternalAPI
@@ -64,13 +63,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
             )
 
             val redisStore = RedisStore(
-                jedisPool = JedisPool(
-                    JedisPoolConfig(),
-                    externalMockEnvironment.environment.redisHost,
-                    externalMockEnvironment.environment.redisPort,
-                    Protocol.DEFAULT_TIMEOUT,
-                    externalMockEnvironment.environment.redisSecret,
-                ),
+                redisEnvironment = environment.redis,
             )
 
             val azureAdClient = AzureAdClient(

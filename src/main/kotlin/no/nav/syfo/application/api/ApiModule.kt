@@ -15,7 +15,6 @@ import no.nav.syfo.personstatus.PersonTildelingService
 import no.nav.syfo.personstatus.PersonoversiktStatusService
 import no.nav.syfo.personstatus.api.v2.registerPersonTildelingApiV2
 import no.nav.syfo.personstatus.api.v2.registerPersonoversiktApiV2
-import redis.clients.jedis.*
 
 fun Application.apiModule(
     applicationState: ApplicationState,
@@ -43,13 +42,7 @@ fun Application.apiModule(
     )
 
     val redisStore = RedisStore(
-        jedisPool = JedisPool(
-            JedisPoolConfig(),
-            environment.redisHost,
-            environment.redisPort,
-            Protocol.DEFAULT_TIMEOUT,
-            environment.redisSecret,
-        ),
+        redisEnvironment = environment.redis,
     )
 
     val azureAdClient = AzureAdClient(

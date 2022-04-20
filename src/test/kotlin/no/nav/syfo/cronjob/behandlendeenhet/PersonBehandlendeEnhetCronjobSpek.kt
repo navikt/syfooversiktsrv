@@ -42,13 +42,7 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
         val environment = externalMockEnvironment.environment
 
         val redisStore = RedisStore(
-            jedisPool = JedisPool(
-                JedisPoolConfig(),
-                externalMockEnvironment.environment.redisHost,
-                externalMockEnvironment.environment.redisPort,
-                Protocol.DEFAULT_TIMEOUT,
-                externalMockEnvironment.environment.redisSecret,
-            ),
+            redisEnvironment = environment.redis,
         )
 
         val azureAdClient = AzureAdClient(
