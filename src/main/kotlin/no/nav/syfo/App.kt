@@ -26,7 +26,7 @@ fun main() {
     val applicationState = ApplicationState()
     val environment = Environment()
     val wellKnownVeilederV2 = getWellKnown(
-        wellKnownUrl = environment.azureAppWellKnownUrl,
+        wellKnownUrl = environment.azure.appWellKnownUrl,
     )
 
     val applicationEngineEnvironment = applicationEngineEnvironment {

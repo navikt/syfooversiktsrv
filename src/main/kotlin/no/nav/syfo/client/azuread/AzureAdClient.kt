@@ -6,14 +6,13 @@ import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import no.nav.syfo.application.ApplicationEnvironmentAzure
 import no.nav.syfo.application.cache.RedisStore
 import no.nav.syfo.client.httpClientProxy
 import org.slf4j.LoggerFactory
 
 class AzureAdClient(
-    private val aadAppClient: String,
-    private val aadAppSecret: String,
-    private val aadTokenEndpoint: String,
+    private val azureEnviroment: ApplicationEnvironmentAzure,
     private val redisStore: RedisStore,
 ) {
     private val httpClient = httpClientProxy()
@@ -24,8 +23,8 @@ class AzureAdClient(
     ): AzureAdToken? =
         getAccessToken(
             Parameters.build {
-                append("client_id", aadAppClient)
-                append("client_secret", aadAppSecret)
+                append("client_id", azureEnviroment.appClientId)
+                append("client_secret", azureEnviroment.appClientSecret)
                 append("client_assertion_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
                 append("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
                 append("assertion", token)
@@ -45,8 +44,8 @@ class AzureAdClient(
         } else {
             val azureAdTokenResponse = getAccessToken(
                 Parameters.build {
-                    append("client_id", aadAppClient)
-                    append("client_secret", aadAppSecret)
+                    append("client_id", azureEnviroment.appClientId)
+                    append("client_secret", azureEnviroment.appClientSecret)
                     append("grant_type", "client_credentials")
                     append("scope", "api://$scopeClientId/.default")
                 }
@@ -68,7 +67,7 @@ class AzureAdClient(
         formParameters: Parameters,
     ): AzureAdTokenResponse? =
         try {
-            val response: HttpResponse = httpClient.post(aadTokenEndpoint) {
+            val response: HttpResponse = httpClient.post(azureEnviroment.tokenEndpoint) {
                 accept(ContentType.Application.Json)
                 body = FormDataContent(formParameters)
             }

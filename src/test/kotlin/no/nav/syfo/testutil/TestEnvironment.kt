@@ -11,10 +11,12 @@ fun testEnvironment(
     syfobehandlendeenhetUrl: String = "syfobehandlendeenhet",
     syfotilgangskontrollUrl: String? = null,
 ) = Environment(
-    azureAppClientId = "azureAppClientId",
-    azureAppClientSecret = "azureAppClientSecret",
-    azureAppWellKnownUrl = "azureAppWellKnownUrl",
-    azureTokenEndpoint = azureTokenEndpoint,
+    azure = ApplicationEnvironmentAzure(
+        appClientId = "appClientId",
+        appClientSecret = "appClientSecret",
+        appWellKnownUrl = "appWellKnownUrl",
+        tokenEndpoint = azureTokenEndpoint,
+    ),
     database = ApplicationEnvironmentDatabase(
         host = "localhost",
         port = "5432",

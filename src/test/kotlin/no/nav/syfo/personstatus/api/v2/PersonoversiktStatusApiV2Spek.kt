@@ -74,9 +74,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
             )
 
             val azureAdClient = AzureAdClient(
-                aadAppClient = environment.azureAppClientId,
-                aadAppSecret = environment.azureAppClientSecret,
-                aadTokenEndpoint = environment.azureTokenEndpoint,
+                azureEnviroment = environment.azure,
                 redisStore = redisStore,
             )
 
@@ -161,7 +159,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
             }
 
             val validToken = generateJWT(
-                audience = externalMockEnvironment.environment.azureAppClientId,
+                audience = externalMockEnvironment.environment.azure.appClientId,
                 issuer = externalMockEnvironment.wellKnownVeilederV2.issuer,
                 navIdent = VEILEDER_ID,
             )

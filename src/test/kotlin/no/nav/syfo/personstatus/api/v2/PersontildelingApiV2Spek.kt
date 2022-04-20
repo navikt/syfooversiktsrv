@@ -47,7 +47,7 @@ object PersontildelingApiV2Spek : Spek({
             }
 
             val validToken = generateJWT(
-                audience = externalMockEnvironment.environment.azureAppClientId,
+                audience = externalMockEnvironment.environment.azure.appClientId,
                 issuer = externalMockEnvironment.wellKnownVeilederV2.issuer,
                 navIdent = VEILEDER_ID,
             )
