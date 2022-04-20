@@ -49,8 +49,7 @@ object PersonOppfolgingstilfelleVirksomhetsnavnCronjobSpek : Spek({
 
         val eregClient = EregClient(
             azureAdClient = azureAdClient,
-            isproxyClientId = environment.isproxyClientId,
-            baseUrl = environment.isproxyUrl,
+            clientEnvironment = environment.clients.isproxy,
             redisStore = redisStore,
         )
         val personOppfolgingstilfelleVirksomhetsnavnService = PersonOppfolgingstilfelleVirksomhetsnavnService(

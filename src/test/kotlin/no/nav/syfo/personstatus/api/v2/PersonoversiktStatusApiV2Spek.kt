@@ -69,8 +69,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
 
             val behandlendeEnhetClient = BehandlendeEnhetClient(
                 azureAdClient = azureAdClient,
-                baseUrl = environment.syfobehandlendeenhetUrl,
-                syfobehandlendeenhetClientId = environment.syfobehandlendeenhetClientId
+                clientEnvironment = environment.clients.syfobehandlendeenhet,
             )
 
             val personBehandlendeEnhetService = PersonBehandlendeEnhetService(
@@ -83,8 +82,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
             )
             val eregClient = EregClient(
                 azureAdClient = azureAdClient,
-                isproxyClientId = environment.isproxyClientId,
-                baseUrl = environment.isproxyUrl,
+                clientEnvironment = environment.clients.isproxy,
                 redisStore = redisStore,
             )
             val personOppfolgingstilfelleVirksomhetsnavnService = PersonOppfolgingstilfelleVirksomhetsnavnService(

@@ -34,26 +34,33 @@ data class Environment(
     ),
     val kafkaOppfolgingstilfellePersonProcessingEnabled: Boolean = getEnvVar("TOGGLE_KAFKA_OPPFOLGINGSTILFELLE_PERSON_PROCESSING_ENABLED").toBoolean(),
 
+    val clients: ApplicationEnvironmentClients = ApplicationEnvironmentClients(
+        isproxy = ApplicationEnvironmentClient(
+            clientId = getEnvVar("ISPROXY_CLIENT_ID"),
+            url = getEnvVar("ISPROXY_URL"),
+        ),
+        pdl = ApplicationEnvironmentClient(
+            clientId = getEnvVar("PDL_CLIENT_ID"),
+            url = getEnvVar("PDL_URL"),
+        ),
+        syfobehandlendeenhet = ApplicationEnvironmentClient(
+            clientId = getEnvVar("SYFOBEHANDLENDEENHET_CLIENT_ID"),
+            url = getEnvVar("SYFOBEHANDLENDEENHET_URL"),
+        ),
+        syfotilgangskontroll = ApplicationEnvironmentClient(
+            clientId = getEnvVar("SYFOTILGANGSKONTROLL_CLIENT_ID"),
+            url = getEnvVar("SYFOTILGANGSKONTROLL_URL"),
+        ),
+    ),
+
     val redis: ApplicationEnvironmentRedis = ApplicationEnvironmentRedis(
         host = getEnvVar("REDIS_HOST"),
         port = getEnvVar("REDIS_PORT", "6379").toInt(),
         secret = getEnvVar("REDIS_PASSWORD"),
     ),
 
-    val isproxyClientId: String = getEnvVar("ISPROXY_CLIENT_ID"),
-    val isproxyUrl: String = getEnvVar("ISPROXY_URL"),
-
-    val pdlClientId: String = getEnvVar("PDL_CLIENT_ID"),
-    val pdlUrl: String = getEnvVar("PDL_URL"),
-
     val serviceuserUsername: String = getEnvVar("SERVICEUSER_USERNAME"),
     val serviceuserPassword: String = getEnvVar("SERVICEUSER_PASSWORD"),
-
-    val syfobehandlendeenhetClientId: String = getEnvVar("SYFOBEHANDLENDEENHET_CLIENT_ID"),
-    val syfobehandlendeenhetUrl: String = getEnvVar("SYFOBEHANDLENDEENHET_URL"),
-
-    val syfotilgangskontrollClientId: String = getEnvVar("SYFOTILGANGSKONTROLL_CLIENT_ID"),
-    val syfotilgangskontrollUrl: String = getEnvVar("SYFOTILGANGSKONTROLL_URL"),
 
     val personBehandlendeEnhetCronjobEnabled: Boolean = getEnvVar("TOGGLE_PERSON_BEHANDLENDE_ENHET_CRONJOB_ENABLED").toBoolean(),
     val personOppfolgingstilfelleVirksomhetsnavnCronjobEnabled: Boolean = getEnvVar("TOGGLE_PERSON_OPPFOLGINGSTILFELLE_VIRKSOMHETSNAVN_CRONJOB_ENABLED").toBoolean(),

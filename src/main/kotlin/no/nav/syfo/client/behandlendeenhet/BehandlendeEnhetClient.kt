@@ -6,6 +6,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import net.logstash.logback.argument.StructuredArguments
+import no.nav.syfo.application.ApplicationEnvironmentClient
 import no.nav.syfo.client.azuread.AzureAdClient
 import no.nav.syfo.client.httpClientDefault
 import no.nav.syfo.domain.PersonIdent
@@ -14,10 +15,9 @@ import org.slf4j.LoggerFactory
 
 class BehandlendeEnhetClient(
     private val azureAdClient: AzureAdClient,
-    private val syfobehandlendeenhetClientId: String,
-    baseUrl: String
+    private val clientEnvironment: ApplicationEnvironmentClient,
 ) {
-    private val behandlendeEnhetUrl = "$baseUrl$BEHANDLENDEENHET_PATH"
+    private val behandlendeEnhetUrl = "${clientEnvironment.url}$BEHANDLENDEENHET_PATH"
 
     private val httpClient = httpClientDefault()
 
@@ -27,7 +27,7 @@ class BehandlendeEnhetClient(
     ): BehandlendeEnhetDTO? {
         val url = behandlendeEnhetUrl
         val oboToken = azureAdClient.getSystemToken(
-            scopeClientId = syfobehandlendeenhetClientId,
+            scopeClientId = clientEnvironment.clientId,
         )?.accessToken ?: throw RuntimeException("Failed to request access to Enhet: Failed to get OBO token")
         return try {
             val response: HttpResponse = httpClient.get(url) {
