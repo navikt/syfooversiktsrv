@@ -1,13 +1,13 @@
 package no.nav.syfo.client
 
-data class ApplicationEnvironmentClients(
-    val isproxy: ApplicationEnvironmentClient,
-    val pdl: ApplicationEnvironmentClient,
-    val syfobehandlendeenhet: ApplicationEnvironmentClient,
-    val syfotilgangskontroll: ApplicationEnvironmentClient,
+data class ClientsEnvironment(
+    val isproxy: ClientEnvironment,
+    val pdl: ClientEnvironment,
+    val syfobehandlendeenhet: ClientEnvironment,
+    val syfotilgangskontroll: ClientEnvironment,
 )
 
-data class ApplicationEnvironmentClient(
+data class ClientEnvironment(
     val baseUrl: String,
     val clientId: String,
 )

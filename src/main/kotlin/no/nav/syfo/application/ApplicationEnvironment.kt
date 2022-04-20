@@ -1,8 +1,8 @@
 package no.nav.syfo.application
 
 import no.nav.syfo.application.cache.RedisEnvironment
-import no.nav.syfo.client.ApplicationEnvironmentClient
-import no.nav.syfo.client.ApplicationEnvironmentClients
+import no.nav.syfo.client.ClientEnvironment
+import no.nav.syfo.client.ClientsEnvironment
 import no.nav.syfo.application.database.DatabaseEnvironment
 import no.nav.syfo.application.kafka.KafkaEnvironment
 import no.nav.syfo.client.azuread.AzureEnvironment
@@ -41,20 +41,20 @@ data class Environment(
     ),
     val kafkaOppfolgingstilfellePersonProcessingEnabled: Boolean = getEnvVar("TOGGLE_KAFKA_OPPFOLGINGSTILFELLE_PERSON_PROCESSING_ENABLED").toBoolean(),
 
-    val clients: ApplicationEnvironmentClients = ApplicationEnvironmentClients(
-        isproxy = ApplicationEnvironmentClient(
+    val clients: ClientsEnvironment = ClientsEnvironment(
+        isproxy = ClientEnvironment(
             baseUrl = getEnvVar("ISPROXY_URL"),
             clientId = getEnvVar("ISPROXY_CLIENT_ID"),
         ),
-        pdl = ApplicationEnvironmentClient(
+        pdl = ClientEnvironment(
             baseUrl = getEnvVar("PDL_URL"),
             clientId = getEnvVar("PDL_CLIENT_ID"),
         ),
-        syfobehandlendeenhet = ApplicationEnvironmentClient(
+        syfobehandlendeenhet = ClientEnvironment(
             baseUrl = getEnvVar("SYFOBEHANDLENDEENHET_URL"),
             clientId = getEnvVar("SYFOBEHANDLENDEENHET_CLIENT_ID"),
         ),
-        syfotilgangskontroll = ApplicationEnvironmentClient(
+        syfotilgangskontroll = ClientEnvironment(
             baseUrl = getEnvVar("SYFOTILGANGSKONTROLL_URL"),
             clientId = getEnvVar("SYFOTILGANGSKONTROLL_CLIENT_ID"),
         ),

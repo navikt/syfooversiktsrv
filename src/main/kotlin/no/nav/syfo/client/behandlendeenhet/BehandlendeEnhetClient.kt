@@ -6,7 +6,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import net.logstash.logback.argument.StructuredArguments
-import no.nav.syfo.client.ApplicationEnvironmentClient
+import no.nav.syfo.client.ClientEnvironment
 import no.nav.syfo.client.azuread.AzureAdClient
 import no.nav.syfo.client.httpClientDefault
 import no.nav.syfo.domain.PersonIdent
@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory
 
 class BehandlendeEnhetClient(
     private val azureAdClient: AzureAdClient,
-    private val clientEnvironment: ApplicationEnvironmentClient,
+    private val clientEnvironment: ClientEnvironment,
 ) {
     private val behandlendeEnhetUrl = "${clientEnvironment.baseUrl}$BEHANDLENDEENHET_PATH"
 
