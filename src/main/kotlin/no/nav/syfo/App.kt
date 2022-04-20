@@ -39,7 +39,7 @@ fun main() {
 
         module {
             databaseModule(
-                environment = environment,
+                databaseEnvironment = environment.database,
             )
             apiModule(
                 applicationState = applicationState,

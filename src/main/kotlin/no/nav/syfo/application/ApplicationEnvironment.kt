@@ -8,11 +8,13 @@ data class Environment(
     val azureAppWellKnownUrl: String = getEnvVar("AZURE_APP_WELL_KNOWN_URL"),
     val azureTokenEndpoint: String = getEnvVar("AZURE_OPENID_CONFIG_TOKEN_ENDPOINT"),
 
-    val databaseHost: String = getEnvVar("NAIS_DATABASE_SYFOOVERSIKTSRV_SYFOOVERSIKTSRV_DB_HOST"),
-    val databasePort: String = getEnvVar("NAIS_DATABASE_SYFOOVERSIKTSRV_SYFOOVERSIKTSRV_DB_PORT"),
-    val databaseName: String = getEnvVar("NAIS_DATABASE_SYFOOVERSIKTSRV_SYFOOVERSIKTSRV_DB_DATABASE"),
-    val databaseUsername: String = getEnvVar("NAIS_DATABASE_SYFOOVERSIKTSRV_SYFOOVERSIKTSRV_DB_USERNAME"),
-    val databasePassword: String = getEnvVar("NAIS_DATABASE_SYFOOVERSIKTSRV_SYFOOVERSIKTSRV_DB_PASSWORD"),
+    val database: ApplicationEnvironmentDatabase = ApplicationEnvironmentDatabase(
+        host = getEnvVar("NAIS_DATABASE_SYFOOVERSIKTSRV_SYFOOVERSIKTSRV_DB_HOST"),
+        port = getEnvVar("NAIS_DATABASE_SYFOOVERSIKTSRV_SYFOOVERSIKTSRV_DB_PORT"),
+        name = getEnvVar("NAIS_DATABASE_SYFOOVERSIKTSRV_SYFOOVERSIKTSRV_DB_DATABASE"),
+        username = getEnvVar("NAIS_DATABASE_SYFOOVERSIKTSRV_SYFOOVERSIKTSRV_DB_USERNAME"),
+        password = getEnvVar("NAIS_DATABASE_SYFOOVERSIKTSRV_SYFOOVERSIKTSRV_DB_PASSWORD"),
+    ),
 
     val electorPath: String = getEnvVar("ELECTOR_PATH"),
 
@@ -52,11 +54,7 @@ data class Environment(
 
     val personBehandlendeEnhetCronjobEnabled: Boolean = getEnvVar("TOGGLE_PERSON_BEHANDLENDE_ENHET_CRONJOB_ENABLED").toBoolean(),
     val personOppfolgingstilfelleVirksomhetsnavnCronjobEnabled: Boolean = getEnvVar("TOGGLE_PERSON_OPPFOLGINGSTILFELLE_VIRKSOMHETSNAVN_CRONJOB_ENABLED").toBoolean(),
-) {
-    fun jdbcUrl(): String {
-        return "jdbc:postgresql://$databaseHost:$databasePort/$databaseName"
-    }
-}
+)
 
 fun getEnvVar(varName: String, defaultValue: String? = null) =
     System.getenv(varName) ?: defaultValue ?: throw RuntimeException("Missing required variable \"$varName\"")
