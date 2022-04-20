@@ -1,5 +1,7 @@
 package no.nav.syfo.application
 
+const val NAIS_DATABASE_ENV_PREFIX = "NAIS_DATABASE_SYFOOVERSIKTSRV_SYFOOVERSIKTSRV_DB"
+
 data class Environment(
     val applicationName: String = "syfooversiktsrv",
 
@@ -9,11 +11,11 @@ data class Environment(
     val azureTokenEndpoint: String = getEnvVar("AZURE_OPENID_CONFIG_TOKEN_ENDPOINT"),
 
     val database: ApplicationEnvironmentDatabase = ApplicationEnvironmentDatabase(
-        host = getEnvVar("NAIS_DATABASE_SYFOOVERSIKTSRV_SYFOOVERSIKTSRV_DB_HOST"),
-        port = getEnvVar("NAIS_DATABASE_SYFOOVERSIKTSRV_SYFOOVERSIKTSRV_DB_PORT"),
-        name = getEnvVar("NAIS_DATABASE_SYFOOVERSIKTSRV_SYFOOVERSIKTSRV_DB_DATABASE"),
-        username = getEnvVar("NAIS_DATABASE_SYFOOVERSIKTSRV_SYFOOVERSIKTSRV_DB_USERNAME"),
-        password = getEnvVar("NAIS_DATABASE_SYFOOVERSIKTSRV_SYFOOVERSIKTSRV_DB_PASSWORD"),
+        host = getEnvVar("${NAIS_DATABASE_ENV_PREFIX}_HOST"),
+        name = getEnvVar("${NAIS_DATABASE_ENV_PREFIX}_DATABASE"),
+        port = getEnvVar("${NAIS_DATABASE_ENV_PREFIX}_PORT"),
+        password = getEnvVar("${NAIS_DATABASE_ENV_PREFIX}_PASSWORD"),
+        username = getEnvVar("${NAIS_DATABASE_ENV_PREFIX}_USERNAME"),
     ),
 
     val electorPath: String = getEnvVar("ELECTOR_PATH"),
