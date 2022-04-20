@@ -52,8 +52,7 @@ fun Application.apiModule(
 
     val pdlClient = PdlClient(
         azureAdClient = azureAdClient,
-        pdlClientId = environment.pdlClientId,
-        pdlBaseUrl = environment.pdlUrl,
+        clientEnvironment = environment.clients.pdl,
         redisStore = redisStore,
     )
 
@@ -62,11 +61,9 @@ fun Application.apiModule(
         pdlClient = pdlClient,
     )
 
-    val syfotilgangskontrollClientId = environment.syfotilgangskontrollClientId
     val tilgangskontrollConsumer = VeilederTilgangskontrollClient(
-        endpointUrl = environment.syfotilgangskontrollUrl,
         azureAdClient = azureAdClient,
-        syfotilgangskontrollClientId = syfotilgangskontrollClientId,
+        clientEnvironment = environment.clients.syfotilgangskontroll,
     )
 
     routing {

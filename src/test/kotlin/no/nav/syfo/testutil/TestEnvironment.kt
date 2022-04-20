@@ -9,8 +9,9 @@ fun testEnvironment(
     isproxyUrl: String = "isproxy",
     pdlUrl: String,
     syfobehandlendeenhetUrl: String = "syfobehandlendeenhet",
-    syfotilgangskontrollUrl: String? = null,
+    syfotilgangskontrollUrl: String = "syfotilgangskontroll",
 ) = Environment(
+    applicationName = "syfooversiktsrv",
     azure = ApplicationEnvironmentAzure(
         appClientId = "appClientId",
         appClientSecret = "appClientSecret",
@@ -35,22 +36,31 @@ fun testEnvironment(
         aivenTruststoreLocation = "truststore",
     ),
     kafkaOppfolgingstilfellePersonProcessingEnabled = true,
+    clients = ApplicationEnvironmentClients(
+        isproxy = ApplicationEnvironmentClient(
+            clientId = "dev-fss.teamsykefravr.isproxy",
+            url = isproxyUrl,
+        ),
+        pdl = ApplicationEnvironmentClient(
+            clientId = "dev-fss.pdl.pdl-api",
+            url = pdlUrl,
+        ),
+        syfobehandlendeenhet = ApplicationEnvironmentClient(
+            clientId = "dev-gcp.teamsykefravr.syfobehandlendeenhet",
+            url = syfobehandlendeenhetUrl,
+        ),
+        syfotilgangskontroll = ApplicationEnvironmentClient(
+            clientId = "dev-fss.teamsykefravr.syfotilgangskontroll",
+            url = syfotilgangskontrollUrl,
+        ),
+    ),
     redis = ApplicationEnvironmentRedis(
         host = "localhost",
         port = 6379,
         secret = "password",
     ),
-    applicationName = "syfooversiktsrv",
-    isproxyClientId = "dev-fss.teamsykefravr.isproxy",
-    isproxyUrl = isproxyUrl,
-    pdlClientId = "dev-fss.pdl.pdl-api",
-    pdlUrl = pdlUrl,
     serviceuserUsername = "",
     serviceuserPassword = "",
-    syfobehandlendeenhetClientId = "dev-gcp.teamsykefravr.syfobehandlendeenhet",
-    syfobehandlendeenhetUrl = syfobehandlendeenhetUrl,
-    syfotilgangskontrollClientId = "syfotilgangskontrollClientId",
-    syfotilgangskontrollUrl = syfotilgangskontrollUrl ?: "tilgangskontroll",
     personBehandlendeEnhetCronjobEnabled = true,
     personOppfolgingstilfelleVirksomhetsnavnCronjobEnabled = true,
 )

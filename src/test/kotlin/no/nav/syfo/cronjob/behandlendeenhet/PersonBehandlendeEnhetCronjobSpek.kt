@@ -52,8 +52,7 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
 
         val behandlendeEnhetClient = BehandlendeEnhetClient(
             azureAdClient = azureAdClient,
-            baseUrl = environment.syfobehandlendeenhetUrl,
-            syfobehandlendeenhetClientId = environment.syfobehandlendeenhetClientId
+            clientEnvironment = environment.clients.syfobehandlendeenhet,
         )
 
         val personBehandlendeEnhetService = PersonBehandlendeEnhetService(

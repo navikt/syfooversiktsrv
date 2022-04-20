@@ -30,8 +30,7 @@ fun launchCronjobModule(
 
     val eregClient = EregClient(
         azureAdClient = azureAdClient,
-        isproxyClientId = environment.isproxyClientId,
-        baseUrl = environment.isproxyUrl,
+        clientEnvironment = environment.clients.isproxy,
         redisStore = redisStore,
     )
 
@@ -62,8 +61,7 @@ fun launchCronjobModule(
 
     val behandlendeEnhetClient = BehandlendeEnhetClient(
         azureAdClient = azureAdClient,
-        baseUrl = environment.syfobehandlendeenhetUrl,
-        syfobehandlendeenhetClientId = environment.syfobehandlendeenhetClientId
+        clientEnvironment = environment.clients.syfobehandlendeenhet,
     )
 
     val personBehandlendeEnhetService = PersonBehandlendeEnhetService(
