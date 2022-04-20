@@ -4,5 +4,5 @@ data class ApplicationEnvironmentAzure(
     val appClientId: String,
     val appClientSecret: String,
     val appWellKnownUrl: String,
-    val tokenEndpoint: String,
+    val openidConfigTokenEndpoint: String,
 )

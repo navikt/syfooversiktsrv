@@ -67,7 +67,7 @@ class AzureAdClient(
         formParameters: Parameters,
     ): AzureAdTokenResponse? =
         try {
-            val response: HttpResponse = httpClient.post(azureEnviroment.tokenEndpoint) {
+            val response: HttpResponse = httpClient.post(azureEnviroment.openidConfigTokenEndpoint) {
                 accept(ContentType.Application.Json)
                 body = FormDataContent(formParameters)
             }

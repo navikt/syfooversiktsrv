@@ -9,7 +9,7 @@ data class Environment(
         appClientId = getEnvVar("AZURE_APP_CLIENT_ID"),
         appClientSecret = getEnvVar("AZURE_APP_CLIENT_SECRET"),
         appWellKnownUrl = getEnvVar("AZURE_APP_WELL_KNOWN_URL"),
-        tokenEndpoint = getEnvVar("AZURE_OPENID_CONFIG_TOKEN_ENDPOINT"),
+        openidConfigTokenEndpoint = getEnvVar("AZURE_OPENID_CONFIG_TOKEN_ENDPOINT"),
     ),
 
     val database: ApplicationEnvironmentDatabase = ApplicationEnvironmentDatabase(

@@ -15,7 +15,7 @@ fun testEnvironment(
         appClientId = "appClientId",
         appClientSecret = "appClientSecret",
         appWellKnownUrl = "appWellKnownUrl",
-        tokenEndpoint = azureTokenEndpoint,
+        openidConfigTokenEndpoint = azureTokenEndpoint,
     ),
     database = ApplicationEnvironmentDatabase(
         host = "localhost",
