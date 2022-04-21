@@ -2,16 +2,15 @@ package no.nav.syfo.cronjob.virksomhetsnavn
 
 import io.ktor.server.testing.*
 import io.ktor.util.*
-import io.mockk.*
+import io.mockk.clearMocks
+import io.mockk.every
 import kotlinx.coroutines.runBlocking
-import no.nav.syfo.application.cache.RedisStore
-import no.nav.syfo.client.azuread.AzureAdClient
-import no.nav.syfo.client.ereg.EregClient
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.domain.Virksomhetsnummer
-import no.nav.syfo.oppfolgingstilfelle.kafka.*
-import no.nav.syfo.personstatus.*
+import no.nav.syfo.oppfolgingstilfelle.kafka.OPPFOLGINGSTILFELLE_PERSON_TOPIC
 import no.nav.syfo.personstatus.domain.OversikthendelseType
+import no.nav.syfo.personstatus.getPersonOppfolgingstilfelleVirksomhetList
+import no.nav.syfo.personstatus.getPersonOversiktStatusList
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER_DEFAULT
@@ -21,7 +20,8 @@ import no.nav.syfo.testutil.generator.generateKOversikthendelse
 import no.nav.syfo.testutil.generator.generateKafkaOppfolgingstilfellePerson
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
-import org.apache.kafka.clients.consumer.*
+import org.apache.kafka.clients.consumer.ConsumerRecord
+import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.common.TopicPartition
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
@@ -36,39 +36,16 @@ object PersonOppfolgingstilfelleVirksomhetsnavnCronjobSpek : Spek({
         val externalMockEnvironment = ExternalMockEnvironment.instance
         val database = externalMockEnvironment.database
 
-        val environment = externalMockEnvironment.environment
+        val internalMockEnvironment = InternalMockEnvironment.instance
 
-        val redisStore = RedisStore(
-            redisEnvironment = environment.redis,
-        )
+        val personOppfolgingstilfelleVirksomhetnavnCronjob =
+            internalMockEnvironment.personOppfolgingstilfelleVirksomhetnavnCronjob
 
-        val azureAdClient = AzureAdClient(
-            azureEnviroment = environment.azure,
-            redisStore = redisStore,
-        )
+        val oversiktHendelseService = internalMockEnvironment.oversiktHendelseService
+        val kafkaOppfolgingstilfellePersonService = internalMockEnvironment.kafkaOppfolgingstilfellePersonService
 
-        val eregClient = EregClient(
-            azureAdClient = azureAdClient,
-            clientEnvironment = environment.clients.isproxy,
-            redisStore = redisStore,
-        )
-        val personOppfolgingstilfelleVirksomhetsnavnService = PersonOppfolgingstilfelleVirksomhetsnavnService(
-            database = externalMockEnvironment.database,
-            eregClient = eregClient,
-        )
-
-        val personOppfolgingstilfelleVirksomhetnavnCronjob = PersonOppfolgingstilfelleVirksomhetnavnCronjob(
-            personOppfolgingstilfelleVirksomhetsnavnService = personOppfolgingstilfelleVirksomhetsnavnService,
-        )
-
-        val oversiktHendelseService = OversiktHendelseService(
-            database = database,
-        )
-        val kafkaOppfolgingstilfellePersonService = KafkaOppfolgingstilfellePersonService(
-            database = database,
-        )
-
-        val mockKafkaConsumerOppfolgingstilfellePerson = mockk<KafkaConsumer<String, KafkaOppfolgingstilfellePerson>>()
+        val mockKafkaConsumerOppfolgingstilfellePerson =
+            internalMockEnvironment.kafkaConsumerOppfolgingstilfellePerson
 
         val partition = 0
         val oppfolgingstilfellePersonTopicPartition = TopicPartition(
