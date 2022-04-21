@@ -1,7 +1,7 @@
 package no.nav.syfo.client.veiledertilgang
 
 import io.ktor.client.call.*
-import io.ktor.client.features.*
+import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -43,12 +43,12 @@ class VeilederTilgangskontrollClient(
                 header(NAV_CALL_ID_HEADER, callId)
                 accept(ContentType.Application.Json)
                 contentType(ContentType.Application.Json)
-                body = personIdentNumberList
+                setBody(personIdentNumberList)
             }
 
             requestTimer.stop(HISTOGRAM_SYFOTILGANGSKONTROLL_PERSONER)
             COUNT_CALL_TILGANGSKONTROLL_PERSONS_SUCCESS.increment()
-            return response.receive()
+            return response.body()
         } catch (e: ClientRequestException) {
             return if (e.response.status == HttpStatusCode.Forbidden) {
                 log.warn("Forbidden to request access to list of person from syfo-tilgangskontroll")
@@ -84,7 +84,7 @@ class VeilederTilgangskontrollClient(
                 accept(ContentType.Application.Json)
             }
             requestTimer.stop(HISTOGRAM_SYFOTILGANGSKONTROLL_ENHET)
-            return response.receive<Tilgang>().harTilgang
+            return response.body<Tilgang>().harTilgang
         } catch (e: ClientRequestException) {
             return if (e.response.status == HttpStatusCode.Forbidden) {
                 false
