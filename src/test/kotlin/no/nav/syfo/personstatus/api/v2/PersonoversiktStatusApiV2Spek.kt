@@ -50,7 +50,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
         with(TestApplicationEngine()) {
             start()
 
-            val externalMockEnvironment = ExternalMockEnvironment()
+            val externalMockEnvironment = ExternalMockEnvironment.instance
             val database = externalMockEnvironment.database
             val environment = externalMockEnvironment.environment
 
@@ -135,14 +135,6 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         )
                     )
                 )
-            }
-
-            beforeGroup {
-                externalMockEnvironment.startExternalMocks()
-            }
-
-            afterGroup {
-                externalMockEnvironment.stopExternalMocks()
             }
 
             val validToken = generateJWT(

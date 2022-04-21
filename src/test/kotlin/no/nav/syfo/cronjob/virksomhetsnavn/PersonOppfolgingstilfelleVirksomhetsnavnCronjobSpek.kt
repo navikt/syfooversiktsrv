@@ -33,7 +33,7 @@ object PersonOppfolgingstilfelleVirksomhetsnavnCronjobSpek : Spek({
     with(TestApplicationEngine()) {
         start()
 
-        val externalMockEnvironment = ExternalMockEnvironment()
+        val externalMockEnvironment = ExternalMockEnvironment.instance
         val database = externalMockEnvironment.database
 
         val environment = externalMockEnvironment.environment
@@ -82,14 +82,6 @@ object PersonOppfolgingstilfelleVirksomhetsnavnCronjobSpek : Spek({
 
             clearMocks(mockKafkaConsumerOppfolgingstilfellePerson)
             every { mockKafkaConsumerOppfolgingstilfellePerson.commitSync() } returns Unit
-        }
-
-        beforeGroup {
-            externalMockEnvironment.startExternalMocks()
-        }
-
-        afterGroup {
-            externalMockEnvironment.stopExternalMocks()
         }
 
         describe(PersonOppfolgingstilfelleVirksomhetsnavnCronjobSpek::class.java.simpleName) {

@@ -26,7 +26,6 @@ import org.apache.kafka.clients.consumer.*
 import org.apache.kafka.common.TopicPartition
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
-import redis.clients.jedis.*
 import java.time.Duration
 import java.time.OffsetDateTime
 
@@ -36,7 +35,7 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
     with(TestApplicationEngine()) {
         start()
 
-        val externalMockEnvironment = ExternalMockEnvironment()
+        val externalMockEnvironment = ExternalMockEnvironment.instance
         val database = externalMockEnvironment.database
 
         val environment = externalMockEnvironment.environment
@@ -85,14 +84,6 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
 
             clearMocks(mockKafkaConsumerOppfolgingstilfellePerson)
             every { mockKafkaConsumerOppfolgingstilfellePerson.commitSync() } returns Unit
-        }
-
-        beforeGroup {
-            externalMockEnvironment.startExternalMocks()
-        }
-
-        afterGroup {
-            externalMockEnvironment.stopExternalMocks()
         }
 
         describe(PersonBehandlendeEnhetCronjobSpek::class.java.simpleName) {

@@ -25,7 +25,7 @@ object PersontildelingApiV2Spek : Spek({
         with(TestApplicationEngine()) {
             start()
 
-            val externalMockEnvironment = ExternalMockEnvironment()
+            val externalMockEnvironment = ExternalMockEnvironment.instance
             val database = externalMockEnvironment.database
 
             application.testApiModule(
@@ -36,14 +36,6 @@ object PersontildelingApiV2Spek : Spek({
 
             afterEachTest {
                 database.connection.dropData()
-            }
-
-            beforeGroup {
-                externalMockEnvironment.startExternalMocks()
-            }
-
-            afterGroup {
-                externalMockEnvironment.stopExternalMocks()
             }
 
             val validToken = generateJWT(

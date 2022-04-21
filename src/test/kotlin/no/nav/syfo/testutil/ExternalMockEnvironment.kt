@@ -4,7 +4,7 @@ import io.ktor.server.netty.*
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.testutil.mock.*
 
-class ExternalMockEnvironment {
+class ExternalMockEnvironment private constructor() {
     val applicationState: ApplicationState = testAppState()
     val database = TestDatabase()
 
@@ -31,28 +31,22 @@ class ExternalMockEnvironment {
     )
 
     val wellKnownVeilederV2 = wellKnownVeilederV2Mock()
-}
 
-fun ExternalMockEnvironment.startExternalMocks() {
-    this.externalApplicationMockMap.start()
-}
-
-fun ExternalMockEnvironment.stopExternalMocks() {
-    this.externalApplicationMockMap.stop()
-    this.database.stop()
-}
-
-fun HashMap<String, NettyApplicationEngine>.start() {
-    this.forEach {
-        it.value.start()
+    companion object {
+        val instance: ExternalMockEnvironment by lazy {
+            ExternalMockEnvironment().also {
+                it.startExternalMocks()
+            }
+        }
     }
 }
 
-fun HashMap<String, NettyApplicationEngine>.stop(
-    gracePeriodMillis: Long = 1L,
-    timeoutMillis: Long = 10L
-) {
+private fun ExternalMockEnvironment.startExternalMocks() {
+    this.externalApplicationMockMap.start()
+}
+
+private fun HashMap<String, NettyApplicationEngine>.start() {
     this.forEach {
-        it.value.stop(gracePeriodMillis, timeoutMillis)
+        it.value.start()
     }
 }

@@ -29,7 +29,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
     with(TestApplicationEngine()) {
         start()
 
-        val externalMockEnvironment = ExternalMockEnvironment()
+        val externalMockEnvironment = ExternalMockEnvironment.instance
         val database = externalMockEnvironment.database
 
         application.testApiModule(
@@ -68,14 +68,6 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
 
             clearMocks(mockKafkaConsumerOppfolgingstilfellePerson)
             every { mockKafkaConsumerOppfolgingstilfellePerson.commitSync() } returns Unit
-        }
-
-        beforeGroup {
-            externalMockEnvironment.startExternalMocks()
-        }
-
-        afterGroup {
-            externalMockEnvironment.stopExternalMocks()
         }
 
         describe("Read KafkaOppfolgingstilfellePerson") {
