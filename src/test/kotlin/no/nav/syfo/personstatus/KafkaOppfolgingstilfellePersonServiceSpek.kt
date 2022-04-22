@@ -2,10 +2,11 @@ package no.nav.syfo.personstatus
 
 import io.ktor.server.testing.*
 import io.ktor.util.*
-import io.mockk.*
+import io.mockk.clearMocks
+import io.mockk.every
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.domain.Virksomhetsnummer
-import no.nav.syfo.oppfolgingstilfelle.kafka.*
+import no.nav.syfo.oppfolgingstilfelle.kafka.OPPFOLGINGSTILFELLE_PERSON_TOPIC
 import no.nav.syfo.personstatus.domain.OversikthendelseType
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
@@ -17,7 +18,8 @@ import no.nav.syfo.testutil.generator.generateKOversikthendelse
 import no.nav.syfo.testutil.generator.generateKafkaOppfolgingstilfellePerson
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
-import org.apache.kafka.clients.consumer.*
+import org.apache.kafka.clients.consumer.ConsumerRecord
+import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.common.TopicPartition
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
@@ -36,14 +38,12 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
             externalMockEnvironment = externalMockEnvironment,
         )
 
-        val oversiktHendelseService = OversiktHendelseService(
-            database = database,
-        )
-        val kafkaOppfolgingstilfellePersonService = KafkaOppfolgingstilfellePersonService(
-            database = database,
-        )
+        val internalMockEnvironment = InternalMockEnvironment.instance
 
-        val mockKafkaConsumerOppfolgingstilfellePerson = mockk<KafkaConsumer<String, KafkaOppfolgingstilfellePerson>>()
+        val oversiktHendelseService = internalMockEnvironment.oversiktHendelseService
+        val kafkaOppfolgingstilfellePersonService = internalMockEnvironment.kafkaOppfolgingstilfellePersonService
+
+        val mockKafkaConsumerOppfolgingstilfellePerson = internalMockEnvironment.kafkaConsumerOppfolgingstilfellePerson
 
         val partition = 0
         val oppfolgingstilfellePersonTopicPartition = TopicPartition(
