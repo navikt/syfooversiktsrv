@@ -1,6 +1,6 @@
 package no.nav.syfo.application.database
 
-import io.ktor.application.*
+import io.ktor.server.application.*
 import no.nav.syfo.isDev
 import no.nav.syfo.isProd
 

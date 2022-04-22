@@ -1,14 +1,16 @@
 package no.nav.syfo.application.api.authentication
 
 import com.auth0.jwk.JwkProviderBuilder
-import io.ktor.application.*
-import io.ktor.auth.*
-import io.ktor.auth.jwt.*
-import io.ktor.features.*
 import io.ktor.http.*
-import io.ktor.jackson.*
-import io.ktor.metrics.micrometer.*
-import io.ktor.response.*
+import io.ktor.serialization.jackson.*
+import io.ktor.server.application.*
+import io.ktor.server.auth.*
+import io.ktor.server.auth.jwt.*
+import io.ktor.server.metrics.micrometer.*
+import io.ktor.server.plugins.callid.*
+import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.plugins.statuspages.*
+import io.ktor.server.response.*
 import io.micrometer.core.instrument.distribution.DistributionStatisticConfig
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.metric.METRICS_REGISTRY
@@ -34,7 +36,7 @@ fun Application.installJwtAuthentication(
     }
 }
 
-fun Authentication.Configuration.configureJwt(
+fun AuthenticationConfig.configureJwt(
     jwtIssuer: JwtIssuer,
 ) {
     val jwkProvider = JwkProviderBuilder(URL(jwtIssuer.wellKnown.jwks_uri))
@@ -76,15 +78,15 @@ fun Application.installCallId() {
 
 fun Application.installContentNegotiation() {
     install(ContentNegotiation) {
-        jackson(block = configureJacksonMapper())
+        jackson { configure() }
     }
 }
 
 fun Application.installStatusPages() {
     install(StatusPages) {
-        exception<Throwable> { cause ->
+        exception<Throwable> { call, cause ->
             call.respond(HttpStatusCode.InternalServerError, cause.message ?: "Unknown error")
-            log.error("Caught exception callId=${getCallId()} ${getConsumerId()}", cause)
+            call.application.log.error("Caught exception callId=${call.getCallId()} ${call.getConsumerId()}", cause)
             throw cause
         }
     }

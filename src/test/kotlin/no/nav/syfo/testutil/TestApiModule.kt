@@ -1,6 +1,6 @@
 package no.nav.syfo.testutil
 
-import io.ktor.application.*
+import io.ktor.server.application.*
 import no.nav.syfo.application.api.apiModule
 
 fun Application.testApiModule(
