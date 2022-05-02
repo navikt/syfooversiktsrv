@@ -43,6 +43,7 @@ fun testEnvironment(
         aivenTruststoreLocation = "truststore",
     ),
     kafkaOppfolgingstilfellePersonProcessingEnabled = true,
+    kafkaDialogmotekandidatProcessingEnabled = true,
     clients = ClientsEnvironment(
         isproxy = ClientEnvironment(
             baseUrl = isproxyUrl,
