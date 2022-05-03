@@ -76,6 +76,7 @@ fun DatabaseInterface.lagreBrukerKnytningPaEnhet(veilederBrukerKnytning: Veilede
             motebehovUbehandlet = null,
             moteplanleggerUbehandlet = null,
             oppfolgingsplanLPSBistandUbehandlet = null,
+            dialogmotekandidat = null,
             latestOppfolgingstilfelle = null,
         )
         this.connection.use { connection ->
@@ -133,6 +134,7 @@ fun ResultSet.toPPersonOversiktStatus(): PPersonOversiktStatus =
         motebehovUbehandlet = getObject("motebehov_ubehandlet") as Boolean?,
         moteplanleggerUbehandlet = getObject("moteplanlegger_ubehandlet") as Boolean?,
         oppfolgingsplanLPSBistandUbehandlet = getObject("oppfolgingsplan_lps_bistand_ubehandlet") as Boolean?,
+        dialogmotekandidat = getObject("dialogmotekandidat") as Boolean?,
         oppfolgingstilfelleUpdatedAt = getObject("oppfolgingstilfelle_updated_at", OffsetDateTime::class.java),
         oppfolgingstilfelleGeneratedAt = getObject("oppfolgingstilfelle_generated_at", OffsetDateTime::class.java),
         oppfolgingstilfelleStart = getObject("oppfolgingstilfelle_start", LocalDate::class.java),
