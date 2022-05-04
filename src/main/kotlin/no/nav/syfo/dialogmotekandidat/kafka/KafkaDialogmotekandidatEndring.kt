@@ -1,5 +1,6 @@
 package no.nav.syfo.dialogmotekandidat.kafka
 
+import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import java.time.OffsetDateTime
 
 data class KafkaDialogmotekandidatEndring(
@@ -8,4 +9,17 @@ data class KafkaDialogmotekandidatEndring(
     val personIdentNumber: String,
     val kandidat: Boolean,
     val arsak: String,
+)
+
+fun KafkaDialogmotekandidatEndring.toPersonOversiktStatus() = PersonOversiktStatus(
+    veilederIdent = null,
+    fnr = this.personIdentNumber,
+    navn = null,
+    enhet = null,
+    motebehovUbehandlet = null,
+    moteplanleggerUbehandlet = null,
+    oppfolgingsplanLPSBistandUbehandlet = null,
+    dialogmotekandidat = this.kandidat,
+    dialogmotekandidatGeneratedAt = this.createdAt,
+    latestOppfolgingstilfelle = null,
 )

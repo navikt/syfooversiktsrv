@@ -34,6 +34,7 @@ fun KafkaOppfolgingstilfellePerson.toPersonOversiktStatus(
     moteplanleggerUbehandlet = null,
     oppfolgingsplanLPSBistandUbehandlet = null,
     dialogmotekandidat = null,
+    dialogmotekandidatGeneratedAt = null,
     latestOppfolgingstilfelle = this.toPersonOppfolgingstilfelle(
         latestKafkaOppfolgingstilfelle = latestKafkaOppfolgingstilfelle,
     ),

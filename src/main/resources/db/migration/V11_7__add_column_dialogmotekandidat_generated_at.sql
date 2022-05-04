@@ -1,0 +1,1 @@
+ALTER TABLE PERSON_OVERSIKT_STATUS ADD COLUMN dialogmotekandidat_generated_at timestamptz;

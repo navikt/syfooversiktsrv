@@ -7,6 +7,7 @@ import no.nav.syfo.util.nowUTC
 import java.sql.*
 import java.sql.Types.NULL
 import java.time.Instant
+import java.time.OffsetDateTime
 import java.util.*
 
 const val queryCreatePersonOversiktStatus =
@@ -29,8 +30,10 @@ const val queryCreatePersonOversiktStatus =
         oppfolgingstilfelle_start,
         oppfolgingstilfelle_end,
         oppfolgingstilfelle_bit_referanse_uuid,
-        oppfolgingstilfelle_bit_referanse_inntruffet
-    ) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        oppfolgingstilfelle_bit_referanse_inntruffet,
+        dialogmotekandidat,
+        dialogmotekandidat_generated_at
+    ) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     RETURNING id
     """
 
@@ -83,6 +86,8 @@ fun Connection.createPersonOversiktStatus(
             it.setNull(16, Types.CHAR)
         }
         it.setObject(17, personOversiktStatus.latestOppfolgingstilfelle?.oppfolgingstilfelleBitReferanseInntruffet)
+        it.setObject(18, personOversiktStatus.dialogmotekandidat)
+        it.setObject(19, personOversiktStatus.dialogmotekandidatGeneratedAt)
         it.executeQuery().toList { getInt("id") }.firstOrNull()
     } ?: throw SQLException("Creating PersonOversikStatus failed, no rows affected.")
 
@@ -172,4 +177,25 @@ fun Connection.updatePersonOversiktStatusOppfolgingstilfelle(
         personOversiktStatusId = pPersonOversiktStatus.id,
         personOppfolgingstilfelleVirksomhetList = personOppfolgingstilfelle.virksomhetList,
     )
+}
+
+const val queryUpdatePersonOversiktStatusKandidat =
+    """
+        UPDATE PERSON_OVERSIKT_STATUS
+        SET dialogmotekandidat = ?,
+        dialogmotekandidat_generated_at = ?
+        WHERE fnr = ?
+    """
+
+fun Connection.updatePersonOversiktStatusKandidat(
+    pPersonOversiktStatus: PPersonOversiktStatus,
+    kandidat: Boolean,
+    generatedAt: OffsetDateTime,
+) {
+    this.prepareStatement(queryUpdatePersonOversiktStatusKandidat).use {
+        it.setBoolean(1, kandidat)
+        it.setObject(2, generatedAt)
+        it.setString(3, pPersonOversiktStatus.fnr)
+        it.execute()
+    }
 }

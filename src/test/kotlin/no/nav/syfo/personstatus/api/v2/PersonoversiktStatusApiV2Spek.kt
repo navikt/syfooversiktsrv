@@ -285,6 +285,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
                         personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo true
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
+                        personOversiktStatus.dialogmotekandidat.shouldBeNull()
 
                         personOversiktStatus.latestOppfolgingstilfelle.shouldNotBeNull()
                         checkPersonOppfolgingstilfelleDTO(
@@ -330,6 +331,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
                         personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo null
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo null
+                        personOversiktStatus.dialogmotekandidat.shouldBeNull()
 
                         personOversiktStatus.latestOppfolgingstilfelle.shouldNotBeNull()
                         checkPersonOppfolgingstilfelleDTO(
@@ -375,6 +377,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo null
                         personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo true
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo null
+                        personOversiktStatus.dialogmotekandidat.shouldBeNull()
 
                         personOversiktStatus.latestOppfolgingstilfelle.shouldNotBeNull()
                         checkPersonOppfolgingstilfelleDTO(
@@ -434,6 +437,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
                         personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo true
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
+                        personOversiktStatus.dialogmotekandidat.shouldBeNull()
 
                         personOversiktStatus.latestOppfolgingstilfelle.shouldNotBeNull()
                         checkPersonOppfolgingstilfelleDTO(
@@ -494,6 +498,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
                         personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo true
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
+                        personOversiktStatus.dialogmotekandidat.shouldBeNull()
 
                         personOversiktStatus.latestOppfolgingstilfelle.shouldNotBeNull()
                         checkPersonOppfolgingstilfelleDTO(
@@ -528,6 +533,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo null
                         personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo null
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
+                        personOversiktStatus.dialogmotekandidat.shouldBeNull()
 
                         personOversiktStatus.latestOppfolgingstilfelle.shouldBeNull()
                     }
@@ -559,6 +565,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo null
                         personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo null
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
+                        personOversiktStatus.dialogmotekandidat.shouldBeNull()
 
                         personOversiktStatus.latestOppfolgingstilfelle.shouldBeNull()
                     }
