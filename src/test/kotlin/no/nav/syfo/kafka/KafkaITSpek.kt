@@ -2,10 +2,9 @@ package no.nav.syfo.kafka
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import no.nav.common.KafkaEnvironment
 import no.nav.syfo.personstatus.domain.KOversikthendelse
+import no.nav.syfo.testutil.ExternalMockEnvironment
 import no.nav.syfo.testutil.generator.generateOversikthendelse
-import no.nav.syfo.testutil.testEnvironment
 import no.nav.syfo.util.configuredJacksonMapper
 import org.amshove.kluent.shouldBeEqualTo
 import org.apache.kafka.clients.consumer.KafkaConsumer
@@ -20,16 +19,7 @@ private val objectMapper: ObjectMapper = configuredJacksonMapper()
 
 object KafkaITSpek : Spek({
     val oversiktHendelseTopic = "aapen-syfo-oversikthendelse-v1"
-
-    val embeddedEnvironment = KafkaEnvironment(
-        autoStart = false,
-        topicNames = listOf(oversiktHendelseTopic)
-    )
-
-    val env = testEnvironment(
-        kafkaBootstrapServers = embeddedEnvironment.brokersURL,
-        pdlUrl = "pdlUrl",
-    )
+    val externalMockEnvironment = ExternalMockEnvironment.instance
 
     fun Properties.overrideForTest(): Properties = apply {
         remove("security.protocol")
@@ -37,7 +27,7 @@ object KafkaITSpek : Spek({
     }
 
     val consumerProperties = kafkaConsumerConfig(
-        environment = env,
+        environment = externalMockEnvironment.environment,
     ).overrideForTest()
     val consumer = KafkaConsumer<String, String>(consumerProperties)
 
@@ -48,14 +38,6 @@ object KafkaITSpek : Spek({
     val producer = KafkaProducer<String, KOversikthendelse>(producerProperties)
 
     consumer.subscribe(listOf(oversiktHendelseTopic))
-
-    beforeGroup {
-        embeddedEnvironment.start()
-    }
-
-    afterGroup {
-        embeddedEnvironment.tearDown()
-    }
 
     describe("Produce and consume messages from topic") {
         it("Topic $oversiktHendelseTopic") {

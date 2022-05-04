@@ -22,6 +22,8 @@ private val objectMapper: ObjectMapper = configuredJacksonMapper()
 
 private val log: Logger = LoggerFactory.getLogger("no.nav.syfo.Kafka")
 
+const val OVERSIKT_HENDELSE_TOPIC = "aapen-syfo-oversikthendelse-v1"
+
 fun launchKafkaTask(
     applicationState: ApplicationState,
     environment: Environment,
@@ -52,7 +54,7 @@ fun launchListeners(
     val kafkaconsumerOversikthendelse = KafkaConsumer<String, String>(consumerProperties)
     kafkaconsumerOversikthendelse.subscribe(
         listOf(
-            "aapen-syfo-oversikthendelse-v1",
+            OVERSIKT_HENDELSE_TOPIC,
         )
     )
 
