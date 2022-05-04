@@ -103,6 +103,8 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     pPersonOversiktStatus.motebehovUbehandlet.shouldBeNull()
                     pPersonOversiktStatus.moteplanleggerUbehandlet.shouldBeNull()
                     pPersonOversiktStatus.oppfolgingsplanLPSBistandUbehandlet.shouldBeNull()
+                    pPersonOversiktStatus.dialogmotekandidat.shouldBeNull()
+                    pPersonOversiktStatus.dialogmotekandidatGeneratedAt.shouldBeNull()
 
                     checkPPersonOversiktStatusOppfolgingstilfelle(
                         pPersonOversiktStatus = pPersonOversiktStatus,
@@ -151,6 +153,8 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                 pPersonOversiktStatus.motebehovUbehandlet.shouldBeNull()
                 pPersonOversiktStatus.moteplanleggerUbehandlet.shouldBeNull()
                 pPersonOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
+                pPersonOversiktStatus.dialogmotekandidat.shouldBeNull()
+                pPersonOversiktStatus.dialogmotekandidatGeneratedAt.shouldBeNull()
 
                 checkPPersonOversiktStatusOppfolgingstilfelle(
                     pPersonOversiktStatus = pPersonOversiktStatus,
@@ -215,6 +219,8 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     pPersonOversiktStatus.motebehovUbehandlet.shouldBeNull()
                     pPersonOversiktStatus.moteplanleggerUbehandlet.shouldBeNull()
                     pPersonOversiktStatus.oppfolgingsplanLPSBistandUbehandlet.shouldBeNull()
+                    pPersonOversiktStatus.dialogmotekandidat.shouldBeNull()
+                    pPersonOversiktStatus.dialogmotekandidatGeneratedAt.shouldBeNull()
 
                     checkPPersonOversiktStatusOppfolgingstilfelle(
                         pPersonOversiktStatus = pPersonOversiktStatus,
@@ -288,6 +294,8 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     pPersonOversiktStatus.motebehovUbehandlet.shouldBeNull()
                     pPersonOversiktStatus.moteplanleggerUbehandlet.shouldBeNull()
                     pPersonOversiktStatus.oppfolgingsplanLPSBistandUbehandlet.shouldBeNull()
+                    pPersonOversiktStatus.dialogmotekandidat.shouldBeNull()
+                    pPersonOversiktStatus.dialogmotekandidatGeneratedAt.shouldBeNull()
 
                     checkPPersonOversiktStatusOppfolgingstilfelle(
                         pPersonOversiktStatus = pPersonOversiktStatus,
@@ -387,6 +395,8 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     pPersonOversiktStatus.motebehovUbehandlet.shouldBeNull()
                     pPersonOversiktStatus.moteplanleggerUbehandlet.shouldBeNull()
                     pPersonOversiktStatus.oppfolgingsplanLPSBistandUbehandlet.shouldBeNull()
+                    pPersonOversiktStatus.dialogmotekandidat.shouldBeNull()
+                    pPersonOversiktStatus.dialogmotekandidatGeneratedAt.shouldBeNull()
 
                     checkPPersonOversiktStatusOppfolgingstilfelle(
                         pPersonOversiktStatus = pPersonOversiktStatus,
@@ -432,6 +442,8 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     pPersonOversiktStatus.motebehovUbehandlet.shouldBeNull()
                     pPersonOversiktStatus.moteplanleggerUbehandlet.shouldBeNull()
                     pPersonOversiktStatus.oppfolgingsplanLPSBistandUbehandlet.shouldBeNull()
+                    pPersonOversiktStatus.dialogmotekandidat.shouldBeNull()
+                    pPersonOversiktStatus.dialogmotekandidatGeneratedAt.shouldBeNull()
 
                     checkPPersonOversiktStatusOppfolgingstilfelle(
                         pPersonOversiktStatus = pPersonOversiktStatus,
@@ -531,6 +543,8 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     pPersonOversiktStatus.motebehovUbehandlet.shouldBeNull()
                     pPersonOversiktStatus.moteplanleggerUbehandlet.shouldBeNull()
                     pPersonOversiktStatus.oppfolgingsplanLPSBistandUbehandlet.shouldBeNull()
+                    pPersonOversiktStatus.dialogmotekandidat.shouldBeNull()
+                    pPersonOversiktStatus.dialogmotekandidatGeneratedAt.shouldBeNull()
 
                     checkPPersonOversiktStatusOppfolgingstilfelle(
                         pPersonOversiktStatus = pPersonOversiktStatus,
@@ -576,6 +590,8 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     pPersonOversiktStatus.motebehovUbehandlet.shouldBeNull()
                     pPersonOversiktStatus.moteplanleggerUbehandlet.shouldBeNull()
                     pPersonOversiktStatus.oppfolgingsplanLPSBistandUbehandlet.shouldBeNull()
+                    pPersonOversiktStatus.dialogmotekandidat.shouldBeNull()
+                    pPersonOversiktStatus.dialogmotekandidatGeneratedAt.shouldBeNull()
 
                     checkPPersonOversiktStatusOppfolgingstilfelle(
                         pPersonOversiktStatus = pPersonOversiktStatus,
@@ -666,6 +682,8 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     pPersonOversiktStatus.motebehovUbehandlet.shouldBeNull()
                     pPersonOversiktStatus.moteplanleggerUbehandlet.shouldBeNull()
                     pPersonOversiktStatus.oppfolgingsplanLPSBistandUbehandlet.shouldBeNull()
+                    pPersonOversiktStatus.dialogmotekandidat.shouldBeNull()
+                    pPersonOversiktStatus.dialogmotekandidatGeneratedAt.shouldBeNull()
 
                     checkPPersonOversiktStatusOppfolgingstilfelle(
                         pPersonOversiktStatus = pPersonOversiktStatus,

@@ -9,6 +9,8 @@ import no.nav.syfo.cronjob.behandlendeenhet.PersonBehandlendeEnhetCronjob
 import no.nav.syfo.cronjob.behandlendeenhet.PersonBehandlendeEnhetService
 import no.nav.syfo.cronjob.virksomhetsnavn.PersonOppfolgingstilfelleVirksomhetnavnCronjob
 import no.nav.syfo.cronjob.virksomhetsnavn.PersonOppfolgingstilfelleVirksomhetsnavnService
+import no.nav.syfo.dialogmotekandidat.kafka.KafkaDialogmotekandidatEndring
+import no.nav.syfo.dialogmotekandidat.kafka.KafkaDialogmotekandidatEndringService
 import no.nav.syfo.oppfolgingstilfelle.kafka.KafkaOppfolgingstilfellePerson
 import no.nav.syfo.oppfolgingstilfelle.kafka.KafkaOppfolgingstilfellePersonService
 import no.nav.syfo.personstatus.OversiktHendelseService
@@ -60,6 +62,11 @@ class InternalMockEnvironment private constructor() {
     val personOppfolgingstilfelleVirksomhetnavnCronjob = PersonOppfolgingstilfelleVirksomhetnavnCronjob(
         personOppfolgingstilfelleVirksomhetsnavnService = personOppfolgingstilfelleVirksomhetsnavnService,
     )
+
+    val kafkaDialogmotekandidatEndringService = KafkaDialogmotekandidatEndringService(
+        database = database
+    )
+    val kafkaConsumerDialogmotekandidatEndring = mockk<KafkaConsumer<String, KafkaDialogmotekandidatEndring>>()
 
     companion object {
         val instance: InternalMockEnvironment by lazy {

@@ -75,7 +75,9 @@ fun main() {
             )
         }
         if (environment.kafkaDialogmotekandidatProcessingEnabled) {
-            val kafkaDialogmotekandidatEndringService = KafkaDialogmotekandidatEndringService()
+            val kafkaDialogmotekandidatEndringService = KafkaDialogmotekandidatEndringService(
+                database = database,
+            )
             launchKafkaTaskDialogmotekandidatEndring(
                 applicationState = applicationState,
                 kafkaEnvironment = environment.kafka,
