@@ -1,12 +1,12 @@
 package no.nav.syfo.testutil
 
-import io.ktor.server.netty.*
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.testutil.mock.*
 
 class ExternalMockEnvironment private constructor() {
     val applicationState: ApplicationState = testAppState()
     val database = TestDatabase()
+    val embeddedEnvironment = testKafka()
 
     val azureAdMock = AzureAdMock()
     val isproxyMock = IsproxyMock()
@@ -28,6 +28,10 @@ class ExternalMockEnvironment private constructor() {
         pdlUrl = pdlMock.url,
         syfobehandlendeenhetUrl = syfobehandlendeenhetMock.url,
         syfotilgangskontrollUrl = tilgangskontrollMock.url,
+        kafkaBootstrapServers = embeddedEnvironment.brokersURL
+    )
+    val redisServer = testRedis(
+        redisEnvironment = environment.redis,
     )
 
     val wellKnownVeilederV2 = wellKnownVeilederV2Mock()
@@ -42,11 +46,7 @@ class ExternalMockEnvironment private constructor() {
 }
 
 private fun ExternalMockEnvironment.startExternalMocks() {
-    this.externalApplicationMockMap.start()
-}
-
-private fun HashMap<String, NettyApplicationEngine>.start() {
-    this.forEach {
-        it.value.start()
-    }
+    this.embeddedEnvironment.start()
+    this.externalApplicationMockMap.forEach { (_, externalMock) -> externalMock.start() }
+    this.redisServer.start()
 }
