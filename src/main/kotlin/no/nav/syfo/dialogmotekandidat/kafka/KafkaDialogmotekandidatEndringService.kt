@@ -54,6 +54,7 @@ class KafkaDialogmotekandidatEndringService(
                 commit = false,
                 personOversiktStatus = personOversiktStatus,
             )
+            COUNT_KAFKA_CONSUMER_DIALOGMOTEKANDIDAT_CREATED_PERSONOVERSIKT_STATUS.increment()
         } else {
             val shouldUpdateKandidat = existingPersonOversiktStatus.dialogmotekandidatGeneratedAt?.let {
                 kafkaDialogmotekandidatEndring.createdAt.isAfter(it)
@@ -64,6 +65,7 @@ class KafkaDialogmotekandidatEndringService(
                     kandidat = kafkaDialogmotekandidatEndring.kandidat,
                     generatedAt = kafkaDialogmotekandidatEndring.createdAt,
                 )
+                COUNT_KAFKA_CONSUMER_DIALOGMOTEKANDIDAT_UPDATED_PERSONOVERSIKT_STATUS.increment()
             }
         }
     }
