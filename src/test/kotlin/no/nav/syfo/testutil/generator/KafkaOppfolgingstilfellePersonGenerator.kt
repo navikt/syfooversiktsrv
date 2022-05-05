@@ -2,11 +2,12 @@ package no.nav.syfo.testutil.generator
 
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.domain.Virksomhetsnummer
-import no.nav.syfo.oppfolgingstilfelle.kafka.KafkaOppfolgingstilfelle
-import no.nav.syfo.oppfolgingstilfelle.kafka.KafkaOppfolgingstilfellePerson
+import no.nav.syfo.oppfolgingstilfelle.kafka.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.util.nowUTC
+import org.apache.kafka.clients.consumer.ConsumerRecord
+import org.apache.kafka.common.TopicPartition
 import java.time.LocalDate
 import java.util.*
 
@@ -38,3 +39,18 @@ fun generateKafkaOppfolgingstilfellePerson(
         referanseTilfelleBitInntruffet = nowUTC().minusDays(1),
     )
 }
+
+fun oppfolgingstilfellePersonTopicPartition() = TopicPartition(
+    OPPFOLGINGSTILFELLE_PERSON_TOPIC,
+    0
+)
+
+fun oppfolgingstilfellePersonConsumerRecord(
+    kafkaOppfolgingstilfellePerson: KafkaOppfolgingstilfellePerson,
+) = ConsumerRecord(
+    OPPFOLGINGSTILFELLE_PERSON_TOPIC,
+    0,
+    1,
+    "key1",
+    kafkaOppfolgingstilfellePerson
+)

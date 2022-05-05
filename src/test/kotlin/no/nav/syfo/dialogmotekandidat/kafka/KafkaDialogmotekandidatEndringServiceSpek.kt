@@ -10,9 +10,7 @@ import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.generator.*
 import no.nav.syfo.util.nowUTC
 import org.amshove.kluent.*
-import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.ConsumerRecords
-import org.apache.kafka.common.TopicPartition
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import java.time.Duration
@@ -28,32 +26,20 @@ class KafkaDialogmotekandidatEndringServiceSpek : Spek({
         val kafkaDialogmotekandidatEndringService = internalMockEnvironment.kafkaDialogmotekandidatEndringService
         val mockKafkaConsumerDialogmotekandidatEndring = internalMockEnvironment.kafkaConsumerDialogmotekandidatEndring
 
-        val partition = 0
-        val dialogmoteKandidatTopicPartition = TopicPartition(
-            DIALOGMOTEKANDIDAT_TOPIC,
-            partition
-        )
+        val dialogmoteKandidatTopicPartition = dialogmotekandidatEndringTopicPartition()
         val kafkaDialogmotekandidatEndringStoppunktYesterday = generateKafkaDialogmotekandidatEndringStoppunkt(
             personIdent = UserConstants.ARBEIDSTAKER_FNR,
             createdAt = nowUTC().minusDays(1)
         )
-        val kafkaDialogmotekandidatEndringStoppunktConsumerRecord = ConsumerRecord(
-            DIALOGMOTEKANDIDAT_TOPIC,
-            partition,
-            1,
-            "key1",
-            kafkaDialogmotekandidatEndringStoppunktYesterday
+        val kafkaDialogmotekandidatEndringStoppunktConsumerRecord = dialogmotekandidatEndringConsumerRecord(
+            kafkaDialogmotekandidatEndring = kafkaDialogmotekandidatEndringStoppunktYesterday
         )
         val kafkaDialogmotekandidatEndringUnntakToday = generateKafkaDialogmotekandidatEndringUnntak(
             personIdent = UserConstants.ARBEIDSTAKER_FNR,
             createdAt = nowUTC()
         )
-        val kafkaDialogmotekandidatEndringUnntakConsumerRecord = ConsumerRecord(
-            DIALOGMOTEKANDIDAT_TOPIC,
-            partition,
-            1,
-            "key2",
-            kafkaDialogmotekandidatEndringUnntakToday
+        val kafkaDialogmotekandidatEndringUnntakConsumerRecord = dialogmotekandidatEndringConsumerRecord(
+            kafkaDialogmotekandidatEndring = kafkaDialogmotekandidatEndringUnntakToday
         )
 
         beforeEachTest {
