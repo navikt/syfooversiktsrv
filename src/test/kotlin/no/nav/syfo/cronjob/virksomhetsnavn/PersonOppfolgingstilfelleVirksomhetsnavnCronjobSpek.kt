@@ -5,6 +5,7 @@ import io.ktor.util.*
 import io.mockk.clearMocks
 import io.mockk.every
 import kotlinx.coroutines.runBlocking
+import no.nav.syfo.dialogmotekandidat.kafka.DIALOGMOTEKANDIDAT_TOPIC
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.domain.Virksomhetsnummer
 import no.nav.syfo.oppfolgingstilfelle.kafka.OPPFOLGINGSTILFELLE_PERSON_TOPIC
@@ -16,8 +17,8 @@ import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER_DEFAULT
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER_NO_VIRKSOMHETSNAVN
 import no.nav.syfo.testutil.assertion.checkPPersonOppfolgingstilfelleVirksomhet
-import no.nav.syfo.testutil.generator.generateKOversikthendelse
-import no.nav.syfo.testutil.generator.generateKafkaOppfolgingstilfellePerson
+import no.nav.syfo.testutil.generator.*
+import no.nav.syfo.util.nowUTC
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -54,11 +55,32 @@ object PersonOppfolgingstilfelleVirksomhetsnavnCronjobSpek : Spek({
         )
         val personIdentDefault = PersonIdent(ARBEIDSTAKER_FNR)
 
+        val kafkaDialogmotekandidatEndringService = internalMockEnvironment.kafkaDialogmotekandidatEndringService
+        val mockKafkaConsumerDialogmotekandidatEndring =
+            internalMockEnvironment.kafkaConsumerDialogmotekandidatEndring
+        val dialogmoteKandidatTopicPartition = TopicPartition(
+            DIALOGMOTEKANDIDAT_TOPIC,
+            partition
+        )
+        val kafkaDialogmotekandidatEndringStoppunkt = generateKafkaDialogmotekandidatEndringStoppunkt(
+            personIdent = personIdentDefault.value,
+            createdAt = nowUTC().minusDays(1)
+        )
+        val kafkaDialogmotekandidatEndringStoppunktConsumerRecord = ConsumerRecord(
+            DIALOGMOTEKANDIDAT_TOPIC,
+            partition,
+            1,
+            "key2",
+            kafkaDialogmotekandidatEndringStoppunkt
+        )
+
         beforeEachTest {
             database.connection.dropData()
 
             clearMocks(mockKafkaConsumerOppfolgingstilfellePerson)
+            clearMocks(mockKafkaConsumerDialogmotekandidatEndring)
             every { mockKafkaConsumerOppfolgingstilfellePerson.commitSync() } returns Unit
+            every { mockKafkaConsumerDialogmotekandidatEndring.commitSync() } returns Unit
         }
 
         describe(PersonOppfolgingstilfelleVirksomhetsnavnCronjobSpek::class.java.simpleName) {
@@ -90,7 +112,7 @@ object PersonOppfolgingstilfelleVirksomhetsnavnCronjobSpek : Spek({
                     )
                 }
 
-                it("should not update Virksomhetsnavn of existing PersonOppfolgingstilfelleVirksomhet if motebehovUbehandlet, moteplanleggerUbehandlet and oppfolgingsplanLPSBistandUbehandlet are not true)") {
+                it("should not update Virksomhetsnavn of existing PersonOppfolgingstilfelleVirksomhet if motebehovUbehandlet, moteplanleggerUbehandlet, oppfolgingsplanLPSBistandUbehandlet and dialogmotekandidat are not true)") {
                     kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
                         kafkaConsumerOppfolgingstilfellePerson = mockKafkaConsumerOppfolgingstilfellePerson,
                     )
@@ -226,6 +248,77 @@ object PersonOppfolgingstilfelleVirksomhetsnavnCronjobSpek : Spek({
                                 updated = true,
                             )
                         }
+                    }
+                }
+
+                it("should update Virksomhetsnavn of existing PersonOppfolgingstilfelleVirksomhet if dialogmotekandidat is true") {
+                    every { mockKafkaConsumerDialogmotekandidatEndring.poll(any<Duration>()) } returns ConsumerRecords(
+                        mapOf(
+                            dialogmoteKandidatTopicPartition to listOf(
+                                kafkaDialogmotekandidatEndringStoppunktConsumerRecord,
+                            )
+                        )
+                    )
+                    kafkaDialogmotekandidatEndringService.pollAndProcessRecords(
+                        kafkaConsumer = mockKafkaConsumerDialogmotekandidatEndring,
+                    )
+                    kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                        kafkaConsumerOppfolgingstilfellePerson = mockKafkaConsumerOppfolgingstilfellePerson,
+                    )
+
+                    val recordValue = kafkaOppfolgingstilfellePersonServiceRecordRelevant.value()
+
+                    val pPersonOversiktStatusList = database.getPersonOversiktStatusList(
+                        fnr = recordValue.personIdentNumber,
+                    )
+
+                    pPersonOversiktStatusList.size shouldBeEqualTo 1
+
+                    val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+
+                    pPersonOversiktStatus.motebehovUbehandlet.shouldBeNull()
+                    pPersonOversiktStatus.moteplanleggerUbehandlet.shouldBeNull()
+                    pPersonOversiktStatus.oppfolgingsplanLPSBistandUbehandlet.shouldBeNull()
+                    pPersonOversiktStatus.dialogmotekandidat shouldBeEqualTo true
+
+                    database.connection.use { connection ->
+                        val pPersonOppfolgingstilfelleVirksomhetList =
+                            connection.getPersonOppfolgingstilfelleVirksomhetList(
+                                pPersonOversikStatusId = pPersonOversiktStatus.id,
+                            )
+
+                        checkPPersonOppfolgingstilfelleVirksomhet(
+                            pPersonOppfolgingstilfelleVirksomhetList = pPersonOppfolgingstilfelleVirksomhetList,
+                            kafkaOppfolgingstilfellePerson = recordValue,
+                            updated = false,
+                        )
+                    }
+
+                    runBlocking {
+                        val result = personOppfolgingstilfelleVirksomhetnavnCronjob.runJob()
+
+                        result.failed shouldBeEqualTo 0
+                        result.updated shouldBeEqualTo 2
+                    }
+
+                    runBlocking {
+                        val result = personOppfolgingstilfelleVirksomhetnavnCronjob.runJob()
+
+                        result.failed shouldBeEqualTo 0
+                        result.updated shouldBeEqualTo 0
+                    }
+
+                    database.connection.use { connection ->
+                        val pPersonOppfolgingstilfelleVirksomhetList =
+                            connection.getPersonOppfolgingstilfelleVirksomhetList(
+                                pPersonOversikStatusId = pPersonOversiktStatus.id,
+                            )
+
+                        checkPPersonOppfolgingstilfelleVirksomhet(
+                            pPersonOppfolgingstilfelleVirksomhetList = pPersonOppfolgingstilfelleVirksomhetList,
+                            kafkaOppfolgingstilfellePerson = recordValue,
+                            updated = true,
+                        )
                     }
                 }
             }
