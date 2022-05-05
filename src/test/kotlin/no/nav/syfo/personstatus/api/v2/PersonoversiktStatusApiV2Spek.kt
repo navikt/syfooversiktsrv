@@ -8,11 +8,12 @@ import io.ktor.util.*
 import io.mockk.clearMocks
 import io.mockk.every
 import kotlinx.coroutines.runBlocking
+import no.nav.syfo.dialogmotekandidat.kafka.DIALOGMOTEKANDIDAT_TOPIC
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.domain.Virksomhetsnummer
 import no.nav.syfo.oppfolgingstilfelle.kafka.OPPFOLGINGSTILFELLE_PERSON_TOPIC
+import no.nav.syfo.personstatus.*
 import no.nav.syfo.personstatus.domain.*
-import no.nav.syfo.personstatus.lagreBrukerKnytningPaEnhet
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_NO_NAME_FNR
@@ -20,11 +21,9 @@ import no.nav.syfo.testutil.UserConstants.NAV_ENHET
 import no.nav.syfo.testutil.UserConstants.VEILEDER_ID
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER_2
 import no.nav.syfo.testutil.assertion.checkPersonOppfolgingstilfelleDTO
-import no.nav.syfo.testutil.generator.generateKOversikthendelse
-import no.nav.syfo.testutil.generator.generateKafkaOppfolgingstilfellePerson
+import no.nav.syfo.testutil.generator.*
 import no.nav.syfo.testutil.mock.behandlendeEnhetDTO
-import no.nav.syfo.util.bearerHeader
-import no.nav.syfo.util.configuredJacksonMapper
+import no.nav.syfo.util.*
 import org.amshove.kluent.*
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.ConsumerRecords
@@ -86,6 +85,25 @@ object PersonoversiktStatusApiV2Spek : Spek({
                 kafkaOppfolgingstilfellePersonRelevant,
             )
 
+            val kafkaDialogmotekandidatEndringService = internalMockEnvironment.kafkaDialogmotekandidatEndringService
+            val mockKafkaConsumerDialogmotekandidatEndring =
+                internalMockEnvironment.kafkaConsumerDialogmotekandidatEndring
+            val dialogmoteKandidatTopicPartition = TopicPartition(
+                DIALOGMOTEKANDIDAT_TOPIC,
+                partition
+            )
+            val kafkaDialogmotekandidatEndringStoppunkt = generateKafkaDialogmotekandidatEndringStoppunkt(
+                personIdent = ARBEIDSTAKER_FNR,
+                createdAt = nowUTC().minusDays(1)
+            )
+            val kafkaDialogmotekandidatEndringStoppunktConsumerRecord = ConsumerRecord(
+                DIALOGMOTEKANDIDAT_TOPIC,
+                partition,
+                1,
+                "key2",
+                kafkaDialogmotekandidatEndringStoppunkt
+            )
+
             beforeEachTest {
                 database.connection.dropData()
 
@@ -95,6 +113,15 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     mapOf(
                         oppfolgingstilfellePersonTopicPartition to listOf(
                             kafkaOppfolgingstilfellePersonRecordRelevant,
+                        )
+                    )
+                )
+                clearMocks(mockKafkaConsumerDialogmotekandidatEndring)
+                every { mockKafkaConsumerDialogmotekandidatEndring.commitSync() } returns Unit
+                every { mockKafkaConsumerDialogmotekandidatEndring.poll(any<Duration>()) } returns ConsumerRecords(
+                    mapOf(
+                        dialogmoteKandidatTopicPartition to listOf(
+                            kafkaDialogmotekandidatEndringStoppunktConsumerRecord,
                         )
                     )
                 )
@@ -218,7 +245,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     }
                 }
 
-                it("should return NoContent, if there is a person with a relevant active Oppfolgingstilfelle, but neither MOTEBEHOV_SVAR_MOTTATT nor MOTEPLANLEGGER_ALLE_SVAR_MOTTATT") {
+                it("should return NoContent, if there is a person with a relevant active Oppfolgingstilfelle, but neither MOTEBEHOV_SVAR_MOTTATT nor MOTEPLANLEGGER_ALLE_SVAR_MOTTATT nor DIALOGMOTEKANDIDAT") {
                     kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
                         kafkaConsumerOppfolgingstilfellePerson = mockKafkaConsumerOppfolgingstilfellePerson,
                     )
@@ -292,6 +319,37 @@ object PersonoversiktStatusApiV2Spek : Spek({
                             personOppfolgingstilfelleDTO = personOversiktStatus.latestOppfolgingstilfelle,
                             kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonRelevant,
                         )
+                    }
+                }
+
+                it("should return list of PersonOversiktStatus, if there is a person with a relevant active Oppfolgingstilfelle, and person is DIALOGMOTEKANDIDAT") {
+                    kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                        kafkaConsumerOppfolgingstilfellePerson = mockKafkaConsumerOppfolgingstilfellePerson,
+                    )
+                    kafkaDialogmotekandidatEndringService.pollAndProcessRecords(
+                        kafkaConsumer = mockKafkaConsumerDialogmotekandidatEndring,
+                    )
+
+                    runBlocking {
+                        personBehandlendeEnhetCronjob.runJob()
+                    }
+
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        }
+                    ) {
+                        response.status() shouldBeEqualTo HttpStatusCode.OK
+                        val personOversiktStatus =
+                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
+                        personOversiktStatus.shouldNotBeNull()
+                        personOversiktStatus.veilederIdent shouldBeEqualTo null
+                        personOversiktStatus.fnr shouldBeEqualTo kafkaDialogmotekandidatEndringStoppunkt.personIdentNumber
+                        personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
+                        personOversiktStatus.motebehovUbehandlet.shouldBeNull()
+                        personOversiktStatus.moteplanleggerUbehandlet.shouldBeNull()
+                        personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet.shouldBeNull()
+                        personOversiktStatus.dialogmotekandidat shouldBeEqualTo true
                     }
                 }
 

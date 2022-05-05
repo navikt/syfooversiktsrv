@@ -31,7 +31,7 @@ const val queryPersonOppfolgingstilfelleVirksomhetNoVirksomhetsnavnList =
     SELECT PERSON_OPPFOLGINGSTILFELLE_VIRKSOMHET.id,virksomhetsnummer
     FROM PERSON_OPPFOLGINGSTILFELLE_VIRKSOMHET INNER JOIN PERSON_OVERSIKT_STATUS ON PERSON_OPPFOLGINGSTILFELLE_VIRKSOMHET.person_oversikt_status_id = PERSON_OVERSIKT_STATUS.id
     WHERE virksomhetsnavn IS NULL
-    AND (motebehov_ubehandlet = 't' OR moteplanlegger_ubehandlet = 't' OR oppfolgingsplan_lps_bistand_ubehandlet = 't')
+    AND (motebehov_ubehandlet = 't' OR moteplanlegger_ubehandlet = 't' OR oppfolgingsplan_lps_bistand_ubehandlet = 't' OR dialogmotekandidat = 't')
     ORDER BY PERSON_OPPFOLGINGSTILFELLE_VIRKSOMHET.created_at ASC
     LIMIT 1000
     """
