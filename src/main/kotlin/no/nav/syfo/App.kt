@@ -12,11 +12,9 @@ import no.nav.syfo.application.api.authentication.getWellKnown
 import no.nav.syfo.application.database.database
 import no.nav.syfo.application.database.databaseModule
 import no.nav.syfo.cronjob.launchCronjobModule
-import no.nav.syfo.dialogmotekandidat.kafka.KafkaDialogmotekandidatEndringService
 import no.nav.syfo.dialogmotekandidat.kafka.launchKafkaTaskDialogmotekandidatEndring
-import no.nav.syfo.kafka.launchKafkaTask
-import no.nav.syfo.oppfolgingstilfelle.kafka.KafkaOppfolgingstilfellePersonService
 import no.nav.syfo.oppfolgingstilfelle.kafka.launchKafkaTaskOppfolgingstilfellePerson
+import no.nav.syfo.personstatus.kafka.launchOversiktHendelseKafkaTask
 import org.slf4j.LoggerFactory
 import java.util.concurrent.TimeUnit
 
@@ -60,28 +58,20 @@ fun main() {
     applicationEngineEnvironment.monitor.subscribe(ApplicationStarted) { application ->
         applicationState.ready = true
         application.environment.log.info("Application is ready")
-        launchKafkaTask(
+        launchOversiktHendelseKafkaTask(
             applicationState = applicationState,
             environment = environment,
-        )
-        val kafkaOppfolgingstilfellePersonService = KafkaOppfolgingstilfellePersonService(
-            database = database,
         )
         if (environment.kafkaOppfolgingstilfellePersonProcessingEnabled) {
             launchKafkaTaskOppfolgingstilfellePerson(
                 applicationState = applicationState,
                 kafkaEnvironment = environment.kafka,
-                kafkaOppfolgingstilfellePersonService = kafkaOppfolgingstilfellePersonService,
             )
         }
         if (environment.kafkaDialogmotekandidatProcessingEnabled) {
-            val kafkaDialogmotekandidatEndringService = KafkaDialogmotekandidatEndringService(
-                database = database,
-            )
             launchKafkaTaskDialogmotekandidatEndring(
                 applicationState = applicationState,
                 kafkaEnvironment = environment.kafka,
-                kafkaDialogmotekandidatEndringService = kafkaDialogmotekandidatEndringService
             )
         }
         launchCronjobModule(

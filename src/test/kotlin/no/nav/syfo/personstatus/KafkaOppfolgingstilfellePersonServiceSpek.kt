@@ -36,7 +36,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
 
         val internalMockEnvironment = InternalMockEnvironment.instance
 
-        val oversiktHendelseService = internalMockEnvironment.oversiktHendelseService
+        val oversiktHendelseService = internalMockEnvironment.kafkaOversiktHendelseService
         val kafkaOppfolgingstilfellePersonService = internalMockEnvironment.kafkaOppfolgingstilfellePersonService
 
         val mockKafkaConsumerOppfolgingstilfellePerson = internalMockEnvironment.kafkaConsumerOppfolgingstilfellePerson
@@ -69,7 +69,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                 )
 
                 kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
-                    kafkaConsumerOppfolgingstilfellePerson = mockKafkaConsumerOppfolgingstilfellePerson,
+                    kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                 )
 
                 val recordValue = kafkaOppfolgingstilfellePersonServiceRecordRelevant.value()
@@ -118,7 +118,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                 )
 
                 kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
-                    kafkaConsumerOppfolgingstilfellePerson = mockKafkaConsumerOppfolgingstilfellePerson,
+                    kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                 )
 
                 val recordValue = kafkaOppfolgingstilfellePersonServiceRecordRelevant.value()
@@ -177,7 +177,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     )
                 )
                 kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
-                    kafkaConsumerOppfolgingstilfellePerson = mockKafkaConsumerOppfolgingstilfellePerson,
+                    kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                 )
 
                 val recordValue = kafkaOppfolgingstilfellePersonServiceRecordRelevantNewest.value()
@@ -244,7 +244,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     )
                 )
                 kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
-                    kafkaConsumerOppfolgingstilfellePerson = mockKafkaConsumerOppfolgingstilfellePerson,
+                    kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                 )
 
                 val recordValue = kafkaOppfolgingstilfellePersonServiceRecordRelevantNewest.value()
@@ -322,7 +322,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     )
                 )
                 kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
-                    kafkaConsumerOppfolgingstilfellePerson = mockKafkaConsumerOppfolgingstilfellePerson,
+                    kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                 )
 
                 every { mockKafkaConsumerOppfolgingstilfellePerson.poll(any<Duration>()) } returns ConsumerRecords(
@@ -333,7 +333,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     )
                 )
                 kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
-                    kafkaConsumerOppfolgingstilfellePerson = mockKafkaConsumerOppfolgingstilfellePerson,
+                    kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                 )
 
                 val recordValueSecond = kafkaOppfolgingstilfellePersonServiceRecordRelevantSecond.value()
@@ -380,7 +380,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     )
                 )
                 kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
-                    kafkaConsumerOppfolgingstilfellePerson = mockKafkaConsumerOppfolgingstilfellePerson,
+                    kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                 )
 
                 val recordValueNewest = kafkaOppfolgingstilfellePersonServiceRecordRelevantNewest.value()
@@ -458,7 +458,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     )
                 )
                 kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
-                    kafkaConsumerOppfolgingstilfellePerson = mockKafkaConsumerOppfolgingstilfellePerson,
+                    kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                 )
 
                 every { mockKafkaConsumerOppfolgingstilfellePerson.poll(any<Duration>()) } returns ConsumerRecords(
@@ -469,7 +469,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     )
                 )
                 kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
-                    kafkaConsumerOppfolgingstilfellePerson = mockKafkaConsumerOppfolgingstilfellePerson,
+                    kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                 )
 
                 val recordValueSecond = kafkaOppfolgingstilfellePersonServiceRecordRelevantSecond.value()
@@ -516,7 +516,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     )
                 )
                 kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
-                    kafkaConsumerOppfolgingstilfellePerson = mockKafkaConsumerOppfolgingstilfellePerson,
+                    kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                 )
 
                 val recordValueNewest = kafkaOppfolgingstilfellePersonServiceRecordRelevantNewest.value()
@@ -577,7 +577,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     )
                 )
                 kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
-                    kafkaConsumerOppfolgingstilfellePerson = mockKafkaConsumerOppfolgingstilfellePerson,
+                    kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                 )
 
                 val virksomhetsnummerListSecond = listOf(
@@ -600,7 +600,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     )
                 )
                 kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
-                    kafkaConsumerOppfolgingstilfellePerson = mockKafkaConsumerOppfolgingstilfellePerson,
+                    kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                 )
 
                 val recordValue = kafkaOppfolgingstilfellePersonServiceRecordRelevantSecond.value()

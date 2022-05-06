@@ -1,6 +1,7 @@
 package no.nav.syfo.dialogmotekandidat.kafka
 
 import no.nav.syfo.application.database.DatabaseInterface
+import no.nav.syfo.kafka.KafkaConsumerService
 import no.nav.syfo.personstatus.*
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.consumer.KafkaConsumer
@@ -10,16 +11,21 @@ import java.time.Duration
 
 class KafkaDialogmotekandidatEndringService(
     private val database: DatabaseInterface,
-) {
-    fun pollAndProcessRecords(kafkaConsumer: KafkaConsumer<String, KafkaDialogmotekandidatEndring>) {
-        val consumerRecords = kafkaConsumer.poll(Duration.ofSeconds(POLL_DURATION_SECONDS))
-        if (consumerRecords.count() > 0) {
-            processRecords(consumerRecords = consumerRecords)
+) : KafkaConsumerService<KafkaDialogmotekandidatEndring> {
+
+    override val pollDurationInMillis: Long = 1000
+
+    override fun pollAndProcessRecords(kafkaConsumer: KafkaConsumer<String, KafkaDialogmotekandidatEndring>) {
+        val records = kafkaConsumer.poll(Duration.ofMillis(pollDurationInMillis))
+        if (records.count() > 0) {
+            processRecords(records)
             kafkaConsumer.commitSync()
         }
     }
 
-    private fun processRecords(consumerRecords: ConsumerRecords<String, KafkaDialogmotekandidatEndring>) {
+    private fun processRecords(
+        consumerRecords: ConsumerRecords<String, KafkaDialogmotekandidatEndring>,
+    ) {
         val (tombstoneRecords, validRecords) = consumerRecords.partition { it.value() == null }
 
         if (tombstoneRecords.isNotEmpty()) {
@@ -72,6 +78,5 @@ class KafkaDialogmotekandidatEndringService(
 
     companion object {
         private val log = LoggerFactory.getLogger(KafkaDialogmotekandidatEndringService::class.java)
-        private const val POLL_DURATION_SECONDS = 1L
     }
 }

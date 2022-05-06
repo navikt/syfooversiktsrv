@@ -7,7 +7,7 @@ import org.apache.kafka.common.config.SslConfigs
 import org.apache.kafka.common.serialization.StringDeserializer
 import java.util.*
 
-fun kafkaConsumerConfig(
+fun kafkaAivenConsumerConfig(
     kafkaEnvironment: KafkaEnvironment,
 ): Properties {
     return Properties().apply {

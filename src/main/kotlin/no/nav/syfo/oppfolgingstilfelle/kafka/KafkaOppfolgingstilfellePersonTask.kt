@@ -2,12 +2,13 @@ package no.nav.syfo.oppfolgingstilfelle.kafka
 
 import no.nav.syfo.application.kafka.KafkaEnvironment
 import no.nav.syfo.application.ApplicationState
-import no.nav.syfo.application.backgroundtask.launchBackgroundTask
-import org.apache.kafka.clients.consumer.KafkaConsumer
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-
-private val log: Logger = LoggerFactory.getLogger("no.nav.syfo")
+import no.nav.syfo.application.database.database
+import no.nav.syfo.application.kafka.kafkaAivenConsumerConfig
+import no.nav.syfo.kafka.launchKafkaTask
+import no.nav.syfo.util.configuredJacksonMapper
+import org.apache.kafka.clients.consumer.ConsumerConfig
+import org.apache.kafka.common.serialization.Deserializer
+import java.util.*
 
 const val OPPFOLGINGSTILFELLE_PERSON_TOPIC =
     "teamsykefravr.isoppfolgingstilfelle-oppfolgingstilfelle-person"
@@ -15,38 +16,25 @@ const val OPPFOLGINGSTILFELLE_PERSON_TOPIC =
 fun launchKafkaTaskOppfolgingstilfellePerson(
     applicationState: ApplicationState,
     kafkaEnvironment: KafkaEnvironment,
-    kafkaOppfolgingstilfellePersonService: KafkaOppfolgingstilfellePersonService,
 ) {
-    launchBackgroundTask(
-        applicationState = applicationState,
-    ) {
-        blockingApplicationLogicOppfolgingstilfellePerson(
-            applicationState = applicationState,
-            kafkaEnvironment = kafkaEnvironment,
-            kafkaOppfolgingstilfellePersonService = kafkaOppfolgingstilfellePersonService,
-        )
+    val kafkaOppfolgingstilfellePersonService = KafkaOppfolgingstilfellePersonService(
+        database = database,
+    )
+    val consumerProperties = Properties().apply {
+        putAll(kafkaAivenConsumerConfig(kafkaEnvironment = kafkaEnvironment))
+        this[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] =
+            KafkaOppfolgingstilfellePersonDeserializer::class.java.canonicalName
     }
+    launchKafkaTask(
+        applicationState = applicationState,
+        topic = OPPFOLGINGSTILFELLE_PERSON_TOPIC,
+        consumerProperties = consumerProperties,
+        kafkaConsumerService = kafkaOppfolgingstilfellePersonService
+    )
 }
 
-fun blockingApplicationLogicOppfolgingstilfellePerson(
-    applicationState: ApplicationState,
-    kafkaEnvironment: KafkaEnvironment,
-    kafkaOppfolgingstilfellePersonService: KafkaOppfolgingstilfellePersonService,
-) {
-    log.info("Setting up kafka consumer for ${KafkaOppfolgingstilfellePerson::class.java.simpleName}")
-
-    val consumerProperties = kafkaOppfolgingstilfellePersonConsumerConfig(
-        kafkaEnvironment = kafkaEnvironment,
-    )
-    val kafkaConsumerOppfolgingstilfellePerson =
-        KafkaConsumer<String, KafkaOppfolgingstilfellePerson>(consumerProperties)
-
-    kafkaConsumerOppfolgingstilfellePerson.subscribe(
-        listOf(OPPFOLGINGSTILFELLE_PERSON_TOPIC)
-    )
-    while (applicationState.ready) {
-        kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
-            kafkaConsumerOppfolgingstilfellePerson = kafkaConsumerOppfolgingstilfellePerson,
-        )
-    }
+class KafkaOppfolgingstilfellePersonDeserializer : Deserializer<KafkaOppfolgingstilfellePerson> {
+    private val mapper = configuredJacksonMapper()
+    override fun deserialize(topic: String, data: ByteArray): KafkaOppfolgingstilfellePerson =
+        mapper.readValue(data, KafkaOppfolgingstilfellePerson::class.java)
 }

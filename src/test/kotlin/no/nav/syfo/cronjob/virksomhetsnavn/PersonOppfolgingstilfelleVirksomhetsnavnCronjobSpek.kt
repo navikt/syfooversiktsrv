@@ -38,7 +38,7 @@ object PersonOppfolgingstilfelleVirksomhetsnavnCronjobSpek : Spek({
         val personOppfolgingstilfelleVirksomhetnavnCronjob =
             internalMockEnvironment.personOppfolgingstilfelleVirksomhetnavnCronjob
 
-        val oversiktHendelseService = internalMockEnvironment.oversiktHendelseService
+        val oversiktHendelseService = internalMockEnvironment.kafkaOversiktHendelseService
         val kafkaOppfolgingstilfellePersonService = internalMockEnvironment.kafkaOppfolgingstilfellePersonService
 
         val mockKafkaConsumerOppfolgingstilfellePerson =
@@ -95,7 +95,7 @@ object PersonOppfolgingstilfelleVirksomhetsnavnCronjobSpek : Spek({
 
                 it("should not update Virksomhetsnavn of existing PersonOppfolgingstilfelleVirksomhet if motebehovUbehandlet, moteplanleggerUbehandlet, oppfolgingsplanLPSBistandUbehandlet and dialogmotekandidat are not true)") {
                     kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
-                        kafkaConsumerOppfolgingstilfellePerson = mockKafkaConsumerOppfolgingstilfellePerson,
+                        kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                     )
 
                     val recordValue = kafkaOppfolgingstilfellePersonServiceRecordRelevant.value()
@@ -159,7 +159,7 @@ object PersonOppfolgingstilfelleVirksomhetsnavnCronjobSpek : Spek({
                         )
 
                         kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
-                            kafkaConsumerOppfolgingstilfellePerson = mockKafkaConsumerOppfolgingstilfellePerson,
+                            kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                         )
 
                         val recordValue = kafkaOppfolgingstilfellePersonServiceRecordRelevant.value()
@@ -244,7 +244,7 @@ object PersonOppfolgingstilfelleVirksomhetsnavnCronjobSpek : Spek({
                         kafkaConsumer = mockKafkaConsumerDialogmotekandidatEndring,
                     )
                     kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
-                        kafkaConsumerOppfolgingstilfellePerson = mockKafkaConsumerOppfolgingstilfellePerson,
+                        kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                     )
 
                     val recordValue = kafkaOppfolgingstilfellePersonServiceRecordRelevant.value()
@@ -337,7 +337,7 @@ object PersonOppfolgingstilfelleVirksomhetsnavnCronjobSpek : Spek({
                     )
 
                     kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
-                        kafkaConsumerOppfolgingstilfellePerson = mockKafkaConsumerOppfolgingstilfellePerson,
+                        kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                     )
 
                     runBlocking {

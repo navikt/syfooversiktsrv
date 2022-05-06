@@ -1,47 +1,39 @@
 package no.nav.syfo.dialogmotekandidat.kafka
 
 import no.nav.syfo.application.ApplicationState
-import no.nav.syfo.application.backgroundtask.launchBackgroundTask
+import no.nav.syfo.application.database.database
 import no.nav.syfo.application.kafka.KafkaEnvironment
-import org.apache.kafka.clients.consumer.KafkaConsumer
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-
-private val log: Logger = LoggerFactory.getLogger("no.nav.syfo")
+import no.nav.syfo.application.kafka.kafkaAivenConsumerConfig
+import no.nav.syfo.kafka.launchKafkaTask
+import no.nav.syfo.util.configuredJacksonMapper
+import org.apache.kafka.clients.consumer.ConsumerConfig
+import org.apache.kafka.common.serialization.Deserializer
+import java.util.*
 
 const val DIALOGMOTEKANDIDAT_TOPIC = "teamsykefravr.isdialogmotekandidat-dialogmotekandidat"
 
 fun launchKafkaTaskDialogmotekandidatEndring(
     applicationState: ApplicationState,
     kafkaEnvironment: KafkaEnvironment,
-    kafkaDialogmotekandidatEndringService: KafkaDialogmotekandidatEndringService,
 ) {
-    launchBackgroundTask(
-        applicationState = applicationState,
-    ) {
-        blockingApplicationLogicDialogmotekandidatEndring(
-            applicationState = applicationState,
-            kafkaEnvironment = kafkaEnvironment,
-            kafkaDialogmotekandidatEndringService = kafkaDialogmotekandidatEndringService
-        )
+    val kafkaDialogmotekandidatEndringService = KafkaDialogmotekandidatEndringService(
+        database = database,
+    )
+    val consumerProperties = Properties().apply {
+        putAll(kafkaAivenConsumerConfig(kafkaEnvironment = kafkaEnvironment))
+        this[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = KafkaDialogmotekandidatEndringDeserializer::class.java
     }
+
+    launchKafkaTask(
+        applicationState = applicationState,
+        topic = DIALOGMOTEKANDIDAT_TOPIC,
+        consumerProperties = consumerProperties,
+        kafkaConsumerService = kafkaDialogmotekandidatEndringService,
+    )
 }
 
-fun blockingApplicationLogicDialogmotekandidatEndring(
-    applicationState: ApplicationState,
-    kafkaEnvironment: KafkaEnvironment,
-    kafkaDialogmotekandidatEndringService: KafkaDialogmotekandidatEndringService,
-) {
-    log.info("Setting up kafka consumer for ${KafkaDialogmotekandidatEndring::class.java.simpleName}")
-
-    val kafkaConsumer = KafkaConsumer<String, KafkaDialogmotekandidatEndring>(
-        kafkaDialogmotekandidatEndringConsumerConfig(kafkaEnvironment = kafkaEnvironment)
-    )
-
-    kafkaConsumer.subscribe(listOf(DIALOGMOTEKANDIDAT_TOPIC))
-    while (applicationState.ready) {
-        kafkaDialogmotekandidatEndringService.pollAndProcessRecords(
-            kafkaConsumer = kafkaConsumer
-        )
-    }
+class KafkaDialogmotekandidatEndringDeserializer : Deserializer<KafkaDialogmotekandidatEndring> {
+    private val mapper = configuredJacksonMapper()
+    override fun deserialize(topic: String, data: ByteArray): KafkaDialogmotekandidatEndring =
+        mapper.readValue(data, KafkaDialogmotekandidatEndring::class.java)
 }

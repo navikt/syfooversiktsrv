@@ -4,6 +4,7 @@ import io.ktor.server.testing.*
 import io.ktor.util.*
 import no.nav.syfo.application.api.authentication.installContentNegotiation
 import no.nav.syfo.personstatus.domain.*
+import no.nav.syfo.personstatus.kafka.KafkaOversiktHendelseService
 import no.nav.syfo.testutil.TestDatabase
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testutil.UserConstants.NAV_ENHET
@@ -22,7 +23,7 @@ object OversiktHendelseServiceSpek : Spek({
     describe("OversiktHendelseService") {
 
         val database by lazy { TestDatabase() }
-        val oversiktHendelseService = OversiktHendelseService(database)
+        val kafkaOversiktHendelseService = KafkaOversiktHendelseService(database)
 
         afterGroup {
             database.stop()
@@ -47,7 +48,7 @@ object OversiktHendelseServiceSpek : Spek({
                         LocalDateTime.now()
                     )
 
-                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
+                    kafkaOversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
                     val personListe = database.connection.getPersonOversiktStatusList(
                         fnr = oversiktHendelse.fnr,
@@ -69,7 +70,7 @@ object OversiktHendelseServiceSpek : Spek({
                         LocalDateTime.now()
                     )
 
-                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
+                    kafkaOversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
                     database.lagreBrukerKnytningPaEnhet(tilknytning)
 
@@ -92,7 +93,7 @@ object OversiktHendelseServiceSpek : Spek({
                         LocalDateTime.now()
                     )
 
-                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse = oversiktHendelse)
+                    kafkaOversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse = oversiktHendelse)
 
                     val oversiktHendelseNy = KOversikthendelse(
                         ARBEIDSTAKER_FNR,
@@ -101,7 +102,7 @@ object OversiktHendelseServiceSpek : Spek({
                         LocalDateTime.now()
                     )
 
-                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseNy)
+                    kafkaOversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseNy)
 
                     val personListe = database.connection.getPersonOversiktStatusList(
                         fnr = oversiktHendelse.fnr,
@@ -125,7 +126,7 @@ object OversiktHendelseServiceSpek : Spek({
                         LocalDateTime.now()
                     )
 
-                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
+                    kafkaOversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
                     val personListe = database.connection.getPersonOversiktStatusList(
                         fnr = oversiktHendelse.fnr,
@@ -141,7 +142,7 @@ object OversiktHendelseServiceSpek : Spek({
                         NAV_ENHET,
                         LocalDateTime.now()
                     )
-                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerSvarUbehandlet)
+                    kafkaOversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerSvarUbehandlet)
 
                     val oversiktHendelseMotebehovUbehandlet = KOversikthendelse(
                         ARBEIDSTAKER_FNR,
@@ -149,7 +150,7 @@ object OversiktHendelseServiceSpek : Spek({
                         NAV_ENHET,
                         LocalDateTime.now()
                     )
-                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMotebehovUbehandlet)
+                    kafkaOversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMotebehovUbehandlet)
 
                     val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
 
@@ -174,7 +175,7 @@ object OversiktHendelseServiceSpek : Spek({
                         LocalDateTime.now()
                     )
 
-                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse = oversiktHendelseMotebehovMottatt)
+                    kafkaOversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse = oversiktHendelseMotebehovMottatt)
 
                     val oversiktHendelseMotebehovUbehandlet = KOversikthendelse(
                         ARBEIDSTAKER_FNR,
@@ -183,7 +184,7 @@ object OversiktHendelseServiceSpek : Spek({
                         LocalDateTime.now()
                     )
 
-                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMotebehovUbehandlet)
+                    kafkaOversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMotebehovUbehandlet)
 
                     val personListe = database.connection.getPersonOversiktStatusList(
                         fnr = oversiktHendelseMotebehovMottatt.fnr,
@@ -207,7 +208,7 @@ object OversiktHendelseServiceSpek : Spek({
                         LocalDateTime.now()
                     )
 
-                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
+                    kafkaOversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
                     val personListe = database.connection.getPersonOversiktStatusList(
                         fnr = oversiktHendelse.fnr,
@@ -232,7 +233,7 @@ object OversiktHendelseServiceSpek : Spek({
 
                     database.lagreBrukerKnytningPaEnhet(tilknytning)
 
-                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
+                    kafkaOversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
                     val personListe = database.connection.getPersonOversiktStatusList(
                         fnr = oversiktHendelse.fnr,
@@ -254,7 +255,7 @@ object OversiktHendelseServiceSpek : Spek({
                         LocalDateTime.now()
                     )
 
-                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
+                    kafkaOversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
                     val oversiktHendelseNy = KOversikthendelse(
                         ARBEIDSTAKER_FNR,
@@ -263,7 +264,7 @@ object OversiktHendelseServiceSpek : Spek({
                         LocalDateTime.now()
                     )
 
-                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseNy)
+                    kafkaOversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseNy)
 
                     val personListe = database.connection.getPersonOversiktStatusList(
                         fnr = oversiktHendelse.fnr,
@@ -288,7 +289,7 @@ object OversiktHendelseServiceSpek : Spek({
                         LocalDateTime.now()
                     )
 
-                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
+                    kafkaOversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
                     val personListe = database.connection.getPersonOversiktStatusList(
                         fnr = oversiktHendelse.fnr,
@@ -304,7 +305,7 @@ object OversiktHendelseServiceSpek : Spek({
                         NAV_ENHET,
                         LocalDateTime.now()
                     )
-                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMotebehovMottatt)
+                    kafkaOversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMotebehovMottatt)
 
                     val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
                     database.lagreBrukerKnytningPaEnhet(tilknytning)
@@ -315,7 +316,7 @@ object OversiktHendelseServiceSpek : Spek({
                         NAV_ENHET,
                         LocalDateTime.now()
                     )
-                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerSvarUbehandlet)
+                    kafkaOversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerSvarUbehandlet)
 
                     val personListe = database.connection.getPersonOversiktStatusList(
                         fnr = oversiktHendelseMotebehovMottatt.fnr,
@@ -336,7 +337,7 @@ object OversiktHendelseServiceSpek : Spek({
                         NAV_ENHET,
                         LocalDateTime.now()
                     )
-                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerSvarMottatt)
+                    kafkaOversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerSvarMottatt)
 
                     val oversiktHendelseMoteplanleggerSvarUbehandlet = KOversikthendelse(
                         ARBEIDSTAKER_FNR,
@@ -344,7 +345,7 @@ object OversiktHendelseServiceSpek : Spek({
                         NAV_ENHET_2,
                         LocalDateTime.now()
                     )
-                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerSvarUbehandlet)
+                    kafkaOversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerSvarUbehandlet)
 
                     val personListe = database.connection.getPersonOversiktStatusList(
                         fnr = oversiktHendelseMoteplanleggerSvarMottatt.fnr,
@@ -366,7 +367,7 @@ object OversiktHendelseServiceSpek : Spek({
                         OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT
                     )
 
-                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
+                    kafkaOversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
                     val personListe = database.connection.getPersonOversiktStatusList(
                         fnr = oversiktHendelse.fnr,
@@ -387,7 +388,7 @@ object OversiktHendelseServiceSpek : Spek({
                     val oversiktHendelse = generateKOversikthendelse(
                         OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT
                     )
-                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
+                    kafkaOversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
                     val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
                     database.lagreBrukerKnytningPaEnhet(tilknytning)
@@ -412,13 +413,13 @@ object OversiktHendelseServiceSpek : Spek({
                         OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT
                     )
 
-                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
+                    kafkaOversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
                     val oversiktHendelseNy = generateKOversikthendelse(
                         OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT
                     ).copy(enhetId = NAV_ENHET_2)
 
-                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseNy)
+                    kafkaOversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseNy)
 
                     val personListe = database.connection.getPersonOversiktStatusList(
                         fnr = oversiktHendelse.fnr,
@@ -442,7 +443,7 @@ object OversiktHendelseServiceSpek : Spek({
                     val oversiktHendelse = generateKOversikthendelse(
                         OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_BEHANDLET
                     )
-                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
+                    kafkaOversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
                     val personListe = database.connection.getPersonOversiktStatusList(
                         fnr = oversiktHendelse.fnr,
@@ -455,7 +456,7 @@ object OversiktHendelseServiceSpek : Spek({
                     val oversiktHendelseMotebehovMottatt = generateKOversikthendelse(
                         OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT
                     )
-                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMotebehovMottatt)
+                    kafkaOversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMotebehovMottatt)
 
                     val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
                     database.lagreBrukerKnytningPaEnhet(tilknytning)
@@ -463,7 +464,7 @@ object OversiktHendelseServiceSpek : Spek({
                     val oversiktHendelseOPLPSBistandUbehandlet = generateKOversikthendelse(
                         OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_BEHANDLET
                     )
-                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseOPLPSBistandUbehandlet)
+                    kafkaOversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseOPLPSBistandUbehandlet)
 
                     val personListe = database.connection.getPersonOversiktStatusList(
                         fnr = oversiktHendelseMotebehovMottatt.fnr,

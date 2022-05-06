@@ -1,16 +1,55 @@
-package no.nav.syfo.personstatus
+package no.nav.syfo.personstatus.kafka
 
+import io.netty.util.internal.StringUtil
+import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.application.database.DatabaseInterface
+import no.nav.syfo.kafka.KafkaConsumerService
 import no.nav.syfo.metric.*
+import no.nav.syfo.personstatus.*
 import no.nav.syfo.personstatus.domain.*
 import no.nav.syfo.util.callIdArgument
+import no.nav.syfo.util.kafkaCallId
+import org.apache.kafka.clients.consumer.ConsumerRecords
+import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.slf4j.LoggerFactory
+import java.time.Duration
 
-private val log: org.slf4j.Logger = LoggerFactory.getLogger("no.nav.syfo.personstatus")
-
-class OversiktHendelseService(
+class KafkaOversiktHendelseService(
     private val database: DatabaseInterface,
-) {
+) : KafkaConsumerService<KOversikthendelse> {
+
+    override val pollDurationInMillis: Long = 100
+
+    override fun pollAndProcessRecords(kafkaConsumer: KafkaConsumer<String, KOversikthendelse>) {
+        val records = kafkaConsumer.poll(Duration.ofMillis(pollDurationInMillis))
+        processRecords(records)
+    }
+
+    private fun processRecords(consumerRecords: ConsumerRecords<String, KOversikthendelse>) {
+        var logValues = arrayOf(
+            StructuredArguments.keyValue("oversikthendelseId", "missing"),
+            StructuredArguments.keyValue("Harfnr", "missing"),
+            StructuredArguments.keyValue("hendelseId", "missing")
+        )
+
+        val logKeys = logValues.joinToString(prefix = "(", postfix = ")", separator = ",") {
+            "{}"
+        }
+
+        consumerRecords.forEach {
+            val callId = kafkaCallId()
+            val oversiktHendelse: KOversikthendelse = it.value()
+            logValues = arrayOf(
+                StructuredArguments.keyValue("oversikthendelseId", it.key()),
+                StructuredArguments.keyValue("harFnr", (!StringUtil.isNullOrEmpty(oversiktHendelse.fnr)).toString()),
+                StructuredArguments.keyValue("hendelseId", oversiktHendelse.hendelseId)
+            )
+            log.info("Mottatt oversikthendelse, klar for oppdatering, $logKeys, {}", *logValues, callIdArgument(callId))
+
+            oppdaterPersonMedHendelse(oversiktHendelse, callId)
+        }
+    }
+
     fun oppdaterPersonMedHendelse(
         oversiktHendelse: KOversikthendelse,
         callId: String = "",
@@ -120,5 +159,9 @@ class OversiktHendelseService(
             OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT -> COUNT_OVERSIKTHENDELSE_OPPFOLGINGSPLANLPS_BISTAND_MOTTATT_OPPDATER.increment()
             OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_BEHANDLET -> COUNT_OVERSIKTHENDELSE_OPPFOLGINGSPLANLPS_BISTAND_BEHANDLET_OPPDATER.increment()
         }
+    }
+
+    companion object {
+        private val log = LoggerFactory.getLogger(KafkaOversiktHendelseService::class.java)
     }
 }
