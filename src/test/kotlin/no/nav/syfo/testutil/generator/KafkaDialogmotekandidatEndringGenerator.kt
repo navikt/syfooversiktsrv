@@ -1,6 +1,9 @@
 package no.nav.syfo.testutil.generator
 
+import no.nav.syfo.dialogmotekandidat.kafka.DIALOGMOTEKANDIDAT_TOPIC
 import no.nav.syfo.dialogmotekandidat.kafka.KafkaDialogmotekandidatEndring
+import org.apache.kafka.clients.consumer.ConsumerRecord
+import org.apache.kafka.common.TopicPartition
 import java.time.OffsetDateTime
 import java.util.UUID
 
@@ -24,4 +27,19 @@ fun generateKafkaDialogmotekandidatEndringUnntak(
     personIdentNumber = personIdent,
     kandidat = false,
     arsak = "UNNTAK"
+)
+
+fun dialogmotekandidatEndringTopicPartition() = TopicPartition(
+    DIALOGMOTEKANDIDAT_TOPIC,
+    0
+)
+
+fun dialogmotekandidatEndringConsumerRecord(
+    kafkaDialogmotekandidatEndring: KafkaDialogmotekandidatEndring
+) = ConsumerRecord(
+    DIALOGMOTEKANDIDAT_TOPIC,
+    0,
+    1,
+    "key1",
+    kafkaDialogmotekandidatEndring
 )

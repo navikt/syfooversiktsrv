@@ -8,10 +8,8 @@ import io.ktor.util.*
 import io.mockk.clearMocks
 import io.mockk.every
 import kotlinx.coroutines.runBlocking
-import no.nav.syfo.dialogmotekandidat.kafka.DIALOGMOTEKANDIDAT_TOPIC
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.domain.Virksomhetsnummer
-import no.nav.syfo.oppfolgingstilfelle.kafka.OPPFOLGINGSTILFELLE_PERSON_TOPIC
 import no.nav.syfo.personstatus.*
 import no.nav.syfo.personstatus.domain.*
 import no.nav.syfo.testutil.*
@@ -25,9 +23,7 @@ import no.nav.syfo.testutil.generator.*
 import no.nav.syfo.testutil.mock.behandlendeEnhetDTO
 import no.nav.syfo.util.*
 import org.amshove.kluent.*
-import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.ConsumerRecords
-import org.apache.kafka.common.TopicPartition
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import java.time.Duration
@@ -65,11 +61,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
             val mockKafkaConsumerOppfolgingstilfellePerson =
                 internalMockEnvironment.kafkaConsumerOppfolgingstilfellePerson
 
-            val partition = 0
-            val oppfolgingstilfellePersonTopicPartition = TopicPartition(
-                OPPFOLGINGSTILFELLE_PERSON_TOPIC,
-                partition,
-            )
+            val oppfolgingstilfellePersonTopicPartition = oppfolgingstilfellePersonTopicPartition()
             val kafkaOppfolgingstilfellePersonRelevant = generateKafkaOppfolgingstilfellePerson(
                 personIdent = personIdentDefault,
                 virksomhetsnummerList = listOf(
@@ -77,31 +69,20 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     Virksomhetsnummer(VIRKSOMHETSNUMMER_2),
                 )
             )
-            val kafkaOppfolgingstilfellePersonRecordRelevant = ConsumerRecord(
-                OPPFOLGINGSTILFELLE_PERSON_TOPIC,
-                partition,
-                1,
-                "key1",
-                kafkaOppfolgingstilfellePersonRelevant,
+            val kafkaOppfolgingstilfellePersonRecordRelevant = oppfolgingstilfellePersonConsumerRecord(
+                kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonRelevant,
             )
 
             val kafkaDialogmotekandidatEndringService = internalMockEnvironment.kafkaDialogmotekandidatEndringService
             val mockKafkaConsumerDialogmotekandidatEndring =
                 internalMockEnvironment.kafkaConsumerDialogmotekandidatEndring
-            val dialogmoteKandidatTopicPartition = TopicPartition(
-                DIALOGMOTEKANDIDAT_TOPIC,
-                partition
-            )
+            val dialogmoteKandidatTopicPartition = dialogmotekandidatEndringTopicPartition()
             val kafkaDialogmotekandidatEndringStoppunkt = generateKafkaDialogmotekandidatEndringStoppunkt(
                 personIdent = ARBEIDSTAKER_FNR,
                 createdAt = nowUTC().minusDays(1)
             )
-            val kafkaDialogmotekandidatEndringStoppunktConsumerRecord = ConsumerRecord(
-                DIALOGMOTEKANDIDAT_TOPIC,
-                partition,
-                1,
-                "key2",
-                kafkaDialogmotekandidatEndringStoppunkt
+            val kafkaDialogmotekandidatEndringStoppunktConsumerRecord = dialogmotekandidatEndringConsumerRecord(
+                kafkaDialogmotekandidatEndring = kafkaDialogmotekandidatEndringStoppunkt,
             )
 
             beforeEachTest {
@@ -384,7 +365,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                             objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
                         personOversiktStatus.veilederIdent shouldBeEqualTo null
                         personOversiktStatus.fnr shouldBeEqualTo oversiktHendelseMotebehovMottatt.fnr
-                        personOversiktStatus.navn shouldBeEqualTo getIdentName(ident = oversiktHendelseMotebehovMottatt.fnr)
+                        personOversiktStatus.navn shouldBeEqualTo getIdentName()
                         personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
                         personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo null
@@ -430,7 +411,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                             objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
                         personOversiktStatus.veilederIdent shouldBeEqualTo null
                         personOversiktStatus.fnr shouldBeEqualTo oversiktHendelseMoteplanleggerMottatt.fnr
-                        personOversiktStatus.navn shouldBeEqualTo getIdentName(ident = oversiktHendelseMoteplanleggerMottatt.fnr)
+                        personOversiktStatus.navn shouldBeEqualTo getIdentName()
                         personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo null
                         personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo true
@@ -490,7 +471,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                             objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
                         personOversiktStatus.veilederIdent shouldBeEqualTo tilknytning.veilederIdent
                         personOversiktStatus.fnr shouldBeEqualTo oversiktHendelseMoteplanleggerMottatt.fnr
-                        personOversiktStatus.navn shouldBeEqualTo getIdentName(ident = oversiktHendelseMoteplanleggerMottatt.fnr)
+                        personOversiktStatus.navn shouldBeEqualTo getIdentName()
                         personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
                         personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo true
@@ -551,7 +532,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                             objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
                         personOversiktStatus.veilederIdent shouldBeEqualTo tilknytning.veilederIdent
                         personOversiktStatus.fnr shouldBeEqualTo oversiktHendelse.fnr
-                        personOversiktStatus.navn shouldBeEqualTo getIdentName(ident = oversiktHendelse.fnr)
+                        personOversiktStatus.navn shouldBeEqualTo getIdentName()
                         personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
                         personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo true
@@ -586,7 +567,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                             objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
                         personOversiktStatus.veilederIdent shouldBeEqualTo null
                         personOversiktStatus.fnr shouldBeEqualTo oversiktHendelseOPLPSBistandMottatt.fnr
-                        personOversiktStatus.navn shouldBeEqualTo getIdentName(ident = oversiktHendelseOPLPSBistandMottatt.fnr)
+                        personOversiktStatus.navn shouldBeEqualTo getIdentName()
                         personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo null
                         personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo null

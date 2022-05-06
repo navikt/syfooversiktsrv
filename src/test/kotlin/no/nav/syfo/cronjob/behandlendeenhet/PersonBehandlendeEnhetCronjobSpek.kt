@@ -5,9 +5,7 @@ import io.ktor.util.*
 import io.mockk.clearMocks
 import io.mockk.every
 import kotlinx.coroutines.runBlocking
-import no.nav.syfo.dialogmotekandidat.kafka.DIALOGMOTEKANDIDAT_TOPIC
 import no.nav.syfo.domain.PersonIdent
-import no.nav.syfo.oppfolgingstilfelle.kafka.OPPFOLGINGSTILFELLE_PERSON_TOPIC
 import no.nav.syfo.personstatus.*
 import no.nav.syfo.personstatus.domain.OversikthendelseType
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
@@ -21,9 +19,7 @@ import no.nav.syfo.testutil.generator.*
 import no.nav.syfo.testutil.mock.behandlendeEnhetDTO
 import no.nav.syfo.util.nowUTC
 import org.amshove.kluent.*
-import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.ConsumerRecords
-import org.apache.kafka.common.TopicPartition
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import java.time.Duration
@@ -48,30 +44,19 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
         val mockKafkaConsumerOppfolgingstilfellePerson =
             internalMockEnvironment.kafkaConsumerOppfolgingstilfellePerson
 
-        val partition = 0
-        val oppfolgingstilfellePersonTopicPartition = TopicPartition(
-            OPPFOLGINGSTILFELLE_PERSON_TOPIC,
-            partition,
-        )
+        val oppfolgingstilfellePersonTopicPartition = oppfolgingstilfellePersonTopicPartition()
         val personIdentDefault = PersonIdent(ARBEIDSTAKER_FNR)
 
         val kafkaDialogmotekandidatEndringService = internalMockEnvironment.kafkaDialogmotekandidatEndringService
         val mockKafkaConsumerDialogmotekandidatEndring =
             internalMockEnvironment.kafkaConsumerDialogmotekandidatEndring
-        val dialogmoteKandidatTopicPartition = TopicPartition(
-            DIALOGMOTEKANDIDAT_TOPIC,
-            partition
-        )
+        val dialogmoteKandidatTopicPartition = dialogmotekandidatEndringTopicPartition()
         val kafkaDialogmotekandidatEndringStoppunkt = generateKafkaDialogmotekandidatEndringStoppunkt(
             personIdent = personIdentDefault.value,
             createdAt = nowUTC().minusDays(1)
         )
-        val kafkaDialogmotekandidatEndringStoppunktConsumerRecord = ConsumerRecord(
-            DIALOGMOTEKANDIDAT_TOPIC,
-            partition,
-            1,
-            "key2",
-            kafkaDialogmotekandidatEndringStoppunkt
+        val kafkaDialogmotekandidatEndringStoppunktConsumerRecord = dialogmotekandidatEndringConsumerRecord(
+            kafkaDialogmotekandidatEndring = kafkaDialogmotekandidatEndringStoppunkt
         )
 
         beforeEachTest {
@@ -90,12 +75,8 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                 val kafkaOppfolgingstilfellePersonServiceRelevant = generateKafkaOppfolgingstilfellePerson(
                     personIdent = personIdentDefault,
                 )
-                val kafkaOppfolgingstilfellePersonServiceRecordRelevant = ConsumerRecord(
-                    OPPFOLGINGSTILFELLE_PERSON_TOPIC,
-                    partition,
-                    1,
-                    "key1",
-                    kafkaOppfolgingstilfellePersonServiceRelevant,
+                val kafkaOppfolgingstilfellePersonServiceRecordRelevant = oppfolgingstilfellePersonConsumerRecord(
+                    kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonServiceRelevant
                 )
 
                 beforeEachTest {
@@ -450,12 +431,8 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                         generateKafkaOppfolgingstilfellePerson(
                             personIdent = personIdent,
                         )
-                    val kafkaOppfolgingstilfellePersonServiceRecordRelevantEnhetNotFound = ConsumerRecord(
-                        OPPFOLGINGSTILFELLE_PERSON_TOPIC,
-                        partition,
-                        1,
-                        "key1",
-                        kafkaOppfolgingstilfellePersonServiceRelevantEnhetNotFound,
+                    val kafkaOppfolgingstilfellePersonServiceRecordRelevantEnhetNotFound = oppfolgingstilfellePersonConsumerRecord(
+                        kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonServiceRelevantEnhetNotFound,
                     )
 
                     every { mockKafkaConsumerOppfolgingstilfellePerson.poll(any<Duration>()) } returns ConsumerRecords(
@@ -507,12 +484,8 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                 val kafkaOppfolgingstilfellePersonServiceRelevant = generateKafkaOppfolgingstilfellePerson(
                     personIdent = ARBEIDSTAKER_ENHET_ERROR_PERSONIDENT,
                 )
-                val kafkaOppfolgingstilfellePersonServiceRecordRelevant = ConsumerRecord(
-                    OPPFOLGINGSTILFELLE_PERSON_TOPIC,
-                    partition,
-                    1,
-                    "key1",
-                    kafkaOppfolgingstilfellePersonServiceRelevant,
+                val kafkaOppfolgingstilfellePersonServiceRecordRelevant = oppfolgingstilfellePersonConsumerRecord(
+                    kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonServiceRelevant,
                 )
 
                 beforeEachTest {
