@@ -1,7 +1,7 @@
 package no.nav.syfo.testutil
 
 import no.nav.common.KafkaEnvironment
-import no.nav.syfo.kafka.OVERSIKT_HENDELSE_TOPIC
+import no.nav.syfo.personstatus.kafka.OVERSIKT_HENDELSE_TOPIC
 
 fun testKafka(
     autoStart: Boolean = false,

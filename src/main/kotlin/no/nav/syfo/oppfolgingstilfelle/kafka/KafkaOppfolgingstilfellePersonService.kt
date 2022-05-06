@@ -1,6 +1,7 @@
 package no.nav.syfo.oppfolgingstilfelle.kafka
 
 import no.nav.syfo.application.database.DatabaseInterface
+import no.nav.syfo.kafka.KafkaConsumerService
 import no.nav.syfo.personstatus.*
 import no.nav.syfo.personstatus.domain.PPersonOversiktStatus
 import no.nav.syfo.personstatus.domain.PersonOppfolgingstilfelle
@@ -11,16 +12,15 @@ import java.time.Duration
 
 class KafkaOppfolgingstilfellePersonService(
     val database: DatabaseInterface,
-) {
-    fun pollAndProcessRecords(
-        kafkaConsumerOppfolgingstilfellePerson: KafkaConsumer<String, KafkaOppfolgingstilfellePerson>,
-    ) {
-        val records = kafkaConsumerOppfolgingstilfellePerson.poll(Duration.ofMillis(1000))
+) : KafkaConsumerService<KafkaOppfolgingstilfellePerson> {
+
+    override val pollDurationInMillis: Long = 1000
+
+    override fun pollAndProcessRecords(kafkaConsumer: KafkaConsumer<String, KafkaOppfolgingstilfellePerson>) {
+        val records = kafkaConsumer.poll(Duration.ofMillis(pollDurationInMillis))
         if (records.count() > 0) {
-            processRecords(
-                consumerRecords = records,
-            )
-            kafkaConsumerOppfolgingstilfellePerson.commitSync()
+            processRecords(records)
+            kafkaConsumer.commitSync()
         }
     }
 
@@ -124,7 +124,7 @@ class KafkaOppfolgingstilfellePersonService(
 
     private fun shouldUpdatePersonOppfolgingstilfelle(
         newPersonOppfolgingstilfelle: PersonOppfolgingstilfelle,
-        exisitingPPersonOversiktStatus: PPersonOversiktStatus
+        exisitingPPersonOversiktStatus: PPersonOversiktStatus,
     ): Boolean {
         return if (newPersonOppfolgingstilfelle.oppfolgingstilfelleBitReferanseUuid == exisitingPPersonOversiktStatus.oppfolgingstilfelleBitReferanseUuid) {
             exisitingPPersonOversiktStatus.oppfolgingstilfelleGeneratedAt?.let {

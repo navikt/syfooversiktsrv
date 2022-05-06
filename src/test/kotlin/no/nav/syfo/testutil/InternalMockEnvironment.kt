@@ -13,7 +13,7 @@ import no.nav.syfo.dialogmotekandidat.kafka.KafkaDialogmotekandidatEndring
 import no.nav.syfo.dialogmotekandidat.kafka.KafkaDialogmotekandidatEndringService
 import no.nav.syfo.oppfolgingstilfelle.kafka.KafkaOppfolgingstilfellePerson
 import no.nav.syfo.oppfolgingstilfelle.kafka.KafkaOppfolgingstilfellePersonService
-import no.nav.syfo.personstatus.OversiktHendelseService
+import no.nav.syfo.personstatus.kafka.KafkaOversiktHendelseService
 import org.apache.kafka.clients.consumer.KafkaConsumer
 
 class InternalMockEnvironment private constructor() {
@@ -43,7 +43,7 @@ class InternalMockEnvironment private constructor() {
     )
     val kafkaConsumerOppfolgingstilfellePerson = mockk<KafkaConsumer<String, KafkaOppfolgingstilfellePerson>>()
 
-    val oversiktHendelseService = OversiktHendelseService(
+    val kafkaOversiktHendelseService = KafkaOversiktHendelseService(
         database = database,
     )
 
