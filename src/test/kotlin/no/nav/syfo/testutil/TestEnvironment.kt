@@ -1,7 +1,6 @@
 package no.nav.syfo.testutil
 
-import no.nav.syfo.application.ApplicationState
-import no.nav.syfo.application.Environment
+import no.nav.syfo.application.*
 import no.nav.syfo.application.cache.RedisEnvironment
 import no.nav.syfo.application.database.DatabaseEnvironment
 import no.nav.syfo.application.kafka.KafkaEnvironment
@@ -41,9 +40,13 @@ fun testEnvironment(
         aivenKeystoreLocation = "keystore",
         aivenSecurityProtocol = "SSL",
         aivenTruststoreLocation = "truststore",
+        aivenSchemaRegistryUrl = "http://kafka-schema-registry.tpa.svc.nais.local:8081",
+        aivenRegistryUser = "registryuser",
+        aivenRegistryPassword = "registrypassword",
     ),
     kafkaOppfolgingstilfellePersonProcessingEnabled = true,
     kafkaDialogmotekandidatProcessingEnabled = true,
+    kafkaDialogmoteStatusendringProcessingEnabled = true,
     clients = ClientsEnvironment(
         isproxy = ClientEnvironment(
             baseUrl = isproxyUrl,

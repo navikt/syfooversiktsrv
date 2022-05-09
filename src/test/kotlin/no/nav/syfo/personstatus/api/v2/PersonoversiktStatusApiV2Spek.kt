@@ -52,14 +52,14 @@ object PersonoversiktStatusApiV2Spek : Spek({
             val personOppfolgingstilfelleVirksomhetnavnCronjob =
                 internalMockEnvironment.personOppfolgingstilfelleVirksomhetnavnCronjob
 
-            val oversiktHendelseService = internalMockEnvironment.kafkaOversiktHendelseService
+            val oversiktHendelseService = TestKafkaModule.kafkaOversiktHendelseService
 
-            val kafkaOppfolgingstilfellePersonService = internalMockEnvironment.kafkaOppfolgingstilfellePersonService
+            val kafkaOppfolgingstilfellePersonService = TestKafkaModule.kafkaOppfolgingstilfellePersonService
 
             val personIdentDefault = PersonIdent(ARBEIDSTAKER_FNR)
 
             val mockKafkaConsumerOppfolgingstilfellePerson =
-                internalMockEnvironment.kafkaConsumerOppfolgingstilfellePerson
+                TestKafkaModule.kafkaConsumerOppfolgingstilfellePerson
 
             val oppfolgingstilfellePersonTopicPartition = oppfolgingstilfellePersonTopicPartition()
             val kafkaOppfolgingstilfellePersonRelevant = generateKafkaOppfolgingstilfellePerson(
@@ -73,9 +73,9 @@ object PersonoversiktStatusApiV2Spek : Spek({
                 kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonRelevant,
             )
 
-            val kafkaDialogmotekandidatEndringService = internalMockEnvironment.kafkaDialogmotekandidatEndringService
+            val kafkaDialogmotekandidatEndringService = TestKafkaModule.kafkaDialogmotekandidatEndringService
             val mockKafkaConsumerDialogmotekandidatEndring =
-                internalMockEnvironment.kafkaConsumerDialogmotekandidatEndring
+                TestKafkaModule.kafkaConsumerDialogmotekandidatEndring
             val dialogmoteKandidatTopicPartition = dialogmotekandidatEndringTopicPartition()
             val kafkaDialogmotekandidatEndringStoppunkt = generateKafkaDialogmotekandidatEndringStoppunkt(
                 personIdent = ARBEIDSTAKER_FNR,

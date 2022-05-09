@@ -38,18 +38,18 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
 
         val personBehandlendeEnhetCronjob = internalMockEnvironment.personBehandlendeEnhetCronjob
 
-        val oversiktHendelseService = internalMockEnvironment.kafkaOversiktHendelseService
-        val kafkaOppfolgingstilfellePersonService = internalMockEnvironment.kafkaOppfolgingstilfellePersonService
+        val oversiktHendelseService = TestKafkaModule.kafkaOversiktHendelseService
+        val kafkaOppfolgingstilfellePersonService = TestKafkaModule.kafkaOppfolgingstilfellePersonService
 
         val mockKafkaConsumerOppfolgingstilfellePerson =
-            internalMockEnvironment.kafkaConsumerOppfolgingstilfellePerson
+            TestKafkaModule.kafkaConsumerOppfolgingstilfellePerson
 
         val oppfolgingstilfellePersonTopicPartition = oppfolgingstilfellePersonTopicPartition()
         val personIdentDefault = PersonIdent(ARBEIDSTAKER_FNR)
 
-        val kafkaDialogmotekandidatEndringService = internalMockEnvironment.kafkaDialogmotekandidatEndringService
+        val kafkaDialogmotekandidatEndringService = TestKafkaModule.kafkaDialogmotekandidatEndringService
         val mockKafkaConsumerDialogmotekandidatEndring =
-            internalMockEnvironment.kafkaConsumerDialogmotekandidatEndring
+            TestKafkaModule.kafkaConsumerDialogmotekandidatEndring
         val dialogmoteKandidatTopicPartition = dialogmotekandidatEndringTopicPartition()
         val kafkaDialogmotekandidatEndringStoppunkt = generateKafkaDialogmotekandidatEndringStoppunkt(
             personIdent = personIdentDefault.value,

@@ -106,3 +106,5 @@ spec:
       value: "true"
     - name: TOGGLE_KAFKA_DIALOGMOTEKANDIDAT_PROCESSING_ENABLED
       value: "false"
+    - name: TOGGLE_KAFKA_DIALOGMOTE_STATUSENDRING_PROCESSING_ENABLED
+      value: "false"
