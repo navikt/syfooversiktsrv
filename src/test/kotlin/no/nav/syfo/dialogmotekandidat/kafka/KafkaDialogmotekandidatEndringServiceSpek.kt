@@ -22,9 +22,8 @@ class KafkaDialogmotekandidatEndringServiceSpek : Spek({
         val externalMockEnvironment = ExternalMockEnvironment.instance
         val database = externalMockEnvironment.database
 
-        val internalMockEnvironment = InternalMockEnvironment.instance
-        val kafkaDialogmotekandidatEndringService = internalMockEnvironment.kafkaDialogmotekandidatEndringService
-        val mockKafkaConsumerDialogmotekandidatEndring = internalMockEnvironment.kafkaConsumerDialogmotekandidatEndring
+        val kafkaDialogmotekandidatEndringService = TestKafkaModule.kafkaDialogmotekandidatEndringService
+        val mockKafkaConsumerDialogmotekandidatEndring = TestKafkaModule.kafkaConsumerDialogmotekandidatEndring
 
         val dialogmoteKandidatTopicPartition = dialogmotekandidatEndringTopicPartition()
         val kafkaDialogmotekandidatEndringStoppunktYesterday = generateKafkaDialogmotekandidatEndringStoppunkt(

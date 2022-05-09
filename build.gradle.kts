@@ -5,8 +5,10 @@ group = "no.nav.syfo"
 version = "1.0-SNAPSHOT"
 
 object Versions {
+    const val confluent = "7.0.1"
     const val flyway = "8.5.9"
     const val hikari = "5.0.1"
+    const val isdialogmoteSchema = "1.0.5"
     const val jackson = "2.13.1"
     const val jedis = "4.2.2"
     const val kafka = "3.1.0"
@@ -30,10 +32,19 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "10.2.1"
 }
 
+val githubUser: String by project
+val githubPassword: String by project
 repositories {
     mavenCentral()
     maven(url = "https://packages.confluent.io/maven/")
     maven(url = "https://jitpack.io")
+    maven {
+        url = uri("https://maven.pkg.github.com/navikt/isdialogmote-schema")
+        credentials {
+            username = githubUser
+            password = githubPassword
+        }
+    }
 }
 
 dependencies {
@@ -76,6 +87,9 @@ dependencies {
         exclude(group = "log4j")
     }
     implementation("org.apache.kafka:kafka_2.13:${Versions.kafka}", excludeLog4j)
+    implementation("io.confluent:kafka-avro-serializer:${Versions.confluent}", excludeLog4j)
+    implementation("io.confluent:kafka-schema-registry:${Versions.confluent}", excludeLog4j)
+    implementation("no.nav.syfo.dialogmote.avro:isdialogmote-schema:${Versions.isdialogmoteSchema}")
     testImplementation("no.nav:kafka-embedded-env:${Versions.kafkaEmbedded}", excludeLog4j)
 
     testImplementation("com.nimbusds:nimbus-jose-jwt:${Versions.nimbusjosejwt}")

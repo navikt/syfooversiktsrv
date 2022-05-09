@@ -38,9 +38,13 @@ data class Environment(
         aivenKeystoreLocation = getEnvVar("KAFKA_KEYSTORE_PATH"),
         aivenSecurityProtocol = "SSL",
         aivenTruststoreLocation = getEnvVar("KAFKA_TRUSTSTORE_PATH"),
+        aivenSchemaRegistryUrl = getEnvVar("KAFKA_SCHEMA_REGISTRY"),
+        aivenRegistryUser = getEnvVar("KAFKA_SCHEMA_REGISTRY_USER"),
+        aivenRegistryPassword = getEnvVar("KAFKA_SCHEMA_REGISTRY_PASSWORD"),
     ),
     val kafkaOppfolgingstilfellePersonProcessingEnabled: Boolean = getEnvVar("TOGGLE_KAFKA_OPPFOLGINGSTILFELLE_PERSON_PROCESSING_ENABLED").toBoolean(),
     val kafkaDialogmotekandidatProcessingEnabled: Boolean = getEnvVar("TOGGLE_KAFKA_DIALOGMOTEKANDIDAT_PROCESSING_ENABLED").toBoolean(),
+    val kafkaDialogmoteStatusendringProcessingEnabled: Boolean = getEnvVar("TOGGLE_KAFKA_DIALOGMOTE_STATUSENDRING_PROCESSING_ENABLED").toBoolean(),
 
     val clients: ClientsEnvironment = ClientsEnvironment(
         isproxy = ClientEnvironment(

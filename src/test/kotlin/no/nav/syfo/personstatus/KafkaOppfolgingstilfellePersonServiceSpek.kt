@@ -34,12 +34,10 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
             externalMockEnvironment = externalMockEnvironment,
         )
 
-        val internalMockEnvironment = InternalMockEnvironment.instance
+        val oversiktHendelseService = TestKafkaModule.kafkaOversiktHendelseService
+        val kafkaOppfolgingstilfellePersonService = TestKafkaModule.kafkaOppfolgingstilfellePersonService
 
-        val oversiktHendelseService = internalMockEnvironment.kafkaOversiktHendelseService
-        val kafkaOppfolgingstilfellePersonService = internalMockEnvironment.kafkaOppfolgingstilfellePersonService
-
-        val mockKafkaConsumerOppfolgingstilfellePerson = internalMockEnvironment.kafkaConsumerOppfolgingstilfellePerson
+        val mockKafkaConsumerOppfolgingstilfellePerson = TestKafkaModule.kafkaConsumerOppfolgingstilfellePerson
 
         val oppfolgingstilfellePersonTopicPartition = oppfolgingstilfellePersonTopicPartition()
         val personIdentDefault = PersonIdent(ARBEIDSTAKER_FNR)
