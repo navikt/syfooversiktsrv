@@ -9,12 +9,12 @@ import java.time.OffsetDateTime
 
 fun generateKafkaDialogmoteStatusendring(
     personIdent: String,
-    statusEndringType: DialogmoteStatusendringType,
+    type: DialogmoteStatusendringType,
     endringsTidspunkt: OffsetDateTime,
 ): KDialogmoteStatusEndring {
     val kDialogmoteStatusEndring = KDialogmoteStatusEndring()
     kDialogmoteStatusEndring.setPersonIdent(personIdent)
-    kDialogmoteStatusEndring.setStatusEndringType(statusEndringType.name)
+    kDialogmoteStatusEndring.setStatusEndringType(type.name)
     kDialogmoteStatusEndring.setStatusEndringTidspunkt(endringsTidspunkt.toInstant())
 
     return kDialogmoteStatusEndring

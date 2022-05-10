@@ -28,6 +28,8 @@ object TestKafkaModule {
     )
     val kafkaConsumerDialogmotekandidatEndring = mockk<KafkaConsumer<String, KafkaDialogmotekandidatEndring>>()
 
-    val kafkaDialogmoteStatusendringService = KafkaDialogmoteStatusendringService()
+    val kafkaDialogmoteStatusendringService = KafkaDialogmoteStatusendringService(
+        database = database
+    )
     val kafkaConsumerDialogmoteStatusendring = mockk<KafkaConsumer<String, KDialogmoteStatusEndring>>()
 }

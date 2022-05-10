@@ -27,6 +27,8 @@ fun KOversikthendelse.toPersonOversiktStatus(
         oppfolgingsplanLPSBistandUbehandlet = null,
         dialogmotekandidat = null,
         dialogmotekandidatGeneratedAt = null,
+        motestatus = null,
+        motestatusGeneratedAt = null,
         latestOppfolgingstilfelle = null,
     )
     return personOversiktStatus.applyHendelse(oversikthendelseType = oversikthendelseType)

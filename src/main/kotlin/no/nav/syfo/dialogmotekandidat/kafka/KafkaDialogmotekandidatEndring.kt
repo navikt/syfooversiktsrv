@@ -21,5 +21,7 @@ fun KafkaDialogmotekandidatEndring.toPersonOversiktStatus() = PersonOversiktStat
     oppfolgingsplanLPSBistandUbehandlet = null,
     dialogmotekandidat = this.kandidat,
     dialogmotekandidatGeneratedAt = this.createdAt,
+    motestatus = null,
+    motestatusGeneratedAt = null,
     latestOppfolgingstilfelle = null,
 )

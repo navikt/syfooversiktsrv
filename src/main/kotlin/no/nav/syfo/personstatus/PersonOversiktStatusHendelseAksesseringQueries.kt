@@ -2,6 +2,7 @@ package no.nav.syfo.personstatus
 
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.application.database.toList
+import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendring
 import no.nav.syfo.personstatus.domain.*
 import no.nav.syfo.util.nowUTC
 import java.sql.*
@@ -32,8 +33,10 @@ const val queryCreatePersonOversiktStatus =
         oppfolgingstilfelle_bit_referanse_uuid,
         oppfolgingstilfelle_bit_referanse_inntruffet,
         dialogmotekandidat,
-        dialogmotekandidat_generated_at
-    ) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        dialogmotekandidat_generated_at,
+        motestatus,
+        motestatus_generated_at
+    ) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     RETURNING id
     """
 
@@ -88,6 +91,8 @@ fun Connection.createPersonOversiktStatus(
         it.setObject(17, personOversiktStatus.latestOppfolgingstilfelle?.oppfolgingstilfelleBitReferanseInntruffet)
         it.setObject(18, personOversiktStatus.dialogmotekandidat)
         it.setObject(19, personOversiktStatus.dialogmotekandidatGeneratedAt)
+        it.setString(20, personOversiktStatus.motestatus)
+        it.setObject(21, personOversiktStatus.motestatusGeneratedAt)
         it.executeQuery().toList { getInt("id") }.firstOrNull()
     } ?: throw SQLException("Creating PersonOversikStatus failed, no rows affected.")
 
@@ -195,6 +200,26 @@ fun Connection.updatePersonOversiktStatusKandidat(
     this.prepareStatement(queryUpdatePersonOversiktStatusKandidat).use {
         it.setBoolean(1, kandidat)
         it.setObject(2, generatedAt)
+        it.setString(3, pPersonOversiktStatus.fnr)
+        it.execute()
+    }
+}
+
+const val queryUpdatePersonOversiktStatusMotestatus =
+    """
+        UPDATE PERSON_OVERSIKT_STATUS
+        SET motestatus = ?,
+        motestatus_generated_at = ?
+        WHERE fnr = ?
+    """
+
+fun Connection.updatePersonOversiktStatusMotestatus(
+    pPersonOversiktStatus: PPersonOversiktStatus,
+    dialogmoteStatusendring: DialogmoteStatusendring,
+) {
+    this.prepareStatement(queryUpdatePersonOversiktStatusMotestatus).use {
+        it.setString(1, dialogmoteStatusendring.type.name)
+        it.setObject(2, dialogmoteStatusendring.endringTidspunkt)
         it.setString(3, pPersonOversiktStatus.fnr)
         it.execute()
     }

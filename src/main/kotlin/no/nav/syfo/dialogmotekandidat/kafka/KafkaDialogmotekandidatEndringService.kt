@@ -29,8 +29,9 @@ class KafkaDialogmotekandidatEndringService(
         val (tombstoneRecords, validRecords) = consumerRecords.partition { it.value() == null }
 
         if (tombstoneRecords.isNotEmpty()) {
-            log.error("Value of ${tombstoneRecords.size} ConsumerRecord are null, most probably due to a tombstone. Contact the owner of the topic if an error is suspected")
-            COUNT_KAFKA_CONSUMER_DIALOGMOTEKANDIDAT_TOMBSTONE.increment()
+            val numberOfTombstones = tombstoneRecords.size
+            log.error("Value of $numberOfTombstones ConsumerRecord are null, most probably due to a tombstone. Contact the owner of the topic if an error is suspected")
+            COUNT_KAFKA_CONSUMER_DIALOGMOTEKANDIDAT_TOMBSTONE.increment(numberOfTombstones.toDouble())
         }
 
         database.connection.use { connection ->

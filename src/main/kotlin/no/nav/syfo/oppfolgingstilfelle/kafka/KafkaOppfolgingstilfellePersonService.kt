@@ -55,8 +55,9 @@ class KafkaOppfolgingstilfellePersonService(
         tombstoneRecordList: List<ConsumerRecord<String, KafkaOppfolgingstilfellePerson>>,
     ) {
         if (tombstoneRecordList.isNotEmpty()) {
-            log.error("Value of ${tombstoneRecordList.size} ConsumerRecord are null, most probably due to a tombstone. Contact the owner of the topic if an error is suspected")
-            COUNT_KAFKA_CONSUMER_OPPFOLGINGSTILFELLE_PERSON_TOMBSTONE.increment()
+            val numberOfTombstones = tombstoneRecordList.size
+            log.error("Value of $numberOfTombstones ConsumerRecord are null, most probably due to a tombstone. Contact the owner of the topic if an error is suspected")
+            COUNT_KAFKA_CONSUMER_OPPFOLGINGSTILFELLE_PERSON_TOMBSTONE.increment(numberOfTombstones.toDouble())
         }
     }
 
