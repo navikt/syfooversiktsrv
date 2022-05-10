@@ -11,6 +11,7 @@ data class PersonOversiktStatusDTO(
     val moteplanleggerUbehandlet: Boolean?,
     val oppfolgingsplanLPSBistandUbehandlet: Boolean?,
     val dialogmotekandidat: Boolean?,
+    val motestatus: String?,
     val latestOppfolgingstilfelle: PersonOppfolgingstilfelleDTO?,
 )
 

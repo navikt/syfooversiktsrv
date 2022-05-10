@@ -16,6 +16,8 @@ data class PersonOversiktStatus(
     val oppfolgingsplanLPSBistandUbehandlet: Boolean?,
     val dialogmotekandidat: Boolean?,
     val dialogmotekandidatGeneratedAt: OffsetDateTime?,
+    val motestatus: String?,
+    val motestatusGeneratedAt: OffsetDateTime?,
     val latestOppfolgingstilfelle: PersonOppfolgingstilfelle?,
 )
 
@@ -79,6 +81,7 @@ fun PersonOversiktStatus.toPersonOversiktStatusDTO() =
         moteplanleggerUbehandlet = this.moteplanleggerUbehandlet,
         oppfolgingsplanLPSBistandUbehandlet = this.oppfolgingsplanLPSBistandUbehandlet,
         dialogmotekandidat = this.dialogmotekandidat,
+        motestatus = this.motestatus,
         latestOppfolgingstilfelle = this.latestOppfolgingstilfelle?.toPersonOppfolgingstilfelleDTO(),
     )
 

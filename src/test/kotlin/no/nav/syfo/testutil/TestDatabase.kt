@@ -2,6 +2,8 @@ package no.nav.syfo.testutil
 
 import com.opentable.db.postgres.embedded.EmbeddedPostgres
 import no.nav.syfo.application.database.DatabaseInterface
+import no.nav.syfo.personstatus.createPersonOversiktStatus
+import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import org.flywaydb.core.Flyway
 import java.sql.Connection
 
@@ -55,4 +57,11 @@ fun Connection.dropData() {
         }
         connection.commit()
     }
+}
+
+fun DatabaseInterface.createPersonOversiktStatus(personOversiktStatus: PersonOversiktStatus) {
+    this.connection.createPersonOversiktStatus(
+        commit = true,
+        personOversiktStatus = personOversiktStatus
+    )
 }

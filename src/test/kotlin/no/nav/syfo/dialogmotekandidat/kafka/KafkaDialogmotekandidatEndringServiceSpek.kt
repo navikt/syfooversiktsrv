@@ -4,7 +4,6 @@ import io.ktor.server.testing.*
 import io.mockk.*
 import no.nav.syfo.oppfolgingstilfelle.kafka.toPersonOversiktStatus
 import no.nav.syfo.personstatus.createPersonOversiktStatus
-import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.personstatus.getPersonOversiktStatusList
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.generator.*
@@ -46,13 +45,6 @@ class KafkaDialogmotekandidatEndringServiceSpek : Spek({
 
             clearMocks(mockKafkaConsumerDialogmotekandidatEndring)
             every { mockKafkaConsumerDialogmotekandidatEndring.commitSync() } returns Unit
-        }
-
-        fun createPersonOversiktStatus(personOversiktStatus: PersonOversiktStatus) {
-            database.connection.createPersonOversiktStatus(
-                commit = true,
-                personOversiktStatus = personOversiktStatus
-            )
         }
 
         describe("${KafkaDialogmotekandidatEndringService::class.java.simpleName}: pollAndProcessRecords") {
@@ -101,9 +93,10 @@ class KafkaDialogmotekandidatEndringServiceSpek : Spek({
 
                 val kafkaOppfolgingstilfellePerson = generateKafkaOppfolgingstilfellePerson()
                 val kafkaOppfolgingstilfelle = kafkaOppfolgingstilfellePerson.oppfolgingstilfelleList.first()
-                createPersonOversiktStatus(
+                database.createPersonOversiktStatus(
                     personOversiktStatus = kafkaOppfolgingstilfellePerson.toPersonOversiktStatus(kafkaOppfolgingstilfelle)
                 )
+
                 kafkaDialogmotekandidatEndringService.pollAndProcessRecords(
                     kafkaConsumer = mockKafkaConsumerDialogmotekandidatEndring
                 )
@@ -134,9 +127,10 @@ class KafkaDialogmotekandidatEndringServiceSpek : Spek({
                 )
 
                 val existingPersonOversiktStatus = kafkaDialogmotekandidatEndringStoppunktYesterday.toPersonOversiktStatus()
-                createPersonOversiktStatus(
+                database.createPersonOversiktStatus(
                     personOversiktStatus = existingPersonOversiktStatus
                 )
+
                 kafkaDialogmotekandidatEndringService.pollAndProcessRecords(
                     kafkaConsumer = mockKafkaConsumerDialogmotekandidatEndring
                 )
@@ -164,9 +158,10 @@ class KafkaDialogmotekandidatEndringServiceSpek : Spek({
                 )
 
                 val existingPersonOversiktStatus = kafkaDialogmotekandidatEndringUnntakToday.toPersonOversiktStatus()
-                createPersonOversiktStatus(
+                database.createPersonOversiktStatus(
                     personOversiktStatus = existingPersonOversiktStatus
                 )
+
                 kafkaDialogmotekandidatEndringService.pollAndProcessRecords(
                     kafkaConsumer = mockKafkaConsumerDialogmotekandidatEndring
                 )

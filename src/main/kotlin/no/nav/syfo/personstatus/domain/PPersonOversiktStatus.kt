@@ -16,6 +16,8 @@ data class PPersonOversiktStatus(
     val oppfolgingsplanLPSBistandUbehandlet: Boolean?,
     val dialogmotekandidat: Boolean?,
     val dialogmotekandidatGeneratedAt: OffsetDateTime?,
+    val motestatus: String?,
+    val motestatusGeneratedAt: OffsetDateTime?,
     val oppfolgingstilfelleUpdatedAt: OffsetDateTime?,
     val oppfolgingstilfelleGeneratedAt: OffsetDateTime?,
     val oppfolgingstilfelleStart: LocalDate?,
@@ -36,6 +38,8 @@ fun PPersonOversiktStatus.toPersonOversiktStatus(
     oppfolgingsplanLPSBistandUbehandlet = this.oppfolgingsplanLPSBistandUbehandlet,
     dialogmotekandidat = this.dialogmotekandidat,
     dialogmotekandidatGeneratedAt = this.dialogmotekandidatGeneratedAt,
+    motestatus = this.motestatus,
+    motestatusGeneratedAt = this.motestatusGeneratedAt,
     latestOppfolgingstilfelle = this.toPersonOppfolgingstilfelle(
         personOppfolgingstilfelleVirksomhetList = personOppfolgingstilfelleVirksomhetList,
     ),
