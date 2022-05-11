@@ -67,8 +67,6 @@ class KafkaOppfolgingstilfellePersonService(
         database.connection.use { connection ->
             recordsRelevant.forEach { consumerRecord ->
                 COUNT_KAFKA_CONSUMER_OPPFOLGINGSTILFELLE_PERSON_READ.increment()
-                log.info("Received ${KafkaOppfolgingstilfellePerson::class.java.simpleName}, ready to process. id=${consumerRecord.key()}, referanseTilfelleBitInntruffet=${consumerRecord.value().referanseTilfelleBitInntruffet}")
-
                 receiveKafkaOppfolgingstilfellePerson(
                     connection = connection,
                     kafkaOppfolgingstilfellePerson = consumerRecord.value(),

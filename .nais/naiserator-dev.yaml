@@ -32,8 +32,8 @@ spec:
       cpu: 500m
       memory: 512Mi
   replicas:
-    min: 1
-    max: 2
+    min: 2
+    max: 4
     cpuThresholdPercentage: 90
   leaderElection: true
   prometheus:
@@ -55,6 +55,7 @@ spec:
         - host: "syfo-tilgangskontroll.dev-fss-pub.nais.io"
       rules:
         - application: syfobehandlendeenhet
+        - application: syfooversiktsrv-redis
   azure:
     application:
       enabled: true
