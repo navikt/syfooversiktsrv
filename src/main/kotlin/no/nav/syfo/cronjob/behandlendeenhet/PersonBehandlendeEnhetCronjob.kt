@@ -17,6 +17,7 @@ class PersonBehandlendeEnhetCronjob(
     }
 
     suspend fun runJob(): CronjobResult {
+        log.info("Run PersonBehandlendeEnhetCronjob")
         val result = CronjobResult()
 
         personBehandlendeEnhetService.getPersonIdentWithTildeltToUpdateTildeltEnhetList()

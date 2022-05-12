@@ -19,6 +19,8 @@ class PersonOppfolgingstilfelleVirksomhetnavnCronjob(
     suspend fun runJob(): CronjobResult {
         val result = CronjobResult()
 
+        log.info("Run PersonOppfolgingstilfelleVirksomhetnavnCronjob")
+
         personOppfolgingstilfelleVirksomhetsnavnService.getMissingVirksomhetsnavnList()
             .forEach { idVirksomhetsnummerPair ->
                 try {
