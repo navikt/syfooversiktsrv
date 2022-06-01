@@ -11,6 +11,7 @@ import no.nav.syfo.util.callIdArgument
 import no.nav.syfo.util.kafkaCallId
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.consumer.KafkaConsumer
+import org.postgresql.util.PSQLException
 import org.slf4j.LoggerFactory
 import java.time.Duration
 
@@ -45,8 +46,12 @@ class KafkaOversiktHendelseService(
                 StructuredArguments.keyValue("hendelseId", oversiktHendelse.hendelseId)
             )
             log.info("Mottatt oversikthendelse, klar for oppdatering, $logKeys, {}", *logValues, callIdArgument(callId))
-
-            oppdaterPersonMedHendelse(oversiktHendelse, callId)
+            try {
+                oppdaterPersonMedHendelse(oversiktHendelse, callId)
+            } catch (sqlException: PSQLException) {
+                // retry once before giving up (could be database concurrency conflict)
+                oppdaterPersonMedHendelse(oversiktHendelse, callId)
+            }
         }
     }
 
