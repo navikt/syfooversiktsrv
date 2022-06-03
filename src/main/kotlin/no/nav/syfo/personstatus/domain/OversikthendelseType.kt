@@ -7,9 +7,12 @@ enum class OversikthendelseType {
     MOTEPLANLEGGER_ALLE_SVAR_BEHANDLET,
     OPPFOLGINGSPLANLPS_BISTAND_MOTTATT,
     OPPFOLGINGSPLANLPS_BISTAND_BEHANDLET,
+    DIALOGMOTESVAR_MOTTATT,
+    DIALOGMOTESVAR_BEHANDLET,
 }
 
 fun OversikthendelseType.isNotBehandling() =
     this == OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT ||
         this == OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT ||
-        this == OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT
+        this == OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT ||
+        this == OversikthendelseType.DIALOGMOTESVAR_MOTTATT
