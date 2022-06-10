@@ -14,7 +14,7 @@ data class PersonOversiktStatus(
     val motebehovUbehandlet: Boolean?,
     val moteplanleggerUbehandlet: Boolean?,
     val oppfolgingsplanLPSBistandUbehandlet: Boolean?,
-    val dialogmotesvarUbehandlet: Boolean,
+    val dialogmotesvarUbehandlet: Boolean?,
     val dialogmotekandidat: Boolean?,
     val dialogmotekandidatGeneratedAt: OffsetDateTime?,
     val motestatus: String?,

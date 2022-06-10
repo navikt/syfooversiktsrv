@@ -77,7 +77,11 @@ fun Connection.createPersonOversiktStatus(
         } else {
             it.setNull(11, NULL)
         }
-        it.setBoolean(12, personOversiktStatus.dialogmotesvarUbehandlet)
+        if (personOversiktStatus.dialogmotesvarUbehandlet != null) {
+            it.setBoolean(12, personOversiktStatus.dialogmotesvarUbehandlet)
+        } else {
+            it.setNull(12, NULL)
+        }
         it.setObject(13, personOversiktStatus.latestOppfolgingstilfelle?.oppfolgingstilfelleUpdatedAt)
         it.setObject(14, personOversiktStatus.latestOppfolgingstilfelle?.oppfolgingstilfelleGeneratedAt)
         it.setObject(15, personOversiktStatus.latestOppfolgingstilfelle?.oppfolgingstilfelleStart)
@@ -148,7 +152,11 @@ fun DatabaseInterface.updatePersonOversiktStatus(
             } else {
                 it.setNull(6, NULL)
             }
-            it.setBoolean(7, personOversiktStatus.dialogmotesvarUbehandlet)
+            if (personOversiktStatus.dialogmotesvarUbehandlet != null) {
+                it.setBoolean(7, personOversiktStatus.dialogmotesvarUbehandlet)
+            } else {
+                it.setNull(7, NULL)
+            }
             it.setString(8, personOversiktStatus.fnr)
             it.execute()
         }
