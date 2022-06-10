@@ -46,6 +46,7 @@ class Database(
             databaseConfig.username,
             databaseConfig.password,
         )
+        lockRetryCount(-1)
         load().migrate().migrationsExecuted
     }
 }
