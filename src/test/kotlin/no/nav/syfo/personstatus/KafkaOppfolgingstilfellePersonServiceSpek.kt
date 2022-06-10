@@ -112,7 +112,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     personIdent = personIdentDefault.value,
                 )
                 oversiktHendelseService.oppdaterPersonMedHendelse(
-                    oversiktHendelse = oversiktHendelseOPLPSBistandMottatt,
+                    oversikthendelse = oversiktHendelseOPLPSBistandMottatt,
                 )
 
                 kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(

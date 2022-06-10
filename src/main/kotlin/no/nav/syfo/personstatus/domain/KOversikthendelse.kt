@@ -25,6 +25,7 @@ fun KOversikthendelse.toPersonOversiktStatus(
         motebehovUbehandlet = null,
         moteplanleggerUbehandlet = null,
         oppfolgingsplanLPSBistandUbehandlet = null,
+        dialogmotesvarUbehandlet = false,
         dialogmotekandidat = null,
         dialogmotekandidatGeneratedAt = null,
         motestatus = null,
