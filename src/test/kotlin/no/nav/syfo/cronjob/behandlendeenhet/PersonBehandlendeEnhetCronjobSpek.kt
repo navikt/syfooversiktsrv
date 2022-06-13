@@ -161,7 +161,7 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                         database.connection.dropData()
 
                         oversiktHendelseService.oppdaterPersonMedHendelse(
-                            oversikthendelse = oversikthendelse,
+                            oversiktHendelse = oversikthendelse,
                         )
 
                         database.updatePersonTildeltEnhetAndRemoveTildeltVeileder(
@@ -309,7 +309,7 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                     var tildeltEnhetUpdatedAtBeforeUpdate: OffsetDateTime?
 
                     oversiktHendelseService.oppdaterPersonMedHendelse(
-                        oversikthendelse = oversikthendelse,
+                        oversiktHendelse = oversikthendelse,
                     )
 
                     val veilederBrukerKnytning = VeilederBrukerKnytning(
@@ -384,7 +384,7 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                         personIdent = personIdent.value,
                     )
                     oversiktHendelseService.oppdaterPersonMedHendelse(
-                        oversikthendelse = oversikthendelse,
+                        oversiktHendelse = oversikthendelse,
                     )
 
                     var tildeltEnhetUpdatedAtBeforeUpdate: OffsetDateTime?
@@ -505,7 +505,7 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                     )
 
                     oversiktHendelseService.oppdaterPersonMedHendelse(
-                        oversikthendelse = oversikthendelse,
+                        oversiktHendelse = oversikthendelse,
                     )
 
                     kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(

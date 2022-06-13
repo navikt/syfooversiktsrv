@@ -93,7 +93,7 @@ object OversiktHendelseServiceSpek : Spek({
                         LocalDateTime.now()
                     )
 
-                    kafkaOversiktHendelseService.oppdaterPersonMedHendelse(oversikthendelse = oversiktHendelse)
+                    kafkaOversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse = oversiktHendelse)
 
                     val oversiktHendelseNy = KOversikthendelse(
                         ARBEIDSTAKER_FNR,
@@ -175,7 +175,7 @@ object OversiktHendelseServiceSpek : Spek({
                         LocalDateTime.now()
                     )
 
-                    kafkaOversiktHendelseService.oppdaterPersonMedHendelse(oversikthendelse = oversiktHendelseMotebehovMottatt)
+                    kafkaOversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse = oversiktHendelseMotebehovMottatt)
 
                     val oversiktHendelseMotebehovUbehandlet = KOversikthendelse(
                         ARBEIDSTAKER_FNR,
@@ -478,132 +478,6 @@ object OversiktHendelseServiceSpek : Spek({
                         it.motebehovUbehandlet shouldBeEqualTo null
                         it.moteplanleggerUbehandlet shouldBeEqualTo null
                         it.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo false
-                    }
-                }
-            }
-
-            describe("Oppdater person basert paa hendelse ${OversikthendelseType.DIALOGMOTESVAR_MOTTATT.name}") {
-
-                it("skal opprette person, om person ikke eksisterer i oversikt") {
-                    val oversiktHendelse = generateKOversikthendelse(
-                        OversikthendelseType.DIALOGMOTESVAR_MOTTATT
-                    )
-
-                    kafkaOversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
-
-                    val personListe = database.connection.getPersonOversiktStatusList(
-                        fnr = oversiktHendelse.fnr,
-                    )
-
-                    personListe.size shouldBe 1
-                    personListe[0].let {
-                        it.fnr shouldBeEqualTo oversiktHendelse.fnr
-                        it.veilederIdent shouldBeEqualTo null
-                        it.enhet.shouldBeNull()
-                        it.motebehovUbehandlet shouldBeEqualTo null
-                        it.moteplanleggerUbehandlet shouldBeEqualTo null
-                        it.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo null
-                        it.dialogmotesvarUbehandlet shouldBeEqualTo true
-                    }
-                }
-
-                it("skal oppdatere person, om person eksisterer i oversikt") {
-                    val oversiktHendelse = generateKOversikthendelse(
-                        OversikthendelseType.DIALOGMOTESVAR_MOTTATT
-                    )
-                    kafkaOversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
-
-                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
-                    database.lagreBrukerKnytningPaEnhet(tilknytning)
-
-                    val personListe = database.connection.getPersonOversiktStatusList(
-                        fnr = oversiktHendelse.fnr,
-                    )
-
-                    personListe.size shouldBe 1
-                    personListe[0].let {
-                        it.fnr shouldBeEqualTo oversiktHendelse.fnr
-                        it.veilederIdent shouldBeEqualTo tilknytning.veilederIdent
-                        it.enhet.shouldBeNull()
-                        it.motebehovUbehandlet shouldBeEqualTo null
-                        it.moteplanleggerUbehandlet shouldBeEqualTo null
-                        it.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo null
-                        it.dialogmotesvarUbehandlet shouldBeEqualTo true
-                    }
-                }
-
-                it("skal oppdatere person med ny enhet, om person eksisterer i oversikt") {
-                    val oversiktHendelse = generateKOversikthendelse(
-                        OversikthendelseType.DIALOGMOTESVAR_MOTTATT
-                    )
-
-                    kafkaOversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
-
-                    val oversiktHendelseNy = generateKOversikthendelse(
-                        OversikthendelseType.DIALOGMOTESVAR_MOTTATT
-                    ).copy(enhetId = NAV_ENHET_2)
-
-                    kafkaOversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseNy)
-
-                    val personListe = database.connection.getPersonOversiktStatusList(
-                        fnr = oversiktHendelse.fnr,
-                    )
-
-                    personListe.size shouldBe 1
-                    personListe[0].let {
-                        it.fnr shouldBeEqualTo oversiktHendelseNy.fnr
-                        it.veilederIdent shouldBeEqualTo null
-                        it.enhet.shouldBeNull()
-                        it.motebehovUbehandlet shouldBeEqualTo null
-                        it.moteplanleggerUbehandlet shouldBeEqualTo null
-                        it.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo null
-                        it.dialogmotesvarUbehandlet shouldBeEqualTo true
-                    }
-                }
-            }
-
-            describe("Oppdater person basert pa hendelse ${OversikthendelseType.DIALOGMOTESVAR_BEHANDLET.name}") {
-
-                it("skal ikke oppdatere person, om person ikke eksisterer i oversikt") {
-                    val oversiktHendelse = generateKOversikthendelse(
-                        OversikthendelseType.DIALOGMOTESVAR_BEHANDLET
-                    )
-                    kafkaOversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
-
-                    val personListe = database.connection.getPersonOversiktStatusList(
-                        fnr = oversiktHendelse.fnr,
-                    )
-
-                    personListe.size shouldBe 0
-                }
-
-                it("skal oppdatere person, om person eksisterer i oversikt") {
-                    val oversiktHendelseDialogmotesvarMottatt = generateKOversikthendelse(
-                        OversikthendelseType.DIALOGMOTESVAR_MOTTATT
-                    )
-                    kafkaOversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseDialogmotesvarMottatt)
-
-                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
-                    database.lagreBrukerKnytningPaEnhet(tilknytning)
-
-                    val oversiktHendelsedialogmotesvarUbehandlet = generateKOversikthendelse(
-                        OversikthendelseType.DIALOGMOTESVAR_BEHANDLET
-                    )
-                    kafkaOversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelsedialogmotesvarUbehandlet)
-
-                    val personListe = database.connection.getPersonOversiktStatusList(
-                        fnr = oversiktHendelseDialogmotesvarMottatt.fnr,
-                    )
-
-                    personListe.size shouldBe 1
-                    personListe[0].let {
-                        it.fnr shouldBeEqualTo oversiktHendelsedialogmotesvarUbehandlet.fnr
-                        it.veilederIdent shouldBeEqualTo tilknytning.veilederIdent
-                        it.enhet.shouldBeNull()
-                        it.motebehovUbehandlet shouldBeEqualTo null
-                        it.moteplanleggerUbehandlet shouldBeEqualTo null
-                        it.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo null
-                        it.dialogmotesvarUbehandlet shouldBeEqualTo false
                     }
                 }
             }
