@@ -26,6 +26,7 @@ const val queryCreatePersonOversiktStatus =
         motebehov_ubehandlet,
         moteplanlegger_ubehandlet,
         oppfolgingsplan_lps_bistand_ubehandlet,
+        dialogmotesvar_ubehandlet,
         oppfolgingstilfelle_updated_at,
         oppfolgingstilfelle_generated_at,
         oppfolgingstilfelle_start,
@@ -36,7 +37,7 @@ const val queryCreatePersonOversiktStatus =
         dialogmotekandidat_generated_at,
         motestatus,
         motestatus_generated_at
-    ) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     RETURNING id
     """
 
@@ -76,23 +77,24 @@ fun Connection.createPersonOversiktStatus(
         } else {
             it.setNull(11, NULL)
         }
-        it.setObject(12, personOversiktStatus.latestOppfolgingstilfelle?.oppfolgingstilfelleUpdatedAt)
-        it.setObject(13, personOversiktStatus.latestOppfolgingstilfelle?.oppfolgingstilfelleGeneratedAt)
-        it.setObject(14, personOversiktStatus.latestOppfolgingstilfelle?.oppfolgingstilfelleStart)
-        it.setObject(15, personOversiktStatus.latestOppfolgingstilfelle?.oppfolgingstilfelleEnd)
+        it.setBoolean(12, personOversiktStatus.dialogmotesvarUbehandlet)
+        it.setObject(13, personOversiktStatus.latestOppfolgingstilfelle?.oppfolgingstilfelleUpdatedAt)
+        it.setObject(14, personOversiktStatus.latestOppfolgingstilfelle?.oppfolgingstilfelleGeneratedAt)
+        it.setObject(15, personOversiktStatus.latestOppfolgingstilfelle?.oppfolgingstilfelleStart)
+        it.setObject(16, personOversiktStatus.latestOppfolgingstilfelle?.oppfolgingstilfelleEnd)
         if (personOversiktStatus.latestOppfolgingstilfelle != null) {
             it.setString(
-                16,
+                17,
                 personOversiktStatus.latestOppfolgingstilfelle.oppfolgingstilfelleBitReferanseUuid.toString()
             )
         } else {
-            it.setNull(16, Types.CHAR)
+            it.setNull(17, Types.CHAR)
         }
-        it.setObject(17, personOversiktStatus.latestOppfolgingstilfelle?.oppfolgingstilfelleBitReferanseInntruffet)
-        it.setObject(18, personOversiktStatus.dialogmotekandidat)
-        it.setObject(19, personOversiktStatus.dialogmotekandidatGeneratedAt)
-        it.setString(20, personOversiktStatus.motestatus)
-        it.setObject(21, personOversiktStatus.motestatusGeneratedAt)
+        it.setObject(18, personOversiktStatus.latestOppfolgingstilfelle?.oppfolgingstilfelleBitReferanseInntruffet)
+        it.setObject(19, personOversiktStatus.dialogmotekandidat)
+        it.setObject(20, personOversiktStatus.dialogmotekandidatGeneratedAt)
+        it.setString(21, personOversiktStatus.motestatus)
+        it.setObject(22, personOversiktStatus.motestatusGeneratedAt)
         it.executeQuery().toList { getInt("id") }.firstOrNull()
     } ?: throw SQLException("Creating PersonOversikStatus failed, no rows affected.")
 
@@ -116,7 +118,8 @@ const val queryUpdatePersonOversiktStatus =
     sist_endret = ?,
     motebehov_ubehandlet = ?,
     moteplanlegger_ubehandlet = ?,
-    oppfolgingsplan_lps_bistand_ubehandlet = ?
+    oppfolgingsplan_lps_bistand_ubehandlet = ?,
+    dialogmotesvar_ubehandlet = ?
     WHERE fnr = ?
     """
 
@@ -145,7 +148,8 @@ fun DatabaseInterface.updatePersonOversiktStatus(
             } else {
                 it.setNull(6, NULL)
             }
-            it.setString(7, personOversiktStatus.fnr)
+            it.setBoolean(7, personOversiktStatus.dialogmotesvarUbehandlet)
+            it.setString(8, personOversiktStatus.fnr)
             it.execute()
         }
         connection.commit()
