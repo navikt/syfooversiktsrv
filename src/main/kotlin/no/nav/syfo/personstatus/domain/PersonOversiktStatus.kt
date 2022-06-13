@@ -14,7 +14,6 @@ data class PersonOversiktStatus(
     val motebehovUbehandlet: Boolean?,
     val moteplanleggerUbehandlet: Boolean?,
     val oppfolgingsplanLPSBistandUbehandlet: Boolean?,
-    val dialogmotesvarUbehandlet: Boolean?,
     val dialogmotekandidat: Boolean?,
     val dialogmotekandidatGeneratedAt: OffsetDateTime?,
     val motestatus: String?,
@@ -107,11 +106,5 @@ fun PersonOversiktStatus.applyHendelse(
         )
         OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_BEHANDLET -> this.copy(
             oppfolgingsplanLPSBistandUbehandlet = false,
-        )
-        OversikthendelseType.DIALOGMOTESVAR_MOTTATT -> this.copy(
-            dialogmotesvarUbehandlet = true,
-        )
-        OversikthendelseType.DIALOGMOTESVAR_BEHANDLET -> this.copy(
-            dialogmotesvarUbehandlet = false,
         )
     }

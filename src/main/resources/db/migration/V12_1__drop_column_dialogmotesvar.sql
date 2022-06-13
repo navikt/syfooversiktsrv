@@ -1,0 +1,2 @@
+ALTER TABLE PERSON_OVERSIKT_STATUS
+DROP COLUMN dialogmotesvar_ubehandlet;

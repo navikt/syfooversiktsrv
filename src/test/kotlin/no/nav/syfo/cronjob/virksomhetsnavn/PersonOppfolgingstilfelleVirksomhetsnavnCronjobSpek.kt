@@ -155,7 +155,7 @@ object PersonOppfolgingstilfelleVirksomhetsnavnCronjobSpek : Spek({
                         database.connection.dropData()
 
                         oversiktHendelseService.oppdaterPersonMedHendelse(
-                            oversikthendelse = oversikthendelse,
+                            oversiktHendelse = oversikthendelse,
                         )
 
                         kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
@@ -333,7 +333,7 @@ object PersonOppfolgingstilfelleVirksomhetsnavnCronjobSpek : Spek({
                     )
 
                     oversiktHendelseService.oppdaterPersonMedHendelse(
-                        oversikthendelse = oversikthendelse,
+                        oversiktHendelse = oversikthendelse,
                     )
 
                     kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
