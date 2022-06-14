@@ -81,6 +81,7 @@ fun PersonOversiktStatus.toPersonOversiktStatusDTO() =
         motebehovUbehandlet = this.motebehovUbehandlet,
         moteplanleggerUbehandlet = this.moteplanleggerUbehandlet,
         oppfolgingsplanLPSBistandUbehandlet = this.oppfolgingsplanLPSBistandUbehandlet,
+        dialogmotesvarUbehandlet = this.dialogmotesvarUbehandlet,
         dialogmotekandidat = this.dialogmotekandidat,
         motestatus = this.motestatus,
         latestOppfolgingstilfelle = this.latestOppfolgingstilfelle?.toPersonOppfolgingstilfelleDTO(),

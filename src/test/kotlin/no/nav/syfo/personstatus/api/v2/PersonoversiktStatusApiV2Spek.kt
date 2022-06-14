@@ -268,7 +268,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     }
                 }
 
-                it("should return list of PersonOversiktStatus, if MOTEBEHOV_SVAR_MOTTATT and MOTEPLANLEGGER_ALLE_SVAR_MOTTATT and OPPFOLGINGSPLANLPS_BISTAND_MOTTATT, and there is a person with a relevant active Oppfolgingstilfelle") {
+                it("should return list of PersonOversiktStatus, if MOTEBEHOV_SVAR_MOTTATT and MOTEPLANLEGGER_ALLE_SVAR_MOTTATT and OPPFOLGINGSPLANLPS_BISTAND_MOTTATT and DIALOGMOTESVAR_MOTTATT, and there is a person with a relevant active Oppfolgingstilfelle") {
                     kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
                         kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                     )
@@ -293,6 +293,9 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         generateKOversikthendelse(OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT)
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseOPLPSBistandMottatt)
 
+                    val dialogmotesvarMottatt = generateKOversikthendelse(OversikthendelseType.DIALOGMOTESVAR_MOTTATT)
+                    oversiktHendelseService.oppdaterPersonMedHendelse(dialogmotesvarMottatt)
+
                     runBlocking {
                         personOppfolgingstilfelleVirksomhetnavnCronjob.runJob()
                     }
@@ -315,6 +318,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
                         personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo true
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
+                        personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo true
                         personOversiktStatus.dialogmotekandidat.shouldBeNull()
                         personOversiktStatus.motestatus.shouldBeNull()
 
@@ -353,6 +357,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.motebehovUbehandlet.shouldBeNull()
                         personOversiktStatus.moteplanleggerUbehandlet.shouldBeNull()
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet.shouldBeNull()
+                        personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo false
                         personOversiktStatus.dialogmotekandidat shouldBeEqualTo true
                         personOversiktStatus.motestatus.shouldBeNull()
                     }
@@ -431,6 +436,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
                         personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo null
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo null
+                        personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo false
                         personOversiktStatus.dialogmotekandidat.shouldBeNull()
                         personOversiktStatus.motestatus.shouldBeNull()
 
@@ -478,6 +484,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo null
                         personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo true
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo null
+                        personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo false
                         personOversiktStatus.dialogmotekandidat.shouldBeNull()
                         personOversiktStatus.motestatus.shouldBeNull()
 
@@ -539,6 +546,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
                         personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo true
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
+                        personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo false
                         personOversiktStatus.dialogmotekandidat.shouldBeNull()
                         personOversiktStatus.motestatus.shouldBeNull()
 
@@ -601,6 +609,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
                         personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo true
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
+                        personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo false
                         personOversiktStatus.dialogmotekandidat.shouldBeNull()
                         personOversiktStatus.motestatus.shouldBeNull()
 
@@ -641,6 +650,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.motebehovUbehandlet.shouldBeNull()
                         personOversiktStatus.moteplanleggerUbehandlet.shouldBeNull()
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet.shouldBeNull()
+                        personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo false
                         personOversiktStatus.dialogmotekandidat shouldBeEqualTo true
                         personOversiktStatus.motestatus shouldBeEqualTo kafkaDialogmoteStatusendring.getStatusEndringType()
                     }
@@ -671,6 +681,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo null
                         personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo null
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
+                        personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo false
                         personOversiktStatus.dialogmotekandidat.shouldBeNull()
                         personOversiktStatus.motestatus.shouldBeNull()
 
@@ -704,6 +715,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo null
                         personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo null
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
+                        personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo false
                         personOversiktStatus.dialogmotekandidat.shouldBeNull()
                         personOversiktStatus.motestatus.shouldBeNull()
 
