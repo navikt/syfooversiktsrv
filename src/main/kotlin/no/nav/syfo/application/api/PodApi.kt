@@ -7,8 +7,8 @@ import io.ktor.server.routing.*
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.database.DatabaseInterface
 
-const val podLivenessPath = "/is_alive"
-const val podReadinessPath = "/is_ready"
+const val podLivenessPath = "/internal/is_alive"
+const val podReadinessPath = "/internal/is_ready"
 
 fun Routing.registerPodApi(
     applicationState: ApplicationState,
