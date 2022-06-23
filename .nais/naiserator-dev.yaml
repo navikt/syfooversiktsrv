@@ -26,15 +26,15 @@ spec:
     timeout: 5
   resources:
     limits:
-      cpu: 1000m
+      cpu: 400m
       memory: 1024Mi
     requests:
-      cpu: 500m
+      cpu: 200m
       memory: 512Mi
   replicas:
     min: 2
     max: 4
-    cpuThresholdPercentage: 90
+    cpuThresholdPercentage: 70
   leaderElection: true
   prometheus:
     enabled: true
