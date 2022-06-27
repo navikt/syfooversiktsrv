@@ -79,7 +79,6 @@ fun PersonOversiktStatus.toPersonOversiktStatusDTO() =
         navn = this.navn ?: "",
         enhet = this.enhet ?: "",
         motebehovUbehandlet = this.motebehovUbehandlet,
-        moteplanleggerUbehandlet = this.moteplanleggerUbehandlet,
         oppfolgingsplanLPSBistandUbehandlet = this.oppfolgingsplanLPSBistandUbehandlet,
         dialogmotesvarUbehandlet = this.dialogmotesvarUbehandlet,
         dialogmotekandidat = this.dialogmotekandidat,
