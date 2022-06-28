@@ -316,7 +316,6 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.fnr shouldBeEqualTo oversiktHendelseMotebehovMottatt.fnr
                         personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
-                        personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo true
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
                         personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo true
                         personOversiktStatus.dialogmotekandidat.shouldBeNull()
@@ -355,7 +354,6 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.fnr shouldBeEqualTo kafkaDialogmotekandidatEndringStoppunktDelayPassed.personIdentNumber
                         personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
                         personOversiktStatus.motebehovUbehandlet.shouldBeNull()
-                        personOversiktStatus.moteplanleggerUbehandlet.shouldBeNull()
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet.shouldBeNull()
                         personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo false
                         personOversiktStatus.dialogmotekandidat shouldBeEqualTo true
@@ -434,7 +432,6 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.navn shouldBeEqualTo getIdentName()
                         personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
-                        personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo null
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo null
                         personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo false
                         personOversiktStatus.dialogmotekandidat.shouldBeNull()
@@ -482,7 +479,6 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.navn shouldBeEqualTo getIdentName()
                         personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo null
-                        personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo true
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo null
                         personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo false
                         personOversiktStatus.dialogmotekandidat.shouldBeNull()
@@ -544,7 +540,6 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.navn shouldBeEqualTo getIdentName()
                         personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
-                        personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo true
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
                         personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo false
                         personOversiktStatus.dialogmotekandidat.shouldBeNull()
@@ -607,7 +602,6 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.navn shouldBeEqualTo getIdentName()
                         personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
-                        personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo true
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
                         personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo false
                         personOversiktStatus.dialogmotekandidat.shouldBeNull()
@@ -648,7 +642,6 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.fnr shouldBeEqualTo kafkaDialogmoteStatusendring.getPersonIdent()
                         personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
                         personOversiktStatus.motebehovUbehandlet.shouldBeNull()
-                        personOversiktStatus.moteplanleggerUbehandlet.shouldBeNull()
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet.shouldBeNull()
                         personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo false
                         personOversiktStatus.dialogmotekandidat shouldBeEqualTo true
@@ -679,7 +672,6 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.navn shouldBeEqualTo getIdentName()
                         personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo null
-                        personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo null
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
                         personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo false
                         personOversiktStatus.dialogmotekandidat.shouldBeNull()
@@ -713,7 +705,6 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.navn shouldBeEqualTo ""
                         personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo null
-                        personOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo null
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
                         personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo false
                         personOversiktStatus.dialogmotekandidat.shouldBeNull()

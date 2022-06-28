@@ -8,7 +8,6 @@ data class PersonOversiktStatusDTO(
     val navn: String,
     val enhet: String,
     val motebehovUbehandlet: Boolean?,
-    val moteplanleggerUbehandlet: Boolean?,
     val oppfolgingsplanLPSBistandUbehandlet: Boolean?,
     val dialogmotesvarUbehandlet: Boolean,
     val dialogmotekandidat: Boolean?,
