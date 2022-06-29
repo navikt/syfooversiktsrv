@@ -7,16 +7,13 @@ import io.ktor.http.*
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.application.cache.RedisStore
 import no.nav.syfo.client.ClientEnvironment
-import no.nav.syfo.client.azuread.AzureAdClient
 import no.nav.syfo.client.httpClientDefault
 import no.nav.syfo.domain.Virksomhetsnummer
 import no.nav.syfo.util.NAV_CALL_ID_HEADER
-import no.nav.syfo.util.bearerHeader
 import org.slf4j.LoggerFactory
 
 class EregClient(
-    private val azureAdClient: AzureAdClient,
-    private val clientEnvironment: ClientEnvironment,
+    clientEnvironment: ClientEnvironment,
     private val redisStore: RedisStore,
 ) {
     private val httpClient = httpClientDefault()
@@ -33,15 +30,9 @@ class EregClient(
         if (cachedResponse != null) {
             return cachedResponse
         } else {
-            val systemToken = azureAdClient.getSystemToken(
-                scopeClientId = clientEnvironment.clientId,
-            )?.accessToken
-                ?: throw RuntimeException("Failed to request Organisasjon from Isproxy-Ereg: Failed to get system token from AzureAD")
-
             try {
                 val url = "$eregOrganisasjonUrl/${virksomhetsnummer.value}"
                 val response = httpClient.get(url) {
-                    header(HttpHeaders.Authorization, bearerHeader(systemToken))
                     header(NAV_CALL_ID_HEADER, callId)
                     accept(ContentType.Application.Json)
                 }.body<EregOrganisasjonResponse>()
@@ -85,7 +76,7 @@ class EregClient(
     }
 
     companion object {
-        const val EREG_PATH = "/api/v1/ereg/organisasjon"
+        const val EREG_PATH = "/ereg/api/v1/organisasjon"
 
         const val CACHE_EREG_VIRKSOMHETSNAVN_KEY_PREFIX = "ereg-virksomhetsnavn-"
         const val CACHE_EREG_VIRKSOMHETSNAVN_TIME_TO_LIVE_SECONDS = 24 * 60 * 60L
