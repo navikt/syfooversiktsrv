@@ -12,7 +12,7 @@ import java.net.ServerSocket
 fun testEnvironment(
     azureTokenEndpoint: String = "azureTokenEndpoint",
     kafkaBootstrapServers: String = "boostrapserver",
-    isproxyUrl: String = "isproxy",
+    eregUrl: String = "ereg",
     pdlUrl: String,
     syfobehandlendeenhetUrl: String = "syfobehandlendeenhet",
     syfotilgangskontrollUrl: String = "syfotilgangskontroll",
@@ -48,9 +48,9 @@ fun testEnvironment(
     kafkaDialogmotekandidatProcessingEnabled = true,
     kafkaDialogmoteStatusendringProcessingEnabled = true,
     clients = ClientsEnvironment(
-        isproxy = ClientEnvironment(
-            baseUrl = isproxyUrl,
-            clientId = "dev-fss.teamsykefravr.isproxy",
+        ereg = ClientEnvironment(
+            baseUrl = eregUrl,
+            clientId = "",
         ),
         pdl = ClientEnvironment(
             baseUrl = pdlUrl,

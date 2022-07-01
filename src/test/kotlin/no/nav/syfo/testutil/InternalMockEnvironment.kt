@@ -26,8 +26,7 @@ class InternalMockEnvironment private constructor() {
         clientEnvironment = environment.clients.syfobehandlendeenhet,
     )
     private val eregClient = EregClient(
-        azureAdClient = azureAdClient,
-        clientEnvironment = environment.clients.isproxy,
+        clientEnvironment = environment.clients.ereg,
         redisStore = redisStore,
     )
 

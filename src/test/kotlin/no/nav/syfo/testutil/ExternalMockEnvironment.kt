@@ -9,14 +9,14 @@ class ExternalMockEnvironment private constructor() {
     val embeddedEnvironment = testKafka()
 
     val azureAdMock = AzureAdMock()
-    val isproxyMock = IsproxyMock()
+    val eregMock = EregMock()
     val pdlMock = PdlMock()
     val syfobehandlendeenhetMock = SyfobehandlendeenhetMock()
     val tilgangskontrollMock = VeilederTilgangskontrollMock()
 
     val externalApplicationMockMap = hashMapOf(
         azureAdMock.name to azureAdMock.server,
-        isproxyMock.name to isproxyMock.server,
+        eregMock.name to eregMock.server,
         pdlMock.name to pdlMock.server,
         syfobehandlendeenhetMock.name to syfobehandlendeenhetMock.server,
         tilgangskontrollMock.name to tilgangskontrollMock.server,
@@ -24,7 +24,7 @@ class ExternalMockEnvironment private constructor() {
 
     val environment = testEnvironment(
         azureTokenEndpoint = azureAdMock.url,
-        isproxyUrl = isproxyMock.url,
+        eregUrl = eregMock.url,
         pdlUrl = pdlMock.url,
         syfobehandlendeenhetUrl = syfobehandlendeenhetMock.url,
         syfotilgangskontrollUrl = tilgangskontrollMock.url,

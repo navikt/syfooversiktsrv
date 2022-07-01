@@ -22,11 +22,11 @@ val eregOrganisasjonResponse = EregOrganisasjonResponse(
     )
 )
 
-class IsproxyMock {
+class EregMock {
     private val port = getRandomPort()
     val url = "http://localhost:$port"
 
-    val name = "isproxy"
+    val name = "ereg"
     val server = embeddedServer(
         factory = Netty,
         port = port,
