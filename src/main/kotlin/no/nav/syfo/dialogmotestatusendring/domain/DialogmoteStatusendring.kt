@@ -36,7 +36,6 @@ data class DialogmoteStatusendring private constructor(
         navn = null,
         enhet = null,
         motebehovUbehandlet = null,
-        moteplanleggerUbehandlet = null,
         oppfolgingsplanLPSBistandUbehandlet = null,
         dialogmotesvarUbehandlet = false,
         dialogmotekandidat = null,

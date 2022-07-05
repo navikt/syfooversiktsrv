@@ -86,7 +86,6 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     pPersonOversiktStatus.veilederIdent.shouldBeNull()
 
                     pPersonOversiktStatus.motebehovUbehandlet.shouldBeNull()
-                    pPersonOversiktStatus.moteplanleggerUbehandlet.shouldBeNull()
                     pPersonOversiktStatus.oppfolgingsplanLPSBistandUbehandlet.shouldBeNull()
                     pPersonOversiktStatus.dialogmotekandidat.shouldBeNull()
                     pPersonOversiktStatus.dialogmotekandidatGeneratedAt.shouldBeNull()
@@ -136,7 +135,6 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                 pPersonOversiktStatus.veilederIdent.shouldBeNull()
 
                 pPersonOversiktStatus.motebehovUbehandlet.shouldBeNull()
-                pPersonOversiktStatus.moteplanleggerUbehandlet.shouldBeNull()
                 pPersonOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
                 pPersonOversiktStatus.dialogmotekandidat.shouldBeNull()
                 pPersonOversiktStatus.dialogmotekandidatGeneratedAt.shouldBeNull()
@@ -194,7 +192,6 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     pPersonOversiktStatus.veilederIdent.shouldBeNull()
 
                     pPersonOversiktStatus.motebehovUbehandlet.shouldBeNull()
-                    pPersonOversiktStatus.moteplanleggerUbehandlet.shouldBeNull()
                     pPersonOversiktStatus.oppfolgingsplanLPSBistandUbehandlet.shouldBeNull()
                     pPersonOversiktStatus.dialogmotekandidat.shouldBeNull()
                     pPersonOversiktStatus.dialogmotekandidatGeneratedAt.shouldBeNull()
@@ -261,7 +258,6 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     pPersonOversiktStatus.veilederIdent.shouldBeNull()
 
                     pPersonOversiktStatus.motebehovUbehandlet.shouldBeNull()
-                    pPersonOversiktStatus.moteplanleggerUbehandlet.shouldBeNull()
                     pPersonOversiktStatus.oppfolgingsplanLPSBistandUbehandlet.shouldBeNull()
                     pPersonOversiktStatus.dialogmotekandidat.shouldBeNull()
                     pPersonOversiktStatus.dialogmotekandidatGeneratedAt.shouldBeNull()
@@ -350,7 +346,6 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     pPersonOversiktStatus.veilederIdent.shouldBeNull()
 
                     pPersonOversiktStatus.motebehovUbehandlet.shouldBeNull()
-                    pPersonOversiktStatus.moteplanleggerUbehandlet.shouldBeNull()
                     pPersonOversiktStatus.oppfolgingsplanLPSBistandUbehandlet.shouldBeNull()
                     pPersonOversiktStatus.dialogmotekandidat.shouldBeNull()
                     pPersonOversiktStatus.dialogmotekandidatGeneratedAt.shouldBeNull()
@@ -397,7 +392,6 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     pPersonOversiktStatus.veilederIdent.shouldBeNull()
 
                     pPersonOversiktStatus.motebehovUbehandlet.shouldBeNull()
-                    pPersonOversiktStatus.moteplanleggerUbehandlet.shouldBeNull()
                     pPersonOversiktStatus.oppfolgingsplanLPSBistandUbehandlet.shouldBeNull()
                     pPersonOversiktStatus.dialogmotekandidat.shouldBeNull()
                     pPersonOversiktStatus.dialogmotekandidatGeneratedAt.shouldBeNull()
@@ -486,7 +480,6 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     pPersonOversiktStatus.veilederIdent.shouldBeNull()
 
                     pPersonOversiktStatus.motebehovUbehandlet.shouldBeNull()
-                    pPersonOversiktStatus.moteplanleggerUbehandlet.shouldBeNull()
                     pPersonOversiktStatus.oppfolgingsplanLPSBistandUbehandlet.shouldBeNull()
                     pPersonOversiktStatus.dialogmotekandidat.shouldBeNull()
                     pPersonOversiktStatus.dialogmotekandidatGeneratedAt.shouldBeNull()
@@ -533,7 +526,6 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     pPersonOversiktStatus.veilederIdent.shouldBeNull()
 
                     pPersonOversiktStatus.motebehovUbehandlet.shouldBeNull()
-                    pPersonOversiktStatus.moteplanleggerUbehandlet.shouldBeNull()
                     pPersonOversiktStatus.oppfolgingsplanLPSBistandUbehandlet.shouldBeNull()
                     pPersonOversiktStatus.dialogmotekandidat.shouldBeNull()
                     pPersonOversiktStatus.dialogmotekandidatGeneratedAt.shouldBeNull()
@@ -617,7 +609,6 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     pPersonOversiktStatus.veilederIdent.shouldBeNull()
 
                     pPersonOversiktStatus.motebehovUbehandlet.shouldBeNull()
-                    pPersonOversiktStatus.moteplanleggerUbehandlet.shouldBeNull()
                     pPersonOversiktStatus.oppfolgingsplanLPSBistandUbehandlet.shouldBeNull()
                     pPersonOversiktStatus.dialogmotekandidat.shouldBeNull()
                     pPersonOversiktStatus.dialogmotekandidatGeneratedAt.shouldBeNull()

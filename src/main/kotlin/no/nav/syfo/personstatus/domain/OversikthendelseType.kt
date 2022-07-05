@@ -3,8 +3,6 @@ package no.nav.syfo.personstatus.domain
 enum class OversikthendelseType {
     MOTEBEHOV_SVAR_MOTTATT,
     MOTEBEHOV_SVAR_BEHANDLET,
-    MOTEPLANLEGGER_ALLE_SVAR_MOTTATT,
-    MOTEPLANLEGGER_ALLE_SVAR_BEHANDLET,
     OPPFOLGINGSPLANLPS_BISTAND_MOTTATT,
     OPPFOLGINGSPLANLPS_BISTAND_BEHANDLET,
     DIALOGMOTESVAR_MOTTATT,
@@ -13,6 +11,5 @@ enum class OversikthendelseType {
 
 fun OversikthendelseType.isNotBehandling() =
     this == OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT ||
-        this == OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT ||
         this == OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT ||
         this == OversikthendelseType.DIALOGMOTESVAR_MOTTATT

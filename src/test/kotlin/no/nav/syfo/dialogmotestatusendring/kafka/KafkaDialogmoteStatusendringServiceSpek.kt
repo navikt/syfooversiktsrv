@@ -83,7 +83,6 @@ class KafkaDialogmoteStatusendringServiceSpek : Spek({
                 pPersonOversiktStatus.enhet.shouldBeNull()
                 pPersonOversiktStatus.veilederIdent.shouldBeNull()
                 pPersonOversiktStatus.motebehovUbehandlet.shouldBeNull()
-                pPersonOversiktStatus.moteplanleggerUbehandlet.shouldBeNull()
                 pPersonOversiktStatus.oppfolgingsplanLPSBistandUbehandlet.shouldBeNull()
             }
             it("updates existing PersonOversikStatus when PersonOversiktStatus without motestatus exists for personident") {

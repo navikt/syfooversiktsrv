@@ -89,7 +89,7 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                     )
                 }
 
-                it("should not update Enhet of existing PersonOversiktStatus if motebehovUbehandlet, moteplanleggerUbehandlet, oppfolgingsplanLPSBistandUbehandlet and dialogmotekandidat are not true)") {
+                it("should not update Enhet of existing PersonOversiktStatus if motebehovUbehandlet, oppfolgingsplanLPSBistandUbehandlet and dialogmotekandidat are not true)") {
                     kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
                         kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                     )
@@ -106,7 +106,6 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                         val pPersonOversiktStatus = pPersonOversiktStatusList.first()
 
                         pPersonOversiktStatus.motebehovUbehandlet.shouldBeNull()
-                        pPersonOversiktStatus.moteplanleggerUbehandlet.shouldBeNull()
                         pPersonOversiktStatus.oppfolgingsplanLPSBistandUbehandlet.shouldBeNull()
                         pPersonOversiktStatus.dialogmotekandidat.shouldBeNull()
 
@@ -134,13 +133,9 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                     }
                 }
 
-                it("should update Enhet and remove Veileder of existing PersonOversiktStatus with Enhet, if motebehovUbehandlet, moteplanleggerUbehandlet, or oppfolgingsplanLPSBistandUbehandlet is true") {
+                it("should update Enhet and remove Veileder of existing PersonOversiktStatus with Enhet, if motebehovUbehandlet, or oppfolgingsplanLPSBistandUbehandlet is true") {
                     val oversiktHendelseMotebehovSvarMottatt = generateKOversikthendelse(
                         oversikthendelseType = OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT,
-                        personIdent = personIdentDefault.value,
-                    )
-                    val oversiktHendelseMoteplanleggerAlleSvarMottatt = generateKOversikthendelse(
-                        oversikthendelseType = OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT,
                         personIdent = personIdentDefault.value,
                     )
                     val oversiktHendelseOPLPSBistandMottatt = generateKOversikthendelse(
@@ -150,7 +145,6 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                     val oversikthendelseList = listOf(
                         oversiktHendelseOPLPSBistandMottatt,
                         oversiktHendelseMotebehovSvarMottatt,
-                        oversiktHendelseMoteplanleggerAlleSvarMottatt
                     )
 
                     val firstEnhet = NAV_ENHET_2
@@ -198,11 +192,6 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                             pPersonOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
                         } else {
                             pPersonOversiktStatus.motebehovUbehandlet.shouldBeNull()
-                        }
-                        if (oversikthendelse.hendelseId == OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name) {
-                            pPersonOversiktStatus.moteplanleggerUbehandlet shouldBeEqualTo true
-                        } else {
-                            pPersonOversiktStatus.moteplanleggerUbehandlet.shouldBeNull()
                         }
                         if (oversikthendelse.hendelseId == OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT.name) {
                             pPersonOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
@@ -272,7 +261,6 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
 
                     var pPersonOversiktStatus = pPersonOversiktStatusList.first()
                     pPersonOversiktStatus.motebehovUbehandlet.shouldBeNull()
-                    pPersonOversiktStatus.moteplanleggerUbehandlet.shouldBeNull()
                     pPersonOversiktStatus.oppfolgingsplanLPSBistandUbehandlet.shouldBeNull()
                     pPersonOversiktStatus.enhet.shouldBeNull()
                     pPersonOversiktStatus.dialogmotekandidat shouldBeEqualTo true
@@ -337,7 +325,6 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                         val pPersonOversiktStatus = pPersonOversiktStatusList.first()
 
                         pPersonOversiktStatus.motebehovUbehandlet.shouldBeNull()
-                        pPersonOversiktStatus.moteplanleggerUbehandlet.shouldBeNull()
                         pPersonOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
 
                         pPersonOversiktStatus.enhet.shouldBeNull()

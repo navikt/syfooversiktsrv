@@ -23,7 +23,6 @@ fun KOversikthendelse.toPersonOversiktStatus(
         navn = "",
         enhet = null,
         motebehovUbehandlet = null,
-        moteplanleggerUbehandlet = null,
         oppfolgingsplanLPSBistandUbehandlet = null,
         dialogmotesvarUbehandlet = false,
         dialogmotekandidat = null,
