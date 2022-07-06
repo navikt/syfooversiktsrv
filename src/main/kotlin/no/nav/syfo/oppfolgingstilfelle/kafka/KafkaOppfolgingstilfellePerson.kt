@@ -31,7 +31,6 @@ fun KafkaOppfolgingstilfellePerson.toPersonOversiktStatus(
     navn = null,
     enhet = null,
     motebehovUbehandlet = null,
-    moteplanleggerUbehandlet = null,
     oppfolgingsplanLPSBistandUbehandlet = null,
     dialogmotesvarUbehandlet = false,
     dialogmotekandidat = null,

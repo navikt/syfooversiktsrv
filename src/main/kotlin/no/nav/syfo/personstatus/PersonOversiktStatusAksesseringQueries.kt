@@ -38,7 +38,7 @@ const val queryHentUbehandledePersonerTilknyttetEnhet = """
                         SELECT *
                         FROM PERSON_OVERSIKT_STATUS
                         WHERE ((tildelt_enhet = ?)
-                        AND (motebehov_ubehandlet = 't' OR moteplanlegger_ubehandlet = 't' OR oppfolgingsplan_lps_bistand_ubehandlet = 't' OR (dialogmotekandidat = 't' and dialogmotekandidat_generated_at + INTERVAL '7 DAY' < now())));
+                        AND (motebehov_ubehandlet = 't' OR oppfolgingsplan_lps_bistand_ubehandlet = 't' OR (dialogmotekandidat = 't' and dialogmotekandidat_generated_at + INTERVAL '7 DAY' < now())));
                 """
 
 fun DatabaseInterface.hentUbehandledePersonerTilknyttetEnhet(enhet: String): List<PPersonOversiktStatus> {
@@ -74,7 +74,6 @@ fun DatabaseInterface.lagreBrukerKnytningPaEnhet(veilederBrukerKnytning: Veilede
             navn = null,
             enhet = null,
             motebehovUbehandlet = null,
-            moteplanleggerUbehandlet = null,
             oppfolgingsplanLPSBistandUbehandlet = null,
             dialogmotesvarUbehandlet = false,
             dialogmotekandidat = null,
@@ -136,7 +135,6 @@ fun ResultSet.toPPersonOversiktStatus(): PPersonOversiktStatus =
         enhet = getString("tildelt_enhet"),
         tildeltEnhetUpdatedAt = getObject("tildelt_enhet_updated_at", OffsetDateTime::class.java),
         motebehovUbehandlet = getObject("motebehov_ubehandlet") as Boolean?,
-        moteplanleggerUbehandlet = getObject("moteplanlegger_ubehandlet") as Boolean?,
         oppfolgingsplanLPSBistandUbehandlet = getObject("oppfolgingsplan_lps_bistand_ubehandlet") as Boolean?,
         dialogmotesvarUbehandlet = getObject("dialogmotesvar_ubehandlet") as Boolean,
         dialogmotekandidat = getObject("dialogmotekandidat") as Boolean?,

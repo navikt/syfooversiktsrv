@@ -57,7 +57,7 @@ const val queryGetPersonIdentWithTildeltToUpdateTildeltEnhetList =
     """
     SELECT fnr, tildelt_enhet
     FROM PERSON_OVERSIKT_STATUS
-    WHERE (motebehov_ubehandlet = 't' OR moteplanlegger_ubehandlet = 't' OR oppfolgingsplan_lps_bistand_ubehandlet = 't' OR dialogmotekandidat = 't')
+    WHERE (motebehov_ubehandlet = 't' OR oppfolgingsplan_lps_bistand_ubehandlet = 't' OR dialogmotekandidat = 't')
     AND (tildelt_enhet_updated_at IS NULL OR tildelt_enhet_updated_at < oppfolgingstilfelle_updated_at)
     ORDER BY tildelt_enhet_updated_at ASC
     LIMIT 1000

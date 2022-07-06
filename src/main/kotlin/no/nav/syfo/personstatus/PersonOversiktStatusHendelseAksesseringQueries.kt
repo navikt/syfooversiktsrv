@@ -67,11 +67,7 @@ fun Connection.createPersonOversiktStatus(
         } else {
             it.setNull(9, NULL)
         }
-        if (personOversiktStatus.moteplanleggerUbehandlet != null) {
-            it.setBoolean(10, personOversiktStatus.moteplanleggerUbehandlet)
-        } else {
-            it.setNull(10, NULL)
-        }
+        it.setNull(10, NULL)
         if (personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet != null) {
             it.setBoolean(11, personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet)
         } else {
@@ -138,11 +134,7 @@ fun DatabaseInterface.updatePersonOversiktStatus(
             } else {
                 it.setNull(4, NULL)
             }
-            if (personOversiktStatus.moteplanleggerUbehandlet != null) {
-                it.setBoolean(5, personOversiktStatus.moteplanleggerUbehandlet)
-            } else {
-                it.setNull(5, NULL)
-            }
+            it.setNull(5, NULL)
             if (personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet != null) {
                 it.setBoolean(6, personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet)
             } else {

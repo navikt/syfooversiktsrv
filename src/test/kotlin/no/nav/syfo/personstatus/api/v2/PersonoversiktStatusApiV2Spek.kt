@@ -174,31 +174,6 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     }
                 }
 
-                it("skal returnere NoContent med ubehandlet moteplanleggersvar og ikke har oppfolgingstilfelle") {
-                    val oversiktHendelse = KOversikthendelse(
-                        ARBEIDSTAKER_FNR,
-                        OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name,
-                        NAV_ENHET,
-                        LocalDateTime.now()
-                    )
-                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
-
-                    runBlocking {
-                        personBehandlendeEnhetCronjob.runJob()
-                    }
-
-                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
-                    database.lagreBrukerKnytningPaEnhet(tilknytning)
-
-                    with(
-                        handleRequest(HttpMethod.Get, url) {
-                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                        }
-                    ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.NoContent
-                    }
-                }
-
                 it("skal returnere NoContent, om alle personer i personoversikt er behandlet og ikke har oppfolgingstilfelle") {
                     val oversiktHendelse = KOversikthendelse(
                         ARBEIDSTAKER_FNR,
@@ -216,22 +191,6 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     )
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseNy)
 
-                    val oversiktHendelseMoteplanleggerMottatt = KOversikthendelse(
-                        ARBEIDSTAKER_FNR,
-                        OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name,
-                        NAV_ENHET,
-                        LocalDateTime.now()
-                    )
-                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerMottatt)
-
-                    val oversiktHendelseMoteplanleggerBehandlet = KOversikthendelse(
-                        ARBEIDSTAKER_FNR,
-                        OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_BEHANDLET.name,
-                        NAV_ENHET,
-                        LocalDateTime.now()
-                    )
-                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerBehandlet)
-
                     runBlocking {
                         personBehandlendeEnhetCronjob.runJob()
                     }
@@ -248,7 +207,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     }
                 }
 
-                it("should return NoContent, if there is a person with a relevant active Oppfolgingstilfelle, but neither MOTEBEHOV_SVAR_MOTTATT nor MOTEPLANLEGGER_ALLE_SVAR_MOTTATT nor DIALOGMOTEKANDIDAT") {
+                it("should return NoContent, if there is a person with a relevant active Oppfolgingstilfelle, but neither MOTEBEHOV_SVAR_MOTTATT nor DIALOGMOTEKANDIDAT") {
                     kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
                         kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                     )
@@ -268,7 +227,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     }
                 }
 
-                it("should return list of PersonOversiktStatus, if MOTEBEHOV_SVAR_MOTTATT and MOTEPLANLEGGER_ALLE_SVAR_MOTTATT and OPPFOLGINGSPLANLPS_BISTAND_MOTTATT and DIALOGMOTESVAR_MOTTATT, and there is a person with a relevant active Oppfolgingstilfelle") {
+                it("should return list of PersonOversiktStatus, if MOTEBEHOV_SVAR_MOTTATT and OPPFOLGINGSPLANLPS_BISTAND_MOTTATT and DIALOGMOTESVAR_MOTTATT, and there is a person with a relevant active Oppfolgingstilfelle") {
                     kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
                         kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                     )
@@ -280,14 +239,6 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         LocalDateTime.now()
                     )
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMotebehovMottatt)
-
-                    val oversiktHendelseMoteplanleggerMottatt = KOversikthendelse(
-                        ARBEIDSTAKER_FNR,
-                        OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name,
-                        NAV_ENHET,
-                        LocalDateTime.now()
-                    )
-                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerMottatt)
 
                     val oversiktHendelseOPLPSBistandMottatt =
                         generateKOversikthendelse(OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT)
@@ -445,54 +396,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     }
                 }
 
-                it("should return list of PersonOversiktStatus, if MOTEPLANLEGGER_ALLE_SVAR_MOTTATT and if there is a person with a relevant Oppfolgingstilfelle valid in Arbeidsgiverperiode") {
-                    kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
-                        kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
-                    )
-
-                    val oversiktHendelseMoteplanleggerMottatt = KOversikthendelse(
-                        ARBEIDSTAKER_FNR,
-                        OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name,
-                        NAV_ENHET,
-                        LocalDateTime.now()
-                    )
-                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerMottatt)
-
-                    runBlocking {
-                        personOppfolgingstilfelleVirksomhetnavnCronjob.runJob()
-                    }
-
-                    runBlocking {
-                        personBehandlendeEnhetCronjob.runJob()
-                    }
-
-                    with(
-                        handleRequest(HttpMethod.Get, url) {
-                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                        }
-                    ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.OK
-                        val personOversiktStatus =
-                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
-                        personOversiktStatus.veilederIdent shouldBeEqualTo null
-                        personOversiktStatus.fnr shouldBeEqualTo oversiktHendelseMoteplanleggerMottatt.fnr
-                        personOversiktStatus.navn shouldBeEqualTo getIdentName()
-                        personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
-                        personOversiktStatus.motebehovUbehandlet shouldBeEqualTo null
-                        personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo null
-                        personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo false
-                        personOversiktStatus.dialogmotekandidat.shouldBeNull()
-                        personOversiktStatus.motestatus.shouldBeNull()
-
-                        personOversiktStatus.latestOppfolgingstilfelle.shouldNotBeNull()
-                        checkPersonOppfolgingstilfelleDTO(
-                            personOppfolgingstilfelleDTO = personOversiktStatus.latestOppfolgingstilfelle,
-                            kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonRelevant,
-                        )
-                    }
-                }
-
-                it("should return Person, with MOTEBEHOV_SVAR_MOTTATT && MOTEPLANLEGGER_ALLE_SVAR_MOTTATT, and then receives Oppfolgingstilfelle and the OPPFOLGINGSPLANLPS_BISTAND_MOTTATT") {
+                it("should return Person, with MOTEBEHOV_SVAR_MOTTATT, and then receives Oppfolgingstilfelle and the OPPFOLGINGSPLANLPS_BISTAND_MOTTATT") {
                     val oversiktHendelse = KOversikthendelse(
                         ARBEIDSTAKER_FNR,
                         OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name,
@@ -500,14 +404,6 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         LocalDateTime.now()
                     )
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
-
-                    val oversiktHendelseMoteplanleggerMottatt = KOversikthendelse(
-                        ARBEIDSTAKER_FNR,
-                        OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name,
-                        NAV_ENHET,
-                        LocalDateTime.now()
-                    )
-                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerMottatt)
 
                     val oversiktHendelseOPLPSBistandMottatt =
                         generateKOversikthendelse(OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT)
@@ -536,7 +432,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         val personOversiktStatus =
                             objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
                         personOversiktStatus.veilederIdent shouldBeEqualTo tilknytning.veilederIdent
-                        personOversiktStatus.fnr shouldBeEqualTo oversiktHendelseMoteplanleggerMottatt.fnr
+                        personOversiktStatus.fnr shouldBeEqualTo oversiktHendelse.fnr
                         personOversiktStatus.navn shouldBeEqualTo getIdentName()
                         personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
@@ -553,7 +449,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     }
                 }
 
-                it("should return Person, receives Oppfolgingstilfelle, and then MOTEBEHOV_SVAR_MOTTATT and MOTEPLANLEGGER_ALLE_SVAR_MOTTATT and OPPFOLGINGSPLANLPS_BISTAND_MOTTATT") {
+                it("should return Person, receives Oppfolgingstilfelle, and then MOTEBEHOV_SVAR_MOTTATT and OPPFOLGINGSPLANLPS_BISTAND_MOTTATT") {
                     kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
                         kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                     )
@@ -565,14 +461,6 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         LocalDateTime.now()
                     )
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
-
-                    val oversiktHendelseMoteplanleggerMottatt = KOversikthendelse(
-                        ARBEIDSTAKER_FNR,
-                        OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_MOTTATT.name,
-                        NAV_ENHET,
-                        LocalDateTime.now()
-                    )
-                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerMottatt)
 
                     val oversiktHendelseOPLPSBistandMottatt =
                         generateKOversikthendelse(OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT)
@@ -718,10 +606,6 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     val oversiktHendelseMotebehovSvarBehandlet =
                         generateKOversikthendelse(OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET)
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMotebehovSvarBehandlet)
-
-                    val oversiktHendelseMoteplanleggerAlleSvarBehandlet =
-                        generateKOversikthendelse(OversikthendelseType.MOTEPLANLEGGER_ALLE_SVAR_BEHANDLET)
-                    oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseMoteplanleggerAlleSvarBehandlet)
 
                     val oversiktHendelseOPLPSBistandMottatt =
                         generateKOversikthendelse(OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_BEHANDLET)
