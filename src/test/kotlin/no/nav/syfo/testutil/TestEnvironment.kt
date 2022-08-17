@@ -47,6 +47,7 @@ fun testEnvironment(
     kafkaOppfolgingstilfellePersonProcessingEnabled = true,
     kafkaDialogmotekandidatProcessingEnabled = true,
     kafkaDialogmoteStatusendringProcessingEnabled = true,
+    kafkaPersonoppgavehendelseProcessingEnabled = true,
     clients = ClientsEnvironment(
         ereg = ClientEnvironment(
             baseUrl = eregUrl,
