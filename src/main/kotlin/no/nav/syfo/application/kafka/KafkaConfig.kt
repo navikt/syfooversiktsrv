@@ -16,7 +16,7 @@ fun kafkaAivenConsumerConfig(
         this[ConsumerConfig.GROUP_ID_CONFIG] = "syfooversiktsrv-v1"
         this[ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG] = StringDeserializer::class.java.canonicalName
         this[ConsumerConfig.AUTO_OFFSET_RESET_CONFIG] = "earliest"
-        this[ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG] = "false"
+        this[ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG] = "false" // we commit manually if db persistence is successful
         this[ConsumerConfig.MAX_POLL_RECORDS_CONFIG] = "1000"
         this[ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG] = "" + (10 * 1024 * 1024)
     }

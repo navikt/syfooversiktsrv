@@ -19,7 +19,13 @@ data class PersonOversiktStatus(
     val motestatus: String?,
     val motestatusGeneratedAt: OffsetDateTime?,
     val latestOppfolgingstilfelle: PersonOppfolgingstilfelle?,
-)
+) {
+    constructor(fnr: String) : this(
+        null, fnr = fnr, null, null, null,
+        null, false, null, null,
+        null, null, null
+    )
+}
 
 data class PersonOppfolgingstilfelle(
     val oppfolgingstilfelleUpdatedAt: OffsetDateTime,

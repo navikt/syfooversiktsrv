@@ -7,6 +7,7 @@ import no.nav.syfo.dialogmotekandidat.kafka.KafkaDialogmotekandidatEndringServic
 import no.nav.syfo.dialogmotestatusendring.kafka.KafkaDialogmoteStatusendringService
 import no.nav.syfo.oppfolgingstilfelle.kafka.KafkaOppfolgingstilfellePerson
 import no.nav.syfo.oppfolgingstilfelle.kafka.KafkaOppfolgingstilfellePersonService
+import no.nav.syfo.personoppgavehendelse.kafka.KPersonoppgavehendelse
 import no.nav.syfo.personstatus.kafka.KafkaOversiktHendelseService
 import org.apache.kafka.clients.consumer.KafkaConsumer
 
@@ -18,6 +19,8 @@ object TestKafkaModule {
         database = database,
     )
     val kafkaConsumerOppfolgingstilfellePerson = mockk<KafkaConsumer<String, KafkaOppfolgingstilfellePerson>>()
+
+    val kafkaPersonoppgavehendelse = mockk<KafkaConsumer<String, KPersonoppgavehendelse>>()
 
     val kafkaOversiktHendelseService = KafkaOversiktHendelseService(
         database = database,
