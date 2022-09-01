@@ -1,14 +1,14 @@
-package no.nav.syfo.personstatus
+package no.nav.syfo.personstatus.db
 
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.application.database.toList
-import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendring
+import no.nav.syfo.personstatus.createPersonOppfolgingstilfelleVirksomhetList
 import no.nav.syfo.personstatus.domain.*
+import no.nav.syfo.personstatus.updatePersonOppfolgingstilfelleVirksomhetList
 import no.nav.syfo.util.nowUTC
 import java.sql.*
 import java.sql.Types.NULL
 import java.time.Instant
-import java.time.OffsetDateTime
 import java.util.*
 
 const val queryCreatePersonOversiktStatus =
@@ -180,43 +180,29 @@ fun Connection.updatePersonOversiktStatusOppfolgingstilfelle(
     )
 }
 
-const val queryUpdatePersonOversiktStatusKandidat =
-    """
-        UPDATE PERSON_OVERSIKT_STATUS
-        SET dialogmotekandidat = ?,
-        dialogmotekandidat_generated_at = ?
-        WHERE fnr = ?
-    """
+fun DatabaseInterface.lagreBrukerKnytningPaEnhet(veilederBrukerKnytning: VeilederBrukerKnytning) {
+    val id = oppdaterEnhetDersomKnytningFinnes(veilederBrukerKnytning)
 
-fun Connection.updatePersonOversiktStatusKandidat(
-    pPersonOversiktStatus: PPersonOversiktStatus,
-    kandidat: Boolean,
-    generatedAt: OffsetDateTime,
-) {
-    this.prepareStatement(queryUpdatePersonOversiktStatusKandidat).use {
-        it.setBoolean(1, kandidat)
-        it.setObject(2, generatedAt)
-        it.setString(3, pPersonOversiktStatus.fnr)
-        it.execute()
-    }
-}
-
-const val queryUpdatePersonOversiktStatusMotestatus =
-    """
-        UPDATE PERSON_OVERSIKT_STATUS
-        SET motestatus = ?,
-        motestatus_generated_at = ?
-        WHERE fnr = ?
-    """
-
-fun Connection.updatePersonOversiktStatusMotestatus(
-    pPersonOversiktStatus: PPersonOversiktStatus,
-    dialogmoteStatusendring: DialogmoteStatusendring,
-) {
-    this.prepareStatement(queryUpdatePersonOversiktStatusMotestatus).use {
-        it.setString(1, dialogmoteStatusendring.type.name)
-        it.setObject(2, dialogmoteStatusendring.endringTidspunkt)
-        it.setString(3, pPersonOversiktStatus.fnr)
-        it.execute()
+    if (id == KNYTNING_IKKE_FUNNET) {
+        val personOversiktStatus = PersonOversiktStatus(
+            veilederIdent = veilederBrukerKnytning.veilederIdent,
+            fnr = veilederBrukerKnytning.fnr,
+            navn = null,
+            enhet = null,
+            motebehovUbehandlet = null,
+            oppfolgingsplanLPSBistandUbehandlet = null,
+            dialogmotesvarUbehandlet = false,
+            dialogmotekandidat = null,
+            dialogmotekandidatGeneratedAt = null,
+            motestatus = null,
+            motestatusGeneratedAt = null,
+            latestOppfolgingstilfelle = null,
+        )
+        this.connection.use { connection ->
+            connection.createPersonOversiktStatus(
+                commit = true,
+                personOversiktStatus = personOversiktStatus,
+            )
+        }
     }
 }

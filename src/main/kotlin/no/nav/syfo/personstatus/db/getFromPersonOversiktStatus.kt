@@ -1,4 +1,4 @@
-package no.nav.syfo.personstatus
+package no.nav.syfo.personstatus.db
 
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.application.database.toList
@@ -62,68 +62,6 @@ fun DatabaseInterface.hentBrukereTilknyttetVeileder(veileder: String): List<Veil
             it.executeQuery().toList { toVeilederBrukerKnytning() }
         }
     }
-}
-
-fun DatabaseInterface.lagreBrukerKnytningPaEnhet(veilederBrukerKnytning: VeilederBrukerKnytning) {
-    val id = oppdaterEnhetDersomKnytningFinnes(veilederBrukerKnytning)
-
-    if (id == KNYTNING_IKKE_FUNNET) {
-        val personOversiktStatus = PersonOversiktStatus(
-            veilederIdent = veilederBrukerKnytning.veilederIdent,
-            fnr = veilederBrukerKnytning.fnr,
-            navn = null,
-            enhet = null,
-            motebehovUbehandlet = null,
-            oppfolgingsplanLPSBistandUbehandlet = null,
-            dialogmotesvarUbehandlet = false,
-            dialogmotekandidat = null,
-            dialogmotekandidatGeneratedAt = null,
-            motestatus = null,
-            motestatusGeneratedAt = null,
-            latestOppfolgingstilfelle = null,
-        )
-        this.connection.use { connection ->
-            connection.createPersonOversiktStatus(
-                commit = true,
-                personOversiktStatus = personOversiktStatus,
-            )
-        }
-    }
-}
-
-fun DatabaseInterface.oppdaterEnhetDersomKnytningFinnes(veilederBrukerKnytning: VeilederBrukerKnytning): Long {
-    var id = KNYTNING_IKKE_FUNNET
-
-    val selectQuery = """
-                         SELECT id
-                         FROM PERSON_OVERSIKT_STATUS
-                         WHERE fnr=?
-                """
-
-    val knytningerPaVeileder = connection.use { connection ->
-        connection.prepareStatement(selectQuery).use {
-            it.setString(1, veilederBrukerKnytning.fnr)
-            it.executeQuery().toList { getLong("id") }
-        }
-    }
-
-    if (knytningerPaVeileder.isNotEmpty()) {
-        id = knytningerPaVeileder[0]
-        val updateQuery = """
-                         UPDATE PERSON_OVERSIKT_STATUS
-                         SET tildelt_veileder = ?
-                         WHERE id = ?
-                """
-        connection.use { connection ->
-            connection.prepareStatement(updateQuery).use {
-                it.setString(1, veilederBrukerKnytning.veilederIdent)
-                it.setLong(2, id)
-                it.executeUpdate()
-            }
-            connection.commit()
-        }
-    }
-    return id
 }
 
 fun ResultSet.toPPersonOversiktStatus(): PPersonOversiktStatus =

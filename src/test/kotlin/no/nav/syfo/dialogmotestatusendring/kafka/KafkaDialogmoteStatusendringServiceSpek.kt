@@ -5,7 +5,7 @@ import io.mockk.*
 import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendring
 import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendringType
 import no.nav.syfo.oppfolgingstilfelle.kafka.toPersonOversiktStatus
-import no.nav.syfo.personstatus.getPersonOversiktStatusList
+import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.generator.*
 import no.nav.syfo.util.nowUTC

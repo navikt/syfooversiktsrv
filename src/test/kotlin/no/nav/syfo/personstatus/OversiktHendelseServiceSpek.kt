@@ -4,6 +4,7 @@ import io.ktor.server.testing.*
 import io.ktor.util.*
 import no.nav.syfo.application.api.authentication.installContentNegotiation
 import no.nav.syfo.personstatus.domain.*
+import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.kafka.KafkaOversiktHendelseService
 import no.nav.syfo.testutil.TestDatabase
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR

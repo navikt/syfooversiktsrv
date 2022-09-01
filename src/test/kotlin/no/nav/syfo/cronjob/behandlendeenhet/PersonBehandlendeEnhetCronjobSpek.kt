@@ -7,6 +7,7 @@ import io.mockk.every
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.personstatus.*
+import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.OversikthendelseType
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
 import no.nav.syfo.testutil.*

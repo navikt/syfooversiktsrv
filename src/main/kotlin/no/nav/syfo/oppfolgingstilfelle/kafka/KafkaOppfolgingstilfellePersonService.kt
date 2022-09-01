@@ -2,7 +2,7 @@ package no.nav.syfo.oppfolgingstilfelle.kafka
 
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.kafka.KafkaConsumerService
-import no.nav.syfo.personstatus.*
+import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.PPersonOversiktStatus
 import no.nav.syfo.personstatus.domain.PersonOppfolgingstilfelle
 import org.apache.kafka.clients.consumer.*

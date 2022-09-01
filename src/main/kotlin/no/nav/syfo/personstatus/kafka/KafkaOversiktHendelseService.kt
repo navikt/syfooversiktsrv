@@ -5,7 +5,7 @@ import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.kafka.KafkaConsumerService
 import no.nav.syfo.metric.*
-import no.nav.syfo.personstatus.*
+import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.*
 import no.nav.syfo.util.callIdArgument
 import no.nav.syfo.util.kafkaCallId
