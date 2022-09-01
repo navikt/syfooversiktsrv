@@ -3,8 +3,7 @@ package no.nav.syfo.dialogmotekandidat.kafka
 import io.ktor.server.testing.*
 import io.mockk.*
 import no.nav.syfo.oppfolgingstilfelle.kafka.toPersonOversiktStatus
-import no.nav.syfo.personstatus.createPersonOversiktStatus
-import no.nav.syfo.personstatus.getPersonOversiktStatusList
+import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.generator.*
 import no.nav.syfo.util.nowUTC

@@ -3,6 +3,7 @@ package no.nav.syfo.personstatus
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.client.pdl.PdlClient
 import no.nav.syfo.domain.PersonIdent
+import no.nav.syfo.personstatus.db.hentUbehandledePersonerTilknyttetEnhet
 import no.nav.syfo.personstatus.domain.*
 
 class PersonoversiktStatusService(

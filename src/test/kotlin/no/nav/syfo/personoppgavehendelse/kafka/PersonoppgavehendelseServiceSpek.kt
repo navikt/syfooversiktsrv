@@ -3,7 +3,7 @@ package no.nav.syfo.personoppgavehendelse.kafka
 import io.ktor.util.*
 import io.mockk.every
 import no.nav.syfo.personstatus.domain.*
-import no.nav.syfo.personstatus.getPersonOversiktStatusList
+import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.testutil.*
 import org.amshove.kluent.*
 import org.apache.kafka.clients.consumer.*

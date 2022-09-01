@@ -3,11 +3,9 @@ package no.nav.syfo.personoppgavehendelse.kafka
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.kafka.KafkaConsumerService
-import no.nav.syfo.personstatus.createPersonOversiktStatus
+import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.*
-import no.nav.syfo.personstatus.getPersonOversiktStatusList
 import no.nav.syfo.personstatus.kafka.KafkaOversiktHendelseService
-import no.nav.syfo.personstatus.queries.updatePersonOversiktStatusLPS
 import no.nav.syfo.util.callIdArgument
 import no.nav.syfo.util.kafkaCallId
 import org.apache.kafka.clients.consumer.ConsumerRecords
