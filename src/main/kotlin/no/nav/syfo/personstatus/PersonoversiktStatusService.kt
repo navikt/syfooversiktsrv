@@ -19,8 +19,10 @@ class PersonoversiktStatusService(
             pPersonOversikStatus.toPersonOversiktStatus(
                 personOppfolgingstilfelleVirksomhetList = personOppfolgingstilfelleVirksomhetList,
             )
-        }.filter { personOversikStatus ->
-            personOversikStatus.oppfolgingsplanLPSBistandUbehandlet == true || personOversikStatus.latestOppfolgingstilfelle != null
+        }.filter { personOversiktStatus ->
+            personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet == true ||
+                personOversiktStatus.isDialogmotekandidat() ||
+                (personOversiktStatus.motebehovUbehandlet == true && personOversiktStatus.latestOppfolgingstilfelle != null)
         }
     }
 

@@ -1,8 +1,9 @@
 package no.nav.syfo.util
 
-import java.time.OffsetDateTime
-import java.time.ZoneOffset
+import java.time.*
 
 val defaultZoneOffset: ZoneOffset = ZoneOffset.UTC
 
 fun nowUTC(): OffsetDateTime = OffsetDateTime.now(defaultZoneOffset)
+
+fun OffsetDateTime.toLocalDateOslo(): LocalDate = atZoneSameInstant(ZoneId.of("Europe/Oslo")).toLocalDate()
