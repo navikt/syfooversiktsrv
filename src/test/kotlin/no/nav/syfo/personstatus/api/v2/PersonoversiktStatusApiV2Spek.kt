@@ -85,6 +85,13 @@ object PersonoversiktStatusApiV2Spek : Spek({
             val kafkaDialogmotekandidatEndringStoppunktConsumerDelayPassedRecord = dialogmotekandidatEndringConsumerRecord(
                 kafkaDialogmotekandidatEndring = kafkaDialogmotekandidatEndringStoppunktDelayPassed,
             )
+            val kafkaDialogmotekandidatEndringStoppunktHistoric = generateKafkaDialogmotekandidatEndringStoppunkt(
+                personIdent = ARBEIDSTAKER_FNR,
+                createdAt = nowUTC().minusDays(365)
+            )
+            val kafkaDialogmotekandidatEndringStoppunktConsumerHistoricRecord = dialogmotekandidatEndringConsumerRecord(
+                kafkaDialogmotekandidatEndring = kafkaDialogmotekandidatEndringStoppunktHistoric,
+            )
 
             val kafkaDialogmoteStatusendringService = TestKafkaModule.kafkaDialogmoteStatusendringService
             val mockKafkaConsumerDialogmoteStatusendring = TestKafkaModule.kafkaConsumerDialogmoteStatusendring
@@ -309,6 +316,34 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo false
                         personOversiktStatus.dialogmotekandidat shouldBeEqualTo true
                         personOversiktStatus.motestatus.shouldBeNull()
+                    }
+                }
+
+                it("should not return list of PersonOversiktStatus, if there is a person with a relevant active Oppfolgingstilfelle, and person is historic DIALOGMOTEKANDIDAT") {
+                    every { mockKafkaConsumerDialogmotekandidatEndring.poll(any<Duration>()) } returns ConsumerRecords(
+                        mapOf(
+                            dialogmoteKandidatTopicPartition to listOf(
+                                kafkaDialogmotekandidatEndringStoppunktConsumerHistoricRecord,
+                            )
+                        )
+                    )
+                    kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                        kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
+                    )
+                    kafkaDialogmotekandidatEndringService.pollAndProcessRecords(
+                        kafkaConsumer = mockKafkaConsumerDialogmotekandidatEndring,
+                    )
+
+                    runBlocking {
+                        personBehandlendeEnhetCronjob.runJob()
+                    }
+
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        }
+                    ) {
+                        response.status() shouldBeEqualTo HttpStatusCode.NoContent
                     }
                 }
 

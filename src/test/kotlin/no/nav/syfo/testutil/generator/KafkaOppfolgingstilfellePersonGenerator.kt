@@ -14,7 +14,7 @@ import java.util.*
 fun generateKafkaOppfolgingstilfellePerson(
     arbeidstakerAtTilfelleEnd: Boolean = true,
     end: LocalDate = LocalDate.now().minusDays(1),
-    oppfolgingstilfelleDurationInDays: Long = 2,
+    oppfolgingstilfelleDurationInDays: Long = 130,
     personIdent: PersonIdent = PersonIdent(ARBEIDSTAKER_FNR),
     virksomhetsnummerList: List<Virksomhetsnummer> = listOf(
         Virksomhetsnummer(VIRKSOMHETSNUMMER)

@@ -2,8 +2,8 @@ package no.nav.syfo.personstatus.domain
 
 import no.nav.syfo.domain.Virksomhetsnummer
 import no.nav.syfo.personstatus.api.v2.*
-import java.time.LocalDate
-import java.time.OffsetDateTime
+import no.nav.syfo.util.toLocalDateOslo
+import java.time.*
 import java.util.*
 
 data class PersonOversiktStatus(
@@ -26,6 +26,12 @@ data class PersonOversiktStatus(
         null, null, null
     )
 }
+
+fun PersonOversiktStatus.isDialogmotekandidat() =
+    dialogmotekandidat == true &&
+        latestOppfolgingstilfelle != null &&
+        dialogmotekandidatGeneratedAt != null &&
+        dialogmotekandidatGeneratedAt.toLocalDateOslo().isAfter(latestOppfolgingstilfelle.oppfolgingstilfelleStart)
 
 data class PersonOppfolgingstilfelle(
     val oppfolgingstilfelleUpdatedAt: OffsetDateTime,
