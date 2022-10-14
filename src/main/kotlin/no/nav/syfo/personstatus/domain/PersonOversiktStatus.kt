@@ -31,7 +31,8 @@ fun PersonOversiktStatus.isDialogmotekandidat() =
     dialogmotekandidat == true &&
         latestOppfolgingstilfelle != null &&
         dialogmotekandidatGeneratedAt != null &&
-        dialogmotekandidatGeneratedAt.toLocalDateOslo().isAfter(latestOppfolgingstilfelle.oppfolgingstilfelleStart)
+        dialogmotekandidatGeneratedAt.toLocalDateOslo().isAfter(latestOppfolgingstilfelle.oppfolgingstilfelleStart) &&
+        dialogmotekandidatGeneratedAt.toLocalDateOslo().isBefore(LocalDate.now().minusDays(7))
 
 data class PersonOppfolgingstilfelle(
     val oppfolgingstilfelleUpdatedAt: OffsetDateTime,
@@ -92,7 +93,7 @@ fun PersonOversiktStatus.toPersonOversiktStatusDTO() =
         motebehovUbehandlet = this.motebehovUbehandlet,
         oppfolgingsplanLPSBistandUbehandlet = this.oppfolgingsplanLPSBistandUbehandlet,
         dialogmotesvarUbehandlet = this.dialogmotesvarUbehandlet,
-        dialogmotekandidat = this.dialogmotekandidat,
+        dialogmotekandidat = this.isDialogmotekandidat(),
         motestatus = this.motestatus,
         latestOppfolgingstilfelle = this.latestOppfolgingstilfelle?.toPersonOppfolgingstilfelleDTO(),
     )

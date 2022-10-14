@@ -276,7 +276,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
                         personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo true
-                        personOversiktStatus.dialogmotekandidat.shouldBeNull()
+                        personOversiktStatus.dialogmotekandidat shouldBeEqualTo false
                         personOversiktStatus.motestatus.shouldBeNull()
 
                         personOversiktStatus.latestOppfolgingstilfelle.shouldNotBeNull()
@@ -420,7 +420,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo null
                         personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo false
-                        personOversiktStatus.dialogmotekandidat.shouldBeNull()
+                        personOversiktStatus.dialogmotekandidat shouldBeEqualTo false
                         personOversiktStatus.motestatus.shouldBeNull()
 
                         personOversiktStatus.latestOppfolgingstilfelle.shouldNotBeNull()
@@ -473,7 +473,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
                         personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo false
-                        personOversiktStatus.dialogmotekandidat.shouldBeNull()
+                        personOversiktStatus.dialogmotekandidat shouldBeEqualTo false
                         personOversiktStatus.motestatus.shouldBeNull()
 
                         personOversiktStatus.latestOppfolgingstilfelle.shouldNotBeNull()
@@ -527,7 +527,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
                         personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo false
-                        personOversiktStatus.dialogmotekandidat.shouldBeNull()
+                        personOversiktStatus.dialogmotekandidat shouldBeEqualTo false
                         personOversiktStatus.motestatus.shouldBeNull()
 
                         personOversiktStatus.latestOppfolgingstilfelle.shouldNotBeNull()
@@ -597,7 +597,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo null
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
                         personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo false
-                        personOversiktStatus.dialogmotekandidat.shouldBeNull()
+                        personOversiktStatus.dialogmotekandidat shouldBeEqualTo false
                         personOversiktStatus.motestatus.shouldBeNull()
 
                         personOversiktStatus.latestOppfolgingstilfelle.shouldBeNull()
@@ -630,7 +630,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.motebehovUbehandlet shouldBeEqualTo null
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
                         personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo false
-                        personOversiktStatus.dialogmotekandidat.shouldBeNull()
+                        personOversiktStatus.dialogmotekandidat shouldBeEqualTo false
                         personOversiktStatus.motestatus.shouldBeNull()
 
                         personOversiktStatus.latestOppfolgingstilfelle.shouldBeNull()
