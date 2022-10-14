@@ -68,7 +68,7 @@ fun testEnvironment(
     ),
     redis = RedisEnvironment(
         host = "localhost",
-        port = 6379,
+        port = 6371,
         secret = "password",
     ),
     serviceuserUsername = "",
