@@ -2,6 +2,7 @@ package no.nav.syfo.personstatus.domain
 
 import no.nav.syfo.domain.Virksomhetsnummer
 import no.nav.syfo.personstatus.api.v2.*
+import no.nav.syfo.util.isBeforeOrEqual
 import no.nav.syfo.util.toLocalDateOslo
 import java.time.*
 import java.util.*
@@ -31,7 +32,8 @@ fun PersonOversiktStatus.isDialogmotekandidat() =
     dialogmotekandidat == true &&
         latestOppfolgingstilfelle != null &&
         dialogmotekandidatGeneratedAt != null &&
-        dialogmotekandidatGeneratedAt.toLocalDateOslo().isAfter(latestOppfolgingstilfelle.oppfolgingstilfelleStart)
+        dialogmotekandidatGeneratedAt.toLocalDateOslo().isAfter(latestOppfolgingstilfelle.oppfolgingstilfelleStart) &&
+        dialogmotekandidatGeneratedAt.toLocalDateOslo().isBeforeOrEqual(LocalDate.now().minusDays(7))
 
 data class PersonOppfolgingstilfelle(
     val oppfolgingstilfelleUpdatedAt: OffsetDateTime,
@@ -92,7 +94,7 @@ fun PersonOversiktStatus.toPersonOversiktStatusDTO() =
         motebehovUbehandlet = this.motebehovUbehandlet,
         oppfolgingsplanLPSBistandUbehandlet = this.oppfolgingsplanLPSBistandUbehandlet,
         dialogmotesvarUbehandlet = this.dialogmotesvarUbehandlet,
-        dialogmotekandidat = this.dialogmotekandidat,
+        dialogmotekandidat = this.dialogmotekandidat?.let { isDialogmotekandidat() },
         motestatus = this.motestatus,
         latestOppfolgingstilfelle = this.latestOppfolgingstilfelle?.toPersonOppfolgingstilfelleDTO(),
     )
