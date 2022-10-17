@@ -19,7 +19,7 @@ data class PersonOversiktStatus(
     val dialogmotekandidatGeneratedAt: OffsetDateTime?,
     val motestatus: String?,
     val motestatusGeneratedAt: OffsetDateTime?,
-    val latestOppfolgingstilfelle: PersonOppfolgingstilfelle?,
+    val latestOppfolgingstilfelle: Oppfolgingstilfelle?,
 ) {
     constructor(fnr: String) : this(
         null, fnr = fnr, null, null, null,
@@ -35,9 +35,9 @@ fun PersonOversiktStatus.isDialogmotekandidat() =
         dialogmotekandidatGeneratedAt.toLocalDateOslo().isAfter(latestOppfolgingstilfelle.oppfolgingstilfelleStart) &&
         dialogmotekandidatGeneratedAt.toLocalDateOslo().isBeforeOrEqual(LocalDate.now().minusDays(7))
 
-data class PersonOppfolgingstilfelle(
-    val oppfolgingstilfelleUpdatedAt: OffsetDateTime,
-    val oppfolgingstilfelleGeneratedAt: OffsetDateTime,
+data class Oppfolgingstilfelle(
+    val updatedAt: OffsetDateTime,
+    val generatedAt: OffsetDateTime,
     val oppfolgingstilfelleStart: LocalDate,
     val oppfolgingstilfelleEnd: LocalDate,
     val oppfolgingstilfelleBitReferanseInntruffet: OffsetDateTime,
@@ -45,7 +45,7 @@ data class PersonOppfolgingstilfelle(
     val virksomhetList: List<PersonOppfolgingstilfelleVirksomhet>,
 )
 
-fun PersonOppfolgingstilfelle.toPersonOppfolgingstilfelleDTO() =
+fun Oppfolgingstilfelle.toPersonOppfolgingstilfelleDTO() =
     PersonOppfolgingstilfelleDTO(
         oppfolgingstilfelleStart = this.oppfolgingstilfelleStart,
         oppfolgingstilfelleEnd = this.oppfolgingstilfelleEnd,

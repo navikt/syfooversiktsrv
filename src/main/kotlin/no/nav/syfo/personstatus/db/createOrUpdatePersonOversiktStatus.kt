@@ -74,8 +74,8 @@ fun Connection.createPersonOversiktStatus(
             it.setNull(11, NULL)
         }
         it.setBoolean(12, personOversiktStatus.dialogmotesvarUbehandlet)
-        it.setObject(13, personOversiktStatus.latestOppfolgingstilfelle?.oppfolgingstilfelleUpdatedAt)
-        it.setObject(14, personOversiktStatus.latestOppfolgingstilfelle?.oppfolgingstilfelleGeneratedAt)
+        it.setObject(13, personOversiktStatus.latestOppfolgingstilfelle?.updatedAt)
+        it.setObject(14, personOversiktStatus.latestOppfolgingstilfelle?.generatedAt)
         it.setObject(15, personOversiktStatus.latestOppfolgingstilfelle?.oppfolgingstilfelleStart)
         it.setObject(16, personOversiktStatus.latestOppfolgingstilfelle?.oppfolgingstilfelleEnd)
         if (personOversiktStatus.latestOppfolgingstilfelle != null) {
@@ -162,21 +162,21 @@ const val queryUpdatePersonOversiktStatusOppfolgingstilfelle =
 
 fun Connection.updatePersonOversiktStatusOppfolgingstilfelle(
     pPersonOversiktStatus: PPersonOversiktStatus,
-    personOppfolgingstilfelle: PersonOppfolgingstilfelle,
+    oppfolgingstilfelle: Oppfolgingstilfelle,
 ) {
     this.prepareStatement(queryUpdatePersonOversiktStatusOppfolgingstilfelle).use {
-        it.setObject(1, personOppfolgingstilfelle.oppfolgingstilfelleUpdatedAt)
-        it.setObject(2, personOppfolgingstilfelle.oppfolgingstilfelleGeneratedAt)
-        it.setObject(3, personOppfolgingstilfelle.oppfolgingstilfelleStart)
-        it.setObject(4, personOppfolgingstilfelle.oppfolgingstilfelleEnd)
-        it.setString(5, personOppfolgingstilfelle.oppfolgingstilfelleBitReferanseUuid.toString())
-        it.setObject(6, personOppfolgingstilfelle.oppfolgingstilfelleBitReferanseInntruffet)
+        it.setObject(1, oppfolgingstilfelle.updatedAt)
+        it.setObject(2, oppfolgingstilfelle.generatedAt)
+        it.setObject(3, oppfolgingstilfelle.oppfolgingstilfelleStart)
+        it.setObject(4, oppfolgingstilfelle.oppfolgingstilfelleEnd)
+        it.setString(5, oppfolgingstilfelle.oppfolgingstilfelleBitReferanseUuid.toString())
+        it.setObject(6, oppfolgingstilfelle.oppfolgingstilfelleBitReferanseInntruffet)
         it.setString(7, pPersonOversiktStatus.fnr)
         it.execute()
     }
     updatePersonOppfolgingstilfelleVirksomhetList(
         personOversiktStatusId = pPersonOversiktStatus.id,
-        personOppfolgingstilfelleVirksomhetList = personOppfolgingstilfelle.virksomhetList,
+        personOppfolgingstilfelleVirksomhetList = oppfolgingstilfelle.virksomhetList,
     )
 }
 

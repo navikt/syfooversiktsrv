@@ -4,7 +4,7 @@ import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.kafka.KafkaConsumerService
 import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.PPersonOversiktStatus
-import no.nav.syfo.personstatus.domain.PersonOppfolgingstilfelle
+import no.nav.syfo.personstatus.domain.Oppfolgingstilfelle
 import org.apache.kafka.clients.consumer.*
 import org.slf4j.LoggerFactory
 import java.sql.Connection
@@ -109,29 +109,29 @@ class KafkaOppfolgingstilfellePersonService(
                 latestKafkaOppfolgingstilfelle = latestTilfelle,
             )
             val shouldUpdatePersonOppfolgingstilfelle = shouldUpdatePersonOppfolgingstilfelle(
-                newPersonOppfolgingstilfelle = latestPersonOppfolgingstilfelle,
+                newOppfolgingstilfelle = latestPersonOppfolgingstilfelle,
                 exisitingPPersonOversiktStatus = maybePPersonOversiktStatus
             )
             if (shouldUpdatePersonOppfolgingstilfelle) {
                 connection.updatePersonOversiktStatusOppfolgingstilfelle(
                     pPersonOversiktStatus = maybePPersonOversiktStatus,
-                    personOppfolgingstilfelle = latestPersonOppfolgingstilfelle,
+                    oppfolgingstilfelle = latestPersonOppfolgingstilfelle,
                 )
             }
         }
     }
 
     private fun shouldUpdatePersonOppfolgingstilfelle(
-        newPersonOppfolgingstilfelle: PersonOppfolgingstilfelle,
+        newOppfolgingstilfelle: Oppfolgingstilfelle,
         exisitingPPersonOversiktStatus: PPersonOversiktStatus,
     ): Boolean {
-        return if (newPersonOppfolgingstilfelle.oppfolgingstilfelleBitReferanseUuid == exisitingPPersonOversiktStatus.oppfolgingstilfelleBitReferanseUuid) {
+        return if (newOppfolgingstilfelle.oppfolgingstilfelleBitReferanseUuid == exisitingPPersonOversiktStatus.oppfolgingstilfelleBitReferanseUuid) {
             exisitingPPersonOversiktStatus.oppfolgingstilfelleGeneratedAt?.let {
-                newPersonOppfolgingstilfelle.oppfolgingstilfelleGeneratedAt.isAfter(it)
+                newOppfolgingstilfelle.generatedAt.isAfter(it)
             } ?: true
         } else {
             exisitingPPersonOversiktStatus.oppfolgingstilfelleBitReferanseInntruffet?.let {
-                newPersonOppfolgingstilfelle.oppfolgingstilfelleBitReferanseInntruffet.isAfter(it)
+                newOppfolgingstilfelle.oppfolgingstilfelleBitReferanseInntruffet.isAfter(it)
             } ?: true
         }
     }
