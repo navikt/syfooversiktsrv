@@ -47,7 +47,7 @@ fun PPersonOversiktStatus.toPersonOversiktStatus(
 
 fun PPersonOversiktStatus.toPersonOppfolgingstilfelle(
     personOppfolgingstilfelleVirksomhetList: List<PersonOppfolgingstilfelleVirksomhet>,
-): PersonOppfolgingstilfelle? {
+): Oppfolgingstilfelle? {
     return if (
         this.oppfolgingstilfelleUpdatedAt != null &&
         this.oppfolgingstilfelleGeneratedAt != null &&
@@ -56,9 +56,9 @@ fun PPersonOversiktStatus.toPersonOppfolgingstilfelle(
         this.oppfolgingstilfelleBitReferanseInntruffet != null &&
         this.oppfolgingstilfelleBitReferanseUuid != null
     ) {
-        PersonOppfolgingstilfelle(
-            oppfolgingstilfelleUpdatedAt = this.oppfolgingstilfelleUpdatedAt,
-            oppfolgingstilfelleGeneratedAt = this.oppfolgingstilfelleGeneratedAt,
+        Oppfolgingstilfelle(
+            updatedAt = this.oppfolgingstilfelleUpdatedAt,
+            generatedAt = this.oppfolgingstilfelleGeneratedAt,
             oppfolgingstilfelleStart = this.oppfolgingstilfelleStart,
             oppfolgingstilfelleEnd = this.oppfolgingstilfelleEnd,
             oppfolgingstilfelleBitReferanseInntruffet = this.oppfolgingstilfelleBitReferanseInntruffet,

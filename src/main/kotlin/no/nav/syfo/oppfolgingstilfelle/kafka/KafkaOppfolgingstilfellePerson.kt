@@ -44,9 +44,9 @@ fun KafkaOppfolgingstilfellePerson.toPersonOversiktStatus(
 
 fun KafkaOppfolgingstilfellePerson.toPersonOppfolgingstilfelle(
     latestKafkaOppfolgingstilfelle: KafkaOppfolgingstilfelle,
-) = PersonOppfolgingstilfelle(
-    oppfolgingstilfelleUpdatedAt = nowUTC(),
-    oppfolgingstilfelleGeneratedAt = this.createdAt,
+) = Oppfolgingstilfelle(
+    updatedAt = nowUTC(),
+    generatedAt = this.createdAt,
     oppfolgingstilfelleStart = latestKafkaOppfolgingstilfelle.start,
     oppfolgingstilfelleEnd = latestKafkaOppfolgingstilfelle.end,
     oppfolgingstilfelleBitReferanseInntruffet = this.referanseTilfelleBitInntruffet,
