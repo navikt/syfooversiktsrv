@@ -33,6 +33,28 @@ fun Connection.updatePersonOversiktStatusLPS(
     }
 }
 
+const val queryUpdatePersonOversiktStatusDialogmotesvar =
+    """
+        UPDATE PERSON_OVERSIKT_STATUS
+        SET dialogmotesvar_ubehandlet = ?,
+        sist_endret = ?
+        WHERE fnr = ?
+    """
+
+fun Connection.updatePersonOversiktStatusDialogmotesvar(
+    isDialogmotesvarUbehandlet: Boolean,
+    fnr: PersonIdent,
+) {
+    val currentTime = Timestamp.from(Instant.now())
+
+    this.prepareStatement(queryUpdatePersonOversiktStatusDialogmotesvar).use {
+        it.setBoolean(1, isDialogmotesvarUbehandlet)
+        it.setObject(2, currentTime)
+        it.setString(3, fnr.value)
+        it.execute()
+    }
+}
+
 const val queryUpdatePersonOversiktStatusMotestatus =
     """
         UPDATE PERSON_OVERSIKT_STATUS

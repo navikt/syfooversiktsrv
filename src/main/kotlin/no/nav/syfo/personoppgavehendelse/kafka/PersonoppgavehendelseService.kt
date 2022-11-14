@@ -21,6 +21,8 @@ class PersonoppgavehendelseService(
     override val pollDurationInMillis: Long = 100
     val LPS_BISTAND_UBEHANDLET_TRUE = true
     val LPS_BISTAND_UBEHANDLET_FALSE = false
+    val DIALOGMOTESVAR_UBEHANDLET_TRUE = true
+    val DIALOGMOTESVAR_UBEHANDLET_FALSE = false
 
     override fun pollAndProcessRecords(kafkaConsumer: KafkaConsumer<String, KPersonoppgavehendelse>) {
         val records = kafkaConsumer.poll(Duration.ofMillis(pollDurationInMillis))
@@ -110,12 +112,12 @@ class PersonoppgavehendelseService(
 
         if (existingPersonOversiktStatus == null) {
             val personOversiktStatus = PersonOversiktStatus(fnr = personident.value)
-            val personOversiktStatusWithLPS = personOversiktStatus.applyHendelse(oversikthendelseType)
+            val personOversiktStatusWithHendelseType = personOversiktStatus.applyHendelse(oversikthendelseType)
 
             log.info("TRACE: No existing status for person, callId: $callId")
             connection.createPersonOversiktStatus(
                 commit = false,
-                personOversiktStatus = personOversiktStatusWithLPS,
+                personOversiktStatus = personOversiktStatusWithHendelseType,
             )
             COUNT_KAFKA_CONSUMER_PERSONOPPGAVEHENDELSE_CREATED_PERSONOVERSIKT_STATUS.increment()
         } else {
@@ -126,6 +128,10 @@ class PersonoppgavehendelseService(
                     connection.updatePersonOversiktStatusLPS(LPS_BISTAND_UBEHANDLET_TRUE, personident)
                 OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_BEHANDLET ->
                     connection.updatePersonOversiktStatusLPS(LPS_BISTAND_UBEHANDLET_FALSE, personident)
+                OversikthendelseType.DIALOGMOTESVAR_MOTTATT ->
+                    connection.updatePersonOversiktStatusDialogmotesvar(DIALOGMOTESVAR_UBEHANDLET_TRUE, personident)
+                OversikthendelseType.DIALOGMOTESVAR_BEHANDLET ->
+                    connection.updatePersonOversiktStatusDialogmotesvar(DIALOGMOTESVAR_UBEHANDLET_FALSE, personident)
                 else -> {
                     log.warn("The hendelsestype is not supported by this kafka topic ", callIdArgument(callId))
                 }
