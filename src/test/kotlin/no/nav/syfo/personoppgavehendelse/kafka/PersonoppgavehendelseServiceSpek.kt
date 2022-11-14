@@ -28,7 +28,7 @@ object PersonoppgavehendelseServiceSpek : Spek({
             personident = UserConstants.ARBEIDSTAKER_FNR,
             hendelsetype = OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_BEHANDLET.name,
         )
-        val lpsbistandUnknownHendelsetype = KPersonoppgavehendelse(
+        val unknownHendelsetype = KPersonoppgavehendelse(
             personident = UserConstants.ARBEIDSTAKER_FNR,
             hendelsetype = "UNKNOWN_TYPE",
         )
@@ -41,7 +41,7 @@ object PersonoppgavehendelseServiceSpek : Spek({
         }
 
         it("Create personoversiktstatus on read from topic personoppgavehendelser") {
-            mockReceiveLpsbistandHendelse(lpsbistandMottatt, mockPersonoppgavehendelse)
+            mockReceiveHendelse(lpsbistandMottatt, mockPersonoppgavehendelse)
 
             personoppgavehendelseService.pollAndProcessRecords(kafkaConsumer = mockPersonoppgavehendelse)
 
@@ -52,7 +52,7 @@ object PersonoppgavehendelseServiceSpek : Spek({
         }
 
         it("Update personoversiktstatus on read from topic personoppgavehendelser") {
-            mockReceiveLpsbistandHendelse(lpsbistandBehandlet, mockPersonoppgavehendelse)
+            mockReceiveHendelse(lpsbistandBehandlet, mockPersonoppgavehendelse)
             val personOversiktStatus = PersonOversiktStatus(UserConstants.ARBEIDSTAKER_FNR)
                 .applyHendelse(OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT)
             database.createPersonOversiktStatus(personOversiktStatus)
@@ -65,8 +65,26 @@ object PersonoppgavehendelseServiceSpek : Spek({
             isUbehandlet.shouldBeFalse()
         }
 
+        it("Update personoversiktstatus with dialogmotesvar") {
+            val dialogmotesvarBehandlet = KPersonoppgavehendelse(
+                personident = UserConstants.ARBEIDSTAKER_FNR,
+                hendelsetype = OversikthendelseType.DIALOGMOTESVAR_BEHANDLET.name,
+            )
+            mockReceiveHendelse(dialogmotesvarBehandlet, mockPersonoppgavehendelse)
+            val personOversiktStatus = PersonOversiktStatus(UserConstants.ARBEIDSTAKER_FNR)
+                .applyHendelse(OversikthendelseType.DIALOGMOTESVAR_MOTTATT)
+            database.createPersonOversiktStatus(personOversiktStatus)
+
+            personoppgavehendelseService.pollAndProcessRecords(kafkaConsumer = mockPersonoppgavehendelse)
+
+            val personoversiktStatuser = database.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
+            val firstStatus = personoversiktStatuser.first()
+            val isUbehandlet = firstStatus.dialogmotesvarUbehandlet
+            isUbehandlet.shouldBeFalse()
+        }
+
         it("Ignore records with unknown hendelsetype") {
-            mockReceiveLpsbistandHendelse(lpsbistandUnknownHendelsetype, mockPersonoppgavehendelse)
+            mockReceiveHendelse(unknownHendelsetype, mockPersonoppgavehendelse)
 
             personoppgavehendelseService.pollAndProcessRecords(kafkaConsumer = mockPersonoppgavehendelse)
 
@@ -76,11 +94,11 @@ object PersonoppgavehendelseServiceSpek : Spek({
     }
 })
 
-fun mockReceiveLpsbistandHendelse(lpsBistandHendelse: KPersonoppgavehendelse, mockKafkaPersonoppgavehendelse: KafkaConsumer<String, KPersonoppgavehendelse>) {
+fun mockReceiveHendelse(hendelse: KPersonoppgavehendelse, mockKafkaPersonoppgavehendelse: KafkaConsumer<String, KPersonoppgavehendelse>) {
     every { mockKafkaPersonoppgavehendelse.poll(any<Duration>()) } returns ConsumerRecords(
         mapOf(
             personoppgavehendelseTopicPartition() to listOf(
-                personoppgavehendelseRecord(lpsBistandHendelse),
+                personoppgavehendelseRecord(hendelse),
             )
         )
     )
