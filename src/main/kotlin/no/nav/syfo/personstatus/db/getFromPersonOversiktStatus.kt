@@ -38,7 +38,15 @@ const val queryHentUbehandledePersonerTilknyttetEnhet = """
                         SELECT *
                         FROM PERSON_OVERSIKT_STATUS
                         WHERE ((tildelt_enhet = ?)
-                        AND (motebehov_ubehandlet = 't' OR oppfolgingsplan_lps_bistand_ubehandlet = 't' OR (dialogmotekandidat = 't' and dialogmotekandidat_generated_at + INTERVAL '7 DAY' < now())));
+                            AND (motebehov_ubehandlet = 't' 
+                            OR oppfolgingsplan_lps_bistand_ubehandlet = 't' 
+                            OR dialogmotesvar_ubehandlet = 't' 
+                            OR (
+                                dialogmotekandidat = 't' 
+                                AND dialogmotekandidat_generated_at + INTERVAL '7 DAY' < now()
+                                )
+                            )
+                        );
                 """
 
 fun DatabaseInterface.hentUbehandledePersonerTilknyttetEnhet(enhet: String): List<PPersonOversiktStatus> {

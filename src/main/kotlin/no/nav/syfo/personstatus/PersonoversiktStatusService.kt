@@ -21,6 +21,7 @@ class PersonoversiktStatusService(
             )
         }.filter { personOversiktStatus ->
             personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet == true ||
+                personOversiktStatus.dialogmotesvarUbehandlet == true ||
                 personOversiktStatus.isDialogmotekandidat() ||
                 (personOversiktStatus.motebehovUbehandlet == true && personOversiktStatus.latestOppfolgingstilfelle != null)
         }

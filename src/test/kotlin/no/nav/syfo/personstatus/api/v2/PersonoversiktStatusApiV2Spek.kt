@@ -658,6 +658,29 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         response.status() shouldBeEqualTo HttpStatusCode.NoContent
                     }
                 }
+
+                it("return person with dialogmotesvar_ubehandlet true") {
+                    val oversikthendelseDialogmotesvarMottatt =
+                        generateKOversikthendelse(OversikthendelseType.DIALOGMOTESVAR_MOTTATT)
+                    oversiktHendelseService.oppdaterPersonMedHendelse(oversikthendelseDialogmotesvarMottatt)
+                    runBlocking {
+                        personBehandlendeEnhetCronjob.runJob()
+                    }
+
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        }
+                    ) {
+                        response.status() shouldBeEqualTo HttpStatusCode.OK
+
+                        val personOversiktStatus =
+                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
+                        personOversiktStatus.fnr shouldBeEqualTo oversikthendelseDialogmotesvarMottatt.fnr
+                        personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
+                        personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo true
+                    }
+                }
             }
         }
     }
