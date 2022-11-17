@@ -2,10 +2,12 @@ package no.nav.syfo.testutil
 
 import com.opentable.db.postgres.embedded.EmbeddedPostgres
 import no.nav.syfo.application.database.DatabaseInterface
+import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.personstatus.db.createPersonOversiktStatus
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import org.flywaydb.core.Flyway
 import java.sql.Connection
+import java.time.OffsetDateTime
 
 class TestDatabase : DatabaseInterface {
     private val pg: EmbeddedPostgres
@@ -64,4 +66,46 @@ fun DatabaseInterface.createPersonOversiktStatus(personOversiktStatus: PersonOve
         commit = true,
         personOversiktStatus = personOversiktStatus
     )
+}
+
+const val queryUpdateTildeltEnhetAt =
+    """
+    UPDATE PERSON_OVERSIKT_STATUS
+    SET tildelt_enhet_updated_at = ?
+    WHERE fnr = ?
+    """
+
+fun DatabaseInterface.updateTildeltEnhetUpdatedAt(
+    ident: PersonIdent,
+    time: OffsetDateTime,
+) {
+    this.connection.use { connection ->
+        connection.prepareStatement(queryUpdateTildeltEnhetAt).use {
+            it.setObject(1, time.toLocalDateTime())
+            it.setString(2, ident.value)
+            it.execute()
+        }
+        connection.commit()
+    }
+}
+
+const val querySetTildeltEnhet =
+    """
+    UPDATE PERSON_OVERSIKT_STATUS
+    SET tildelt_enhet = ?
+    WHERE fnr = ?
+    """
+
+fun DatabaseInterface.setTildeltEnhet(
+    ident: PersonIdent,
+    enhet: String,
+) {
+    this.connection.use { connection ->
+        connection.prepareStatement(querySetTildeltEnhet).use {
+            it.setString(1, enhet)
+            it.setString(2, ident.value)
+            it.execute()
+        }
+        connection.commit()
+    }
 }

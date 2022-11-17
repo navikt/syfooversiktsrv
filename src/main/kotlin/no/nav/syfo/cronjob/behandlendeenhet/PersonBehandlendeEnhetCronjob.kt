@@ -20,7 +20,7 @@ class PersonBehandlendeEnhetCronjob(
         log.info("Run PersonBehandlendeEnhetCronjob")
         val result = CronjobResult()
 
-        personBehandlendeEnhetService.getPersonIdentWithTildeltToUpdateTildeltEnhetList()
+        personBehandlendeEnhetService.getPersonerToCheckForUpdatedEnhet()
             .forEach { personIdentTildeltEnhetPair ->
                 try {
                     val (personIdent, tildeltEnhet) = personIdentTildeltEnhetPair

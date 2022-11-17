@@ -53,19 +53,19 @@ fun DatabaseInterface.updatePersonTildeltEnhetAndRemoveTildeltVeileder(
     }
 }
 
-const val queryGetPersonIdentWithTildeltToUpdateTildeltEnhetList =
+const val queryGetPersonerWithOppgaveAndOldEnhet =
     """
     SELECT fnr, tildelt_enhet
     FROM PERSON_OVERSIKT_STATUS
     WHERE (motebehov_ubehandlet = 't' OR oppfolgingsplan_lps_bistand_ubehandlet = 't' OR dialogmotekandidat = 't' OR dialogmotesvar_ubehandlet = 't')
-    AND (tildelt_enhet_updated_at IS NULL OR tildelt_enhet_updated_at < oppfolgingstilfelle_updated_at)
+    AND tildelt_enhet_updated_at <= NOW() - INTERVAL '24 HOURS'
     ORDER BY tildelt_enhet_updated_at ASC
     LIMIT 1000
     """
 
-fun DatabaseInterface.getPersonIdentWithTildeltToUpdateTildeltEnhetList(): List<Pair<PersonIdent, String?>> =
+fun DatabaseInterface.getPersonerWithOppgaveAndOldEnhet(): List<Pair<PersonIdent, String?>> =
     this.connection.use { connection ->
-        connection.prepareStatement(queryGetPersonIdentWithTildeltToUpdateTildeltEnhetList).use {
+        connection.prepareStatement(queryGetPersonerWithOppgaveAndOldEnhet).use {
             it.executeQuery().toList { toPersonIdentTildeltEnhetPair() }
         }
     }
