@@ -1,5 +1,6 @@
 package no.nav.syfo.kafka
 
+import no.nav.syfo.aktivitetskravvurdering.kafka.launchKafkaTaskAktivitetskravVurdering
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.Environment
 import no.nav.syfo.dialogmotekandidat.kafka.launchKafkaTaskDialogmotekandidatEndring
@@ -36,6 +37,13 @@ fun launchKafkaModule(
     }
     if (environment.kafkaDialogmoteStatusendringProcessingEnabled) {
         launchKafkaTaskDialogmoteStatusendring(
+            applicationState = applicationState,
+            kafkaEnvironment = environment.kafka,
+        )
+    }
+
+    if (environment.kafkaAktivitetskravVurderingProcessingEnabled) {
+        launchKafkaTaskAktivitetskravVurdering(
             applicationState = applicationState,
             kafkaEnvironment = environment.kafka,
         )

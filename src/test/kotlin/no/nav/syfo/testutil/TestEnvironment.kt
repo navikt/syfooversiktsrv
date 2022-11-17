@@ -75,6 +75,7 @@ fun testEnvironment(
     serviceuserPassword = "",
     personBehandlendeEnhetCronjobEnabled = true,
     personOppfolgingstilfelleVirksomhetsnavnCronjobEnabled = true,
+    kafkaAktivitetskravVurderingProcessingEnabled = true,
 )
 
 fun testAppState() = ApplicationState(

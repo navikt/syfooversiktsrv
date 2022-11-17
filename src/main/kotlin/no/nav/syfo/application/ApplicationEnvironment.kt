@@ -46,6 +46,7 @@ data class Environment(
     val kafkaDialogmotekandidatProcessingEnabled: Boolean = getEnvVar("TOGGLE_KAFKA_DIALOGMOTEKANDIDAT_PROCESSING_ENABLED").toBoolean(),
     val kafkaDialogmoteStatusendringProcessingEnabled: Boolean = getEnvVar("TOGGLE_KAFKA_DIALOGMOTE_STATUSENDRING_PROCESSING_ENABLED").toBoolean(),
     val kafkaPersonoppgavehendelseProcessingEnabled: Boolean = getEnvVar("TOGGLE_KAFKA_PERSONOPPGAVEHENDELSE_PROCESSING_ENABLED").toBoolean(),
+    val kafkaAktivitetskravVurderingProcessingEnabled: Boolean = getEnvVar("TOGGLE_KAFKA_AKTIVITETSKRAV_VURDERING_PROCESSING_ENABLED").toBoolean(),
 
     val clients: ClientsEnvironment = ClientsEnvironment(
         ereg = ClientEnvironment(
