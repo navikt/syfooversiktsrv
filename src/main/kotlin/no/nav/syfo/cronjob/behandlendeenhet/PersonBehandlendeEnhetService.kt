@@ -9,8 +9,8 @@ class PersonBehandlendeEnhetService(
     private val database: DatabaseInterface,
     private val behandlendeEnhetClient: BehandlendeEnhetClient,
 ) {
-    fun getPersonIdentWithTildeltToUpdateTildeltEnhetList(): List<Pair<PersonIdent, String?>> =
-        database.getPersonIdentWithTildeltToUpdateTildeltEnhetList()
+    fun getPersonerToCheckForUpdatedEnhet(): List<Pair<PersonIdent, String?>> =
+        database.getPersonerWithOppgaveAndOldEnhet()
 
     suspend fun updateBehandlendeEnhet(
         personIdent: PersonIdent,

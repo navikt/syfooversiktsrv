@@ -82,9 +82,10 @@ object PersonoversiktStatusApiV2Spek : Spek({
                 personIdent = ARBEIDSTAKER_FNR,
                 createdAt = nowUTC().minusDays(7)
             )
-            val kafkaDialogmotekandidatEndringStoppunktConsumerDelayPassedRecord = dialogmotekandidatEndringConsumerRecord(
-                kafkaDialogmotekandidatEndring = kafkaDialogmotekandidatEndringStoppunktDelayPassed,
-            )
+            val kafkaDialogmotekandidatEndringStoppunktConsumerDelayPassedRecord =
+                dialogmotekandidatEndringConsumerRecord(
+                    kafkaDialogmotekandidatEndring = kafkaDialogmotekandidatEndringStoppunktDelayPassed,
+                )
             val kafkaDialogmotekandidatEndringStoppunktHistoric = generateKafkaDialogmotekandidatEndringStoppunkt(
                 personIdent = ARBEIDSTAKER_FNR,
                 createdAt = nowUTC().minusDays(365)
@@ -165,9 +166,10 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     )
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelse)
 
-                    runBlocking {
-                        personBehandlendeEnhetCronjob.runJob()
-                    }
+                    database.setTildeltEnhet(
+                        ident = PersonIdent(ARBEIDSTAKER_FNR),
+                        enhet = NAV_ENHET,
+                    )
 
                     val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
                     database.lagreBrukerKnytningPaEnhet(tilknytning)
@@ -198,9 +200,10 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     )
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseNy)
 
-                    runBlocking {
-                        personBehandlendeEnhetCronjob.runJob()
-                    }
+                    database.setTildeltEnhet(
+                        ident = PersonIdent(ARBEIDSTAKER_FNR),
+                        enhet = NAV_ENHET,
+                    )
 
                     val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
                     database.lagreBrukerKnytningPaEnhet(tilknytning)
@@ -221,9 +224,10 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     runBlocking {
                         personOppfolgingstilfelleVirksomhetnavnCronjob.runJob()
                     }
-                    runBlocking {
-                        personBehandlendeEnhetCronjob.runJob()
-                    }
+                    database.setTildeltEnhet(
+                        ident = PersonIdent(ARBEIDSTAKER_FNR),
+                        enhet = NAV_ENHET,
+                    )
 
                     with(
                         handleRequest(HttpMethod.Get, url) {
@@ -257,10 +261,10 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     runBlocking {
                         personOppfolgingstilfelleVirksomhetnavnCronjob.runJob()
                     }
-
-                    runBlocking {
-                        personBehandlendeEnhetCronjob.runJob()
-                    }
+                    database.setTildeltEnhet(
+                        ident = PersonIdent(ARBEIDSTAKER_FNR),
+                        enhet = NAV_ENHET,
+                    )
 
                     with(
                         handleRequest(HttpMethod.Get, url) {
@@ -295,9 +299,10 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         kafkaConsumer = mockKafkaConsumerDialogmotekandidatEndring,
                     )
 
-                    runBlocking {
-                        personBehandlendeEnhetCronjob.runJob()
-                    }
+                    database.setTildeltEnhet(
+                        ident = PersonIdent(ARBEIDSTAKER_FNR),
+                        enhet = NAV_ENHET,
+                    )
 
                     with(
                         handleRequest(HttpMethod.Get, url) {
@@ -334,9 +339,10 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         kafkaConsumer = mockKafkaConsumerDialogmotekandidatEndring,
                     )
 
-                    runBlocking {
-                        personBehandlendeEnhetCronjob.runJob()
-                    }
+                    database.setTildeltEnhet(
+                        ident = PersonIdent(ARBEIDSTAKER_FNR),
+                        enhet = NAV_ENHET,
+                    )
 
                     with(
                         handleRequest(HttpMethod.Get, url) {
@@ -348,13 +354,15 @@ object PersonoversiktStatusApiV2Spek : Spek({
                 }
 
                 it("should not return list of PersonOversiktStatus, if there is a person with a relevant active Oppfolgingstilfelle, and person is DIALOGMOTEKANDIDAT and delay of 7 days has not passed") {
-                    val kafkaDialogmotekandidatEndringStoppunktDelayNotPassed = generateKafkaDialogmotekandidatEndringStoppunkt(
-                        personIdent = ARBEIDSTAKER_FNR,
-                        createdAt = nowUTC().minusDays(6),
-                    )
-                    val kafkaDialogmotekandidatEndringStoppunktConsumerDelayNotPassedRecord = dialogmotekandidatEndringConsumerRecord(
-                        kafkaDialogmotekandidatEndring = kafkaDialogmotekandidatEndringStoppunktDelayNotPassed,
-                    )
+                    val kafkaDialogmotekandidatEndringStoppunktDelayNotPassed =
+                        generateKafkaDialogmotekandidatEndringStoppunkt(
+                            personIdent = ARBEIDSTAKER_FNR,
+                            createdAt = nowUTC().minusDays(6),
+                        )
+                    val kafkaDialogmotekandidatEndringStoppunktConsumerDelayNotPassedRecord =
+                        dialogmotekandidatEndringConsumerRecord(
+                            kafkaDialogmotekandidatEndring = kafkaDialogmotekandidatEndringStoppunktDelayNotPassed,
+                        )
 
                     every { mockKafkaConsumerDialogmotekandidatEndring.poll(any<Duration>()) } returns ConsumerRecords(
                         mapOf(
@@ -371,9 +379,10 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         kafkaConsumer = mockKafkaConsumerDialogmotekandidatEndring,
                     )
 
-                    runBlocking {
-                        personBehandlendeEnhetCronjob.runJob()
-                    }
+                    database.setTildeltEnhet(
+                        ident = PersonIdent(ARBEIDSTAKER_FNR),
+                        enhet = NAV_ENHET,
+                    )
 
                     with(
                         handleRequest(HttpMethod.Get, url) {
@@ -401,9 +410,10 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOppfolgingstilfelleVirksomhetnavnCronjob.runJob()
                     }
 
-                    runBlocking {
-                        personBehandlendeEnhetCronjob.runJob()
-                    }
+                    database.setTildeltEnhet(
+                        ident = PersonIdent(ARBEIDSTAKER_FNR),
+                        enhet = NAV_ENHET,
+                    )
 
                     with(
                         handleRequest(HttpMethod.Get, url) {
@@ -451,9 +461,10 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOppfolgingstilfelleVirksomhetnavnCronjob.runJob()
                     }
 
-                    runBlocking {
-                        personBehandlendeEnhetCronjob.runJob()
-                    }
+                    database.setTildeltEnhet(
+                        ident = PersonIdent(ARBEIDSTAKER_FNR),
+                        enhet = NAV_ENHET,
+                    )
 
                     val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
                     database.lagreBrukerKnytningPaEnhet(tilknytning)
@@ -505,9 +516,10 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOppfolgingstilfelleVirksomhetnavnCronjob.runJob()
                     }
 
-                    runBlocking {
-                        personBehandlendeEnhetCronjob.runJob()
-                    }
+                    database.setTildeltEnhet(
+                        ident = PersonIdent(ARBEIDSTAKER_FNR),
+                        enhet = NAV_ENHET,
+                    )
 
                     val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
                     database.lagreBrukerKnytningPaEnhet(tilknytning)
@@ -548,9 +560,11 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     kafkaDialogmoteStatusendringService.pollAndProcessRecords(
                         kafkaConsumer = mockKafkaConsumerDialogmoteStatusendring,
                     )
-                    runBlocking {
-                        personBehandlendeEnhetCronjob.runJob()
-                    }
+
+                    database.setTildeltEnhet(
+                        ident = PersonIdent(ARBEIDSTAKER_FNR),
+                        enhet = NAV_ENHET,
+                    )
 
                     with(
                         handleRequest(HttpMethod.Get, url) {
@@ -578,9 +592,10 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     )
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseOPLPSBistandMottatt)
 
-                    runBlocking {
-                        personBehandlendeEnhetCronjob.runJob()
-                    }
+                    database.setTildeltEnhet(
+                        ident = PersonIdent(ARBEIDSTAKER_FNR),
+                        enhet = NAV_ENHET,
+                    )
 
                     with(
                         handleRequest(HttpMethod.Get, url) {
@@ -611,9 +626,10 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         )
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseOPLPSBistandMottatt)
 
-                    runBlocking {
-                        personBehandlendeEnhetCronjob.runJob()
-                    }
+                    database.setTildeltEnhet(
+                        ident = PersonIdent(ARBEIDSTAKER_NO_NAME_FNR),
+                        enhet = NAV_ENHET,
+                    )
 
                     with(
                         handleRequest(HttpMethod.Get, url) {
@@ -646,9 +662,10 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         generateKOversikthendelse(OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_BEHANDLET)
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversiktHendelseOPLPSBistandMottatt)
 
-                    runBlocking {
-                        personBehandlendeEnhetCronjob.runJob()
-                    }
+                    database.setTildeltEnhet(
+                        ident = PersonIdent(ARBEIDSTAKER_FNR),
+                        enhet = NAV_ENHET,
+                    )
 
                     with(
                         handleRequest(HttpMethod.Get, url) {
@@ -663,9 +680,10 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     val oversikthendelseDialogmotesvarMottatt =
                         generateKOversikthendelse(OversikthendelseType.DIALOGMOTESVAR_MOTTATT)
                     oversiktHendelseService.oppdaterPersonMedHendelse(oversikthendelseDialogmotesvarMottatt)
-                    runBlocking {
-                        personBehandlendeEnhetCronjob.runJob()
-                    }
+                    database.setTildeltEnhet(
+                        ident = PersonIdent(ARBEIDSTAKER_FNR),
+                        enhet = NAV_ENHET,
+                    )
 
                     with(
                         handleRequest(HttpMethod.Get, url) {

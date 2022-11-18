@@ -163,6 +163,10 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                             personIdent = PersonIdent(oversikthendelse.fnr),
                             enhetId = firstEnhet,
                         )
+                        database.updateTildeltEnhetUpdatedAt(
+                            ident = PersonIdent(oversikthendelse.fnr),
+                            time = nowUTC().minusDays(2),
+                        )
 
                         val veilederBrukerKnytning = VeilederBrukerKnytning(
                             veilederIdent = UserConstants.VEILEDER_ID,
@@ -266,6 +270,10 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                     pPersonOversiktStatus.enhet.shouldBeNull()
                     pPersonOversiktStatus.dialogmotekandidat shouldBeEqualTo true
 
+                    database.updateTildeltEnhetUpdatedAt(
+                        ident = personIdentDefault,
+                        time = nowUTC().minusDays(2),
+                    )
                     runBlocking {
                         val result = personBehandlendeEnhetCronjob.runJob()
 
@@ -334,6 +342,10 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                         pPersonOversiktStatus.veilederIdent shouldBeEqualTo veilederBrukerKnytning.veilederIdent
                     }
 
+                    database.updateTildeltEnhetUpdatedAt(
+                        ident = PersonIdent(recordValue.personIdentNumber),
+                        time = nowUTC().minusDays(2),
+                    )
                     runBlocking {
                         val result = personBehandlendeEnhetCronjob.runJob()
 
@@ -392,6 +404,10 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                         tildeltEnhetUpdatedAtBeforeUpdate = pPersonOversiktStatus.tildeltEnhetUpdatedAt
                     }
 
+                    database.updateTildeltEnhetUpdatedAt(
+                        ident = personIdent,
+                        time = nowUTC().minusDays(2),
+                    )
                     runBlocking {
                         val result = personBehandlendeEnhetCronjob.runJob()
 
@@ -419,9 +435,10 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                         generateKafkaOppfolgingstilfellePerson(
                             personIdent = personIdent,
                         )
-                    val kafkaOppfolgingstilfellePersonServiceRecordRelevantEnhetNotFound = oppfolgingstilfellePersonConsumerRecord(
-                        kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonServiceRelevantEnhetNotFound,
-                    )
+                    val kafkaOppfolgingstilfellePersonServiceRecordRelevantEnhetNotFound =
+                        oppfolgingstilfellePersonConsumerRecord(
+                            kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonServiceRelevantEnhetNotFound,
+                        )
 
                     every { mockKafkaConsumerOppfolgingstilfellePerson.poll(any<Duration>()) } returns ConsumerRecords(
                         mapOf(
@@ -435,6 +452,10 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                         kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                     )
 
+                    database.updateTildeltEnhetUpdatedAt(
+                        ident = personIdent,
+                        time = nowUTC().minusDays(2),
+                    )
                     runBlocking {
                         val result = personBehandlendeEnhetCronjob.runJob()
 
@@ -457,6 +478,37 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                             .toEpochMilli()
                         pPersonOversiktStatus.veilederIdent.shouldBeNull()
                     }
+
+                    runBlocking {
+                        val result = personBehandlendeEnhetCronjob.runJob()
+
+                        result.failed shouldBeEqualTo 0
+                        result.updated shouldBeEqualTo 0
+                    }
+                }
+
+                it("don't update enhet if updated less than 24 hours ago") {
+                    val oversikthendelse = generateKOversikthendelse(
+                        oversikthendelseType = OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT,
+                        personIdent = personIdentDefault.value,
+                    )
+
+                    val firstEnhet = NAV_ENHET_2
+
+                    database.connection.dropData()
+
+                    oversiktHendelseService.oppdaterPersonMedHendelse(
+                        oversikthendelse = oversikthendelse,
+                    )
+
+                    database.updatePersonTildeltEnhetAndRemoveTildeltVeileder(
+                        personIdent = PersonIdent(oversikthendelse.fnr),
+                        enhetId = firstEnhet,
+                    )
+                    database.updateTildeltEnhetUpdatedAt(
+                        ident = PersonIdent(oversikthendelse.fnr),
+                        time = nowUTC().minusHours(23),
+                    )
 
                     runBlocking {
                         val result = personBehandlendeEnhetCronjob.runJob()
@@ -498,6 +550,11 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
 
                     kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
                         kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
+                    )
+
+                    database.updateTildeltEnhetUpdatedAt(
+                        ident = ARBEIDSTAKER_ENHET_ERROR_PERSONIDENT,
+                        time = nowUTC().minusDays(2),
                     )
 
                     runBlocking {
