@@ -6,6 +6,7 @@ import io.mockk.clearMocks
 import io.mockk.every
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.domain.Virksomhetsnummer
+import no.nav.syfo.oppfolgingstilfelle.kafka.KafkaOppfolgingstilfelle
 import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.OversikthendelseType
 import no.nav.syfo.testutil.*
@@ -411,6 +412,91 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
 
                     pPersonOppfolgingstilfelleVirksomhetList.first().virksomhetsnummer.value shouldBeEqualTo recordValueNewest.oppfolgingstilfelleList.first().virksomhetsnummerList.first()
                 }
+            }
+
+            it("should update latest OppfolgingstilfellPerson with the newest referanseTilfelleBitInntruffet and createdAt, if multiple relevant records on same personIdent with same inntruffet is received in different polls") {
+                val kafkaOppfolgingstilfellePersonServiceRelevantFirst = generateKafkaOppfolgingstilfellePerson(
+                    personIdent = personIdentDefault,
+                )
+                val kafkaOppfolgingstilfellePersonServiceRecordRelevantFirst = oppfolgingstilfellePersonConsumerRecord(
+                    kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonServiceRelevantFirst,
+                )
+                val oppfolgingstilfelle = kafkaOppfolgingstilfellePersonServiceRelevantFirst.oppfolgingstilfelleList[0]
+                val kafkaOppfolgingstilfellePersonServiceRelevantSecond = generateKafkaOppfolgingstilfellePerson(
+                    personIdent = PersonIdent(kafkaOppfolgingstilfellePersonServiceRelevantFirst.personIdentNumber),
+                ).copy(
+                    createdAt = kafkaOppfolgingstilfellePersonServiceRelevantFirst.createdAt.plusSeconds(1),
+                    referanseTilfelleBitInntruffet = kafkaOppfolgingstilfellePersonServiceRelevantFirst.referanseTilfelleBitInntruffet,
+                    oppfolgingstilfelleList = listOf(
+                        KafkaOppfolgingstilfelle(
+                            arbeidstakerAtTilfelleEnd = true,
+                            start = oppfolgingstilfelle.start.minusDays(7),
+                            end = oppfolgingstilfelle.end,
+                            virksomhetsnummerList = oppfolgingstilfelle.virksomhetsnummerList,
+                        ),
+                    )
+                )
+                val kafkaOppfolgingstilfellePersonServiceRecordRelevantSecond = oppfolgingstilfellePersonConsumerRecord(
+                    kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonServiceRelevantSecond,
+                )
+                every { mockKafkaConsumerOppfolgingstilfellePerson.poll(any<Duration>()) } returns ConsumerRecords(
+                    mapOf(
+                        oppfolgingstilfellePersonTopicPartition to listOf(
+                            kafkaOppfolgingstilfellePersonServiceRecordRelevantFirst,
+                        )
+                    )
+                )
+                kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                    kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
+                )
+
+                every { mockKafkaConsumerOppfolgingstilfellePerson.poll(any<Duration>()) } returns ConsumerRecords(
+                    mapOf(
+                        oppfolgingstilfellePersonTopicPartition to listOf(
+                            kafkaOppfolgingstilfellePersonServiceRecordRelevantSecond,
+                        )
+                    )
+                )
+                kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                    kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
+                )
+
+
+                val recordValueSecond = kafkaOppfolgingstilfellePersonServiceRecordRelevantSecond.value()
+
+                database.connection.use { connection ->
+                    val pPersonOversiktStatusList = connection.getPersonOversiktStatusList(
+                        fnr = recordValueSecond.personIdentNumber,
+                    )
+
+                    pPersonOversiktStatusList.size shouldBeEqualTo 1
+
+                    val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+
+                    pPersonOversiktStatus.fnr shouldBeEqualTo recordValueSecond.personIdentNumber
+                    pPersonOversiktStatus.enhet.shouldBeNull()
+                    pPersonOversiktStatus.veilederIdent.shouldBeNull()
+
+                    pPersonOversiktStatus.motebehovUbehandlet.shouldBeNull()
+                    pPersonOversiktStatus.oppfolgingsplanLPSBistandUbehandlet.shouldBeNull()
+                    pPersonOversiktStatus.dialogmotekandidat.shouldBeNull()
+                    pPersonOversiktStatus.dialogmotekandidatGeneratedAt.shouldBeNull()
+
+                    checkPPersonOversiktStatusOppfolgingstilfelle(
+                        pPersonOversiktStatus = pPersonOversiktStatus,
+                        kafkaOppfolgingstilfellePerson = recordValueSecond,
+                    )
+
+                    val pPersonOppfolgingstilfelleVirksomhetList =
+                        connection.getPersonOppfolgingstilfelleVirksomhetList(
+                            pPersonOversikStatusId = pPersonOversiktStatus.id,
+                        )
+
+                    pPersonOppfolgingstilfelleVirksomhetList.size shouldBeEqualTo recordValueSecond.oppfolgingstilfelleList.first().virksomhetsnummerList.size
+
+                    pPersonOppfolgingstilfelleVirksomhetList.first().virksomhetsnummer.value shouldBeEqualTo recordValueSecond.oppfolgingstilfelleList.first().virksomhetsnummerList.first()
+                }
+
             }
 
             it("should only update latest OppfolgingstilfellPerson with the newest createdAt, if multiple relevant records on same personIdent with same referanseTilfelleBitUuid is received in different polls ") {

@@ -9,6 +9,7 @@ import no.nav.syfo.util.nowUTC
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.TopicPartition
 import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 import java.util.*
 
 fun generateKafkaOppfolgingstilfellePerson(
@@ -36,7 +37,7 @@ fun generateKafkaOppfolgingstilfellePerson(
             ),
         ),
         referanseTilfelleBitUuid = UUID.randomUUID().toString(),
-        referanseTilfelleBitInntruffet = nowUTC().minusDays(1),
+        referanseTilfelleBitInntruffet = nowUTC().minusDays(1).truncatedTo(ChronoUnit.MILLIS),
     )
 }
 

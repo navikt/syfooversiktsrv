@@ -507,7 +507,7 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                     )
                     database.updateTildeltEnhetUpdatedAt(
                         ident = PersonIdent(oversikthendelse.fnr),
-                        time = nowUTC().minusHours(23),
+                        time = nowUTC().minusHours(22),
                     )
 
                     runBlocking {

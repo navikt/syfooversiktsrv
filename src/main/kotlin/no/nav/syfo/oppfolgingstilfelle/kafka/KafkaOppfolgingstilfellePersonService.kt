@@ -9,6 +9,7 @@ import org.apache.kafka.clients.consumer.*
 import org.slf4j.LoggerFactory
 import java.sql.Connection
 import java.time.Duration
+import java.time.temporal.ChronoUnit
 
 class KafkaOppfolgingstilfellePersonService(
     val database: DatabaseInterface,
@@ -131,7 +132,15 @@ class KafkaOppfolgingstilfellePersonService(
             } ?: true
         } else {
             exisitingPPersonOversiktStatus.oppfolgingstilfelleBitReferanseInntruffet?.let {
-                newOppfolgingstilfelle.oppfolgingstilfelleBitReferanseInntruffet.isAfter(it)
+                val existingInntruffet = it.truncatedTo(ChronoUnit.MILLIS)
+                val newInntruffet = newOppfolgingstilfelle.oppfolgingstilfelleBitReferanseInntruffet.truncatedTo(ChronoUnit.MILLIS)
+                if (newInntruffet == existingInntruffet) {
+                    exisitingPPersonOversiktStatus.oppfolgingstilfelleGeneratedAt?.let {
+                        newOppfolgingstilfelle.generatedAt.isAfter(it)
+                    } ?: true
+                } else {
+                    newInntruffet.isAfter(existingInntruffet)
+                }
             } ?: true
         }
     }
