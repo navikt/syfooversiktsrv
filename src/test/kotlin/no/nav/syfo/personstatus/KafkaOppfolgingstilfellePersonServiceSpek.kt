@@ -460,8 +460,6 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                 kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
                     kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                 )
-
-
                 val recordValueSecond = kafkaOppfolgingstilfellePersonServiceRecordRelevantSecond.value()
 
                 database.connection.use { connection ->
@@ -496,7 +494,6 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
 
                     pPersonOppfolgingstilfelleVirksomhetList.first().virksomhetsnummer.value shouldBeEqualTo recordValueSecond.oppfolgingstilfelleList.first().virksomhetsnummerList.first()
                 }
-
             }
 
             it("should only update latest OppfolgingstilfellPerson with the newest createdAt, if multiple relevant records on same personIdent with same referanseTilfelleBitUuid is received in different polls ") {
