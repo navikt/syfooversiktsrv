@@ -1,5 +1,6 @@
 package no.nav.syfo.personstatus.domain
 
+import no.nav.syfo.aktivitetskravvurdering.domain.AktivitetskravVurderingStatus
 import no.nav.syfo.domain.Virksomhetsnummer
 import no.nav.syfo.personstatus.api.v2.*
 import no.nav.syfo.util.isBeforeOrEqual
@@ -20,11 +21,14 @@ data class PersonOversiktStatus(
     val motestatus: String?,
     val motestatusGeneratedAt: OffsetDateTime?,
     val latestOppfolgingstilfelle: Oppfolgingstilfelle?,
+    val aktivitetskrav: AktivitetskravVurderingStatus?,
+    val aktivitetskravStoppunkt: LocalDate?,
+    val aktivitetskravUpdatedAt: OffsetDateTime?,
 ) {
     constructor(fnr: String) : this(
         null, fnr = fnr, null, null, null,
         null, false, null, null,
-        null, null, null
+        null, null, null, null, null, null,
     )
 }
 

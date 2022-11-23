@@ -44,5 +44,8 @@ data class DialogmoteStatusendring private constructor(
         motestatus = type.name,
         motestatusGeneratedAt = endringTidspunkt,
         latestOppfolgingstilfelle = null,
+        aktivitetskrav = null,
+        aktivitetskravStoppunkt = null,
+        aktivitetskravUpdatedAt = null,
     )
 }

@@ -1,5 +1,6 @@
 package no.nav.syfo.personstatus.db
 
+import no.nav.syfo.aktivitetskravvurdering.domain.Aktivitetskrav
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.application.database.toList
 import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendring
@@ -71,6 +72,28 @@ fun Connection.updatePersonOversiktStatusMotestatus(
         it.setString(1, dialogmoteStatusendring.type.name)
         it.setObject(2, dialogmoteStatusendring.endringTidspunkt)
         it.setString(3, pPersonOversiktStatus.fnr)
+        it.execute()
+    }
+}
+
+const val queryUpdatePersonOversiktStatusAktivitetskrav =
+    """
+        UPDATE PERSON_OVERSIKT_STATUS
+        SET aktivitetskrav = ?,
+        aktivitetskrav_updated_at = ?,
+        aktivitetskrav_stoppunkt = ?
+        WHERE fnr = ?
+    """
+
+fun Connection.updatePersonOversiktStatusAktivitetskrav(
+    pPersonOversiktStatus: PPersonOversiktStatus,
+    aktivitetskrav: Aktivitetskrav,
+) {
+    this.prepareStatement(queryUpdatePersonOversiktStatusAktivitetskrav).use {
+        it.setString(1, aktivitetskrav.status.name)
+        it.setObject(2, aktivitetskrav.updatedAt)
+        it.setObject(3, aktivitetskrav.stoppunkt)
+        it.setString(4, pPersonOversiktStatus.fnr)
         it.execute()
     }
 }

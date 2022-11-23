@@ -1,15 +1,14 @@
 package no.nav.syfo.aktivitetskravvurdering.kafka
 
+import no.nav.syfo.aktivitetskravvurdering.persistAktivitetskrav
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.kafka.KafkaConsumerService
-import no.nav.syfo.personstatus.db.getPersonOversiktStatusList
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.slf4j.LoggerFactory
-import java.sql.Connection
 import java.time.Duration
 
-class KafkaAktivitetskravVurderingService(
+class KafkaAktivitetskravVurderingConsumer(
     private val database: DatabaseInterface,
 ) : KafkaConsumerService<KafkaAktivitetskravVurdering> {
 
@@ -36,27 +35,13 @@ class KafkaAktivitetskravVurderingService(
         database.connection.use { connection ->
             validRecords.forEach { record ->
                 log.info("Received ${KafkaAktivitetskravVurdering::class.java.simpleName} with key=${record.key()}, ready to process.")
-                receiveKafkaAktivitetskravVurdering(
+                val aktivitetskrav = record.value().toAktivitetskrav()
+                persistAktivitetskrav(
                     connection = connection,
-                    kafkaAktivitetskravVurdering = record.value()
+                    aktivitetskrav = aktivitetskrav
                 )
             }
             connection.commit()
-        }
-    }
-
-    private fun receiveKafkaAktivitetskravVurdering(
-        connection: Connection,
-        kafkaAktivitetskravVurdering: KafkaAktivitetskravVurdering,
-    ) {
-        val existingPersonOversiktStatus = connection.getPersonOversiktStatusList(
-            fnr = kafkaAktivitetskravVurdering.personIdent,
-        ).firstOrNull()
-
-        if (existingPersonOversiktStatus == null) {
-            // TODO: Create new oppgave
-        } else {
-            // TODO: Update oppgave
         }
     }
 
