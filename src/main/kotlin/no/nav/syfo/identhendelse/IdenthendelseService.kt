@@ -22,14 +22,14 @@ class IdenthendelseService(
             val activeIdent = identhendelse.getActivePersonident()
             if (activeIdent != null) {
                 val inactiveIdenter = identhendelse.getInactivePersonidenter()
-                val motedeltakereWithOldIdent = inactiveIdenter.flatMap { personident ->
+                val personOversiktStatusWithOldIdent = inactiveIdenter.flatMap { personident ->
                     database.getPersonOversiktStatusList(personident.value)
                 }
 
-                if (motedeltakereWithOldIdent.isNotEmpty()) {
+                if (personOversiktStatusWithOldIdent.isNotEmpty()) {
                     checkThatPdlIsUpdated(activeIdent)
                     var numberOfUpdatedIdenter = 0
-                    motedeltakereWithOldIdent
+                    personOversiktStatusWithOldIdent
                         .forEach {
                             val inactiveIdent = PersonIdent(it.fnr)
                             numberOfUpdatedIdenter += database.updatePersonOversiktStatusFnr(activeIdent, inactiveIdent)
