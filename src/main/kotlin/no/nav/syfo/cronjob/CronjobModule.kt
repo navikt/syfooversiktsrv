@@ -24,7 +24,7 @@ fun launchCronjobModule(
     )
 
     val azureAdClient = AzureAdClient(
-        azureEnviroment = environment.azure,
+        azureEnvironment = environment.azure,
         redisStore = redisStore,
     )
 

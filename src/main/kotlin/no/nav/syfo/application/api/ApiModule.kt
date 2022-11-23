@@ -46,7 +46,7 @@ fun Application.apiModule(
     )
 
     val azureAdClient = AzureAdClient(
-        azureEnviroment = environment.azure,
+        azureEnvironment = environment.azure,
         redisStore = redisStore,
     )
 
