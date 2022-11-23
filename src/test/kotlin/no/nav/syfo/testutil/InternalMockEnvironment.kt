@@ -18,7 +18,7 @@ class InternalMockEnvironment private constructor() {
         redisEnvironment = environment.redis,
     )
     private val azureAdClient = AzureAdClient(
-        azureEnviroment = environment.azure,
+        azureEnvironment = environment.azure,
         redisStore = redisStore,
     )
     private val behandlendeEnhetClient = BehandlendeEnhetClient(
