@@ -19,7 +19,7 @@ class IdenthendelseConsumerService(
     private val identhendelseService: IdenthendelseService,
 ) : KafkaConsumerService<GenericRecord> {
     override val pollDurationInMillis: Long = 1000
-    
+
     override fun pollAndProcessRecords(kafkaConsumer: KafkaConsumer<String, GenericRecord>) {
         runBlocking {
             kafkaConsumer.subscribe(listOf(PDL_AKTOR_TOPIC))

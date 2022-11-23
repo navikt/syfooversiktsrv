@@ -128,7 +128,7 @@ object IdenthendelseServiceSpek : Spek({
                         hasOldPersonident = true,
                     )
                     val oldIdent = kafkaIdenthendelseDTO.getInactivePersonidenter().first()
-    
+
                     // Populate database with new PersonOversiktStatus using old ident for person
                     val newPersonOversiktStatus = PersonOversiktStatus(fnr = oldIdent.value)
                     database.connection.use { connection ->

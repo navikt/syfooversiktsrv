@@ -49,7 +49,7 @@ fun launchKafkaModule(
             kafkaEnvironment = environment.kafka,
         )
     }
-    
+
     if (environment.kafkaIdenthendelseUpdatesEnabled) {
         launchKafkaTaskIdenthendelse(
             applicationState = applicationState,

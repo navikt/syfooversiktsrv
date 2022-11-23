@@ -93,7 +93,7 @@ class PdlMock {
     private val port = getRandomPort()
     val url = "http://localhost:$port"
     val name = "pdl"
-    
+
     private val objectMapper: ObjectMapper = configuredJacksonMapper()
 
     val server = embeddedServer(

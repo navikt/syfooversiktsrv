@@ -18,28 +18,28 @@ fun launchKafkaTaskIdenthendelse(
     val redisStore = RedisStore(
         redisEnvironment = environment.redis,
     )
-    
+
     val azureAdClient = AzureAdClient(
         azureEnviroment = environment.azure,
         redisStore = redisStore,
     )
-    
+
     val pdlClient = PdlClient(
         azureAdClient = azureAdClient,
         clientEnvironment = environment.clients.pdl,
         redisStore = redisStore,
     )
-    
+
     val identhendelseService = IdenthendelseService(
         database = database,
         pdlClient = pdlClient,
     )
-    
+
     val kafkaIdenthendelseConsumerService = IdenthendelseConsumerService(
         applicationState = applicationState,
         identhendelseService = identhendelseService,
     )
-    
+
     val consumerProperties = kafkaIdenthendelseConsumerConfig(
         kafkaEnvironment = environment.kafka,
     )
