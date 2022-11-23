@@ -5,6 +5,7 @@ import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.Environment
 import no.nav.syfo.dialogmotekandidat.kafka.launchKafkaTaskDialogmotekandidatEndring
 import no.nav.syfo.dialogmotestatusendring.kafka.launchKafkaTaskDialogmoteStatusendring
+import no.nav.syfo.identhendelse.kafka.launchKafkaTaskIdenthendelse
 import no.nav.syfo.oppfolgingstilfelle.kafka.launchKafkaTaskOppfolgingstilfellePerson
 import no.nav.syfo.personoppgavehendelse.kafka.launchKafkaTaskPersonoppgavehendelse
 import no.nav.syfo.personstatus.kafka.launchOversiktHendelseKafkaTask
@@ -46,6 +47,13 @@ fun launchKafkaModule(
         launchKafkaTaskAktivitetskravVurdering(
             applicationState = applicationState,
             kafkaEnvironment = environment.kafka,
+        )
+    }
+    
+    if (environment.kafkaIdenthendelseUpdatesEnabled) {
+        launchKafkaTaskIdenthendelse(
+            applicationState = applicationState,
+            environment = environment,
         )
     }
 }
