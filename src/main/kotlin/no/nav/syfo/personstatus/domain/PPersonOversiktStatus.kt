@@ -43,6 +43,9 @@ fun PPersonOversiktStatus.toPersonOversiktStatus(
     latestOppfolgingstilfelle = this.toPersonOppfolgingstilfelle(
         personOppfolgingstilfelleVirksomhetList = personOppfolgingstilfelleVirksomhetList,
     ),
+    aktivitetskrav = null, // TODO: Gi verdi til disse tre når vi fikser henting av aktivitetskravting
+    aktivitetskravStoppunkt = null,
+    aktivitetskravUpdatedAt = null,
 )
 
 fun PPersonOversiktStatus.toPersonOppfolgingstilfelle(

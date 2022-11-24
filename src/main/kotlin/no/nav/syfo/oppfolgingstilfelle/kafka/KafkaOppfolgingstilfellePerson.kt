@@ -40,6 +40,9 @@ fun KafkaOppfolgingstilfellePerson.toPersonOversiktStatus(
     latestOppfolgingstilfelle = this.toPersonOppfolgingstilfelle(
         latestKafkaOppfolgingstilfelle = latestKafkaOppfolgingstilfelle,
     ),
+    aktivitetskrav = null,
+    aktivitetskravStoppunkt = null,
+    aktivitetskravUpdatedAt = null,
 )
 
 fun KafkaOppfolgingstilfellePerson.toPersonOppfolgingstilfelle(

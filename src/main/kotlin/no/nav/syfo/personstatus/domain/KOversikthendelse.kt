@@ -30,6 +30,9 @@ fun KOversikthendelse.toPersonOversiktStatus(
         motestatus = null,
         motestatusGeneratedAt = null,
         latestOppfolgingstilfelle = null,
+        aktivitetskrav = null,
+        aktivitetskravStoppunkt = null,
+        aktivitetskravUpdatedAt = null,
     )
     return personOversiktStatus.applyHendelse(oversikthendelseType = oversikthendelseType)
 }

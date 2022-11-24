@@ -16,7 +16,7 @@ fun launchKafkaTaskAktivitetskravVurdering(
     applicationState: ApplicationState,
     kafkaEnvironment: KafkaEnvironment,
 ) {
-    val kafkaAktivitetskravVurderingService = KafkaAktivitetskravVurderingService(
+    val kafkaAktivitetskravVurderingConsumer = KafkaAktivitetskravVurderingConsumer(
         database = database,
     )
     val consumerProperties = Properties().apply {
@@ -28,7 +28,7 @@ fun launchKafkaTaskAktivitetskravVurdering(
         applicationState = applicationState,
         topic = AKTIVITETSKRAV_VURDERING_TOPIC,
         consumerProperties = consumerProperties,
-        kafkaConsumerService = kafkaAktivitetskravVurderingService,
+        kafkaConsumerService = kafkaAktivitetskravVurderingConsumer,
     )
 }
 
