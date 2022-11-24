@@ -18,15 +18,9 @@ fun launchCronjobModule(
     applicationState: ApplicationState,
     database: DatabaseInterface,
     environment: Environment,
+    redisStore: RedisStore,
+    azureAdClient: AzureAdClient,
 ) {
-    val redisStore = RedisStore(
-        redisEnvironment = environment.redis,
-    )
-
-    val azureAdClient = AzureAdClient(
-        azureEnvironment = environment.azure,
-        redisStore = redisStore,
-    )
 
     val eregClient = EregClient(
         clientEnvironment = environment.clients.ereg,
