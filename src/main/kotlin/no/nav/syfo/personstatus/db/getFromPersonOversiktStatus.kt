@@ -45,6 +45,7 @@ const val queryHentUbehandledePersonerTilknyttetEnhet = """
                                 dialogmotekandidat = 't' 
                                 AND dialogmotekandidat_generated_at + INTERVAL '7 DAY' < now()
                                 )
+                            OR ( aktivitetskrav = 'NY' OR aktivitetskrav = 'AVVENT')
                             )
                         );
                 """
@@ -100,6 +101,9 @@ fun ResultSet.toPPersonOversiktStatus(): PPersonOversiktStatus =
             "oppfolgingstilfelle_bit_referanse_inntruffet",
             OffsetDateTime::class.java
         ),
+        aktivitetskrav = getString("aktivitetskrav"),
+        aktivitetskravStoppunkt = getObject("aktivitetskrav_stoppunkt", LocalDate::class.java),
+        aktivitetskravUpdatedAt = getObject("aktivitetskrav_updated_at", OffsetDateTime::class.java),
     )
 
 fun ResultSet.toVeilederBrukerKnytning(): VeilederBrukerKnytning =
