@@ -9,8 +9,10 @@ import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.Environment
 import no.nav.syfo.application.api.apiModule
 import no.nav.syfo.application.api.authentication.getWellKnown
+import no.nav.syfo.application.cache.RedisStore
 import no.nav.syfo.application.database.database
 import no.nav.syfo.application.database.databaseModule
+import no.nav.syfo.client.azuread.AzureAdClient
 import no.nav.syfo.cronjob.launchCronjobModule
 import no.nav.syfo.kafka.launchKafkaModule
 import org.slf4j.LoggerFactory
@@ -25,6 +27,15 @@ fun main() {
     val environment = Environment()
     val wellKnownVeilederV2 = getWellKnown(
         wellKnownUrl = environment.azure.appWellKnownUrl,
+    )
+
+    val redisStore = RedisStore(
+        redisEnvironment = environment.redis,
+    )
+
+    val azureAdClient = AzureAdClient(
+        azureEnvironment = environment.azure,
+        redisStore = redisStore,
     )
 
     val applicationEngineEnvironment = applicationEngineEnvironment {
@@ -44,6 +55,8 @@ fun main() {
                 database = database,
                 environment = environment,
                 wellKnownVeilederV2 = wellKnownVeilederV2,
+                redisStore = redisStore,
+                azureAdClient = azureAdClient,
             )
         }
     }
@@ -64,6 +77,8 @@ fun main() {
             applicationState = applicationState,
             database = database,
             environment = environment,
+            redisStore = redisStore,
+            azureAdClient = azureAdClient,
         )
     }
 

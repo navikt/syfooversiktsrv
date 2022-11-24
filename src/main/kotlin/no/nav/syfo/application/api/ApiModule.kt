@@ -21,6 +21,8 @@ fun Application.apiModule(
     database: DatabaseInterface,
     environment: Environment,
     wellKnownVeilederV2: WellKnown,
+    redisStore: RedisStore,
+    azureAdClient: AzureAdClient,
 ) {
     installCallId()
     installContentNegotiation()
@@ -39,15 +41,6 @@ fun Application.apiModule(
 
     val personTildelingService = PersonTildelingService(
         database = database,
-    )
-
-    val redisStore = RedisStore(
-        redisEnvironment = environment.redis,
-    )
-
-    val azureAdClient = AzureAdClient(
-        azureEnvironment = environment.azure,
-        redisStore = redisStore,
     )
 
     val pdlClient = PdlClient(
