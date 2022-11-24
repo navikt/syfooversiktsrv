@@ -23,4 +23,7 @@ fun generatePPersonOversiktStatus() = PPersonOversiktStatus(
     oppfolgingstilfelleEnd = null,
     oppfolgingstilfelleBitReferanseUuid = null,
     oppfolgingstilfelleBitReferanseInntruffet = null,
+    aktivitetskrav = null,
+    aktivitetskravStoppunkt = null,
+    aktivitetskravUpdatedAt = null,
 )

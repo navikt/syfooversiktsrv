@@ -1,5 +1,6 @@
 package no.nav.syfo.personstatus.domain
 
+import no.nav.syfo.aktivitetskravvurdering.domain.AktivitetskravVurderingStatus
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.*
@@ -24,6 +25,9 @@ data class PPersonOversiktStatus(
     val oppfolgingstilfelleEnd: LocalDate?,
     val oppfolgingstilfelleBitReferanseUuid: UUID?,
     val oppfolgingstilfelleBitReferanseInntruffet: OffsetDateTime?,
+    val aktivitetskrav: String?,
+    val aktivitetskravStoppunkt: LocalDate?,
+    val aktivitetskravUpdatedAt: OffsetDateTime?,
 )
 
 fun PPersonOversiktStatus.toPersonOversiktStatus(
@@ -43,9 +47,9 @@ fun PPersonOversiktStatus.toPersonOversiktStatus(
     latestOppfolgingstilfelle = this.toPersonOppfolgingstilfelle(
         personOppfolgingstilfelleVirksomhetList = personOppfolgingstilfelleVirksomhetList,
     ),
-    aktivitetskrav = null, // TODO: Gi verdi til disse tre når vi fikser henting av aktivitetskravting
-    aktivitetskravStoppunkt = null,
-    aktivitetskravUpdatedAt = null,
+    aktivitetskrav = this.aktivitetskrav?.let { AktivitetskravVurderingStatus.valueOf(this.aktivitetskrav) },
+    aktivitetskravStoppunkt = this.aktivitetskravStoppunkt,
+    aktivitetskravUpdatedAt = this.aktivitetskravUpdatedAt,
 )
 
 fun PPersonOversiktStatus.toPersonOppfolgingstilfelle(
