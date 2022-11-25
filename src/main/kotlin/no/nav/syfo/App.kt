@@ -73,6 +73,8 @@ fun main() {
         launchKafkaModule(
             applicationState = applicationState,
             environment = environment,
+            redisStore = redisStore,
+            azureAdClient = azureAdClient,
         )
         launchCronjobModule(
             applicationState = applicationState,

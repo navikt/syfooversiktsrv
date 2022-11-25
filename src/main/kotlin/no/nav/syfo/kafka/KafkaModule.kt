@@ -3,6 +3,8 @@ package no.nav.syfo.kafka
 import no.nav.syfo.aktivitetskravvurdering.kafka.launchKafkaTaskAktivitetskravVurdering
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.Environment
+import no.nav.syfo.application.cache.RedisStore
+import no.nav.syfo.client.azuread.AzureAdClient
 import no.nav.syfo.dialogmotekandidat.kafka.launchKafkaTaskDialogmotekandidatEndring
 import no.nav.syfo.dialogmotestatusendring.kafka.launchKafkaTaskDialogmoteStatusendring
 import no.nav.syfo.identhendelse.kafka.launchKafkaTaskIdenthendelse
@@ -13,6 +15,8 @@ import no.nav.syfo.personstatus.kafka.launchOversiktHendelseKafkaTask
 fun launchKafkaModule(
     applicationState: ApplicationState,
     environment: Environment,
+    redisStore: RedisStore,
+    azureAdClient: AzureAdClient,
 ) {
     launchOversiktHendelseKafkaTask(
         applicationState = applicationState,
@@ -54,6 +58,8 @@ fun launchKafkaModule(
         launchKafkaTaskIdenthendelse(
             applicationState = applicationState,
             environment = environment,
+            redisStore = redisStore,
+            azureAdClient = azureAdClient,
         )
     }
 }

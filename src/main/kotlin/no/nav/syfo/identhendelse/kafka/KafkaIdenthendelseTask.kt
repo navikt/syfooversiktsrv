@@ -14,15 +14,9 @@ const val PDL_AKTOR_TOPIC = "pdl.aktor-v2"
 fun launchKafkaTaskIdenthendelse(
     applicationState: ApplicationState,
     environment: Environment,
+    redisStore: RedisStore,
+    azureAdClient: AzureAdClient,
 ) {
-    val redisStore = RedisStore(
-        redisEnvironment = environment.redis,
-    )
-
-    val azureAdClient = AzureAdClient(
-        azureEnvironment = environment.azure,
-        redisStore = redisStore,
-    )
 
     val pdlClient = PdlClient(
         azureAdClient = azureAdClient,

@@ -6,7 +6,7 @@ import no.nav.syfo.identhendelse.kafka.Identifikator
 import no.nav.syfo.identhendelse.kafka.KafkaIdenthendelseDTO
 import no.nav.syfo.testutil.UserConstants
 
-fun generateKafkaIdenthendelseDTOGenerator(
+fun generateKafkaIdenthendelseDTO(
     personident: PersonIdent = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),
     hasOldPersonident: Boolean,
 ): KafkaIdenthendelseDTO {

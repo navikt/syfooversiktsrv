@@ -12,7 +12,7 @@ import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.testutil.ExternalMockEnvironment
 import no.nav.syfo.testutil.UserConstants
 import no.nav.syfo.testutil.dropData
-import no.nav.syfo.testutil.generator.generateKafkaIdenthendelseDTOGenerator
+import no.nav.syfo.testutil.generator.generateKafkaIdenthendelseDTO
 import org.amshove.kluent.internal.assertFailsWith
 import org.amshove.kluent.shouldBeEqualTo
 import org.spekframework.spek2.Spek
@@ -47,7 +47,7 @@ object IdenthendelseServiceSpek : Spek({
 
             describe("Happy path") {
                 it("Skal oppdatere database når person har fått ny ident") {
-                    val kafkaIdenthendelseDTO = generateKafkaIdenthendelseDTOGenerator(hasOldPersonident = true)
+                    val kafkaIdenthendelseDTO = generateKafkaIdenthendelseDTO(hasOldPersonident = true)
                     val newIdent = kafkaIdenthendelseDTO.getActivePersonident()!!
                     val oldIdent = kafkaIdenthendelseDTO.getInactivePersonidenter().first()
 
@@ -64,10 +64,6 @@ object IdenthendelseServiceSpek : Spek({
                     val currentMotedeltakerArbeidstaker = database.getPersonOversiktStatusList(oldIdent.value)
                     currentMotedeltakerArbeidstaker.size shouldBeEqualTo 1
 
-                    // Check that person with new personident do not exist in db before update
-                    val newMotedeltakerArbeidstaker = database.getPersonOversiktStatusList(newIdent.value)
-                    newMotedeltakerArbeidstaker.size shouldBeEqualTo 0
-
                     runBlocking {
                         identhendelseService.handleIdenthendelse(kafkaIdenthendelseDTO)
                     }
@@ -82,7 +78,7 @@ object IdenthendelseServiceSpek : Spek({
                 }
 
                 it("Skal ikke oppdatere database når person ikke finnes i databasen") {
-                    val kafkaIdenthendelseDTO = generateKafkaIdenthendelseDTOGenerator(hasOldPersonident = true)
+                    val kafkaIdenthendelseDTO = generateKafkaIdenthendelseDTO(hasOldPersonident = true)
                     val newIdent = kafkaIdenthendelseDTO.getActivePersonident()!!
                     val oldIdent = PersonIdent("12333378910")
 
@@ -104,7 +100,7 @@ object IdenthendelseServiceSpek : Spek({
                 }
 
                 it("Skal ikke oppdatere database når person ikke har gamle identer") {
-                    val kafkaIdenthendelseDTO = generateKafkaIdenthendelseDTOGenerator(hasOldPersonident = false)
+                    val kafkaIdenthendelseDTO = generateKafkaIdenthendelseDTO(hasOldPersonident = false)
                     val newIdent = kafkaIdenthendelseDTO.getActivePersonident()!!
 
                     // Check that person with new personident do not exist in db before update
@@ -123,7 +119,7 @@ object IdenthendelseServiceSpek : Spek({
 
             describe("Unhappy path") {
                 it("Skal kaste feil hvis PDL ikke har oppdatert identen") {
-                    val kafkaIdenthendelseDTO = generateKafkaIdenthendelseDTOGenerator(
+                    val kafkaIdenthendelseDTO = generateKafkaIdenthendelseDTO(
                         personident = PersonIdent(UserConstants.ARBEIDSTAKER_3_FNR),
                         hasOldPersonident = true,
                     )
