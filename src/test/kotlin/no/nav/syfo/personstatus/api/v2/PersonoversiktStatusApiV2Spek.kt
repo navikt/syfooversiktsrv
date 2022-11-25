@@ -48,8 +48,6 @@ object PersonoversiktStatusApiV2Spek : Spek({
 
             val internalMockEnvironment = InternalMockEnvironment.instance
 
-            val personBehandlendeEnhetCronjob = internalMockEnvironment.personBehandlendeEnhetCronjob
-
             val personOppfolgingstilfelleVirksomhetnavnCronjob =
                 internalMockEnvironment.personOppfolgingstilfelleVirksomhetnavnCronjob
 
@@ -154,6 +152,24 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         }
                     ) {
                         response.status() shouldBeEqualTo HttpStatusCode.NoContent
+                    }
+                }
+
+                it("skal returnere status Unauthorized om token mangler") {
+                    with(
+                        handleRequest(HttpMethod.Get, url)
+                    ) {
+                        response.status() shouldBeEqualTo HttpStatusCode.Unauthorized
+                    }
+                }
+
+                it("skal returnere status BadRequest om enhet ugyldig") {
+                    with(
+                        handleRequest(HttpMethod.Get, "$personOversiktApiV2Path/enhet/12345") {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        }
+                    ) {
+                        response.status() shouldBeEqualTo HttpStatusCode.BadRequest
                     }
                 }
 

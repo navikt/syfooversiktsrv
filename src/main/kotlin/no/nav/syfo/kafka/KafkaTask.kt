@@ -1,6 +1,5 @@
 package no.nav.syfo.kafka
 
-import no.nav.syfo.LOG
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.backgroundtask.launchBackgroundTask
 import org.apache.kafka.clients.consumer.KafkaConsumer
@@ -15,8 +14,6 @@ inline fun <reified ConsumerRecordValue> launchKafkaTask(
     launchBackgroundTask(
         applicationState = applicationState
     ) {
-        LOG.info("Setting up kafka consumer for ${ConsumerRecordValue::class.java.simpleName}")
-
         val kafkaConsumer = KafkaConsumer<String, ConsumerRecordValue>(consumerProperties)
         kafkaConsumer.subscribe(
             listOf(topic)

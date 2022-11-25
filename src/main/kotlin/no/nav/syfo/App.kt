@@ -18,13 +18,14 @@ import no.nav.syfo.kafka.launchKafkaModule
 import org.slf4j.LoggerFactory
 import java.util.concurrent.TimeUnit
 
-val LOG: org.slf4j.Logger = LoggerFactory.getLogger("no.nav.syfo.AppKt")
-
 const val applicationPort = 8080
 
 fun main() {
     val applicationState = ApplicationState()
+    val logger = LoggerFactory.getLogger("ktor.application")
+    logger.info("syfooversiktsrv starting with java version: " + Runtime.version())
     val environment = Environment()
+
     val wellKnownVeilederV2 = getWellKnown(
         wellKnownUrl = environment.azure.appWellKnownUrl,
     )
@@ -39,7 +40,7 @@ fun main() {
     )
 
     val applicationEngineEnvironment = applicationEngineEnvironment {
-        log = LoggerFactory.getLogger("ktor.application")
+        log = logger
         config = HoconApplicationConfig(ConfigFactory.load())
 
         connector {
@@ -66,9 +67,9 @@ fun main() {
         factory = Netty,
     )
 
-    applicationEngineEnvironment.monitor.subscribe(ApplicationStarted) { application ->
+    applicationEngineEnvironment.monitor.subscribe(ApplicationStarted) {
         applicationState.ready = true
-        application.environment.log.info("Application is ready, running Java VM ${Runtime.version()}")
+        logger.info("Application is ready, running Java VM ${Runtime.version()}")
         launchKafkaModule(
             applicationState = applicationState,
             environment = environment,

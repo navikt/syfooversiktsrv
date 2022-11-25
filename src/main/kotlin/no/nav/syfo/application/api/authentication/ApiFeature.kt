@@ -1,6 +1,7 @@
 package no.nav.syfo.application.api.authentication
 
 import com.auth0.jwk.JwkProviderBuilder
+import io.ktor.client.plugins.*
 import io.ktor.http.*
 import io.ktor.serialization.jackson.*
 import io.ktor.server.application.*
@@ -85,9 +86,31 @@ fun Application.installContentNegotiation() {
 fun Application.installStatusPages() {
     install(StatusPages) {
         exception<Throwable> { call, cause ->
-            call.respond(HttpStatusCode.InternalServerError, cause.message ?: "Unknown error")
-            call.application.log.error("Caught exception callId=${call.getCallId()} ${call.getConsumerId()}", cause)
-            throw cause
+            val callId = call.getCallId()
+            val consumerId = call.getConsumerId()
+            val exceptionMessage = "Caught exception, callId=$callId, consumerClientId=$consumerId"
+            call.application.environment.log.error(exceptionMessage, cause)
+
+            var isUnexpectedException = false
+
+            val responseStatus: HttpStatusCode = when (cause) {
+                is ResponseException -> {
+                    cause.response.status
+                }
+                is IllegalArgumentException -> {
+                    HttpStatusCode.BadRequest
+                }
+                else -> {
+                    isUnexpectedException = true
+                    HttpStatusCode.InternalServerError
+                }
+            }
+            val message = if (isUnexpectedException) {
+                "The server reported an unexpected error and cannot complete the request."
+            } else {
+                cause.message ?: "Unknown error"
+            }
+            call.respond(responseStatus, message)
         }
     }
 }
