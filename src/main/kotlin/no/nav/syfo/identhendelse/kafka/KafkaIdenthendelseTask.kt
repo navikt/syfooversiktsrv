@@ -30,7 +30,6 @@ fun launchKafkaTaskIdenthendelse(
     )
 
     val kafkaIdenthendelseConsumerService = IdenthendelseConsumerService(
-        applicationState = applicationState,
         identhendelseService = identhendelseService,
     )
 
