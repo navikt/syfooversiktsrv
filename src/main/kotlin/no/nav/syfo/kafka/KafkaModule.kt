@@ -9,6 +9,7 @@ import no.nav.syfo.dialogmotekandidat.kafka.launchKafkaTaskDialogmotekandidatEnd
 import no.nav.syfo.dialogmotestatusendring.kafka.launchKafkaTaskDialogmoteStatusendring
 import no.nav.syfo.identhendelse.kafka.launchKafkaTaskIdenthendelse
 import no.nav.syfo.oppfolgingstilfelle.kafka.launchKafkaTaskOppfolgingstilfellePerson
+import no.nav.syfo.pdlpersonhendelse.kafka.launchKafkaTaskPersonhendelse
 import no.nav.syfo.personoppgavehendelse.kafka.launchKafkaTaskPersonoppgavehendelse
 import no.nav.syfo.personstatus.kafka.launchOversiktHendelseKafkaTask
 
@@ -52,6 +53,13 @@ fun launchKafkaModule(
             environment = environment,
             redisStore = redisStore,
             azureAdClient = azureAdClient,
+        )
+    }
+
+    if (environment.kafkaPersonhendelseUpdatesEnabled) {
+        launchKafkaTaskPersonhendelse(
+            applicationState = applicationState,
+            environment = environment,
         )
     }
 }
