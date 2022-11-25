@@ -89,7 +89,7 @@ fun Application.installStatusPages() {
             val callId = call.getCallId()
             val consumerId = call.getConsumerId()
             val exceptionMessage = "Caught exception, callId=$callId, consumerClientId=$consumerId"
-            call.application.environment.log.error(exceptionMessage, cause)
+            call.application.log.error(exceptionMessage, cause)
 
             var isUnexpectedException = false
 
