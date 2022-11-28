@@ -44,6 +44,44 @@ class PdlClient(
         }
     }
 
+    suspend fun hentIdenter(
+        nyPersonIdent: String,
+        callId: String? = null,
+    ): PdlIdenter? {
+        val systemToken = azureAdClient.getSystemToken(clientEnvironment.clientId)
+            ?: throw RuntimeException("Failed to send request to PDL: No token was found")
+
+        val query = getPdlQuery("/pdl/hentIdenter.graphql")
+        val request = PdlIdentRequest(query, PdlIdentVariables(ident = nyPersonIdent))
+
+        val response: HttpResponse = httpClient.post(clientEnvironment.baseUrl) {
+            setBody(request)
+            header(HttpHeaders.ContentType, "application/json")
+            header(HttpHeaders.Authorization, bearerHeader(systemToken.accessToken))
+            header(TEMA_HEADER, ALLE_TEMA_HEADERVERDI)
+            header(NAV_CALL_ID_HEADER, callId)
+        }
+
+        return when (response.status) {
+            HttpStatusCode.OK -> {
+                val pdlIdenterReponse = response.body<PdlIdentResponse>()
+                if (!pdlIdenterReponse.errors.isNullOrEmpty()) {
+                    pdlIdenterReponse.errors.forEach {
+                        logger.error("Error while requesting ident from PersonDataLosningen: ${it.errorMessage()}")
+                    }
+                    null
+                } else {
+                    pdlIdenterReponse.data?.hentIdenter
+                }
+            }
+            else -> {
+                val message = "Request with url: ${clientEnvironment.baseUrl} failed with reponse code ${response.status.value}"
+                logger.error(message)
+                throw RuntimeException(message)
+            }
+        }
+    }
+
     private suspend fun getPdlPersonIdentNumberNavnMap(
         callId: String,
         personIdentList: List<PersonIdent>,

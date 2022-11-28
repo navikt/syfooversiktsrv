@@ -76,6 +76,7 @@ fun testEnvironment(
     personBehandlendeEnhetCronjobEnabled = true,
     personOppfolgingstilfelleVirksomhetsnavnCronjobEnabled = true,
     kafkaAktivitetskravVurderingProcessingEnabled = true,
+    kafkaIdenthendelseUpdatesEnabled = true,
 )
 
 fun testAppState() = ApplicationState(
