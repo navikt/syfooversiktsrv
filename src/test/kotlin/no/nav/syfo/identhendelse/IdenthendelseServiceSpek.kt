@@ -61,20 +61,20 @@ object IdenthendelseServiceSpek : Spek({
                     }
 
                     // Check that person with old/current personident exist in db before update
-                    val currentMotedeltakerArbeidstaker = database.getPersonOversiktStatusList(oldIdent.value)
-                    currentMotedeltakerArbeidstaker.size shouldBeEqualTo 1
+                    val currentPersonOversiktStatus = database.getPersonOversiktStatusList(oldIdent.value)
+                    currentPersonOversiktStatus.size shouldBeEqualTo 1
 
                     runBlocking {
                         identhendelseService.handleIdenthendelse(kafkaIdenthendelseDTO)
                     }
 
                     // Check that person with new personident exist in db after update
-                    val updatedMotedeltakerArbeidstaker = database.getPersonOversiktStatusList(newIdent.value)
-                    updatedMotedeltakerArbeidstaker.size shouldBeEqualTo 1
+                    val updatedPersonOversiktStatus = database.getPersonOversiktStatusList(newIdent.value)
+                    updatedPersonOversiktStatus.size shouldBeEqualTo 1
 
                     // Check that person with old personident do not exist in db after update
-                    val oldMotedeltakerArbeidstaker = database.getPersonOversiktStatusList(oldIdent.value)
-                    oldMotedeltakerArbeidstaker.size shouldBeEqualTo 0
+                    val oldPersonOversiktStatus = database.getPersonOversiktStatusList(oldIdent.value)
+                    oldPersonOversiktStatus.size shouldBeEqualTo 0
                 }
 
                 it("Skal ikke oppdatere database når person ikke finnes i databasen") {
@@ -83,20 +83,20 @@ object IdenthendelseServiceSpek : Spek({
                     val oldIdent = PersonIdent("12333378910")
 
                     // Check that person with old/current personident do not exist in db before update
-                    val currentMotedeltakerArbeidstaker = database.getPersonOversiktStatusList(oldIdent.value)
-                    currentMotedeltakerArbeidstaker.size shouldBeEqualTo 0
+                    val currentPersonOversiktStatus = database.getPersonOversiktStatusList(oldIdent.value)
+                    currentPersonOversiktStatus.size shouldBeEqualTo 0
 
                     // Check that person with new personident do not exist in db before update
-                    val newMotedeltakerArbeidstaker = database.getPersonOversiktStatusList(newIdent.value)
-                    newMotedeltakerArbeidstaker.size shouldBeEqualTo 0
+                    val newPersonOversiktStatus = database.getPersonOversiktStatusList(newIdent.value)
+                    newPersonOversiktStatus.size shouldBeEqualTo 0
 
                     runBlocking {
                         identhendelseService.handleIdenthendelse(kafkaIdenthendelseDTO)
                     }
 
                     // Check that person with new personident still do not exist in db after update
-                    val updatedMotedeltakerArbeidstaker = database.getPersonOversiktStatusList(newIdent.value)
-                    updatedMotedeltakerArbeidstaker.size shouldBeEqualTo 0
+                    val updatedPersonOversiktStatus = database.getPersonOversiktStatusList(newIdent.value)
+                    updatedPersonOversiktStatus.size shouldBeEqualTo 0
                 }
 
                 it("Skal ikke oppdatere database når person ikke har gamle identer") {
@@ -104,16 +104,53 @@ object IdenthendelseServiceSpek : Spek({
                     val newIdent = kafkaIdenthendelseDTO.getActivePersonident()!!
 
                     // Check that person with new personident do not exist in db before update
-                    val newMotedeltakerArbeidstaker = database.getPersonOversiktStatusList(newIdent.value)
-                    newMotedeltakerArbeidstaker.size shouldBeEqualTo 0
+                    val newPersonOversiktStatus = database.getPersonOversiktStatusList(newIdent.value)
+                    newPersonOversiktStatus.size shouldBeEqualTo 0
 
                     runBlocking {
                         identhendelseService.handleIdenthendelse(kafkaIdenthendelseDTO)
                     }
 
                     // Check that person with new personident still do not exist in db after update
-                    val updatedMotedeltakerArbeidstaker = database.getPersonOversiktStatusList(newIdent.value)
-                    updatedMotedeltakerArbeidstaker.size shouldBeEqualTo 0
+                    val updatedPersonOversiktStatus = database.getPersonOversiktStatusList(newIdent.value)
+                    updatedPersonOversiktStatus.size shouldBeEqualTo 0
+                }
+
+                it("Skal overskrive veilederident når ny ident allerede finnes i databasen") {
+                    val kafkaIdenthendelseDTO = generateKafkaIdenthendelseDTO(hasOldPersonident = true)
+                    val newIdent = kafkaIdenthendelseDTO.getActivePersonident()!!
+                    val oldIdent = kafkaIdenthendelseDTO.getInactivePersonidenter().first()
+
+                    val veilederIdent = "Z990099"
+                    val personOversiktStatusWithOldIdent = PersonOversiktStatus(
+                        fnr = oldIdent.value,
+                    ).copy(veilederIdent = veilederIdent)
+                    val personOversiktStatusWithNewIdent = PersonOversiktStatus(
+                        fnr = newIdent.value,
+                    )
+                    database.connection.use { connection ->
+                        connection.createPersonOversiktStatus(
+                            commit = true,
+                            personOversiktStatus = personOversiktStatusWithOldIdent,
+                        )
+                    }
+                    database.connection.use { connection ->
+                        connection.createPersonOversiktStatus(
+                            commit = true,
+                            personOversiktStatus = personOversiktStatusWithNewIdent,
+                        )
+                    }
+
+                    runBlocking {
+                        identhendelseService.handleIdenthendelse(kafkaIdenthendelseDTO)
+                    }
+
+                    val updatedPersonOversiktStatus = database.getPersonOversiktStatusList(newIdent.value)
+                    updatedPersonOversiktStatus.size shouldBeEqualTo 1
+                    updatedPersonOversiktStatus.first().veilederIdent shouldBeEqualTo veilederIdent
+
+                    val oldPersonOversiktStatus = database.getPersonOversiktStatusList(oldIdent.value)
+                    oldPersonOversiktStatus.size shouldBeEqualTo 0
                 }
             }
 
@@ -135,8 +172,8 @@ object IdenthendelseServiceSpek : Spek({
                     }
 
                     // Check that person with old/current personident exist in db before update
-                    val currentMotedeltakerArbeidstaker = database.getPersonOversiktStatusList(oldIdent.value)
-                    currentMotedeltakerArbeidstaker.size shouldBeEqualTo 1
+                    val currentPersonOversiktStatus = database.getPersonOversiktStatusList(oldIdent.value)
+                    currentPersonOversiktStatus.size shouldBeEqualTo 1
 
                     runBlocking {
                         assertFailsWith(IllegalStateException::class) {
