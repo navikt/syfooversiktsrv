@@ -4,6 +4,7 @@ import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.kafka.KafkaConsumerService
 import org.apache.avro.generic.GenericData
 import org.apache.avro.generic.GenericRecord
+import org.apache.avro.util.Utf8
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.slf4j.LoggerFactory
@@ -44,9 +45,9 @@ class KafkaPersonhendelseConsumerService(
 
 fun GenericRecord.toKafkaPersonhendelseDTO(): KafkaPersonhendelseDTO {
     val hendelseId = get("hendelseId").toString()
-    val personidenter = (get("personidenter") as GenericData.Array<GenericRecord>).map { it.toString() }
+    val personidenter = (get("personidenter") as GenericData.Array<Utf8>).map { it.toString() }
     val master = get("master").toString()
-    val opprettet = get("timestamp_ms").toString() // egentlig timestamp
+    val opprettet = get("opprettet").toString() // egentlig timestamp
     val opplysingstype = get("opplysningstype").toString()
     val endringstype = when (get("endringstype").toString()) {
         "OPPRETTET" -> Endringstype.OPPRETTET
@@ -55,13 +56,13 @@ fun GenericRecord.toKafkaPersonhendelseDTO(): KafkaPersonhendelseDTO {
         "OPPHOERT" -> Endringstype.OPPHOERT
         else -> throw IllegalStateException("Har mottatt ukjent endringstype")
     }
-    val tidligereHendelseId = if (get("tidligereHendelseId").toString() == "null") null else get("tidligereHendelseId").toString()
+    val tidligereHendelseId = if (get("tidligereHendelseId").equals(null)) null else get("tidligereHendelseId").toString()
 
     val navn = (get("navn") as GenericRecord?)?.let {
         val fornavn = it.get("fornavn").toString()
-        val mellomnavn = if (it.get("mellomnavn").toString() == "null") null else it.get("mellomnavn").toString()
+        val mellomnavn = if (it.get("mellomnavn").equals(null)) null else it.get("mellomnavn").toString()
         val etternavn = it.get("etternavn").toString()
-        val gyldigFraOgMed = if (it.get("gyldigFraOgMed").toString() == "null") null else it.get("gyldigFraOgMed").toString()
+        val gyldigFraOgMed = if (it.get("gyldigFraOgMed").equals(null)) null else it.get("gyldigFraOgMed").toString()
         Navn(
             fornavn = fornavn,
             mellomnavn = mellomnavn,
