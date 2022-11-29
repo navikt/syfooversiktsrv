@@ -44,10 +44,6 @@ fun testEnvironment(
         aivenRegistryUser = "registryuser",
         aivenRegistryPassword = "registrypassword",
     ),
-    kafkaOppfolgingstilfellePersonProcessingEnabled = true,
-    kafkaDialogmotekandidatProcessingEnabled = true,
-    kafkaDialogmoteStatusendringProcessingEnabled = true,
-    kafkaPersonoppgavehendelseProcessingEnabled = true,
     clients = ClientsEnvironment(
         ereg = ClientEnvironment(
             baseUrl = eregUrl,
@@ -73,8 +69,6 @@ fun testEnvironment(
     ),
     serviceuserUsername = "",
     serviceuserPassword = "",
-    personBehandlendeEnhetCronjobEnabled = true,
-    personOppfolgingstilfelleVirksomhetsnavnCronjobEnabled = true,
     kafkaAktivitetskravVurderingProcessingEnabled = true,
     kafkaIdenthendelseUpdatesEnabled = true,
 )

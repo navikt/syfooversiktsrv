@@ -42,14 +42,12 @@ fun launchCronjobModule(
         personOppfolgingstilfelleVirksomhetsnavnService = personOppfolgingstilfelleVirksomhetsnavnService,
     )
 
-    if (environment.personOppfolgingstilfelleVirksomhetsnavnCronjobEnabled) {
-        launchBackgroundTask(
-            applicationState = applicationState,
-        ) {
-            cronjobRunner.start(
-                cronjob = personOppfolgingstilfelleVirksomhetnavnCronjob,
-            )
-        }
+    launchBackgroundTask(
+        applicationState = applicationState,
+    ) {
+        cronjobRunner.start(
+            cronjob = personOppfolgingstilfelleVirksomhetnavnCronjob,
+        )
     }
 
     val behandlendeEnhetClient = BehandlendeEnhetClient(
@@ -66,13 +64,11 @@ fun launchCronjobModule(
         personBehandlendeEnhetService = personBehandlendeEnhetService,
     )
 
-    if (environment.personBehandlendeEnhetCronjobEnabled) {
-        launchBackgroundTask(
-            applicationState = applicationState,
-        ) {
-            cronjobRunner.start(
-                cronjob = personBehandlendeEnhetCronjob,
-            )
-        }
+    launchBackgroundTask(
+        applicationState = applicationState,
+    ) {
+        cronjobRunner.start(
+            cronjob = personBehandlendeEnhetCronjob,
+        )
     }
 }
