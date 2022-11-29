@@ -42,10 +42,6 @@ data class Environment(
         aivenRegistryUser = getEnvVar("KAFKA_SCHEMA_REGISTRY_USER"),
         aivenRegistryPassword = getEnvVar("KAFKA_SCHEMA_REGISTRY_PASSWORD"),
     ),
-    val kafkaOppfolgingstilfellePersonProcessingEnabled: Boolean = getEnvVar("TOGGLE_KAFKA_OPPFOLGINGSTILFELLE_PERSON_PROCESSING_ENABLED").toBoolean(),
-    val kafkaDialogmotekandidatProcessingEnabled: Boolean = getEnvVar("TOGGLE_KAFKA_DIALOGMOTEKANDIDAT_PROCESSING_ENABLED").toBoolean(),
-    val kafkaDialogmoteStatusendringProcessingEnabled: Boolean = getEnvVar("TOGGLE_KAFKA_DIALOGMOTE_STATUSENDRING_PROCESSING_ENABLED").toBoolean(),
-    val kafkaPersonoppgavehendelseProcessingEnabled: Boolean = getEnvVar("TOGGLE_KAFKA_PERSONOPPGAVEHENDELSE_PROCESSING_ENABLED").toBoolean(),
     val kafkaAktivitetskravVurderingProcessingEnabled: Boolean = getEnvVar("TOGGLE_KAFKA_AKTIVITETSKRAV_VURDERING_PROCESSING_ENABLED").toBoolean(),
     val kafkaIdenthendelseUpdatesEnabled: Boolean = getEnvVar("TOGGLE_KAFKA_IDENTHENDELSE_UPDATES_ENABLED").toBoolean(),
 
@@ -76,9 +72,6 @@ data class Environment(
 
     val serviceuserUsername: String = getEnvVar("SERVICEUSER_USERNAME"),
     val serviceuserPassword: String = getEnvVar("SERVICEUSER_PASSWORD"),
-
-    val personBehandlendeEnhetCronjobEnabled: Boolean = getEnvVar("TOGGLE_PERSON_BEHANDLENDE_ENHET_CRONJOB_ENABLED").toBoolean(),
-    val personOppfolgingstilfelleVirksomhetsnavnCronjobEnabled: Boolean = getEnvVar("TOGGLE_PERSON_OPPFOLGINGSTILFELLE_VIRKSOMHETSNAVN_CRONJOB_ENABLED").toBoolean(),
 )
 
 fun getEnvVar(varName: String, defaultValue: String? = null) =

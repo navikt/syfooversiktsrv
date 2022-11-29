@@ -22,30 +22,22 @@ fun launchKafkaModule(
         applicationState = applicationState,
         environment = environment,
     )
-    if (environment.kafkaPersonoppgavehendelseProcessingEnabled) {
-        launchKafkaTaskPersonoppgavehendelse(
-            applicationState = applicationState,
-            kafkaEnvironment = environment.kafka,
-        )
-    }
-    if (environment.kafkaOppfolgingstilfellePersonProcessingEnabled) {
-        launchKafkaTaskOppfolgingstilfellePerson(
-            applicationState = applicationState,
-            kafkaEnvironment = environment.kafka,
-        )
-    }
-    if (environment.kafkaDialogmotekandidatProcessingEnabled) {
-        launchKafkaTaskDialogmotekandidatEndring(
-            applicationState = applicationState,
-            kafkaEnvironment = environment.kafka,
-        )
-    }
-    if (environment.kafkaDialogmoteStatusendringProcessingEnabled) {
-        launchKafkaTaskDialogmoteStatusendring(
-            applicationState = applicationState,
-            kafkaEnvironment = environment.kafka,
-        )
-    }
+    launchKafkaTaskPersonoppgavehendelse(
+        applicationState = applicationState,
+        kafkaEnvironment = environment.kafka,
+    )
+    launchKafkaTaskOppfolgingstilfellePerson(
+        applicationState = applicationState,
+        kafkaEnvironment = environment.kafka,
+    )
+    launchKafkaTaskDialogmotekandidatEndring(
+        applicationState = applicationState,
+        kafkaEnvironment = environment.kafka,
+    )
+    launchKafkaTaskDialogmoteStatusendring(
+        applicationState = applicationState,
+        kafkaEnvironment = environment.kafka,
+    )
 
     if (environment.kafkaAktivitetskravVurderingProcessingEnabled) {
         launchKafkaTaskAktivitetskravVurdering(
