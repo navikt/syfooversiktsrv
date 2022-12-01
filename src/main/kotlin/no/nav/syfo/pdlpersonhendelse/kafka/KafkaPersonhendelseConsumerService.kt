@@ -1,22 +1,20 @@
 package no.nav.syfo.pdlpersonhendelse.kafka
 
+import no.nav.person.pdl.leesah.Personhendelse
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.kafka.KafkaConsumerService
-import org.apache.avro.generic.GenericData
-import org.apache.avro.generic.GenericRecord
-import org.apache.avro.util.Utf8
+import no.nav.syfo.personstatus.db.getPersonOversiktStatusList
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.slf4j.LoggerFactory
 import java.time.Duration
-import java.time.LocalDate
 
 class KafkaPersonhendelseConsumerService(
     private val database: DatabaseInterface,
-) : KafkaConsumerService<GenericRecord> {
+) : KafkaConsumerService<Personhendelse> {
     override val pollDurationInMillis: Long = 1000
 
-    override fun pollAndProcessRecords(kafkaConsumer: KafkaConsumer<String, GenericRecord>) {
+    override fun pollAndProcessRecords(kafkaConsumer: KafkaConsumer<String, Personhendelse>) {
         val records = kafkaConsumer.poll(Duration.ofMillis(pollDurationInMillis))
         if (records.count() > 0) {
             processRecords(records)
@@ -24,7 +22,7 @@ class KafkaPersonhendelseConsumerService(
         }
     }
 
-    private fun processRecords(records: ConsumerRecords<String, GenericRecord>) {
+    private fun processRecords(records: ConsumerRecords<String, Personhendelse>) {
         val (tombstoneRecords, validRecords) = records.partition { it.value() == null }
 
         if (tombstoneRecords.isNotEmpty()) {
@@ -33,52 +31,24 @@ class KafkaPersonhendelseConsumerService(
             // TODO: Add counter
         }
         validRecords.forEach { record ->
-            record.value().toKafkaPersonhendelseDTO()
-            // TODO: Process valid records
+            handlePersonhendelse(record.value())
+        }
+    }
+
+    private fun handlePersonhendelse(personhendelse: Personhendelse) {
+        if (personhendelse.navn != null) {
+            personhendelse.personidenter.forEach {
+                val personOversiktStatusList = database.getPersonOversiktStatusList(it)
+                if (personOversiktStatusList.isNotEmpty()) {
+                    // TODO, Alternativ1: kall PDL for navn og oppdater databasen
+                    // TODO, Alternativ2: slett navnet i databasen, og så populeres det neste gang uansett
+                    log.info("Personhendelse: Endring av navn på person vi har i databasen")
+                }
+            }
         }
     }
 
     companion object {
         private val log = LoggerFactory.getLogger(KafkaPersonhendelseConsumerService::class.java)
     }
-}
-
-fun GenericRecord.toKafkaPersonhendelseDTO(): KafkaPersonhendelseDTO {
-    val hendelseId = get("hendelseId").toString()
-    val personidenter = (get("personidenter") as GenericData.Array<Utf8>).map { it.toString() }
-    val master = get("master").toString()
-    val opprettet = get("opprettet").toString() // egentlig timestamp
-    val opplysingstype = get("opplysningstype").toString()
-    val endringstype = when (get("endringstype").toString()) {
-        "OPPRETTET" -> Endringstype.OPPRETTET
-        "KORRIGERT" -> Endringstype.KORRIGERT
-        "ANNULLERT" -> Endringstype.ANNULLERT
-        "OPPHOERT" -> Endringstype.OPPHOERT
-        else -> throw IllegalStateException("Har mottatt ukjent endringstype")
-    }
-    val tidligereHendelseId = if (get("tidligereHendelseId").equals(null)) null else get("tidligereHendelseId").toString()
-
-    val navn = (get("navn") as GenericRecord?)?.let {
-        val fornavn = it.get("fornavn").toString()
-        val mellomnavn = if (it.get("mellomnavn").equals(null)) null else it.get("mellomnavn").toString()
-        val etternavn = it.get("etternavn").toString()
-        val gyldigFraOgMed = if (it.get("gyldigFraOgMed").equals(null)) null else it.get("gyldigFraOgMed").toString()
-        Navn(
-            fornavn = fornavn,
-            mellomnavn = mellomnavn,
-            etternavn = etternavn,
-            gyldigFraOgMed = LocalDate.parse(gyldigFraOgMed) // TODO: sjekk denne
-        )
-    }
-
-    return KafkaPersonhendelseDTO(
-        hendelseId = hendelseId,
-        personidenter = personidenter,
-        master = master,
-        opprettet = opprettet,
-        opplysningstype = opplysingstype,
-        endringstype = endringstype,
-        tidligereHendelseId = tidligereHendelseId,
-        navn = navn,
-    )
 }
