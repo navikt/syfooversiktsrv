@@ -92,6 +92,7 @@ class VeilederTilgangskontrollClient(
                 return false
             }
         } catch (e: ServerResponseException) {
+            log.error("Failed to get access to enhet from syfo-tilgangskontroll. requested enhet: $enhet", e)
             return false
         }
     }
