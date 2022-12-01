@@ -94,7 +94,7 @@ fun Connection.createPersonOversiktStatus(
         it.setObject(20, personOversiktStatus.dialogmotekandidatGeneratedAt)
         it.setString(21, personOversiktStatus.motestatus)
         it.setObject(22, personOversiktStatus.motestatusGeneratedAt)
-        it.setObject(23, personOversiktStatus.aktivitetskrav)
+        it.setString(23, personOversiktStatus.aktivitetskrav?.name)
         it.setObject(24, personOversiktStatus.aktivitetskravStoppunkt)
         it.setObject(25, personOversiktStatus.aktivitetskravUpdatedAt)
         it.executeQuery().toList { getInt("id") }.firstOrNull()

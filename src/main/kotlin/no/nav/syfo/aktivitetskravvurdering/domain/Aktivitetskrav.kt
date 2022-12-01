@@ -7,12 +7,12 @@ import java.time.OffsetDateTime
 
 data class Aktivitetskrav(
     val personIdent: PersonIdent,
-    val status: AktivitetskravVurderingStatus,
+    val status: AktivitetskravStatus,
     val updatedAt: OffsetDateTime,
     val stoppunkt: LocalDate,
 )
 
-enum class AktivitetskravVurderingStatus {
+enum class AktivitetskravStatus {
     NY,
     AVVENT,
     UNNTAK,
