@@ -1,6 +1,6 @@
 package no.nav.syfo.personstatus
 
-import no.nav.syfo.aktivitetskravvurdering.domain.AktivitetskravVurderingStatus
+import no.nav.syfo.aktivitetskravvurdering.domain.AktivitetskravStatus
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.client.pdl.PdlClient
 import no.nav.syfo.domain.PersonIdent
@@ -25,7 +25,7 @@ class PersonoversiktStatusService(
                 personOversiktStatus.dialogmotesvarUbehandlet == true ||
                 personOversiktStatus.isDialogmotekandidat() ||
                 (personOversiktStatus.motebehovUbehandlet == true && personOversiktStatus.latestOppfolgingstilfelle != null) ||
-                (personOversiktStatus.aktivitetskrav == AktivitetskravVurderingStatus.NY || personOversiktStatus.aktivitetskrav == AktivitetskravVurderingStatus.AVVENT)
+                (personOversiktStatus.aktivitetskrav == AktivitetskravStatus.NY || personOversiktStatus.aktivitetskrav == AktivitetskravStatus.AVVENT)
         }
     }
 

@@ -2,7 +2,7 @@ package no.nav.syfo.aktivitetskravvurdering
 
 import io.mockk.*
 import no.nav.syfo.aktivitetskravvurdering.domain.Aktivitetskrav
-import no.nav.syfo.aktivitetskravvurdering.domain.AktivitetskravVurderingStatus
+import no.nav.syfo.aktivitetskravvurdering.domain.AktivitetskravStatus
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
@@ -41,12 +41,12 @@ class AktivitetskravServiceSpek : Spek({
             val stoppunkt = LocalDate.now().plusDays(7)
             val aktivitetskrav = Aktivitetskrav(
                 personIdent = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),
-                status = AktivitetskravVurderingStatus.NY,
+                status = AktivitetskravStatus.NY,
                 updatedAt = updatedAt,
                 stoppunkt = stoppunkt,
             )
             val expectedPersonOversiktStatus = PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR).copy(
-                aktivitetskrav = AktivitetskravVurderingStatus.NY,
+                aktivitetskrav = AktivitetskravStatus.NY,
                 aktivitetskravStoppunkt = stoppunkt,
                 aktivitetskravUpdatedAt = updatedAt,
             )
@@ -66,7 +66,7 @@ class AktivitetskravServiceSpek : Spek({
         it("Update personoversiktstatus with aktivitetskravinfo if innbygger already exists in database") {
             val aktivitetskrav = Aktivitetskrav(
                 personIdent = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),
-                status = AktivitetskravVurderingStatus.UNNTAK,
+                status = AktivitetskravStatus.UNNTAK,
                 updatedAt = OffsetDateTime.now(),
                 stoppunkt = LocalDate.now().plusDays(7),
             )

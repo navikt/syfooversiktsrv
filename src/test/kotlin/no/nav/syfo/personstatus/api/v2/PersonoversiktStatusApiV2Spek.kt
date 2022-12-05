@@ -8,10 +8,13 @@ import io.ktor.util.*
 import io.mockk.clearMocks
 import io.mockk.every
 import kotlinx.coroutines.runBlocking
+import no.nav.syfo.aktivitetskravvurdering.domain.Aktivitetskrav
+import no.nav.syfo.aktivitetskravvurdering.domain.AktivitetskravStatus
+import no.nav.syfo.aktivitetskravvurdering.persistAktivitetskrav
 import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendringType
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.domain.Virksomhetsnummer
-import no.nav.syfo.personstatus.db.*
+import no.nav.syfo.personstatus.db.lagreBrukerKnytningPaEnhet
 import no.nav.syfo.personstatus.domain.*
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
@@ -27,8 +30,8 @@ import org.amshove.kluent.*
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
-import java.time.Duration
-import java.time.LocalDateTime
+import java.time.*
+import java.time.temporal.ChronoUnit
 
 @InternalAPI
 object PersonoversiktStatusApiV2Spek : Spek({
@@ -713,6 +716,113 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.fnr shouldBeEqualTo oversikthendelseDialogmotesvarMottatt.fnr
                         personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
                         personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo true
+                    }
+                }
+
+                it("return person with aktivitetskrav status NY") {
+                    val personIdent = PersonIdent(ARBEIDSTAKER_FNR)
+                    val updatedAt = OffsetDateTime.now().truncatedTo(ChronoUnit.MILLIS)
+                    val stoppunkt = LocalDate.now()
+                    val aktivitetskrav = Aktivitetskrav(
+                        personIdent = personIdent,
+                        status = AktivitetskravStatus.NY,
+                        updatedAt = updatedAt,
+                        stoppunkt = stoppunkt,
+                    )
+                    database.connection.use { connection ->
+                        persistAktivitetskrav(
+                            connection = connection,
+                            aktivitetskrav = aktivitetskrav,
+                        )
+                        connection.commit()
+                    }
+                    database.setTildeltEnhet(
+                        ident = personIdent,
+                        enhet = NAV_ENHET,
+                    )
+
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        }
+                    ) {
+                        response.status() shouldBeEqualTo HttpStatusCode.OK
+
+                        val personOversiktStatus =
+                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
+                        personOversiktStatus.fnr shouldBeEqualTo personIdent.value
+                        personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
+                        personOversiktStatus.aktivitetskrav shouldBeEqualTo AktivitetskravStatus.NY.name
+                        personOversiktStatus.aktivitetskravUpdatedAt shouldBeEqualTo updatedAt.toLocalDateTimeOslo()
+                        personOversiktStatus.aktivitetskravStoppunkt shouldBeEqualTo stoppunkt
+                    }
+                }
+
+                it("return person with aktivitetskrav status AVVENT") {
+                    val personIdent = PersonIdent(ARBEIDSTAKER_FNR)
+                    val updatedAt = OffsetDateTime.now().truncatedTo(ChronoUnit.MILLIS)
+                    val stoppunkt = LocalDate.now()
+                    val aktivitetskrav = Aktivitetskrav(
+                        personIdent = personIdent,
+                        status = AktivitetskravStatus.AVVENT,
+                        updatedAt = updatedAt,
+                        stoppunkt = stoppunkt,
+                    )
+                    database.connection.use { connection ->
+                        persistAktivitetskrav(
+                            connection = connection,
+                            aktivitetskrav = aktivitetskrav,
+                        )
+                        connection.commit()
+                    }
+                    database.setTildeltEnhet(
+                        ident = personIdent,
+                        enhet = NAV_ENHET,
+                    )
+
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        }
+                    ) {
+                        response.status() shouldBeEqualTo HttpStatusCode.OK
+
+                        val personOversiktStatus =
+                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
+                        personOversiktStatus.fnr shouldBeEqualTo personIdent.value
+                        personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
+                        personOversiktStatus.aktivitetskrav shouldBeEqualTo AktivitetskravStatus.AVVENT.name
+                        personOversiktStatus.aktivitetskravUpdatedAt shouldBeEqualTo updatedAt.toLocalDateTimeOslo()
+                        personOversiktStatus.aktivitetskravStoppunkt shouldBeEqualTo stoppunkt
+                    }
+                }
+
+                it("return no content when aktivitetskrav has status AUTOMATISK_OPPFYLT") {
+                    val personIdent = PersonIdent(ARBEIDSTAKER_FNR)
+                    val aktivitetskrav = Aktivitetskrav(
+                        personIdent = personIdent,
+                        status = AktivitetskravStatus.AUTOMATISK_OPPFYLT,
+                        updatedAt = OffsetDateTime.now(),
+                        stoppunkt = LocalDate.now(),
+                    )
+                    database.connection.use { connection ->
+                        persistAktivitetskrav(
+                            connection = connection,
+                            aktivitetskrav = aktivitetskrav,
+                        )
+                        connection.commit()
+                    }
+                    database.setTildeltEnhet(
+                        ident = personIdent,
+                        enhet = NAV_ENHET,
+                    )
+
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        }
+                    ) {
+                        response.status() shouldBeEqualTo HttpStatusCode.NoContent
                     }
                 }
             }

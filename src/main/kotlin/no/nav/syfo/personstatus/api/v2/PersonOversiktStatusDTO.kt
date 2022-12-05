@@ -1,6 +1,7 @@
 package no.nav.syfo.personstatus.api.v2
 
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 data class PersonOversiktStatusDTO(
     val veilederIdent: String?,
@@ -13,6 +14,9 @@ data class PersonOversiktStatusDTO(
     val dialogmotekandidat: Boolean?,
     val motestatus: String?,
     val latestOppfolgingstilfelle: PersonOppfolgingstilfelleDTO?,
+    val aktivitetskrav: String?,
+    val aktivitetskravStoppunkt: LocalDate?,
+    val aktivitetskravUpdatedAt: LocalDateTime?,
 )
 
 data class PersonOppfolgingstilfelleDTO(

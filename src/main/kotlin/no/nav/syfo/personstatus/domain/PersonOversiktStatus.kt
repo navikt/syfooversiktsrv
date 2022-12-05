@@ -1,11 +1,11 @@
 package no.nav.syfo.personstatus.domain
 
-import no.nav.syfo.aktivitetskravvurdering.domain.AktivitetskravVurderingStatus
+import no.nav.syfo.aktivitetskravvurdering.domain.AktivitetskravStatus
 import no.nav.syfo.domain.Virksomhetsnummer
 import no.nav.syfo.personstatus.api.v2.*
-import no.nav.syfo.util.isBeforeOrEqual
-import no.nav.syfo.util.toLocalDateOslo
-import java.time.*
+import no.nav.syfo.util.*
+import java.time.LocalDate
+import java.time.OffsetDateTime
 import java.util.*
 
 data class PersonOversiktStatus(
@@ -21,7 +21,7 @@ data class PersonOversiktStatus(
     val motestatus: String?,
     val motestatusGeneratedAt: OffsetDateTime?,
     val latestOppfolgingstilfelle: Oppfolgingstilfelle?,
-    val aktivitetskrav: AktivitetskravVurderingStatus?,
+    val aktivitetskrav: AktivitetskravStatus?,
     val aktivitetskravStoppunkt: LocalDate?,
     val aktivitetskravUpdatedAt: OffsetDateTime?,
 ) {
@@ -101,6 +101,9 @@ fun PersonOversiktStatus.toPersonOversiktStatusDTO() =
         dialogmotekandidat = this.dialogmotekandidat?.let { isDialogmotekandidat() },
         motestatus = this.motestatus,
         latestOppfolgingstilfelle = this.latestOppfolgingstilfelle?.toPersonOppfolgingstilfelleDTO(),
+        aktivitetskrav = this.aktivitetskrav?.name,
+        aktivitetskravStoppunkt = this.aktivitetskravStoppunkt,
+        aktivitetskravUpdatedAt = this.aktivitetskravUpdatedAt?.toLocalDateTimeOslo(),
     )
 
 fun PersonOversiktStatus.applyHendelse(

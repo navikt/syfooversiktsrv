@@ -1,6 +1,6 @@
 package no.nav.syfo.personstatus.domain
 
-import no.nav.syfo.aktivitetskravvurdering.domain.AktivitetskravVurderingStatus
+import no.nav.syfo.aktivitetskravvurdering.domain.AktivitetskravStatus
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.*
@@ -47,7 +47,7 @@ fun PPersonOversiktStatus.toPersonOversiktStatus(
     latestOppfolgingstilfelle = this.toPersonOppfolgingstilfelle(
         personOppfolgingstilfelleVirksomhetList = personOppfolgingstilfelleVirksomhetList,
     ),
-    aktivitetskrav = this.aktivitetskrav?.let { AktivitetskravVurderingStatus.valueOf(this.aktivitetskrav) },
+    aktivitetskrav = this.aktivitetskrav?.let { AktivitetskravStatus.valueOf(this.aktivitetskrav) },
     aktivitetskravStoppunkt = this.aktivitetskravStoppunkt,
     aktivitetskravUpdatedAt = this.aktivitetskravUpdatedAt,
 )
