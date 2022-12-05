@@ -44,6 +44,7 @@ data class Environment(
     ),
     val kafkaAktivitetskravVurderingProcessingEnabled: Boolean = getEnvVar("TOGGLE_KAFKA_AKTIVITETSKRAV_VURDERING_PROCESSING_ENABLED").toBoolean(),
     val kafkaIdenthendelseUpdatesEnabled: Boolean = getEnvVar("TOGGLE_KAFKA_IDENTHENDELSE_UPDATES_ENABLED").toBoolean(),
+    val kafkaPersonhendelseUpdatesEnabled: Boolean = getEnvVar("TOGGLE_KAFKA_PERSONHENDELSE_UPDATES_ENABLED").toBoolean(),
 
     val clients: ClientsEnvironment = ClientsEnvironment(
         ereg = ClientEnvironment(
