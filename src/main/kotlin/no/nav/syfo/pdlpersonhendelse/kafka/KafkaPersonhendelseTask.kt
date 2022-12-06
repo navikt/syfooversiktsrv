@@ -4,6 +4,7 @@ import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.Environment
 import no.nav.syfo.application.database.database
 import no.nav.syfo.kafka.launchKafkaTask
+import no.nav.syfo.pdlpersonhendelse.PdlPersonhendelseService
 
 const val PDL_LEESAH_TOPIC = "pdl.leesah-v1"
 
@@ -12,8 +13,12 @@ fun launchKafkaTaskPersonhendelse(
     environment: Environment,
 ) {
 
-    val kafkaPersonhendelseConsumerService = KafkaPersonhendelseConsumerService(
+    val pdlPersonhendelseService = PdlPersonhendelseService(
         database = database,
+    )
+
+    val kafkaPersonhendelseConsumerService = KafkaPersonhendelseConsumerService(
+        pdlPersonhendelseService = pdlPersonhendelseService,
     )
 
     val consumerProperties = kafkaPersonhendelseConsumerConfig(

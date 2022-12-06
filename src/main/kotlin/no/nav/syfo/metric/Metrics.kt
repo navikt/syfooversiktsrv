@@ -51,6 +51,10 @@ const val KAFKA_CONSUMER_PDL_AKTOR_BASE = "${METRICS_NS}_kafka_consumer_pdl_akto
 const val KAFKA_CONSUMER_PDL_AKTOR_UPDATES = "${KAFKA_CONSUMER_PDL_AKTOR_BASE}_updates"
 const val KAFKA_CONSUMER_PDL_AKTOR_TOMBSTONE = "${KAFKA_CONSUMER_PDL_AKTOR_BASE}_tombstone"
 
+const val KAFKA_CONSUMER_PDL_PERSONHENDELSE_BASE = "${METRICS_NS}_kafka_consumer_pdl_leesah-v1"
+const val KAFKA_CONSUMER_PDL_PERSONHENDELSE_UPDATES = "${KAFKA_CONSUMER_PDL_PERSONHENDELSE_BASE}_updates"
+const val KAFKA_CONSUMER_PDL_PERSONHENDELSE_TOMBSTONE = "${KAFKA_CONSUMER_PDL_PERSONHENDELSE_BASE}_tombstone"
+
 val COUNT_CALL_TILGANGSKONTROLL_PERSONS_SUCCESS: Counter = Counter.builder(CALL_TILGANGSKONTROLL_PERSONS_SUCCESS)
     .description("Counts the number of successful calls to syfo-tilgangskontroll - persons")
     .register(METRICS_REGISTRY)
@@ -132,6 +136,14 @@ val COUNT_KAFKA_CONSUMER_PDL_AKTOR_UPDATES: Counter =
 val COUNT_KAFKA_CONSUMER_PDL_AKTOR_TOMBSTONE: Counter =
     Counter.builder(KAFKA_CONSUMER_PDL_AKTOR_TOMBSTONE)
         .description("Counts the number of tombstones received from topic - pdl-aktor-v2")
+        .register(METRICS_REGISTRY)
+val COUNT_KAFKA_CONSUMER_PDL_PERSONHENDELSE_UPDATES: Counter =
+    Counter.builder(KAFKA_CONSUMER_PDL_PERSONHENDELSE_UPDATES)
+        .description("Counts the number of updates on names based on personhendelse received from topic - pdl.leesah-v1")
+        .register(METRICS_REGISTRY)
+val COUNT_KAFKA_CONSUMER_PDL_PERSONHENDELSE_TOMBSTONE: Counter =
+    Counter.builder(KAFKA_CONSUMER_PDL_PERSONHENDELSE_TOMBSTONE)
+        .description("Counts the number of tombstones received from topic - pdl.leesah-v1")
         .register(METRICS_REGISTRY)
 
 val HISTOGRAM_SYFOTILGANGSKONTROLL_PERSONER: Timer = Timer.builder(SYFOTILGANGSKONTROLL_HISTOGRAM_PERSONER)
