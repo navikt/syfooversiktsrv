@@ -6,7 +6,6 @@ import io.ktor.server.routing.*
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.Environment
 import no.nav.syfo.application.api.authentication.*
-import no.nav.syfo.application.cache.RedisStore
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.client.azuread.AzureAdClient
 import no.nav.syfo.client.pdl.PdlClient
@@ -21,7 +20,6 @@ fun Application.apiModule(
     database: DatabaseInterface,
     environment: Environment,
     wellKnownVeilederV2: WellKnown,
-    redisStore: RedisStore,
     azureAdClient: AzureAdClient,
 ) {
     installCallId()
@@ -46,7 +44,6 @@ fun Application.apiModule(
     val pdlClient = PdlClient(
         azureAdClient = azureAdClient,
         clientEnvironment = environment.clients.pdl,
-        redisStore = redisStore,
     )
 
     val personoversiktStatusService = PersonoversiktStatusService(

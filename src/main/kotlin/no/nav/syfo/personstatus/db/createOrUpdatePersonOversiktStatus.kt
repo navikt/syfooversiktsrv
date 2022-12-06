@@ -2,6 +2,7 @@ package no.nav.syfo.personstatus.db
 
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.application.database.toList
+import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.personstatus.createPersonOppfolgingstilfelleVirksomhetList
 import no.nav.syfo.personstatus.domain.*
 import no.nav.syfo.personstatus.updatePersonOppfolgingstilfelleVirksomhetList
@@ -213,5 +214,26 @@ fun DatabaseInterface.lagreBrukerKnytningPaEnhet(veilederBrukerKnytning: Veilede
                 personOversiktStatus = personOversiktStatus,
             )
         }
+    }
+}
+
+const val queryUpdatePersonOversiktStatusNavn =
+    """
+    UPDATE PERSON_OVERSIKT_STATUS
+    SET navn = ?
+    WHERE fnr = ?
+    """
+
+fun DatabaseInterface.updatePersonOversiktStatusNavn(
+    personIdent: PersonIdent,
+    navn: String,
+) {
+    this.connection.use { connection ->
+        connection.prepareStatement(queryUpdatePersonOversiktStatusNavn).use {
+            it.setString(1, navn)
+            it.setString(2, personIdent.value)
+            it.executeUpdate()
+        }
+        connection.commit()
     }
 }

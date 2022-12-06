@@ -19,7 +19,6 @@ fun Application.testApiModule(
         database = externalMockEnvironment.database,
         environment = externalMockEnvironment.environment,
         wellKnownVeilederV2 = externalMockEnvironment.wellKnownVeilederV2,
-        redisStore = redisStore,
         azureAdClient = azureAdClient,
     )
 }
