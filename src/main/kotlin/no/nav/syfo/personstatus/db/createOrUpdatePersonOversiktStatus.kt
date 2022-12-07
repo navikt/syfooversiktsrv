@@ -17,7 +17,7 @@ const val queryCreatePersonOversiktStatus =
         id,
         uuid,
         fnr,
-        navn,
+        name,
         tildelt_veileder,
         tildelt_enhet,
         tildelt_enhet_updated_at,
