@@ -219,7 +219,7 @@ fun DatabaseInterface.lagreBrukerKnytningPaEnhet(veilederBrukerKnytning: Veilede
 const val queryUpdatePersonOversiktStatusNavn =
     """
     UPDATE PERSON_OVERSIKT_STATUS
-    SET navn = ?
+    SET name = ?
     WHERE fnr = ?
     """
 
