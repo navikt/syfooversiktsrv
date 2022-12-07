@@ -2,7 +2,6 @@ package no.nav.syfo.personstatus.db
 
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.application.database.toList
-import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.personstatus.createPersonOppfolgingstilfelleVirksomhetList
 import no.nav.syfo.personstatus.domain.*
 import no.nav.syfo.personstatus.updatePersonOppfolgingstilfelleVirksomhetList
@@ -225,15 +224,16 @@ const val queryUpdatePersonOversiktStatusNavn =
     """
 
 fun DatabaseInterface.updatePersonOversiktStatusNavn(
-    personIdent: PersonIdent,
-    navn: String,
+    personIdentNameMap: Map<String, String>,
 ) {
     this.connection.use { connection ->
         connection.prepareStatement(queryUpdatePersonOversiktStatusNavn).use {
-            it.setString(1, navn)
-            it.setString(2, personIdent.value)
-            it.executeUpdate()
+            personIdentNameMap.forEach { (personident, navn) ->
+                it.setString(1, navn)
+                it.setString(2, personident)
+                it.executeUpdate()
+            }
         }
-        connection.commit()
     }
+    connection.commit()
 }

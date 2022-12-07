@@ -52,9 +52,8 @@ class PersonoversiktStatusService(
             callId = callId,
             personIdentList = personIdentMissingNameList,
         )
-        personIdentNavnMap.forEach { (personident, navn) ->
-            database.updatePersonOversiktStatusNavn(PersonIdent(personident), navn)
-        }
+        database.updatePersonOversiktStatusNavn(personIdentNavnMap)
+
         return personOversiktStatusList.addPersonName(personIdentNameMap = personIdentNavnMap)
     }
 }
