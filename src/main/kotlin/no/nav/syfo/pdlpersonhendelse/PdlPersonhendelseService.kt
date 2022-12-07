@@ -12,13 +12,22 @@ class PdlPersonhendelseService(
 ) {
     fun handlePersonhendelse(personhendelse: Personhendelse) {
         if (personhendelse.navn != null) {
-            personhendelse.personidenter.forEach { personIdent ->
-                val updates = database.updatePersonOversiktStatusNavn(PersonIdent(personIdent))
-                if (updates > 0) {
-                    log.info("Personhendelse: Endring av navn på person vi har i databasen, navn satt til NULL")
-                    COUNT_KAFKA_CONSUMER_PDL_PERSONHENDELSE_UPDATES.increment()
+            personhendelse.personidenter
+                .mapNotNull { personIdent ->
+                    try {
+                        PersonIdent(personIdent)
+                    } catch (ex: IllegalArgumentException) {
+                        log.error("Error on personident for Personhendelse", ex)
+                        null
+                    }
                 }
-            }
+                .forEach { personIdent ->
+                    val updates = database.updatePersonOversiktStatusNavn(personIdent)
+                    if (updates > 0) {
+                        log.info("Personhendelse: Endring av navn på person vi har i databasen, navn satt til NULL")
+                        COUNT_KAFKA_CONSUMER_PDL_PERSONHENDELSE_UPDATES.increment()
+                    }
+                }
         }
     }
 
