@@ -56,6 +56,7 @@ fun main() {
                 database = database,
                 environment = environment,
                 wellKnownVeilederV2 = wellKnownVeilederV2,
+                redisStore = redisStore,
                 azureAdClient = azureAdClient,
             )
         }
@@ -72,6 +73,7 @@ fun main() {
         launchKafkaModule(
             applicationState = applicationState,
             environment = environment,
+            redisStore = redisStore,
             azureAdClient = azureAdClient,
         )
         launchCronjobModule(

@@ -34,7 +34,7 @@ object PersontildelingApiV2Spek : Spek({
 
             val baseUrl = personTildelingApiV2Path
 
-            beforeEachTest {
+            afterEachTest {
                 database.connection.dropData()
             }
 
