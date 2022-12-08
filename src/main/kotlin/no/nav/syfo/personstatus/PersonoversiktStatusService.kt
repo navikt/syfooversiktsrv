@@ -5,6 +5,7 @@ import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.client.pdl.PdlClient
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.personstatus.db.hentUbehandledePersonerTilknyttetEnhet
+import no.nav.syfo.personstatus.db.updatePersonOversiktStatusNavn
 import no.nav.syfo.personstatus.domain.*
 
 class PersonoversiktStatusService(
@@ -42,18 +43,17 @@ class PersonoversiktStatusService(
         callId: String,
         personOversiktStatusList: List<PersonOversiktStatus>,
     ): List<PersonOversiktStatus> {
-        val personIdentMissingNameList = personOversiktStatusList.filter { personOversiktStatus ->
-            personOversiktStatus.navn.isNullOrEmpty()
-        }.map { personOversiktStatus ->
-            PersonIdent(personOversiktStatus.fnr)
-        }
-        return pdlClient.personIdentNavnMap(
+        val personIdentMissingNameList = personOversiktStatusList
+            .filter { it.navn.isNullOrEmpty() }
+            .map { personOversiktStatus ->
+                PersonIdent(personOversiktStatus.fnr)
+            }
+        val personIdentNavnMap = pdlClient.getPdlPersonIdentNumberNavnMap(
             callId = callId,
             personIdentList = personIdentMissingNameList,
-        ).let { personIdentNameMap ->
-            personOversiktStatusList.addPersonName(
-                personIdentNameMap = personIdentNameMap,
-            )
-        }
+        )
+        database.updatePersonOversiktStatusNavn(personIdentNavnMap)
+
+        return personOversiktStatusList.addPersonName(personIdentNameMap = personIdentNavnMap)
     }
 }
