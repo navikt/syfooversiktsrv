@@ -48,12 +48,16 @@ class PersonoversiktStatusService(
             .map { personOversiktStatus ->
                 PersonIdent(personOversiktStatus.fnr)
             }
-        val personIdentNavnMap = pdlClient.getPdlPersonIdentNumberNavnMap(
-            callId = callId,
-            personIdentList = personIdentMissingNameList,
-        )
-        database.updatePersonOversiktStatusNavn(personIdentNavnMap)
 
-        return personOversiktStatusList.addPersonName(personIdentNameMap = personIdentNavnMap)
+        return if (personIdentMissingNameList.isEmpty()) {
+            personOversiktStatusList
+        } else {
+            val personIdentNavnMap = pdlClient.getPdlPersonIdentNumberNavnMap(
+                callId = callId,
+                personIdentList = personIdentMissingNameList,
+            )
+            database.updatePersonOversiktStatusNavn(personIdentNavnMap)
+            personOversiktStatusList.addPersonName(personIdentNameMap = personIdentNavnMap)
+        }
     }
 }
