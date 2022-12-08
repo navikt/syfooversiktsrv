@@ -6,7 +6,7 @@ import no.nav.syfo.domain.PersonIdent
 const val queryUpdatePersonOversiktStatusNavn =
     """
     UPDATE PERSON_OVERSIKT_STATUS
-    SET navn = NULL
+    SET name = NULL
     WHERE fnr = ?
     """
 
