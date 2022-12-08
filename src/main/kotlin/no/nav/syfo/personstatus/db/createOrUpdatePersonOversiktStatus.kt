@@ -215,3 +215,25 @@ fun DatabaseInterface.lagreBrukerKnytningPaEnhet(veilederBrukerKnytning: Veilede
         }
     }
 }
+
+const val queryUpdatePersonOversiktStatusNavn =
+    """
+    UPDATE PERSON_OVERSIKT_STATUS
+    SET name = ?
+    WHERE fnr = ?
+    """
+
+fun DatabaseInterface.updatePersonOversiktStatusNavn(
+    personIdentNameMap: Map<String, String>,
+) {
+    this.connection.use { connection ->
+        connection.prepareStatement(queryUpdatePersonOversiktStatusNavn).use {
+            personIdentNameMap.forEach { (personident, navn) ->
+                it.setString(1, navn)
+                it.setString(2, personident)
+                it.executeUpdate()
+            }
+        }
+    }
+    connection.commit()
+}

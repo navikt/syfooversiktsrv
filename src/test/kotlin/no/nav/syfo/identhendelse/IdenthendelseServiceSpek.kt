@@ -33,7 +33,6 @@ object IdenthendelseServiceSpek : Spek({
                     redisStore = RedisStore(externalMockEnvironment.environment.redis),
                 ),
                 clientEnvironment = externalMockEnvironment.environment.clients.pdl,
-                redisStore = RedisStore(externalMockEnvironment.environment.redis),
             )
 
             val identhendelseService = IdenthendelseService(

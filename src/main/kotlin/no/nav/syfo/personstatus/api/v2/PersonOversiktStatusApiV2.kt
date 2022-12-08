@@ -44,18 +44,16 @@ fun Route.registerPersonoversiktApiV2(
                             callId
                         ) ?: emptyList()
 
-                        val personListNoPdlName = personOversiktStatusList
+                        val personer = personOversiktStatusList
                             .filter { personFnrListWithVeilederAccess.contains(it.fnr) }
 
-                        if (personListNoPdlName.isNotEmpty()) {
-                            val personList = personoversiktStatusService.getPersonOversiktStatusListWithName(
+                        if (personer.isNotEmpty()) {
+                            val personerWithName = personoversiktStatusService.getPersonOversiktStatusListWithName(
                                 callId = callId,
-                                personOversiktStatusList = personListNoPdlName
-                            ).map { personOversiktStatus ->
-                                personOversiktStatus.toPersonOversiktStatusDTO()
-                            }
+                                personOversiktStatusList = personer
+                            ).map { it.toPersonOversiktStatusDTO() }
 
-                            call.respond(personList)
+                            call.respond(personerWithName)
                         } else {
                             call.respond(HttpStatusCode.NoContent)
                         }
