@@ -234,6 +234,6 @@ fun DatabaseInterface.updatePersonOversiktStatusNavn(
                 it.executeUpdate()
             }
         }
+        connection.commit()
     }
-    connection.commit()
 }
