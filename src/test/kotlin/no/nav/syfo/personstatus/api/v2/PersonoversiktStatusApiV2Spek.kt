@@ -825,6 +825,32 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         response.status() shouldBeEqualTo HttpStatusCode.NoContent
                     }
                 }
+
+                it("Should update name in database") {
+                    val personIdent = PersonIdent(ARBEIDSTAKER_FNR)
+                    val hendelse = generateKOversikthendelse(
+                        oversikthendelseType = OversikthendelseType.DIALOGMOTESVAR_MOTTATT,
+                        personIdent = personIdent.value,
+                    )
+                    oversiktHendelseService.oppdaterPersonMedHendelse(hendelse)
+
+                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, personIdent.value, NAV_ENHET)
+                    database.lagreBrukerKnytningPaEnhet(tilknytning)
+                    database.setTildeltEnhet(
+                        ident = personIdent,
+                        enhet = NAV_ENHET,
+                    )
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        }
+                    ) {
+                        response.status() shouldBeEqualTo HttpStatusCode.OK
+                        val personOversiktStatus =
+                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
+                        personOversiktStatus.navn shouldBeEqualTo "Fornavn${personIdent.value} Mellomnavn${personIdent.value} Etternavn${personIdent.value}"
+                    }
+                }
             }
         }
     }
