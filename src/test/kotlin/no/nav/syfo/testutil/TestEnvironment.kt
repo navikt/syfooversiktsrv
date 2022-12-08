@@ -71,7 +71,6 @@ fun testEnvironment(
     serviceuserPassword = "",
     kafkaAktivitetskravVurderingProcessingEnabled = true,
     kafkaIdenthendelseUpdatesEnabled = true,
-    kafkaPersonhendelseUpdatesEnabled = true,
 )
 
 fun testAppState() = ApplicationState(

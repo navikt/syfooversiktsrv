@@ -101,6 +101,4 @@ spec:
       value: "false"
     - name: TOGGLE_KAFKA_IDENTHENDELSE_UPDATES_ENABLED
       value: "true"
-    - name: TOGGLE_KAFKA_PERSONHENDELSE_UPDATES_ENABLED
-      value: "true"
 
