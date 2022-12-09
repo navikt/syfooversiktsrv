@@ -14,6 +14,7 @@ import no.nav.syfo.aktivitetskravvurdering.persistAktivitetskrav
 import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendringType
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.domain.Virksomhetsnummer
+import no.nav.syfo.personstatus.db.getPersonOversiktStatusList
 import no.nav.syfo.personstatus.db.lagreBrukerKnytningPaEnhet
 import no.nav.syfo.personstatus.domain.*
 import no.nav.syfo.testutil.*
@@ -850,6 +851,9 @@ object PersonoversiktStatusApiV2Spek : Spek({
                             objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
                         personOversiktStatus.navn shouldBeEqualTo "Fornavn${personIdent.value} Mellomnavn${personIdent.value} Etternavn${personIdent.value}"
                     }
+
+                    val personOversiktStatusList = database.getPersonOversiktStatusList(personIdent.value)
+                    personOversiktStatusList.first().navn shouldBeEqualTo "Fornavn${personIdent.value} Mellomnavn${personIdent.value} Etternavn${personIdent.value}"
                 }
             }
         }
