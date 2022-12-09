@@ -52,11 +52,8 @@ fun launchKafkaModule(
             azureAdClient = azureAdClient,
         )
     }
-
-    if (environment.kafkaPersonhendelseUpdatesEnabled) {
-        launchKafkaTaskPersonhendelse(
-            applicationState = applicationState,
-            environment = environment,
-        )
-    }
+    launchKafkaTaskPersonhendelse(
+        applicationState = applicationState,
+        environment = environment,
+    )
 }
