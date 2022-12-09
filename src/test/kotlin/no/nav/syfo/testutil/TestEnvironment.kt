@@ -32,8 +32,6 @@ fun testEnvironment(
         password = "password",
     ),
     electorPath = "/tmp",
-    kafkaBootstrapServers = kafkaBootstrapServers,
-    kafkaSchemaRegistryUrl = "http://kafka-schema-registry.tpa.svc.nais.local:8081",
     kafka = KafkaEnvironment(
         aivenBootstrapServers = kafkaBootstrapServers,
         aivenCredstorePassword = "credstorepassord",

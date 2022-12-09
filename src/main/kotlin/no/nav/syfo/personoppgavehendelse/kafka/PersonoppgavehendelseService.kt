@@ -5,7 +5,6 @@ import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.kafka.KafkaConsumerService
 import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.*
-import no.nav.syfo.personstatus.kafka.KafkaOversiktHendelseService
 import no.nav.syfo.util.callIdArgument
 import no.nav.syfo.util.kafkaCallId
 import org.apache.kafka.clients.consumer.ConsumerRecords
@@ -133,7 +132,7 @@ class PersonoppgavehendelseService(
                 OversikthendelseType.DIALOGMOTESVAR_BEHANDLET ->
                     connection.updatePersonOversiktStatusDialogmotesvar(DIALOGMOTESVAR_UBEHANDLET_FALSE, personident)
                 else -> {
-                    log.warn("The hendelsestype is not supported by this kafka topic ", callIdArgument(callId))
+                    log.warn("The hendelsestype is not supported by this kafka topic: ${callIdArgument(callId)}")
                 }
             }
 
@@ -142,6 +141,6 @@ class PersonoppgavehendelseService(
     }
 
     companion object {
-        private val log = LoggerFactory.getLogger(KafkaOversiktHendelseService::class.java)
+        private val log = LoggerFactory.getLogger(PersonoppgavehendelseService::class.java)
     }
 }

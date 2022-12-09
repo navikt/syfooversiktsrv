@@ -29,9 +29,6 @@ data class Environment(
 
     val electorPath: String = getEnvVar("ELECTOR_PATH"),
 
-    val kafkaBootstrapServers: String = getEnvVar("KAFKA_BOOTSTRAP_SERVERS_URL"),
-    val kafkaSchemaRegistryUrl: String = getEnvVar("KAFKA_BOOTSTRAP_SERVERS_URL"),
-
     val kafka: KafkaEnvironment = KafkaEnvironment(
         aivenBootstrapServers = getEnvVar("KAFKA_BROKERS"),
         aivenCredstorePassword = getEnvVar("KAFKA_CREDSTORE_PASSWORD"),

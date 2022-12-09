@@ -112,48 +112,6 @@ fun Connection.createPersonOversiktStatus(
     }
 }
 
-const val queryUpdatePersonOversiktStatus =
-    """
-    UPDATE PERSON_OVERSIKT_STATUS
-    SET tildelt_veileder = ?,
-    tildelt_enhet = ?,
-    sist_endret = ?,
-    motebehov_ubehandlet = ?,
-    moteplanlegger_ubehandlet = ?,
-    oppfolgingsplan_lps_bistand_ubehandlet = ?,
-    dialogmotesvar_ubehandlet = ?
-    WHERE fnr = ?
-    """
-
-fun DatabaseInterface.updatePersonOversiktStatus(
-    personOversiktStatus: PersonOversiktStatus,
-) {
-    val tidspunkt = Timestamp.from(Instant.now())
-
-    connection.use { connection ->
-        connection.prepareStatement(queryUpdatePersonOversiktStatus).use {
-            it.setString(1, personOversiktStatus.veilederIdent)
-            it.setString(2, personOversiktStatus.enhet)
-            it.setTimestamp(3, tidspunkt)
-            if (personOversiktStatus.motebehovUbehandlet != null) {
-                it.setBoolean(4, personOversiktStatus.motebehovUbehandlet)
-            } else {
-                it.setNull(4, NULL)
-            }
-            it.setNull(5, NULL)
-            if (personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet != null) {
-                it.setBoolean(6, personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet)
-            } else {
-                it.setNull(6, NULL)
-            }
-            it.setBoolean(7, personOversiktStatus.dialogmotesvarUbehandlet)
-            it.setString(8, personOversiktStatus.fnr)
-            it.execute()
-        }
-        connection.commit()
-    }
-}
-
 const val queryUpdatePersonOversiktStatusOppfolgingstilfelle =
     """
     UPDATE PERSON_OVERSIKT_STATUS
