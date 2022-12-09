@@ -15,9 +15,13 @@ class PdlPersonhendelseService(
             personhendelse.personidenter
                 .mapNotNull { personIdent ->
                     try {
-                        PersonIdent(personIdent)
+                        if (personIdent.isNullOrEmpty() || personIdent.length == 13) {
+                            null
+                        } else {
+                            PersonIdent(personIdent)
+                        }
                     } catch (ex: IllegalArgumentException) {
-                        log.error("Error on personident for Personhendelse", ex)
+                        log.warn("Invalid personident for Personhendelse", ex)
                         null
                     }
                 }
