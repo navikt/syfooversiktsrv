@@ -127,13 +127,14 @@ class PersonoppgavehendelseService(
                     connection.updatePersonOversiktStatusLPS(LPS_BISTAND_UBEHANDLET_TRUE, personident)
                 OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_BEHANDLET ->
                     connection.updatePersonOversiktStatusLPS(LPS_BISTAND_UBEHANDLET_FALSE, personident)
+                OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT ->
+                    connection.updatePersonOversiktMotebehov(true, personident)
+                OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET ->
+                    connection.updatePersonOversiktMotebehov(false, personident)
                 OversikthendelseType.DIALOGMOTESVAR_MOTTATT ->
                     connection.updatePersonOversiktStatusDialogmotesvar(DIALOGMOTESVAR_UBEHANDLET_TRUE, personident)
                 OversikthendelseType.DIALOGMOTESVAR_BEHANDLET ->
                     connection.updatePersonOversiktStatusDialogmotesvar(DIALOGMOTESVAR_UBEHANDLET_FALSE, personident)
-                else -> {
-                    log.warn("The hendelsestype is not supported by this kafka topic: ${callIdArgument(callId)}")
-                }
             }
 
             COUNT_KAFKA_CONSUMER_PERSONOPPGAVEHENDELSE_UPDATED_PERSONOVERSIKT_STATUS.increment()

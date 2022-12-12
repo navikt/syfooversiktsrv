@@ -34,6 +34,28 @@ fun Connection.updatePersonOversiktStatusLPS(
     }
 }
 
+const val queryUpdatePersonOversiktMotebehov =
+    """
+        UPDATE PERSON_OVERSIKT_STATUS
+        SET motebehov_ubehandlet = ?,
+        sist_endret = ?
+        WHERE fnr = ?
+    """
+
+fun Connection.updatePersonOversiktMotebehov(
+    hasMotebehov: Boolean,
+    fnr: PersonIdent,
+) {
+    val currentTime = Timestamp.from(Instant.now())
+
+    this.prepareStatement(queryUpdatePersonOversiktMotebehov).use {
+        it.setBoolean(1, hasMotebehov)
+        it.setObject(2, currentTime)
+        it.setString(3, fnr.value)
+        it.execute()
+    }
+}
+
 const val queryUpdatePersonOversiktStatusDialogmotesvar =
     """
         UPDATE PERSON_OVERSIKT_STATUS

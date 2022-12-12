@@ -392,7 +392,7 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                     val personIdent = ARBEIDSTAKER_ENHET_NOT_FOUND_PERSONIDENT
 
                     val oversikthendelse = KPersonoppgavehendelse(
-                        personIdentDefault.value,
+                        personIdent.value,
                         OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT.name,
                     )
                     database.connection.use {

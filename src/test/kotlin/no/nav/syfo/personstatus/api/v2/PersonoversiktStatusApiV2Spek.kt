@@ -324,7 +324,9 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     ) {
                         response.status() shouldBeEqualTo HttpStatusCode.OK
                         val personOversiktStatus =
-                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
+                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).filter {
+                                it.fnr == ARBEIDSTAKER_FNR
+                            }.first()
                         personOversiktStatus.veilederIdent shouldBeEqualTo null
                         personOversiktStatus.fnr shouldBeEqualTo ARBEIDSTAKER_FNR
                         personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
@@ -704,7 +706,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
 
                 it("should return Person with no Oppfolgingstilfelle and no Navn for OPPFOLGINGSPLANLPS_BISTAND_MOTTATT") {
                     val oversiktHendelseOPLPSBistandMottatt = KPersonoppgavehendelse(
-                        ARBEIDSTAKER_FNR,
+                        ARBEIDSTAKER_NO_NAME_FNR,
                         OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT.name,
                     )
                     database.connection.use {
