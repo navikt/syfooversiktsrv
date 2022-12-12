@@ -65,8 +65,6 @@ fun testEnvironment(
         port = 6376,
         secret = "password",
     ),
-    serviceuserUsername = "",
-    serviceuserPassword = "",
     kafkaAktivitetskravVurderingProcessingEnabled = true,
     kafkaIdenthendelseUpdatesEnabled = true,
 )

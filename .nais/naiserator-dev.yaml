@@ -72,7 +72,6 @@ spec:
     pool: nav-dev
   envFrom:
     - secret: syfooversiktsrv-redis-password
-    - secret: syfooversiktsrv-serviceuser
   env:
     - name: KTOR_ENV
       value: production
