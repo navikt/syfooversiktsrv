@@ -6,6 +6,8 @@ import io.mockk.clearMocks
 import io.mockk.every
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.domain.PersonIdent
+import no.nav.syfo.personoppgavehendelse.kafka.KPersonoppgavehendelse
+import no.nav.syfo.personoppgavehendelse.kafka.PersonoppgavehendelseService
 import no.nav.syfo.personstatus.*
 import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.OversikthendelseType
@@ -25,6 +27,7 @@ import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import java.time.Duration
 import java.time.OffsetDateTime
+import java.util.UUID
 
 @InternalAPI
 object PersonBehandlendeEnhetCronjobSpek : Spek({
@@ -39,8 +42,8 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
 
         val personBehandlendeEnhetCronjob = internalMockEnvironment.personBehandlendeEnhetCronjob
 
-        val oversiktHendelseService = TestKafkaModule.kafkaOversiktHendelseService
         val kafkaOppfolgingstilfellePersonService = TestKafkaModule.kafkaOppfolgingstilfellePersonService
+        val personoppgavehendelseService = PersonoppgavehendelseService(database)
 
         val mockKafkaConsumerOppfolgingstilfellePerson =
             TestKafkaModule.kafkaConsumerOppfolgingstilfellePerson
@@ -135,13 +138,13 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                 }
 
                 it("should update Enhet and remove Veileder of existing PersonOversiktStatus with Enhet, if motebehovUbehandlet, or oppfolgingsplanLPSBistandUbehandlet is true") {
-                    val oversiktHendelseMotebehovSvarMottatt = generateKOversikthendelse(
-                        oversikthendelseType = OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT,
-                        personIdent = personIdentDefault.value,
+                    val oversiktHendelseMotebehovSvarMottatt = KPersonoppgavehendelse(
+                        personIdentDefault.value,
+                        OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name,
                     )
-                    val oversiktHendelseOPLPSBistandMottatt = generateKOversikthendelse(
-                        oversikthendelseType = OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT,
-                        personIdent = personIdentDefault.value,
+                    val oversiktHendelseOPLPSBistandMottatt = KPersonoppgavehendelse(
+                        personIdentDefault.value,
+                        OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT.name,
                     )
                     val oversikthendelseList = listOf(
                         oversiktHendelseOPLPSBistandMottatt,
@@ -155,22 +158,27 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
 
                         database.connection.dropData()
 
-                        oversiktHendelseService.oppdaterPersonMedHendelse(
-                            oversikthendelse = oversikthendelse,
-                        )
+                        database.connection.use {
+                            personoppgavehendelseService.processPersonoppgavehendelse(
+                                connection = it,
+                                kPersonoppgavehendelse = oversikthendelse,
+                                callId = UUID.randomUUID().toString(),
+                            )
+                            it.commit()
+                        }
 
                         database.updatePersonTildeltEnhetAndRemoveTildeltVeileder(
-                            personIdent = PersonIdent(oversikthendelse.fnr),
+                            personIdent = PersonIdent(oversikthendelse.personident),
                             enhetId = firstEnhet,
                         )
                         database.updateTildeltEnhetUpdatedAt(
-                            ident = PersonIdent(oversikthendelse.fnr),
+                            ident = PersonIdent(oversikthendelse.personident),
                             time = nowUTC().minusDays(2),
                         )
 
                         val veilederBrukerKnytning = VeilederBrukerKnytning(
                             veilederIdent = UserConstants.VEILEDER_ID,
-                            fnr = oversikthendelse.fnr,
+                            fnr = oversikthendelse.personident,
                             enhet = firstEnhet,
                         )
                         database.lagreBrukerKnytningPaEnhet(
@@ -193,12 +201,12 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
 
                         val pPersonOversiktStatus = pPersonOversiktStatusList.first()
 
-                        if (oversikthendelse.hendelseId == OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name) {
+                        if (oversikthendelse.hendelsetype == OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name) {
                             pPersonOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
                         } else {
                             pPersonOversiktStatus.motebehovUbehandlet.shouldBeNull()
                         }
-                        if (oversikthendelse.hendelseId == OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT.name) {
+                        if (oversikthendelse.hendelsetype == OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT.name) {
                             pPersonOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
                         } else {
                             pPersonOversiktStatus.oppfolgingsplanLPSBistandUbehandlet.shouldBeNull()
@@ -298,20 +306,24 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                 }
 
                 it("should update Enhet and remove Veileder of existing PersonOversiktStatus with no Enhet if oppfolgingsplanLPSBistandUbehandlet is true") {
-                    val oversikthendelse = generateKOversikthendelse(
-                        oversikthendelseType = OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT,
-                        personIdent = personIdentDefault.value,
+                    val oversikthendelse = KPersonoppgavehendelse(
+                        personIdentDefault.value,
+                        OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT.name,
                     )
+                    database.connection.use {
+                        personoppgavehendelseService.processPersonoppgavehendelse(
+                            connection = it,
+                            kPersonoppgavehendelse = oversikthendelse,
+                            callId = UUID.randomUUID().toString(),
+                        )
+                        it.commit()
+                    }
 
                     var tildeltEnhetUpdatedAtBeforeUpdate: OffsetDateTime?
 
-                    oversiktHendelseService.oppdaterPersonMedHendelse(
-                        oversikthendelse = oversikthendelse,
-                    )
-
                     val veilederBrukerKnytning = VeilederBrukerKnytning(
                         veilederIdent = UserConstants.VEILEDER_ID,
-                        fnr = oversikthendelse.fnr,
+                        fnr = oversikthendelse.personident,
                         enhet = behandlendeEnhetDTO().enhetId,
                     )
                     database.lagreBrukerKnytningPaEnhet(
@@ -379,13 +391,18 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                 it("should update tildeltEnhetUpdatedAt, but not tildeltEnhet, of existing PersonOversiktStatus, if BehandlendeEnhet is not found and oppfolgingsplanLPSBistandUbehandlet is true") {
                     val personIdent = ARBEIDSTAKER_ENHET_NOT_FOUND_PERSONIDENT
 
-                    val oversikthendelse = generateKOversikthendelse(
-                        oversikthendelseType = OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT,
-                        personIdent = personIdent.value,
+                    val oversikthendelse = KPersonoppgavehendelse(
+                        personIdent.value,
+                        OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT.name,
                     )
-                    oversiktHendelseService.oppdaterPersonMedHendelse(
-                        oversikthendelse = oversikthendelse,
-                    )
+                    database.connection.use {
+                        personoppgavehendelseService.processPersonoppgavehendelse(
+                            connection = it,
+                            kPersonoppgavehendelse = oversikthendelse,
+                            callId = UUID.randomUUID().toString(),
+                        )
+                        it.commit()
+                    }
 
                     var tildeltEnhetUpdatedAtBeforeUpdate: OffsetDateTime?
 
@@ -488,25 +505,30 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                 }
 
                 it("don't update enhet if updated less than 24 hours ago") {
-                    val oversikthendelse = generateKOversikthendelse(
-                        oversikthendelseType = OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT,
-                        personIdent = personIdentDefault.value,
+                    val oversikthendelse = KPersonoppgavehendelse(
+                        personIdentDefault.value,
+                        OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name,
                     )
 
                     val firstEnhet = NAV_ENHET_2
 
                     database.connection.dropData()
 
-                    oversiktHendelseService.oppdaterPersonMedHendelse(
-                        oversikthendelse = oversikthendelse,
-                    )
+                    database.connection.use {
+                        personoppgavehendelseService.processPersonoppgavehendelse(
+                            connection = it,
+                            kPersonoppgavehendelse = oversikthendelse,
+                            callId = UUID.randomUUID().toString(),
+                        )
+                        it.commit()
+                    }
 
                     database.updatePersonTildeltEnhetAndRemoveTildeltVeileder(
-                        personIdent = PersonIdent(oversikthendelse.fnr),
+                        personIdent = PersonIdent(oversikthendelse.personident),
                         enhetId = firstEnhet,
                     )
                     database.updateTildeltEnhetUpdatedAt(
-                        ident = PersonIdent(oversikthendelse.fnr),
+                        ident = PersonIdent(oversikthendelse.personident),
                         time = nowUTC().minusHours(22),
                     )
 
@@ -539,14 +561,18 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                 }
 
                 it("should fail to update Enhet of existing PersonOversiktStatus exception is thrown when requesting Enhet from Syfobehandlendeenhet") {
-                    val oversikthendelse = generateKOversikthendelse(
-                        oversikthendelseType = OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT,
-                        personIdent = ARBEIDSTAKER_ENHET_ERROR_PERSONIDENT.value,
+                    val oversikthendelse = KPersonoppgavehendelse(
+                        ARBEIDSTAKER_ENHET_ERROR_PERSONIDENT.value,
+                        OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT.name,
                     )
-
-                    oversiktHendelseService.oppdaterPersonMedHendelse(
-                        oversikthendelse = oversikthendelse,
-                    )
+                    database.connection.use {
+                        personoppgavehendelseService.processPersonoppgavehendelse(
+                            connection = it,
+                            kPersonoppgavehendelse = oversikthendelse,
+                            callId = UUID.randomUUID().toString(),
+                        )
+                        it.commit()
+                    }
 
                     kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
                         kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,

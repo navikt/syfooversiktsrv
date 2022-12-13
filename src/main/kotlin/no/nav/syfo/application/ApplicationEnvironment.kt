@@ -29,9 +29,6 @@ data class Environment(
 
     val electorPath: String = getEnvVar("ELECTOR_PATH"),
 
-    val kafkaBootstrapServers: String = getEnvVar("KAFKA_BOOTSTRAP_SERVERS_URL"),
-    val kafkaSchemaRegistryUrl: String = getEnvVar("KAFKA_BOOTSTRAP_SERVERS_URL"),
-
     val kafka: KafkaEnvironment = KafkaEnvironment(
         aivenBootstrapServers = getEnvVar("KAFKA_BROKERS"),
         aivenCredstorePassword = getEnvVar("KAFKA_CREDSTORE_PASSWORD"),
@@ -69,9 +66,6 @@ data class Environment(
         port = getEnvVar("REDIS_PORT", "6379").toInt(),
         secret = getEnvVar("REDIS_PASSWORD"),
     ),
-
-    val serviceuserUsername: String = getEnvVar("SERVICEUSER_USERNAME"),
-    val serviceuserPassword: String = getEnvVar("SERVICEUSER_PASSWORD"),
 )
 
 fun getEnvVar(varName: String, defaultValue: String? = null) =

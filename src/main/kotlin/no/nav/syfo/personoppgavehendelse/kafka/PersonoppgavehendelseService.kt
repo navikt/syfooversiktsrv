@@ -5,7 +5,6 @@ import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.kafka.KafkaConsumerService
 import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.*
-import no.nav.syfo.personstatus.kafka.KafkaOversiktHendelseService
 import no.nav.syfo.util.callIdArgument
 import no.nav.syfo.util.kafkaCallId
 import org.apache.kafka.clients.consumer.ConsumerRecords
@@ -128,13 +127,14 @@ class PersonoppgavehendelseService(
                     connection.updatePersonOversiktStatusLPS(LPS_BISTAND_UBEHANDLET_TRUE, personident)
                 OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_BEHANDLET ->
                     connection.updatePersonOversiktStatusLPS(LPS_BISTAND_UBEHANDLET_FALSE, personident)
+                OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT ->
+                    connection.updatePersonOversiktMotebehov(true, personident)
+                OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET ->
+                    connection.updatePersonOversiktMotebehov(false, personident)
                 OversikthendelseType.DIALOGMOTESVAR_MOTTATT ->
                     connection.updatePersonOversiktStatusDialogmotesvar(DIALOGMOTESVAR_UBEHANDLET_TRUE, personident)
                 OversikthendelseType.DIALOGMOTESVAR_BEHANDLET ->
                     connection.updatePersonOversiktStatusDialogmotesvar(DIALOGMOTESVAR_UBEHANDLET_FALSE, personident)
-                else -> {
-                    log.warn("The hendelsestype is not supported by this kafka topic ", callIdArgument(callId))
-                }
             }
 
             COUNT_KAFKA_CONSUMER_PERSONOPPGAVEHENDELSE_UPDATED_PERSONOVERSIKT_STATUS.increment()
@@ -142,6 +142,6 @@ class PersonoppgavehendelseService(
     }
 
     companion object {
-        private val log = LoggerFactory.getLogger(KafkaOversiktHendelseService::class.java)
+        private val log = LoggerFactory.getLogger(PersonoppgavehendelseService::class.java)
     }
 }

@@ -32,8 +32,6 @@ fun testEnvironment(
         password = "password",
     ),
     electorPath = "/tmp",
-    kafkaBootstrapServers = kafkaBootstrapServers,
-    kafkaSchemaRegistryUrl = "http://kafka-schema-registry.tpa.svc.nais.local:8081",
     kafka = KafkaEnvironment(
         aivenBootstrapServers = kafkaBootstrapServers,
         aivenCredstorePassword = "credstorepassord",
@@ -64,11 +62,9 @@ fun testEnvironment(
     ),
     redis = RedisEnvironment(
         host = "localhost",
-        port = 6379,
+        port = 6376,
         secret = "password",
     ),
-    serviceuserUsername = "",
-    serviceuserPassword = "",
     kafkaAktivitetskravVurderingProcessingEnabled = true,
     kafkaIdenthendelseUpdatesEnabled = true,
 )

@@ -49,7 +49,6 @@ spec:
           cluster: dev-fss
     outbound:
       external:
-        - host: "kafka-schema-registry.nais-q.adeo.no"
         - host: "ereg-services-q1.dev-fss-pub.nais.io"
         - host: "pdl-api.dev-fss-pub.nais.io"
         - host: "syfo-tilgangskontroll.dev-fss-pub.nais.io"
@@ -73,14 +72,9 @@ spec:
     pool: nav-dev
   envFrom:
     - secret: syfooversiktsrv-redis-password
-    - secret: syfooversiktsrv-serviceuser
   env:
     - name: KTOR_ENV
       value: production
-    - name: KAFKA_BOOTSTRAP_SERVERS_URL
-      value: SSL://b27apvl00045.preprod.local:8443,SSL://b27apvl00046.preprod.local:8443,SSL://b27apvl00047.preprod.local:8443
-    - name: KAFKA_SCHEMA_REGISTRY_URL
-      value: "https://kafka-schema-registry.nais-q.adeo.no"
     - name: REDIS_HOST
       value: "syfooversiktsrv-redis.teamsykefravr.svc.cluster.local"
     - name: EREG_URL
