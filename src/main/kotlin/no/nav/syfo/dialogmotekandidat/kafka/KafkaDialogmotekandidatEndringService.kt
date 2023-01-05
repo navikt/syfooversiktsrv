@@ -7,6 +7,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.slf4j.LoggerFactory
 import java.sql.Connection
+import java.sql.SQLException
 import java.time.Duration
 
 class KafkaDialogmotekandidatEndringService(
@@ -67,11 +68,21 @@ class KafkaDialogmotekandidatEndringService(
                 kafkaDialogmotekandidatEndring.createdAt.isAfter(it)
             } ?: true
             if (shouldUpdateKandidat) {
-                connection.updatePersonOversiktStatusKandidat(
-                    pPersonOversiktStatus = existingPersonOversiktStatus,
-                    kandidat = kafkaDialogmotekandidatEndring.kandidat,
-                    generatedAt = kafkaDialogmotekandidatEndring.createdAt,
-                )
+                try {
+                    connection.updatePersonOversiktStatusKandidat(
+                        pPersonOversiktStatus = existingPersonOversiktStatus,
+                        kandidat = kafkaDialogmotekandidatEndring.kandidat,
+                        generatedAt = kafkaDialogmotekandidatEndring.createdAt,
+                    )
+                } catch (sqlException: SQLException) {
+                    // retry once before giving up (could be database concurrency conflict)
+                    log.info("Got sqlException when receiveKafkaDialogmotekandidatEndring, try again")
+                    connection.updatePersonOversiktStatusKandidat(
+                        pPersonOversiktStatus = existingPersonOversiktStatus,
+                        kandidat = kafkaDialogmotekandidatEndring.kandidat,
+                        generatedAt = kafkaDialogmotekandidatEndring.createdAt,
+                    )
+                }
                 COUNT_KAFKA_CONSUMER_DIALOGMOTEKANDIDAT_UPDATED_PERSONOVERSIKT_STATUS.increment()
             }
         }

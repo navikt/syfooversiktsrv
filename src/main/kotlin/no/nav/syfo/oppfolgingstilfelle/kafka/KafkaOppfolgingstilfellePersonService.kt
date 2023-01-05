@@ -8,6 +8,7 @@ import no.nav.syfo.personstatus.domain.Oppfolgingstilfelle
 import org.apache.kafka.clients.consumer.*
 import org.slf4j.LoggerFactory
 import java.sql.Connection
+import java.sql.SQLException
 import java.time.Duration
 import java.time.temporal.ChronoUnit
 
@@ -114,10 +115,19 @@ class KafkaOppfolgingstilfellePersonService(
                 exisitingPPersonOversiktStatus = maybePPersonOversiktStatus
             )
             if (shouldUpdatePersonOppfolgingstilfelle) {
-                connection.updatePersonOversiktStatusOppfolgingstilfelle(
-                    pPersonOversiktStatus = maybePPersonOversiktStatus,
-                    oppfolgingstilfelle = latestPersonOppfolgingstilfelle,
-                )
+                try {
+                    connection.updatePersonOversiktStatusOppfolgingstilfelle(
+                        pPersonOversiktStatus = maybePPersonOversiktStatus,
+                        oppfolgingstilfelle = latestPersonOppfolgingstilfelle,
+                    )
+                } catch (sqlException: SQLException) {
+                    // retry once before giving up (could be database concurrency conflict)
+                    log.info("Got sqlException when receiveKafkaOppfolgingstilfellePerson, try again")
+                    connection.updatePersonOversiktStatusOppfolgingstilfelle(
+                        pPersonOversiktStatus = maybePPersonOversiktStatus,
+                        oppfolgingstilfelle = latestPersonOppfolgingstilfelle,
+                    )
+                }
             }
         }
     }
