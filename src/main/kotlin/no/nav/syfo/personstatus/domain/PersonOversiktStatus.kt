@@ -39,6 +39,12 @@ fun PersonOversiktStatus.isDialogmotekandidat() =
         dialogmotekandidatGeneratedAt.toLocalDateOslo().isAfter(latestOppfolgingstilfelle.oppfolgingstilfelleStart) &&
         dialogmotekandidatGeneratedAt.toLocalDateOslo().isBeforeOrEqual(LocalDate.now().minusDays(7))
 
+fun PersonOversiktStatus.isActiveAktivitetskrav() =
+    (aktivitetskrav == AktivitetskravStatus.NY || aktivitetskrav == AktivitetskravStatus.AVVENT) &&
+        latestOppfolgingstilfelle != null &&
+        aktivitetskravUpdatedAt != null &&
+        aktivitetskravUpdatedAt.toLocalDateOslo().isAfter(latestOppfolgingstilfelle.oppfolgingstilfelleStart)
+
 data class Oppfolgingstilfelle(
     val updatedAt: OffsetDateTime,
     val generatedAt: OffsetDateTime,
