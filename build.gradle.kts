@@ -1,4 +1,5 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import org.gradle.api.internal.artifacts.dependencies.DefaultDependencyConstraint.strictly
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 group = "no.nav.syfo"
@@ -21,7 +22,7 @@ object Versions {
     const val micrometerRegistry = "1.9.4"
     const val nimbusjosejwt = "9.25.3"
     const val postgresEmbedded = "0.13.4"
-    const val postgres = "42.5.0"
+    const val postgres = "42.5.1"
     const val redisEmbedded = "0.7.3"
     const val scala = "2.13.9"
     const val spek = "2.0.18"
@@ -101,7 +102,7 @@ dependencies {
         implementation("org.yaml:snakeyaml") {
             because("io.confluent:kafka-schema-registry:${Versions.confluent} -> https://advisory.checkmarx.net/advisory/vulnerability/CVE-2022-25857/")
             version {
-                require("1.31")
+                require("1.33")
             }
         }
         implementation("org.glassfish:jakarta.el") {
@@ -113,7 +114,7 @@ dependencies {
         implementation("com.google.protobuf:protobuf-java") {
             because("io.confluent:kafka-schema-registry:${Versions.confluent} -> https://www.cve.org/CVERecord?id=CVE-2021-22569")
             version {
-                require("3.19.2")
+                require("3.21.7")
             }
         }
         implementation("com.google.code.gson:gson") {
@@ -130,6 +131,12 @@ dependencies {
             because("no.nav:kafka-embedded-env:${Versions.kafkaEmbedded} -> https://advisory.checkmarx.net/advisory/vulnerability/CVE-2022-2048/")
             version {
                 require("9.4.48.v20220622")
+            }
+        }
+        implementation("com.google.protobuf:protobuf-java") {
+            because("io.confluent:kafka-schema-registry:${Versions.confluent} -> https://www.cve.org/CVERecord?id=CVE-2021-22569")
+            version {
+                require("3.21.7")
             }
         }
     }
