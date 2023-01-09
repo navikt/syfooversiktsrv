@@ -9,6 +9,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.slf4j.LoggerFactory
 import java.sql.Connection
+import java.sql.SQLException
 import java.time.Duration
 
 class KafkaDialogmoteStatusendringService(
@@ -67,10 +68,19 @@ class KafkaDialogmoteStatusendringService(
                 dialogmoteStatusEndring.endringTidspunkt.isAfter(it)
             } ?: true
             if (shouldUpdateMotestatus) {
-                connection.updatePersonOversiktStatusMotestatus(
-                    pPersonOversiktStatus = existingPersonOversiktStatus,
-                    dialogmoteStatusendring = dialogmoteStatusEndring,
-                )
+                try {
+                    connection.updatePersonOversiktStatusMotestatus(
+                        pPersonOversiktStatus = existingPersonOversiktStatus,
+                        dialogmoteStatusendring = dialogmoteStatusEndring,
+                    )
+                } catch (sqlException: SQLException) {
+                    // retry
+                    log.info("Got sqlException when receiveKafkaDialogmoteStatusEndring, try again")
+                    connection.updatePersonOversiktStatusMotestatus(
+                        pPersonOversiktStatus = existingPersonOversiktStatus,
+                        dialogmoteStatusendring = dialogmoteStatusEndring,
+                    )
+                }
                 COUNT_KAFKA_CONSUMER_DIALOGMOTE_STATUSENDRING_UPDATED_PERSONOVERSIKT_STATUS.increment()
             }
         }

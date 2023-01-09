@@ -9,9 +9,9 @@ import no.nav.syfo.util.callIdArgument
 import no.nav.syfo.util.kafkaCallId
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.consumer.KafkaConsumer
-import org.postgresql.util.PSQLException
 import org.slf4j.LoggerFactory
 import java.sql.Connection
+import java.sql.SQLException
 import java.time.Duration
 
 class PersonoppgavehendelseService(
@@ -47,9 +47,9 @@ class PersonoppgavehendelseService(
                         personoppgaveHendelse,
                         callId,
                     )
-                } catch (sqlException: PSQLException) {
+                } catch (sqlException: SQLException) {
                     // retry once before giving up (could be database concurrency conflict)
-                    log.info("TRACE: Got sqlException, try again, callId: $callId")
+                    log.info("Got sqlException, try again, callId: $callId")
                     processPersonoppgavehendelse(
                         connection,
                         personoppgaveHendelse,
