@@ -815,7 +815,10 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     }
                 }
 
-                it("return person with aktivitetskrav status NY") {
+                it("return person with aktivitetskrav status NY created this tilfelle") {
+                    kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                        kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
+                    )
                     val personIdent = PersonIdent(ARBEIDSTAKER_FNR)
                     val updatedAt = OffsetDateTime.now().truncatedTo(ChronoUnit.MILLIS)
                     val stoppunkt = LocalDate.now()
@@ -855,6 +858,9 @@ object PersonoversiktStatusApiV2Spek : Spek({
                 }
 
                 it("return person with aktivitetskrav status AVVENT") {
+                    kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                        kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
+                    )
                     val personIdent = PersonIdent(ARBEIDSTAKER_FNR)
                     val updatedAt = OffsetDateTime.now().truncatedTo(ChronoUnit.MILLIS)
                     val stoppunkt = LocalDate.now()
@@ -894,12 +900,48 @@ object PersonoversiktStatusApiV2Spek : Spek({
                 }
 
                 it("return no content when aktivitetskrav has status AUTOMATISK_OPPFYLT") {
+                    kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                        kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
+                    )
                     val personIdent = PersonIdent(ARBEIDSTAKER_FNR)
                     val aktivitetskrav = Aktivitetskrav(
                         personIdent = personIdent,
                         status = AktivitetskravStatus.AUTOMATISK_OPPFYLT,
                         updatedAt = OffsetDateTime.now(),
                         stoppunkt = LocalDate.now(),
+                    )
+                    database.connection.use { connection ->
+                        persistAktivitetskrav(
+                            connection = connection,
+                            aktivitetskrav = aktivitetskrav,
+                        )
+                        connection.commit()
+                    }
+                    database.setTildeltEnhet(
+                        ident = personIdent,
+                        enhet = NAV_ENHET,
+                    )
+
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        }
+                    ) {
+                        response.status() shouldBeEqualTo HttpStatusCode.NoContent
+                    }
+                }
+
+                it("return no content when aktivitetskrav has status NY but is not from current tilfelle") {
+                    kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                        kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
+                    )
+                    val tilfelleStart = kafkaOppfolgingstilfellePersonRelevant.oppfolgingstilfelleList[0].start
+                    val personIdent = PersonIdent(ARBEIDSTAKER_FNR)
+                    val aktivitetskrav = Aktivitetskrav(
+                        personIdent = personIdent,
+                        status = AktivitetskravStatus.NY,
+                        updatedAt = OffsetDateTime.now().truncatedTo(ChronoUnit.MILLIS),
+                        stoppunkt = tilfelleStart.minusDays(10),
                     )
                     database.connection.use { connection ->
                         persistAktivitetskrav(
