@@ -931,17 +931,19 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     }
                 }
 
-                it("return no content when aktivitetskrav has status NY but is not from current tilfelle") {
+                it("return person with aktivitetskrav status NY created before the current tilfelle") {
                     kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
                         kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                     )
                     val tilfelleStart = kafkaOppfolgingstilfellePersonRelevant.oppfolgingstilfelleList[0].start
+                    val stoppunkt = tilfelleStart.minusDays(10)
+                    val updatedAt = OffsetDateTime.now().truncatedTo(ChronoUnit.MILLIS)
                     val personIdent = PersonIdent(ARBEIDSTAKER_FNR)
                     val aktivitetskrav = Aktivitetskrav(
                         personIdent = personIdent,
                         status = AktivitetskravStatus.NY,
-                        updatedAt = OffsetDateTime.now().truncatedTo(ChronoUnit.MILLIS),
-                        stoppunkt = tilfelleStart.minusDays(10),
+                        updatedAt = updatedAt,
+                        stoppunkt = stoppunkt,
                     )
                     database.connection.use { connection ->
                         persistAktivitetskrav(
@@ -960,7 +962,15 @@ object PersonoversiktStatusApiV2Spek : Spek({
                             addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
                         }
                     ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.NoContent
+                        response.status() shouldBeEqualTo HttpStatusCode.OK
+
+                        val personOversiktStatus =
+                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
+                        personOversiktStatus.fnr shouldBeEqualTo personIdent.value
+                        personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
+                        personOversiktStatus.aktivitetskrav shouldBeEqualTo AktivitetskravStatus.NY.name
+                        personOversiktStatus.aktivitetskravUpdatedAt shouldBeEqualTo updatedAt.toLocalDateTimeOslo()
+                        personOversiktStatus.aktivitetskravStoppunkt shouldBeEqualTo stoppunkt
                     }
                 }
 
