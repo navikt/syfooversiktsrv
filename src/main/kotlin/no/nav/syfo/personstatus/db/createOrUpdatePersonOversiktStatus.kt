@@ -96,7 +96,7 @@ fun Connection.createPersonOversiktStatus(
         it.setObject(22, personOversiktStatus.motestatusGeneratedAt)
         it.setString(23, personOversiktStatus.aktivitetskrav?.name)
         it.setObject(24, personOversiktStatus.aktivitetskravStoppunkt)
-        it.setObject(25, personOversiktStatus.aktivitetskravUpdatedAt)
+        it.setObject(25, personOversiktStatus.aktivitetskravSistVurdert)
         it.executeQuery().toList { getInt("id") }.firstOrNull()
     } ?: throw SQLException("Creating PersonOversikStatus failed, no rows affected.")
 
@@ -163,7 +163,7 @@ fun DatabaseInterface.lagreBrukerKnytningPaEnhet(veilederBrukerKnytning: Veilede
             latestOppfolgingstilfelle = null,
             aktivitetskrav = null,
             aktivitetskravStoppunkt = null,
-            aktivitetskravUpdatedAt = null,
+            aktivitetskravSistVurdert = null,
         )
         this.connection.use { connection ->
             connection.createPersonOversiktStatus(

@@ -825,7 +825,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     val aktivitetskrav = Aktivitetskrav(
                         personIdent = personIdent,
                         status = AktivitetskravStatus.NY,
-                        updatedAt = updatedAt,
+                        sistVurdert = updatedAt,
                         stoppunkt = stoppunkt,
                     )
                     database.connection.use { connection ->
@@ -867,7 +867,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     val aktivitetskrav = Aktivitetskrav(
                         personIdent = personIdent,
                         status = AktivitetskravStatus.AVVENT,
-                        updatedAt = updatedAt,
+                        sistVurdert = updatedAt,
                         stoppunkt = stoppunkt,
                     )
                     database.connection.use { connection ->
@@ -907,7 +907,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     val aktivitetskrav = Aktivitetskrav(
                         personIdent = personIdent,
                         status = AktivitetskravStatus.AUTOMATISK_OPPFYLT,
-                        updatedAt = OffsetDateTime.now(),
+                        sistVurdert = OffsetDateTime.now(),
                         stoppunkt = LocalDate.now(),
                     )
                     database.connection.use { connection ->
@@ -942,7 +942,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     val aktivitetskrav = Aktivitetskrav(
                         personIdent = personIdent,
                         status = AktivitetskravStatus.NY,
-                        updatedAt = updatedAt,
+                        sistVurdert = updatedAt,
                         stoppunkt = stoppunkt,
                     )
                     database.connection.use { connection ->

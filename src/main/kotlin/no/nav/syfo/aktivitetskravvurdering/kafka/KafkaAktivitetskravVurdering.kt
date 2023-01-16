@@ -20,6 +20,6 @@ data class KafkaAktivitetskravVurdering(
 fun KafkaAktivitetskravVurdering.toAktivitetskrav() = Aktivitetskrav(
     personIdent = PersonIdent(personIdent),
     status = AktivitetskravStatus.valueOf(this.status),
-    updatedAt = this.updatedAt,
+    sistVurdert = this.updatedAt,
     stoppunkt = this.stoppunktAt,
 )

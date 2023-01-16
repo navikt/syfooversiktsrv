@@ -42,13 +42,13 @@ class AktivitetskravServiceSpek : Spek({
             val aktivitetskrav = Aktivitetskrav(
                 personIdent = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),
                 status = AktivitetskravStatus.NY,
-                updatedAt = updatedAt,
+                sistVurdert = updatedAt,
                 stoppunkt = stoppunkt,
             )
             val expectedPersonOversiktStatus = PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR).copy(
                 aktivitetskrav = AktivitetskravStatus.NY,
                 aktivitetskravStoppunkt = stoppunkt,
-                aktivitetskravUpdatedAt = updatedAt,
+                aktivitetskravSistVurdert = updatedAt,
             )
             every { connection.getPersonOversiktStatusList(any()) } returns emptyList()
             justRun { connection.createPersonOversiktStatus(any(), any()) }
@@ -67,7 +67,7 @@ class AktivitetskravServiceSpek : Spek({
             val aktivitetskrav = Aktivitetskrav(
                 personIdent = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),
                 status = AktivitetskravStatus.UNNTAK,
-                updatedAt = OffsetDateTime.now(),
+                sistVurdert = OffsetDateTime.now(),
                 stoppunkt = LocalDate.now().plusDays(7),
             )
             val existingPPersonOversiktStatus = generatePPersonOversiktStatus()

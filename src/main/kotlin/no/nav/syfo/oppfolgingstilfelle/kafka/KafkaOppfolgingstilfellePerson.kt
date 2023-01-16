@@ -42,7 +42,7 @@ fun KafkaOppfolgingstilfellePerson.toPersonOversiktStatus(
     ),
     aktivitetskrav = null,
     aktivitetskravStoppunkt = null,
-    aktivitetskravUpdatedAt = null,
+    aktivitetskravSistVurdert = null,
 )
 
 fun KafkaOppfolgingstilfellePerson.toPersonOppfolgingstilfelle(

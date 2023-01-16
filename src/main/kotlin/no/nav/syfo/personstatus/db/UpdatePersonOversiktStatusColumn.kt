@@ -113,7 +113,7 @@ fun Connection.updatePersonOversiktStatusAktivitetskrav(
 ) {
     this.prepareStatement(queryUpdatePersonOversiktStatusAktivitetskrav).use {
         it.setString(1, aktivitetskrav.status.name)
-        it.setObject(2, aktivitetskrav.updatedAt)
+        it.setObject(2, aktivitetskrav.sistVurdert)
         it.setObject(3, aktivitetskrav.stoppunkt)
         it.setString(4, pPersonOversiktStatus.fnr)
         it.execute()
