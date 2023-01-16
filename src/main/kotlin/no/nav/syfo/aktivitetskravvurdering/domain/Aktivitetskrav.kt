@@ -19,6 +19,7 @@ enum class AktivitetskravStatus {
     OPPFYLT,
     AUTOMATISK_OPPFYLT,
     STANS,
+    IKKE_OPPFYLT,
 }
 
 fun Aktivitetskrav.toPersonOversiktStatus() = PersonOversiktStatus(
