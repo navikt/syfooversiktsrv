@@ -1,0 +1,2 @@
+ALTER TABLE PERSON_OVERSIKT_STATUS
+RENAME COLUMN aktivitetskrav_updated_at TO aktivitetskrav_sist_vurdert;

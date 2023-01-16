@@ -102,7 +102,7 @@ const val queryUpdatePersonOversiktStatusAktivitetskrav =
     """
         UPDATE PERSON_OVERSIKT_STATUS
         SET aktivitetskrav = ?,
-        aktivitetskrav_updated_at = ?,
+        aktivitetskrav_sist_vurdert = ?,
         aktivitetskrav_stoppunkt = ?
         WHERE fnr = ?
     """

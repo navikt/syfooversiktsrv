@@ -39,7 +39,7 @@ const val queryCreatePersonOversiktStatus =
         motestatus_generated_at,
         aktivitetskrav,
         aktivitetskrav_stoppunkt,
-        aktivitetskrav_updated_at
+        aktivitetskrav_sist_vurdert
     ) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     RETURNING id
     """
