@@ -49,7 +49,7 @@ fun PPersonOversiktStatus.toPersonOversiktStatus(
     ),
     aktivitetskrav = this.aktivitetskrav?.let { AktivitetskravStatus.valueOf(this.aktivitetskrav) },
     aktivitetskravStoppunkt = this.aktivitetskravStoppunkt,
-    aktivitetskravUpdatedAt = this.aktivitetskravUpdatedAt,
+    aktivitetskravSistVurdert = this.aktivitetskravUpdatedAt,
 )
 
 fun PPersonOversiktStatus.toPersonOppfolgingstilfelle(

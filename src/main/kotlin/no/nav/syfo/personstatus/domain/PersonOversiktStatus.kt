@@ -23,7 +23,7 @@ data class PersonOversiktStatus(
     val latestOppfolgingstilfelle: Oppfolgingstilfelle?,
     val aktivitetskrav: AktivitetskravStatus?,
     val aktivitetskravStoppunkt: LocalDate?,
-    val aktivitetskravUpdatedAt: OffsetDateTime?,
+    val aktivitetskravSistVurdert: OffsetDateTime?,
 ) {
     constructor(fnr: String) : this(
         null, fnr = fnr, null, null, null,
@@ -106,7 +106,7 @@ fun PersonOversiktStatus.toPersonOversiktStatusDTO() =
         latestOppfolgingstilfelle = this.latestOppfolgingstilfelle?.toPersonOppfolgingstilfelleDTO(),
         aktivitetskrav = this.aktivitetskrav?.name,
         aktivitetskravStoppunkt = this.aktivitetskravStoppunkt,
-        aktivitetskravUpdatedAt = this.aktivitetskravUpdatedAt?.toLocalDateTimeOslo(),
+        aktivitetskravUpdatedAt = this.aktivitetskravSistVurdert?.toLocalDateTimeOslo(),
     )
 
 fun PersonOversiktStatus.applyHendelse(

@@ -8,7 +8,7 @@ import java.time.OffsetDateTime
 data class Aktivitetskrav(
     val personIdent: PersonIdent,
     val status: AktivitetskravStatus,
-    val updatedAt: OffsetDateTime,
+    val sistVurdert: OffsetDateTime?,
     val stoppunkt: LocalDate,
 )
 
@@ -37,5 +37,5 @@ fun Aktivitetskrav.toPersonOversiktStatus() = PersonOversiktStatus(
     latestOppfolgingstilfelle = null,
     aktivitetskrav = this.status,
     aktivitetskravStoppunkt = this.stoppunkt,
-    aktivitetskravUpdatedAt = this.updatedAt,
+    aktivitetskravSistVurdert = this.sistVurdert,
 )
