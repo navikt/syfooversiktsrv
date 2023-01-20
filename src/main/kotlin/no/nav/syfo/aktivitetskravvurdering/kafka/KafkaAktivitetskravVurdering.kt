@@ -10,16 +10,15 @@ data class KafkaAktivitetskravVurdering(
     val uuid: String,
     val personIdent: String,
     val createdAt: OffsetDateTime,
-    val updatedAt: OffsetDateTime,
     val status: String,
     val stoppunktAt: LocalDate,
     val beskrivelse: String?,
-    val updatedBy: String?,
+    val sistVurdert: OffsetDateTime?,
 )
 
 fun KafkaAktivitetskravVurdering.toAktivitetskrav() = Aktivitetskrav(
     personIdent = PersonIdent(personIdent),
     status = AktivitetskravStatus.valueOf(this.status),
-    sistVurdert = this.updatedAt,
+    sistVurdert = this.sistVurdert,
     stoppunkt = this.stoppunktAt,
 )
