@@ -16,7 +16,7 @@ data class PersonOversiktStatusDTO(
     val latestOppfolgingstilfelle: PersonOppfolgingstilfelleDTO?,
     val aktivitetskrav: String?,
     val aktivitetskravStoppunkt: LocalDate?,
-    val aktivitetskravUpdatedAt: LocalDateTime?,
+    val aktivitetskravSistVurdert: LocalDateTime?,
 )
 
 data class PersonOppfolgingstilfelleDTO(

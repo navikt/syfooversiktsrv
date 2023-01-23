@@ -106,7 +106,7 @@ fun PersonOversiktStatus.toPersonOversiktStatusDTO() =
         latestOppfolgingstilfelle = this.latestOppfolgingstilfelle?.toPersonOppfolgingstilfelleDTO(),
         aktivitetskrav = this.aktivitetskrav?.name,
         aktivitetskravStoppunkt = this.aktivitetskravStoppunkt,
-        aktivitetskravUpdatedAt = this.aktivitetskravSistVurdert?.toLocalDateTimeOslo(),
+        aktivitetskravSistVurdert = this.aktivitetskravSistVurdert?.toLocalDateTimeOslo(),
     )
 
 fun PersonOversiktStatus.applyHendelse(
