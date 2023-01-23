@@ -852,7 +852,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.fnr shouldBeEqualTo personIdent.value
                         personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
                         personOversiktStatus.aktivitetskrav shouldBeEqualTo AktivitetskravStatus.NY.name
-                        personOversiktStatus.aktivitetskravUpdatedAt shouldBeEqualTo updatedAt.toLocalDateTimeOslo()
+                        personOversiktStatus.aktivitetskravSistVurdert shouldBeEqualTo updatedAt.toLocalDateTimeOslo()
                         personOversiktStatus.aktivitetskravStoppunkt shouldBeEqualTo stoppunkt
                     }
                 }
@@ -894,7 +894,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.fnr shouldBeEqualTo personIdent.value
                         personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
                         personOversiktStatus.aktivitetskrav shouldBeEqualTo AktivitetskravStatus.AVVENT.name
-                        personOversiktStatus.aktivitetskravUpdatedAt shouldBeEqualTo updatedAt.toLocalDateTimeOslo()
+                        personOversiktStatus.aktivitetskravSistVurdert shouldBeEqualTo updatedAt.toLocalDateTimeOslo()
                         personOversiktStatus.aktivitetskravStoppunkt shouldBeEqualTo stoppunkt
                     }
                 }
@@ -969,7 +969,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.fnr shouldBeEqualTo personIdent.value
                         personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
                         personOversiktStatus.aktivitetskrav shouldBeEqualTo AktivitetskravStatus.NY.name
-                        personOversiktStatus.aktivitetskravUpdatedAt shouldBeEqualTo updatedAt.toLocalDateTimeOslo()
+                        personOversiktStatus.aktivitetskravSistVurdert shouldBeEqualTo updatedAt.toLocalDateTimeOslo()
                         personOversiktStatus.aktivitetskravStoppunkt shouldBeEqualTo stoppunkt
                     }
                 }
