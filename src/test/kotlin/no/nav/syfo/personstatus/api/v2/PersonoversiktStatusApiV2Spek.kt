@@ -52,7 +52,6 @@ object PersonoversiktStatusApiV2Spek : Spek({
             application.testApiModule(
                 externalMockEnvironment = externalMockEnvironment
             )
-
             val internalMockEnvironment = InternalMockEnvironment.instance
 
             val personOppfolgingstilfelleVirksomhetnavnCronjob =
@@ -815,6 +814,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     }
                 }
 
+                // TODO: Move the aktivitetskrav tests to AktivitetskravPersonoversiktStatusApiV2Spek
                 it("return person with aktivitetskrav status NY created this tilfelle") {
                     kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
                         kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
@@ -928,49 +928,6 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         }
                     ) {
                         response.status() shouldBeEqualTo HttpStatusCode.NoContent
-                    }
-                }
-
-                it("return person with aktivitetskrav status NY created before the current tilfelle") {
-                    kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
-                        kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
-                    )
-                    val tilfelleStart = kafkaOppfolgingstilfellePersonRelevant.oppfolgingstilfelleList[0].start
-                    val stoppunkt = tilfelleStart.minusDays(10)
-                    val updatedAt = OffsetDateTime.now().truncatedTo(ChronoUnit.MILLIS)
-                    val personIdent = PersonIdent(ARBEIDSTAKER_FNR)
-                    val aktivitetskrav = Aktivitetskrav(
-                        personIdent = personIdent,
-                        status = AktivitetskravStatus.NY,
-                        sistVurdert = updatedAt,
-                        stoppunkt = stoppunkt,
-                    )
-                    database.connection.use { connection ->
-                        persistAktivitetskrav(
-                            connection = connection,
-                            aktivitetskrav = aktivitetskrav,
-                        )
-                        connection.commit()
-                    }
-                    database.setTildeltEnhet(
-                        ident = personIdent,
-                        enhet = NAV_ENHET,
-                    )
-
-                    with(
-                        handleRequest(HttpMethod.Get, url) {
-                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                        }
-                    ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.OK
-
-                        val personOversiktStatus =
-                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
-                        personOversiktStatus.fnr shouldBeEqualTo personIdent.value
-                        personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
-                        personOversiktStatus.aktivitetskrav shouldBeEqualTo AktivitetskravStatus.NY.name
-                        personOversiktStatus.aktivitetskravSistVurdert shouldBeEqualTo updatedAt.toLocalDateTimeOslo()
-                        personOversiktStatus.aktivitetskravStoppunkt shouldBeEqualTo stoppunkt
                     }
                 }
 
