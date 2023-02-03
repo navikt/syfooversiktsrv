@@ -1,17 +1,20 @@
 package no.nav.syfo.personstatus
 
 import no.nav.syfo.application.database.DatabaseInterface
+import no.nav.syfo.application.getEnvVar
 import no.nav.syfo.client.pdl.PdlClient
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.personstatus.db.hentUbehandledePersonerTilknyttetEnhet
 import no.nav.syfo.personstatus.db.updatePersonOversiktStatusNavn
 import no.nav.syfo.personstatus.domain.*
+import java.time.OffsetDateTime
 
 class PersonoversiktStatusService(
     private val database: DatabaseInterface,
     private val pdlClient: PdlClient,
 ) {
-    fun hentPersonoversiktStatusTilknyttetEnhet(enhet: String): List<PersonOversiktStatus> {
+    fun hentPersonoversiktStatusTilknyttetEnhet(enhet: String, veilederIdent: String): List<PersonOversiktStatus> {
+        val aktivitetskravCutoff = getAktivitetskravCutoff(veilederIdent)
         val personListe = database.hentUbehandledePersonerTilknyttetEnhet(enhet)
         return personListe.map { pPersonOversikStatus ->
             val personOppfolgingstilfelleVirksomhetList = getPersonOppfolgingstilfelleVirksomhetList(
@@ -25,8 +28,14 @@ class PersonoversiktStatusService(
                 personOversiktStatus.dialogmotesvarUbehandlet == true ||
                 personOversiktStatus.isDialogmotekandidat() ||
                 (personOversiktStatus.motebehovUbehandlet == true && personOversiktStatus.latestOppfolgingstilfelle != null) ||
-                personOversiktStatus.isActiveAktivitetskrav()
+                (personOversiktStatus.isActiveAktivitetskrav() && personOversiktStatus.aktivitetskravStoppunktIsAfter(aktivitetskravCutoff))
         }
+    }
+
+    private fun getAktivitetskravCutoff(loggedInVeilederIdent: String): OffsetDateTime {
+        val testVeilederIdent = getEnvVar("AKTIVITETSKRAV_TEST_VEILEDER", "Z999999")
+        val cutoffDate = OffsetDateTime.parse(getEnvVar("AKTIVITETSKRAV_CUTOFF", "2030-01-01T15:00:00Z"))
+        return if (loggedInVeilederIdent == testVeilederIdent) OffsetDateTime.now().minusDays(7) else cutoffDate
     }
 
     fun getPersonOppfolgingstilfelleVirksomhetList(
