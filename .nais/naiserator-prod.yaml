@@ -92,7 +92,7 @@ spec:
     - name: SYFOTILGANGSKONTROLL_URL
       value: "https://syfo-tilgangskontroll.prod-fss-pub.nais.io"
     - name: TOGGLE_KAFKA_AKTIVITETSKRAV_VURDERING_PROCESSING_ENABLED
-      value: "false"
+      value: "true"
     - name: TOGGLE_KAFKA_IDENTHENDELSE_UPDATES_ENABLED
       value: "false"
     - name: AKTIVITETSKRAV_TEST_VEILEDER
