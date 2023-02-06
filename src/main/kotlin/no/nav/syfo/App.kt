@@ -13,6 +13,7 @@ import no.nav.syfo.application.cache.RedisStore
 import no.nav.syfo.application.database.database
 import no.nav.syfo.application.database.databaseModule
 import no.nav.syfo.client.azuread.AzureAdClient
+import no.nav.syfo.cronjob.launchCronjobModule
 import no.nav.syfo.kafka.launchKafkaModule
 import org.slf4j.LoggerFactory
 import java.util.concurrent.TimeUnit
@@ -77,7 +78,6 @@ fun main() {
             environment = environment,
             azureAdClient = azureAdClient,
         )
-        /*
         launchCronjobModule(
             applicationState = applicationState,
             database = database,
@@ -85,7 +85,6 @@ fun main() {
             redisStore = redisStore,
             azureAdClient = azureAdClient,
         )
-        */
     }
 
     Runtime.getRuntime().addShutdownHook(
