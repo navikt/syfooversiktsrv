@@ -59,7 +59,7 @@ object AktivitetskravPersonoversiktStatusApiV2 : Spek({
             describe("Hent personoversikt for enhet") {
                 val url = "$personOversiktApiV2Path/enhet/${UserConstants.NAV_ENHET}"
 
-                it("includes ubehandlet aktivitetskrav from an old tilfelle, when there is a new tilfelle without aktivitetskrav") {
+                xit("includes ubehandlet aktivitetskrav from an old tilfelle, when there is a new tilfelle without aktivitetskrav") {
                     kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
                         kafkaConsumer = kafkaOppfolgingstilfelle, // Will return a new tilfelle
                     )

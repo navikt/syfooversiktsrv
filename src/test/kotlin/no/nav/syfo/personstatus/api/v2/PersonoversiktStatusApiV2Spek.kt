@@ -815,7 +815,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                 }
 
                 // TODO: Move the aktivitetskrav tests to AktivitetskravPersonoversiktStatusApiV2Spek
-                it("return person with aktivitetskrav status NY created this tilfelle") {
+                xit("return person with aktivitetskrav status NY created this tilfelle") {
                     kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
                         kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                     )
@@ -857,7 +857,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     }
                 }
 
-                it("return person with aktivitetskrav status AVVENT") {
+                xit("return person with aktivitetskrav status AVVENT") {
                     kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
                         kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                     )

@@ -45,7 +45,6 @@ const val queryHentUbehandledePersonerTilknyttetEnhet = """
                                 dialogmotekandidat = 't' 
                                 AND dialogmotekandidat_generated_at + INTERVAL '7 DAY' < now()
                                 )
-                            OR ( aktivitetskrav = 'NY' OR aktivitetskrav = 'AVVENT')
                             )
                         );
                 """
