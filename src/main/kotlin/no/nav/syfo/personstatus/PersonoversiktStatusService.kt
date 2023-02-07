@@ -4,18 +4,20 @@ import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.application.getEnvVar
 import no.nav.syfo.client.pdl.PdlClient
 import no.nav.syfo.domain.PersonIdent
-import no.nav.syfo.personstatus.db.hentUbehandledePersonerTilknyttetEnhet
-import no.nav.syfo.personstatus.db.updatePersonOversiktStatusNavn
+import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.*
-import java.time.OffsetDateTime
 
 class PersonoversiktStatusService(
     private val database: DatabaseInterface,
     private val pdlClient: PdlClient,
 ) {
     fun hentPersonoversiktStatusTilknyttetEnhet(enhet: String, veilederIdent: String): List<PersonOversiktStatus> {
-        val aktivitetskravCutoff = getAktivitetskravCutoff(veilederIdent)
-        val personListe = database.hentUbehandledePersonerTilknyttetEnhet(enhet)
+        val personListe =
+            if (isTestVeileder(veilederIdent)) database.hentUbehandledePersonerTilknyttetEnhetTestVeileder(
+                enhet = enhet,
+            ) else database.hentUbehandledePersonerTilknyttetEnhet(
+                enhet = enhet,
+            )
         return personListe.map { pPersonOversikStatus ->
             val personOppfolgingstilfelleVirksomhetList = getPersonOppfolgingstilfelleVirksomhetList(
                 pPersonOversikStatusId = pPersonOversikStatus.id,
@@ -28,14 +30,13 @@ class PersonoversiktStatusService(
                 personOversiktStatus.dialogmotesvarUbehandlet == true ||
                 personOversiktStatus.isDialogmotekandidat() ||
                 (personOversiktStatus.motebehovUbehandlet == true && personOversiktStatus.latestOppfolgingstilfelle != null) ||
-                (personOversiktStatus.isActiveAktivitetskrav() && personOversiktStatus.aktivitetskravStoppunktIsAfter(aktivitetskravCutoff))
+                personOversiktStatus.isActiveAktivitetskrav()
         }
     }
 
-    private fun getAktivitetskravCutoff(loggedInVeilederIdent: String): OffsetDateTime {
+    private fun isTestVeileder(loggedInVeilederIdent: String): Boolean {
         val testVeilederIdent = getEnvVar("AKTIVITETSKRAV_TEST_VEILEDER", "Z999999")
-        val cutoffDate = OffsetDateTime.parse(getEnvVar("AKTIVITETSKRAV_CUTOFF", "2030-01-01T15:00:00Z"))
-        return if (loggedInVeilederIdent == testVeilederIdent) OffsetDateTime.now().minusDays(7) else cutoffDate
+        return loggedInVeilederIdent == testVeilederIdent
     }
 
     fun getPersonOppfolgingstilfelleVirksomhetList(
