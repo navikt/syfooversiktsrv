@@ -98,5 +98,3 @@ spec:
       value: "false"
     - name: AKTIVITETSKRAV_TEST_VEILEDER
       value: "S108787"
-    - name: AKTIVITETSKRAV_CUTOFF
-      value: "2030-01-01T15:00:00Z"

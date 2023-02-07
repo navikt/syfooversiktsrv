@@ -42,10 +42,6 @@ fun PersonOversiktStatus.isDialogmotekandidat() =
 fun PersonOversiktStatus.isActiveAktivitetskrav() =
     aktivitetskrav == AktivitetskravStatus.NY || aktivitetskrav == AktivitetskravStatus.AVVENT
 
-fun PersonOversiktStatus.aktivitetskravStoppunktIsAfter(
-    date: OffsetDateTime
-) = aktivitetskravStoppunkt?.isAfter(LocalDate.from(date)) ?: false
-
 data class Oppfolgingstilfelle(
     val updatedAt: OffsetDateTime,
     val generatedAt: OffsetDateTime,

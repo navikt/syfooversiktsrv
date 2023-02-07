@@ -58,6 +58,36 @@ fun DatabaseInterface.hentUbehandledePersonerTilknyttetEnhet(enhet: String): Lis
     }
 }
 
+const val queryHentUbehandledePersonerTilknyttetEnhetTestVeileder = """
+                        SELECT *
+                        FROM PERSON_OVERSIKT_STATUS
+                        WHERE ((tildelt_enhet = ?)
+                            AND (motebehov_ubehandlet = 't' 
+                            OR oppfolgingsplan_lps_bistand_ubehandlet = 't' 
+                            OR dialogmotesvar_ubehandlet = 't' 
+                            OR (
+                                dialogmotekandidat = 't' 
+                                AND dialogmotekandidat_generated_at + INTERVAL '7 DAY' < now()
+                                )
+                            OR (
+                                (aktivitetskrav = 'NY' OR aktivitetskrav = 'AVVENT') 
+                                AND aktivitetskrav_stoppunkt > '2023-02-01'
+                                )
+                            )
+                        );
+                """
+
+fun DatabaseInterface.hentUbehandledePersonerTilknyttetEnhetTestVeileder(
+    enhet: String,
+): List<PPersonOversiktStatus> {
+    return connection.use { connection ->
+        connection.prepareStatement(queryHentUbehandledePersonerTilknyttetEnhetTestVeileder).use {
+            it.setString(1, enhet)
+            it.executeQuery().toList { toPPersonOversiktStatus() }
+        }
+    }
+}
+
 fun DatabaseInterface.hentBrukereTilknyttetVeileder(veileder: String): List<VeilederBrukerKnytning> {
     val query = """
                         SELECT *
