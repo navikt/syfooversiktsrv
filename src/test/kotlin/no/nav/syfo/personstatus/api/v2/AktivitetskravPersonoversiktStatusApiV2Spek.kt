@@ -6,25 +6,21 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.testing.*
 import io.ktor.util.*
-import io.mockk.clearMocks
-import io.mockk.every
 import no.nav.syfo.aktivitetskravvurdering.domain.Aktivitetskrav
 import no.nav.syfo.aktivitetskravvurdering.domain.AktivitetskravStatus
 import no.nav.syfo.aktivitetskravvurdering.persistAktivitetskrav
 import no.nav.syfo.domain.PersonIdent
-import no.nav.syfo.domain.Virksomhetsnummer
-import no.nav.syfo.oppfolgingstilfelle.kafka.KafkaOppfolgingstilfellePerson
 import no.nav.syfo.testutil.*
-import no.nav.syfo.testutil.generator.*
 import no.nav.syfo.testutil.mock.behandlendeEnhetDTO
 import no.nav.syfo.util.*
 import org.amshove.kluent.shouldBeEqualTo
-import org.apache.kafka.clients.consumer.ConsumerRecord
-import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import java.time.*
 import java.time.temporal.ChronoUnit
+
+// Samme dato som i enhetens oversikt query
+private val aktivitetskravStoppunktCutoff = LocalDate.of(2023, Month.FEBRUARY, 1)
 
 @InternalAPI
 object AktivitetskravPersonoversiktStatusApiV2 : Spek({
@@ -36,37 +32,29 @@ object AktivitetskravPersonoversiktStatusApiV2 : Spek({
             start()
             val externalMockEnvironment = setupExternalMockEnvironment(application)
             val database = externalMockEnvironment.database
-            val kafkaOppfolgingstilfelle = TestKafkaModule.kafkaConsumerOppfolgingstilfellePerson
-            val oppfolgingstilfellePersonTopicPartition = oppfolgingstilfellePersonTopicPartition()
-            val kafkaOppfolgingstilfellePersonService = TestKafkaModule.kafkaOppfolgingstilfellePersonService
-            val validToken = generateValidToken(externalMockEnvironment)
-            val newTilfelleRecord = generateNewTilfelleRecord()
+            val validToken = generateJWT(
+                audience = externalMockEnvironment.environment.azure.appClientId,
+                issuer = externalMockEnvironment.wellKnownVeilederV2.issuer,
+                navIdent = UserConstants.VEILEDER_ID,
+            )
 
             beforeEachTest {
                 database.connection.dropData()
-                clearMocks(kafkaOppfolgingstilfelle)
-
-                every { kafkaOppfolgingstilfelle.commitSync() } returns Unit
-                every { kafkaOppfolgingstilfelle.poll(any<Duration>()) } returns ConsumerRecords(
-                    mapOf(
-                        oppfolgingstilfellePersonTopicPartition to listOf(
-                            newTilfelleRecord,
-                        )
-                    )
-                )
             }
 
             describe("Hent personoversikt for enhet") {
                 val url = "$personOversiktApiV2Path/enhet/${UserConstants.NAV_ENHET}"
 
-                xit("includes ubehandlet aktivitetskrav from an old tilfelle, when there is a new tilfelle without aktivitetskrav") {
-                    kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
-                        kafkaConsumer = kafkaOppfolgingstilfelle, // Will return a new tilfelle
-                    )
+                it("returns person with aktivitetskrav status NY and stoppunkt after cutoff") {
                     val personIdent = PersonIdent(UserConstants.ARBEIDSTAKER_FNR)
-                    val updatedAt = OffsetDateTime.now().truncatedTo(ChronoUnit.MILLIS)
-                    val stoppunkt = LocalDate.now().minusDays(6)
-                    persistAktivitetskravFromOldTilfelle(database, personIdent, updatedAt, stoppunkt)
+                    val stoppunkt = aktivitetskravStoppunktCutoff.plusDays(1)
+                    persistAktivitetskrav(
+                        database = database,
+                        personIdent = personIdent,
+                        sistVurdert = null,
+                        stoppunkt = stoppunkt,
+                        status = AktivitetskravStatus.NY
+                    )
 
                     with(
                         handleRequest(HttpMethod.Get, url) {
@@ -80,22 +68,82 @@ object AktivitetskravPersonoversiktStatusApiV2 : Spek({
                         personOversiktStatus.fnr shouldBeEqualTo personIdent.value
                         personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
                         personOversiktStatus.aktivitetskrav shouldBeEqualTo AktivitetskravStatus.NY.name
-                        personOversiktStatus.aktivitetskravSistVurdert shouldBeEqualTo updatedAt.toLocalDateTimeOslo()
+                        personOversiktStatus.aktivitetskravSistVurdert shouldBeEqualTo null
                         personOversiktStatus.aktivitetskravStoppunkt shouldBeEqualTo stoppunkt
+                    }
+                }
+
+                it("returns person with aktivitetskrav status AVVENT and stoppunkt after cutoff") {
+                    val personIdent = PersonIdent(UserConstants.ARBEIDSTAKER_FNR)
+                    val sistVurdert = OffsetDateTime.now().truncatedTo(ChronoUnit.MILLIS)
+                    val stoppunkt = aktivitetskravStoppunktCutoff.plusDays(1)
+                    persistAktivitetskrav(
+                        database = database,
+                        personIdent = personIdent,
+                        sistVurdert = sistVurdert,
+                        stoppunkt = stoppunkt,
+                        status = AktivitetskravStatus.AVVENT
+                    )
+
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        }
+                    ) {
+                        response.status() shouldBeEqualTo HttpStatusCode.OK
+
+                        val personOversiktStatus =
+                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
+                        personOversiktStatus.fnr shouldBeEqualTo personIdent.value
+                        personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
+                        personOversiktStatus.aktivitetskrav shouldBeEqualTo AktivitetskravStatus.AVVENT.name
+                        personOversiktStatus.aktivitetskravSistVurdert shouldBeEqualTo sistVurdert.toLocalDateTimeOslo()
+                        personOversiktStatus.aktivitetskravStoppunkt shouldBeEqualTo stoppunkt
+                    }
+                }
+
+                it("returns no content when aktivitetskrav has status AUTOMATISK_OPPFYLT") {
+                    val personIdent = PersonIdent(UserConstants.ARBEIDSTAKER_FNR)
+                    val stoppunkt = aktivitetskravStoppunktCutoff.plusDays(1)
+                    persistAktivitetskrav(
+                        database = database,
+                        personIdent = personIdent,
+                        sistVurdert = null,
+                        stoppunkt = stoppunkt,
+                        status = AktivitetskravStatus.AUTOMATISK_OPPFYLT
+                    )
+
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        }
+                    ) {
+                        response.status() shouldBeEqualTo HttpStatusCode.NoContent
+                    }
+                }
+                it("returns no content when person with aktivitetskrav status NY and stoppunkt before cutoff") {
+                    val personIdent = PersonIdent(UserConstants.ARBEIDSTAKER_FNR)
+                    val stoppunkt = aktivitetskravStoppunktCutoff.minusDays(1)
+                    persistAktivitetskrav(
+                        database = database,
+                        personIdent = personIdent,
+                        sistVurdert = null,
+                        stoppunkt = stoppunkt,
+                        status = AktivitetskravStatus.NY
+                    )
+
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        }
+                    ) {
+                        response.status() shouldBeEqualTo HttpStatusCode.NoContent
                     }
                 }
             }
         }
     }
 })
-
-fun generateValidToken(externalMockEnvironment: ExternalMockEnvironment): String {
-    return generateJWT(
-        audience = externalMockEnvironment.environment.azure.appClientId,
-        issuer = externalMockEnvironment.wellKnownVeilederV2.issuer,
-        navIdent = UserConstants.VEILEDER_ID,
-    )
-}
 
 fun setupExternalMockEnvironment(application: Application): ExternalMockEnvironment {
     val externalMockEnvironment = ExternalMockEnvironment.instance
@@ -106,38 +154,17 @@ fun setupExternalMockEnvironment(application: Application): ExternalMockEnvironm
     return externalMockEnvironment
 }
 
-fun generateNewTilfelleRecord(
-    endInDaysFromNow: Long = 16,
-    tilfelleDuration: Long = 14
-): ConsumerRecord<String, KafkaOppfolgingstilfellePerson> {
-    val personIdentDefault = PersonIdent(UserConstants.ARBEIDSTAKER_FNR)
-
-    val kafkaOppfolgingstilfellePersonRelevant =
-        generateKafkaOppfolgingstilfellePerson(
-            end = LocalDate.now().plusDays(endInDaysFromNow),
-            oppfolgingstilfelleDurationInDays = tilfelleDuration,
-            personIdent = personIdentDefault,
-            virksomhetsnummerList = listOf(
-                UserConstants.VIRKSOMHETSNUMMER_DEFAULT,
-                Virksomhetsnummer(UserConstants.VIRKSOMHETSNUMMER_2),
-            )
-        )
-
-    return oppfolgingstilfellePersonConsumerRecord(
-        kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonRelevant,
-    )
-}
-
-fun persistAktivitetskravFromOldTilfelle(
+fun persistAktivitetskrav(
     database: TestDatabase,
     personIdent: PersonIdent,
-    updatedAt: OffsetDateTime,
-    stoppunkt: LocalDate
+    sistVurdert: OffsetDateTime?,
+    stoppunkt: LocalDate,
+    status: AktivitetskravStatus,
 ) {
     val aktivitetskrav = Aktivitetskrav(
         personIdent = personIdent,
-        status = AktivitetskravStatus.NY,
-        sistVurdert = updatedAt,
+        status = status,
+        sistVurdert = sistVurdert,
         stoppunkt = stoppunkt,
     )
     database.connection.use { connection ->

@@ -8,9 +8,6 @@ import io.ktor.util.*
 import io.mockk.clearMocks
 import io.mockk.every
 import kotlinx.coroutines.runBlocking
-import no.nav.syfo.aktivitetskravvurdering.domain.Aktivitetskrav
-import no.nav.syfo.aktivitetskravvurdering.domain.AktivitetskravStatus
-import no.nav.syfo.aktivitetskravvurdering.persistAktivitetskrav
 import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendringType
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.domain.Virksomhetsnummer
@@ -34,7 +31,6 @@ import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import java.time.*
-import java.time.temporal.ChronoUnit
 import java.util.UUID
 
 @InternalAPI
@@ -323,9 +319,9 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     ) {
                         response.status() shouldBeEqualTo HttpStatusCode.OK
                         val personOversiktStatus =
-                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).filter {
+                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first {
                                 it.fnr == ARBEIDSTAKER_FNR
-                            }.first()
+                            }
                         personOversiktStatus.veilederIdent shouldBeEqualTo null
                         personOversiktStatus.fnr shouldBeEqualTo ARBEIDSTAKER_FNR
                         personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
@@ -811,123 +807,6 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.fnr shouldBeEqualTo oversikthendelseDialogmotesvarMottatt.personident
                         personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
                         personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo true
-                    }
-                }
-
-                // TODO: Move the aktivitetskrav tests to AktivitetskravPersonoversiktStatusApiV2Spek
-                xit("return person with aktivitetskrav status NY created this tilfelle") {
-                    kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
-                        kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
-                    )
-                    val personIdent = PersonIdent(ARBEIDSTAKER_FNR)
-                    val updatedAt = OffsetDateTime.now().truncatedTo(ChronoUnit.MILLIS)
-                    val stoppunkt = LocalDate.now()
-                    val aktivitetskrav = Aktivitetskrav(
-                        personIdent = personIdent,
-                        status = AktivitetskravStatus.NY,
-                        sistVurdert = updatedAt,
-                        stoppunkt = stoppunkt,
-                    )
-                    database.connection.use { connection ->
-                        persistAktivitetskrav(
-                            connection = connection,
-                            aktivitetskrav = aktivitetskrav,
-                        )
-                        connection.commit()
-                    }
-                    database.setTildeltEnhet(
-                        ident = personIdent,
-                        enhet = NAV_ENHET,
-                    )
-
-                    with(
-                        handleRequest(HttpMethod.Get, url) {
-                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                        }
-                    ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.OK
-
-                        val personOversiktStatus =
-                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
-                        personOversiktStatus.fnr shouldBeEqualTo personIdent.value
-                        personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
-                        personOversiktStatus.aktivitetskrav shouldBeEqualTo AktivitetskravStatus.NY.name
-                        personOversiktStatus.aktivitetskravSistVurdert shouldBeEqualTo updatedAt.toLocalDateTimeOslo()
-                        personOversiktStatus.aktivitetskravStoppunkt shouldBeEqualTo stoppunkt
-                    }
-                }
-
-                xit("return person with aktivitetskrav status AVVENT") {
-                    kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
-                        kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
-                    )
-                    val personIdent = PersonIdent(ARBEIDSTAKER_FNR)
-                    val updatedAt = OffsetDateTime.now().truncatedTo(ChronoUnit.MILLIS)
-                    val stoppunkt = LocalDate.now()
-                    val aktivitetskrav = Aktivitetskrav(
-                        personIdent = personIdent,
-                        status = AktivitetskravStatus.AVVENT,
-                        sistVurdert = updatedAt,
-                        stoppunkt = stoppunkt,
-                    )
-                    database.connection.use { connection ->
-                        persistAktivitetskrav(
-                            connection = connection,
-                            aktivitetskrav = aktivitetskrav,
-                        )
-                        connection.commit()
-                    }
-                    database.setTildeltEnhet(
-                        ident = personIdent,
-                        enhet = NAV_ENHET,
-                    )
-
-                    with(
-                        handleRequest(HttpMethod.Get, url) {
-                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                        }
-                    ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.OK
-
-                        val personOversiktStatus =
-                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
-                        personOversiktStatus.fnr shouldBeEqualTo personIdent.value
-                        personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
-                        personOversiktStatus.aktivitetskrav shouldBeEqualTo AktivitetskravStatus.AVVENT.name
-                        personOversiktStatus.aktivitetskravSistVurdert shouldBeEqualTo updatedAt.toLocalDateTimeOslo()
-                        personOversiktStatus.aktivitetskravStoppunkt shouldBeEqualTo stoppunkt
-                    }
-                }
-
-                it("return no content when aktivitetskrav has status AUTOMATISK_OPPFYLT") {
-                    kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
-                        kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
-                    )
-                    val personIdent = PersonIdent(ARBEIDSTAKER_FNR)
-                    val aktivitetskrav = Aktivitetskrav(
-                        personIdent = personIdent,
-                        status = AktivitetskravStatus.AUTOMATISK_OPPFYLT,
-                        sistVurdert = OffsetDateTime.now(),
-                        stoppunkt = LocalDate.now(),
-                    )
-                    database.connection.use { connection ->
-                        persistAktivitetskrav(
-                            connection = connection,
-                            aktivitetskrav = aktivitetskrav,
-                        )
-                        connection.commit()
-                    }
-                    database.setTildeltEnhet(
-                        ident = personIdent,
-                        enhet = NAV_ENHET,
-                    )
-
-                    with(
-                        handleRequest(HttpMethod.Get, url) {
-                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                        }
-                    ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.NoContent
                     }
                 }
 
