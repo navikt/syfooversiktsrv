@@ -22,6 +22,7 @@ fun launchKafkaTaskOppfolgingstilfellePerson(
     )
     val consumerProperties = Properties().apply {
         putAll(kafkaAivenConsumerConfig(kafkaEnvironment = kafkaEnvironment))
+        this[ConsumerConfig.MAX_POLL_RECORDS_CONFIG] = "10"
         this[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] =
             KafkaOppfolgingstilfellePersonDeserializer::class.java.canonicalName
     }
