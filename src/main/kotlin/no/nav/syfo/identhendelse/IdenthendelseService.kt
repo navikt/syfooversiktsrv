@@ -33,7 +33,7 @@ class IdenthendelseService(
                 if (personOversiktStatusWithOldIdent.isNotEmpty()) {
                     checkThatPdlIsUpdated(activeIdent)
                     val numberOfUpdatedIdenter = updateOrOverrideAndDeletePersonOversiktStatus(activeIdent, personOversiktStatusWithOldIdent)
-                    log.info("Identhendelse: Updated $numberOfUpdatedIdenter motedeltakere based on Identhendelse from PDL")
+                    log.info("Identhendelse: Updated $numberOfUpdatedIdenter personoversiktstatus based on Identhendelse from PDL")
                     COUNT_KAFKA_CONSUMER_PDL_AKTOR_UPDATES.increment(numberOfUpdatedIdenter.toDouble())
                 }
             } else {
