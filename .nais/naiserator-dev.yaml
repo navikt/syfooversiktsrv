@@ -91,9 +91,5 @@ spec:
       value: "dev-fss.teamsykefravr.syfo-tilgangskontroll"
     - name: SYFOTILGANGSKONTROLL_URL
       value: "https://syfo-tilgangskontroll.dev-fss-pub.nais.io"
-    - name: TOGGLE_KAFKA_AKTIVITETSKRAV_VURDERING_PROCESSING_ENABLED
-      value: "true"
-    - name: TOGGLE_KAFKA_IDENTHENDELSE_UPDATES_ENABLED
-      value: "true"
     - name: AKTIVITETSKRAV_TEST_VEILEDER
       value: "Z994235"
