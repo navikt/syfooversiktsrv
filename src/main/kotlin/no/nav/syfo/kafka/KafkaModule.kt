@@ -33,17 +33,20 @@ fun launchKafkaModule(
         kafkaEnvironment = environment.kafka,
     )
 
-    launchKafkaTaskAktivitetskravVurdering(
-        applicationState = applicationState,
-        kafkaEnvironment = environment.kafka,
-    )
+    if (environment.kafkaAktivitetskravVurderingProcessingEnabled) {
+        launchKafkaTaskAktivitetskravVurdering(
+            applicationState = applicationState,
+            kafkaEnvironment = environment.kafka,
+        )
+    }
 
-    launchKafkaTaskIdenthendelse(
-        applicationState = applicationState,
-        environment = environment,
-        azureAdClient = azureAdClient,
-    )
-
+    if (environment.kafkaIdenthendelseUpdatesEnabled) {
+        launchKafkaTaskIdenthendelse(
+            applicationState = applicationState,
+            environment = environment,
+            azureAdClient = azureAdClient,
+        )
+    }
     launchKafkaTaskPersonhendelse(
         applicationState = applicationState,
         environment = environment,

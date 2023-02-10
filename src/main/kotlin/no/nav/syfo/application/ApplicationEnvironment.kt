@@ -39,6 +39,8 @@ data class Environment(
         aivenRegistryUser = getEnvVar("KAFKA_SCHEMA_REGISTRY_USER"),
         aivenRegistryPassword = getEnvVar("KAFKA_SCHEMA_REGISTRY_PASSWORD"),
     ),
+    val kafkaAktivitetskravVurderingProcessingEnabled: Boolean = getEnvVar("TOGGLE_KAFKA_AKTIVITETSKRAV_VURDERING_PROCESSING_ENABLED").toBoolean(),
+    val kafkaIdenthendelseUpdatesEnabled: Boolean = getEnvVar("TOGGLE_KAFKA_IDENTHENDELSE_UPDATES_ENABLED").toBoolean(),
 
     val clients: ClientsEnvironment = ClientsEnvironment(
         ereg = ClientEnvironment(
