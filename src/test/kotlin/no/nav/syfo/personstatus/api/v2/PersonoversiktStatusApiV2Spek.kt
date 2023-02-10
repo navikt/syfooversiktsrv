@@ -339,6 +339,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     }
                 }
 
+                // TODO: Move kandidat tests to DialogmotekandidatPersonoversiktStatusApiV2Spek
                 it("should return list of PersonOversiktStatus, if there is a person with a relevant active Oppfolgingstilfelle, and person is DIALOGMOTEKANDIDAT and delay of 7 days has passed") {
                     kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
                         kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
@@ -619,42 +620,6 @@ object PersonoversiktStatusApiV2Spek : Spek({
                             personOppfolgingstilfelleDTO = personOversiktStatus.latestOppfolgingstilfelle,
                             kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonRelevant,
                         )
-                    }
-                }
-
-                it("should return Person, receives Oppfolgingstilfelle, then DIALOGMOTEKANDIDAT, and then receives DialogmoteStatusendring") {
-                    kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
-                        kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
-                    )
-                    kafkaDialogmotekandidatEndringService.pollAndProcessRecords(
-                        kafkaConsumer = mockKafkaConsumerDialogmotekandidatEndring,
-                    )
-                    kafkaDialogmoteStatusendringService.pollAndProcessRecords(
-                        kafkaConsumer = mockKafkaConsumerDialogmoteStatusendring,
-                    )
-
-                    database.setTildeltEnhet(
-                        ident = PersonIdent(ARBEIDSTAKER_FNR),
-                        enhet = NAV_ENHET,
-                    )
-
-                    with(
-                        handleRequest(HttpMethod.Get, url) {
-                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                        }
-                    ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.OK
-                        val personOversiktStatus =
-                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
-                        personOversiktStatus.shouldNotBeNull()
-                        personOversiktStatus.veilederIdent shouldBeEqualTo null
-                        personOversiktStatus.fnr shouldBeEqualTo kafkaDialogmoteStatusendring.getPersonIdent()
-                        personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
-                        personOversiktStatus.motebehovUbehandlet.shouldBeNull()
-                        personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet.shouldBeNull()
-                        personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo false
-                        personOversiktStatus.dialogmotekandidat shouldBeEqualTo true
-                        personOversiktStatus.motestatus shouldBeEqualTo kafkaDialogmoteStatusendring.getStatusEndringType()
                     }
                 }
 
