@@ -65,6 +65,8 @@ fun testEnvironment(
         port = 6376,
         secret = "password",
     ),
+    kafkaAktivitetskravVurderingProcessingEnabled = true,
+    kafkaIdenthendelseUpdatesEnabled = true,
 )
 
 fun testAppState() = ApplicationState(
