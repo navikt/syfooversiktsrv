@@ -1,6 +1,7 @@
 package no.nav.syfo.personstatus.domain
 
 import no.nav.syfo.aktivitetskravvurdering.domain.AktivitetskravStatus
+import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendringType
 import no.nav.syfo.domain.Virksomhetsnummer
 import no.nav.syfo.personstatus.api.v2.*
 import no.nav.syfo.util.*
@@ -37,7 +38,14 @@ fun PersonOversiktStatus.isDialogmotekandidat() =
         latestOppfolgingstilfelle != null &&
         dialogmotekandidatGeneratedAt != null &&
         dialogmotekandidatGeneratedAt.toLocalDateOslo().isAfter(latestOppfolgingstilfelle.oppfolgingstilfelleStart) &&
-        dialogmotekandidatGeneratedAt.toLocalDateOslo().isBeforeOrEqual(LocalDate.now().minusDays(7))
+        dialogmotekandidatGeneratedAt.toLocalDateOslo().isBeforeOrEqual(LocalDate.now().minusDays(7)) &&
+        noOpenDialogmoteInvitation()
+
+fun PersonOversiktStatus.hasOpenDialogmoteInvitation() =
+    motestatus == DialogmoteStatusendringType.INNKALT.name ||
+        motestatus == DialogmoteStatusendringType.NYTT_TID_STED.name
+
+fun PersonOversiktStatus.noOpenDialogmoteInvitation() = !hasOpenDialogmoteInvitation()
 
 fun PersonOversiktStatus.isActiveAktivitetskrav() =
     aktivitetskrav == AktivitetskravStatus.NY || aktivitetskrav == AktivitetskravStatus.AVVENT
