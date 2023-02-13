@@ -105,6 +105,7 @@ fun DatabaseInterface.hentBrukereTilknyttetVeileder(veileder: String): List<Veil
 fun ResultSet.toPPersonOversiktStatus(): PPersonOversiktStatus =
     PPersonOversiktStatus(
         id = getInt("id"),
+        uuid = getString("uuid").let { UUID.fromString(it) },
         veilederIdent = getString("tildelt_veileder"),
         fnr = getString("fnr"),
         navn = getString("name"),

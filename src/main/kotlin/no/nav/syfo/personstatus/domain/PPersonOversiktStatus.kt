@@ -7,6 +7,7 @@ import java.util.*
 
 data class PPersonOversiktStatus(
     val veilederIdent: String?,
+    val uuid: UUID,
     val fnr: String,
     val navn: String?,
     val id: Int,
