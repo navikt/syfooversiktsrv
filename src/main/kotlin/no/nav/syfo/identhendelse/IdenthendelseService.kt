@@ -13,6 +13,7 @@ import no.nav.syfo.personstatus.db.getPersonOversiktStatusList
 import no.nav.syfo.personstatus.domain.PPersonOversiktStatus
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.util.*
 
 class IdenthendelseService(
     private val database: DatabaseInterface,
@@ -31,7 +32,7 @@ class IdenthendelseService(
                 }
 
                 if (personOversiktStatusWithOldIdent.isNotEmpty()) {
-                    val isUpdatedInPdl = checkThatPdlIsUpdated(activeIdent, personOversiktStatusWithOldIdent.first().fnr)
+                    val isUpdatedInPdl = checkThatPdlIsUpdated(activeIdent, personOversiktStatusWithOldIdent.first().uuid)
                     if (isUpdatedInPdl) {
                         val numberOfUpdatedIdenter = updateOrOverrideAndDeletePersonOversiktStatus(activeIdent, personOversiktStatusWithOldIdent)
                         if (numberOfUpdatedIdenter > 0) {
@@ -47,13 +48,12 @@ class IdenthendelseService(
     }
 
     // Erfaringer fra andre team tilsier at vi burde dobbeltsjekke at ting har blitt oppdatert i PDL før vi gjør endringer
-    private fun checkThatPdlIsUpdated(nyIdent: PersonIdent, oldIdent: String): Boolean {
+    private fun checkThatPdlIsUpdated(nyIdent: PersonIdent, oldIdentUuid: UUID): Boolean {
         var isUpdated = true
         runBlocking {
             val pdlIdenter = pdlClient.hentIdenter(nyIdent.value) ?: throw RuntimeException("Fant ingen identer fra PDL")
             if (nyIdent.value != pdlIdenter.aktivIdent && pdlIdenter.identhendelseIsNotHistorisk(nyIdent.value)) {
-                val uuid = database.getPersonOversiktStatusList(oldIdent).first().uuid
-                log.warn("Identhendelse: Could not update ident with uuid $uuid, skipping identhendelse")
+                log.warn("Identhendelse: Could not update ident with uuid $oldIdentUuid, skipping identhendelse")
                 isUpdated = false
 //                throw IllegalStateException("Ny ident er ikke aktiv ident i PDL")
             }
