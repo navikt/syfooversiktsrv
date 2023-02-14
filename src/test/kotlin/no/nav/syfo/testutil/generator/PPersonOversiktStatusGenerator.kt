@@ -2,10 +2,12 @@ package no.nav.syfo.testutil.generator
 
 import no.nav.syfo.personstatus.domain.PPersonOversiktStatus
 import no.nav.syfo.testutil.UserConstants
+import java.util.*
 
 fun generatePPersonOversiktStatus() = PPersonOversiktStatus(
     veilederIdent = null,
     fnr = UserConstants.ARBEIDSTAKER_FNR,
+    uuid = UUID.randomUUID(),
     navn = null,
     id = 1,
     enhet = null,
