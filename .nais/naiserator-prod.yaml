@@ -58,6 +58,7 @@ spec:
         - application: syfooversiktsrv-redis
   azure:
     application:
+      allowAllUsers: true
       enabled: true
       tenant: nav.no
       claims:
