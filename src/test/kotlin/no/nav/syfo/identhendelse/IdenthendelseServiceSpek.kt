@@ -13,6 +13,7 @@ import no.nav.syfo.testutil.ExternalMockEnvironment
 import no.nav.syfo.testutil.UserConstants
 import no.nav.syfo.testutil.dropData
 import no.nav.syfo.testutil.generator.generateKafkaIdenthendelseDTO
+import org.amshove.kluent.internal.assertFailsWith
 import org.amshove.kluent.shouldBeEqualTo
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
@@ -150,34 +151,7 @@ object IdenthendelseServiceSpek : Spek({
             }
 
             describe("Unhappy path") {
-//                it("Skal kaste feil hvis PDL ikke har oppdatert identen") {
-//                    val kafkaIdenthendelseDTO = generateKafkaIdenthendelseDTO(
-//                        personident = PersonIdent(UserConstants.ARBEIDSTAKER_3_FNR),
-//                        hasOldPersonident = true,
-//                    )
-//                    val oldIdent = kafkaIdenthendelseDTO.getInactivePersonidenter().first()
-//
-//                    // Populate database with new PersonOversiktStatus using old ident for person
-//                    val newPersonOversiktStatus = PersonOversiktStatus(fnr = oldIdent.value)
-//                    database.connection.use { connection ->
-//                        connection.createPersonOversiktStatus(
-//                            commit = true,
-//                            personOversiktStatus = newPersonOversiktStatus,
-//                        )
-//                    }
-//
-//                    // Check that person with old/current personident exist in db before update
-//                    val currentPersonOversiktStatus = database.getPersonOversiktStatusList(oldIdent.value)
-//                    currentPersonOversiktStatus.size shouldBeEqualTo 1
-//
-//                    runBlocking {
-//                        assertFailsWith(IllegalStateException::class) {
-//                            identhendelseService.handleIdenthendelse(kafkaIdenthendelseDTO)
-//                        }
-//                    }
-//                }
-
-                it("Skal hoppe over record hvis PDL ikke har oppdatert identen") {
+                it("Skal kaste feil hvis PDL ikke har oppdatert identen") {
                     val kafkaIdenthendelseDTO = generateKafkaIdenthendelseDTO(
                         personident = PersonIdent(UserConstants.ARBEIDSTAKER_3_FNR),
                         hasOldPersonident = true,
@@ -195,11 +169,10 @@ object IdenthendelseServiceSpek : Spek({
                     database.getPersonOversiktStatusList(oldIdent.value).size shouldBeEqualTo 1
 
                     runBlocking {
-                        identhendelseService.handleIdenthendelse(kafkaIdenthendelseDTO)
+                        assertFailsWith(IllegalStateException::class) {
+                            identhendelseService.handleIdenthendelse(kafkaIdenthendelseDTO)
+                        }
                     }
-
-                    database.getPersonOversiktStatusList(oldIdent.value).size shouldBeEqualTo 1
-                    database.getPersonOversiktStatusList(kafkaIdenthendelseDTO.getActivePersonident()!!.value).size shouldBeEqualTo 0
                 }
             }
         }
