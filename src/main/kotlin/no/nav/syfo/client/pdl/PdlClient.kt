@@ -41,8 +41,12 @@ class PdlClient(
             HttpStatusCode.OK -> {
                 val pdlIdenterReponse = response.body<PdlIdentResponse>()
                 if (!pdlIdenterReponse.errors.isNullOrEmpty()) {
-                    pdlIdenterReponse.errors.forEach {
-                        logger.error("Error while requesting ident from PersonDataLosningen: ${it.errorMessage()}")
+                    pdlIdenterReponse.errors.forEach { error ->
+                        if (error.isNotFound()) {
+                            logger.warn("Error while requesting ident from PersonDataLosningen: ${error.errorMessage()}")
+                        } else {
+                            logger.error("Error while requesting ident from PersonDataLosningen: ${error.errorMessage()}")
+                        }
                     }
                     null
                 } else {
