@@ -174,6 +174,29 @@ object IdenthendelseServiceSpek : Spek({
                         }
                     }
                 }
+                it("Skal kaste RuntimeException hvis PDL gir en not_found ved henting av identer") {
+                    val kafkaIdenthendelseDTO = generateKafkaIdenthendelseDTO(
+                        personident = PersonIdent(UserConstants.ARBEIDSTAKER_4_FNR_WITH_ERROR),
+                        hasOldPersonident = true,
+                    )
+                    val oldIdent = kafkaIdenthendelseDTO.getInactivePersonidenter().first()
+
+                    val newPersonOversiktStatus = PersonOversiktStatus(fnr = oldIdent.value)
+                    database.connection.use { connection ->
+                        connection.createPersonOversiktStatus(
+                            commit = true,
+                            personOversiktStatus = newPersonOversiktStatus,
+                        )
+                    }
+
+                    database.getPersonOversiktStatusList(oldIdent.value).size shouldBeEqualTo 1
+
+                    runBlocking {
+                        assertFailsWith(RuntimeException::class) {
+                            identhendelseService.handleIdenthendelse(kafkaIdenthendelseDTO)
+                        }
+                    }
+                }
             }
         }
     }
