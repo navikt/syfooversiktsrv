@@ -23,6 +23,7 @@ data class KafkaOppfolgingstilfelle(
     val virksomhetsnummerList: List<String>,
 )
 
+// TODO: Hent latest oppfolgingstilfelle fra this
 fun KafkaOppfolgingstilfellePerson.toPersonOversiktStatus(
     latestKafkaOppfolgingstilfelle: KafkaOppfolgingstilfelle,
 ) = PersonOversiktStatus(
@@ -44,7 +45,7 @@ fun KafkaOppfolgingstilfellePerson.toPersonOversiktStatus(
     aktivitetskravStoppunkt = null,
     aktivitetskravSistVurdert = null,
 )
-
+// TODO: Hent latest oppfolgingstilfelle fra this
 fun KafkaOppfolgingstilfellePerson.toPersonOppfolgingstilfelle(
     latestKafkaOppfolgingstilfelle: KafkaOppfolgingstilfelle,
 ) = Oppfolgingstilfelle(

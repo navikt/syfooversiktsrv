@@ -73,7 +73,6 @@ object PersonoversiktStatusApiV2Spek : Spek({
                 kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonRelevant,
             )
 
-            val kafkaDialogmotekandidatEndringService = TestKafkaModule.kafkaDialogmotekandidatEndringService
             val mockKafkaConsumerDialogmotekandidatEndring =
                 TestKafkaModule.kafkaConsumerDialogmotekandidatEndring
             val dialogmoteKandidatTopicPartition = dialogmotekandidatEndringTopicPartition()
@@ -85,15 +84,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                 dialogmotekandidatEndringConsumerRecord(
                     kafkaDialogmotekandidatEndring = kafkaDialogmotekandidatEndringStoppunktDelayPassed,
                 )
-            val kafkaDialogmotekandidatEndringStoppunktHistoric = generateKafkaDialogmotekandidatEndringStoppunkt(
-                personIdent = ARBEIDSTAKER_FNR,
-                createdAt = nowUTC().minusDays(365)
-            )
-            val kafkaDialogmotekandidatEndringStoppunktConsumerHistoricRecord = dialogmotekandidatEndringConsumerRecord(
-                kafkaDialogmotekandidatEndring = kafkaDialogmotekandidatEndringStoppunktHistoric,
-            )
 
-            val kafkaDialogmoteStatusendringService = TestKafkaModule.kafkaDialogmoteStatusendringService
             val mockKafkaConsumerDialogmoteStatusendring = TestKafkaModule.kafkaConsumerDialogmoteStatusendring
             val dialogmoteStatusendringTopicPartition = dialogmoteStatusendringTopicPartition()
             val kafkaDialogmoteStatusendring = generateKafkaDialogmoteStatusendring(
@@ -336,109 +327,6 @@ object PersonoversiktStatusApiV2Spek : Spek({
                             personOppfolgingstilfelleDTO = personOversiktStatus.latestOppfolgingstilfelle,
                             kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonRelevant,
                         )
-                    }
-                }
-
-                // TODO: Move kandidat tests to DialogmotekandidatPersonoversiktStatusApiV2Spek
-                it("should return list of PersonOversiktStatus, if there is a person with a relevant active Oppfolgingstilfelle, and person is DIALOGMOTEKANDIDAT and delay of 7 days has passed") {
-                    kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
-                        kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
-                    )
-                    kafkaDialogmotekandidatEndringService.pollAndProcessRecords(
-                        kafkaConsumer = mockKafkaConsumerDialogmotekandidatEndring,
-                    )
-
-                    database.setTildeltEnhet(
-                        ident = PersonIdent(ARBEIDSTAKER_FNR),
-                        enhet = NAV_ENHET,
-                    )
-
-                    with(
-                        handleRequest(HttpMethod.Get, url) {
-                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                        }
-                    ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.OK
-                        val personOversiktStatus =
-                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
-                        personOversiktStatus.shouldNotBeNull()
-                        personOversiktStatus.veilederIdent shouldBeEqualTo null
-                        personOversiktStatus.fnr shouldBeEqualTo kafkaDialogmotekandidatEndringStoppunktDelayPassed.personIdentNumber
-                        personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
-                        personOversiktStatus.motebehovUbehandlet.shouldBeNull()
-                        personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet.shouldBeNull()
-                        personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo false
-                        personOversiktStatus.dialogmotekandidat shouldBeEqualTo true
-                        personOversiktStatus.motestatus.shouldBeNull()
-                    }
-                }
-
-                it("should not return list of PersonOversiktStatus, if there is a person with a relevant active Oppfolgingstilfelle, and person is historic DIALOGMOTEKANDIDAT") {
-                    every { mockKafkaConsumerDialogmotekandidatEndring.poll(any<Duration>()) } returns ConsumerRecords(
-                        mapOf(
-                            dialogmoteKandidatTopicPartition to listOf(
-                                kafkaDialogmotekandidatEndringStoppunktConsumerHistoricRecord,
-                            )
-                        )
-                    )
-                    kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
-                        kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
-                    )
-                    kafkaDialogmotekandidatEndringService.pollAndProcessRecords(
-                        kafkaConsumer = mockKafkaConsumerDialogmotekandidatEndring,
-                    )
-
-                    database.setTildeltEnhet(
-                        ident = PersonIdent(ARBEIDSTAKER_FNR),
-                        enhet = NAV_ENHET,
-                    )
-
-                    with(
-                        handleRequest(HttpMethod.Get, url) {
-                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                        }
-                    ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.NoContent
-                    }
-                }
-
-                it("should not return list of PersonOversiktStatus, if there is a person with a relevant active Oppfolgingstilfelle, and person is DIALOGMOTEKANDIDAT and delay of 7 days has not passed") {
-                    val kafkaDialogmotekandidatEndringStoppunktDelayNotPassed =
-                        generateKafkaDialogmotekandidatEndringStoppunkt(
-                            personIdent = ARBEIDSTAKER_FNR,
-                            createdAt = nowUTC().minusDays(6),
-                        )
-                    val kafkaDialogmotekandidatEndringStoppunktConsumerDelayNotPassedRecord =
-                        dialogmotekandidatEndringConsumerRecord(
-                            kafkaDialogmotekandidatEndring = kafkaDialogmotekandidatEndringStoppunktDelayNotPassed,
-                        )
-
-                    every { mockKafkaConsumerDialogmotekandidatEndring.poll(any<Duration>()) } returns ConsumerRecords(
-                        mapOf(
-                            dialogmoteKandidatTopicPartition to listOf(
-                                kafkaDialogmotekandidatEndringStoppunktConsumerDelayNotPassedRecord,
-                            )
-                        )
-                    )
-
-                    kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
-                        kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
-                    )
-                    kafkaDialogmotekandidatEndringService.pollAndProcessRecords(
-                        kafkaConsumer = mockKafkaConsumerDialogmotekandidatEndring,
-                    )
-
-                    database.setTildeltEnhet(
-                        ident = PersonIdent(ARBEIDSTAKER_FNR),
-                        enhet = NAV_ENHET,
-                    )
-
-                    with(
-                        handleRequest(HttpMethod.Get, url) {
-                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                        }
-                    ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.NoContent
                     }
                 }
 
