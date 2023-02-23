@@ -57,7 +57,12 @@ const val queryGetPersonerWithOppgaveAndOldEnhet =
     """
     SELECT fnr, tildelt_enhet
     FROM PERSON_OVERSIKT_STATUS
-    WHERE (motebehov_ubehandlet = 't' OR oppfolgingsplan_lps_bistand_ubehandlet = 't' OR dialogmotekandidat = 't' OR dialogmotesvar_ubehandlet = 't')
+    WHERE (motebehov_ubehandlet = 't' 
+        OR oppfolgingsplan_lps_bistand_ubehandlet = 't' 
+        OR dialogmotekandidat = 't' 
+        OR dialogmotesvar_ubehandlet = 't'
+        OR ((aktivitetskrav = 'NY' OR aktivitetskrav = 'AVVENT') AND aktivitetskrav_stoppunkt > '2023-02-01')
+        )
     AND (tildelt_enhet_updated_at IS NULL OR tildelt_enhet_updated_at <= NOW() - INTERVAL '24 HOURS')
     ORDER BY tildelt_enhet_updated_at ASC
     LIMIT 2000
