@@ -11,6 +11,7 @@ import no.nav.syfo.aktivitetskravvurdering.domain.AktivitetskravStatus
 import no.nav.syfo.aktivitetskravvurdering.persistAktivitetskrav
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.testutil.*
+import no.nav.syfo.testutil.generator.generateAktivitetskrav
 import no.nav.syfo.testutil.mock.behandlendeEnhetDTO
 import no.nav.syfo.util.*
 import org.amshove.kluent.shouldBeEqualTo
@@ -18,9 +19,6 @@ import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import java.time.*
 import java.time.temporal.ChronoUnit
-
-// Samme dato som i enhetens oversikt query
-private val aktivitetskravStoppunktCutoff = LocalDate.of(2023, Month.FEBRUARY, 1)
 
 @InternalAPI
 object AktivitetskravPersonoversiktStatusApiV2 : Spek({
@@ -47,13 +45,15 @@ object AktivitetskravPersonoversiktStatusApiV2 : Spek({
 
                 it("returns person with aktivitetskrav status NY and stoppunkt after cutoff") {
                     val personIdent = PersonIdent(UserConstants.ARBEIDSTAKER_FNR)
-                    val stoppunkt = aktivitetskravStoppunktCutoff.plusDays(1)
-                    persistAktivitetskrav(
+                    val aktivitetskrav = generateAktivitetskrav(
+                        personIdent = personIdent,
+                        status = AktivitetskravStatus.NY,
+                        stoppunktAfterCutoff = true,
+                    )
+                    persistAktivitetskravAndTildelEnhet(
                         database = database,
                         personIdent = personIdent,
-                        sistVurdert = null,
-                        stoppunkt = stoppunkt,
-                        status = AktivitetskravStatus.NY
+                        aktivitetskrav = aktivitetskrav,
                     )
 
                     with(
@@ -69,20 +69,23 @@ object AktivitetskravPersonoversiktStatusApiV2 : Spek({
                         personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
                         personOversiktStatus.aktivitetskrav shouldBeEqualTo AktivitetskravStatus.NY.name
                         personOversiktStatus.aktivitetskravSistVurdert shouldBeEqualTo null
-                        personOversiktStatus.aktivitetskravStoppunkt shouldBeEqualTo stoppunkt
+                        personOversiktStatus.aktivitetskravStoppunkt shouldBeEqualTo aktivitetskrav.stoppunkt
                     }
                 }
 
                 it("returns person with aktivitetskrav status AVVENT and stoppunkt after cutoff") {
                     val personIdent = PersonIdent(UserConstants.ARBEIDSTAKER_FNR)
                     val sistVurdert = OffsetDateTime.now().truncatedTo(ChronoUnit.MILLIS)
-                    val stoppunkt = aktivitetskravStoppunktCutoff.plusDays(1)
-                    persistAktivitetskrav(
+                    val aktivitetskrav = generateAktivitetskrav(
+                        personIdent = personIdent,
+                        status = AktivitetskravStatus.AVVENT,
+                        stoppunktAfterCutoff = true,
+                        sistVurdert = sistVurdert,
+                    )
+                    persistAktivitetskravAndTildelEnhet(
                         database = database,
                         personIdent = personIdent,
-                        sistVurdert = sistVurdert,
-                        stoppunkt = stoppunkt,
-                        status = AktivitetskravStatus.AVVENT
+                        aktivitetskrav = aktivitetskrav,
                     )
 
                     with(
@@ -98,19 +101,21 @@ object AktivitetskravPersonoversiktStatusApiV2 : Spek({
                         personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
                         personOversiktStatus.aktivitetskrav shouldBeEqualTo AktivitetskravStatus.AVVENT.name
                         personOversiktStatus.aktivitetskravSistVurdert shouldBeEqualTo sistVurdert.toLocalDateTimeOslo()
-                        personOversiktStatus.aktivitetskravStoppunkt shouldBeEqualTo stoppunkt
+                        personOversiktStatus.aktivitetskravStoppunkt shouldBeEqualTo aktivitetskrav.stoppunkt
                     }
                 }
 
                 it("returns no content when aktivitetskrav has status AUTOMATISK_OPPFYLT") {
                     val personIdent = PersonIdent(UserConstants.ARBEIDSTAKER_FNR)
-                    val stoppunkt = aktivitetskravStoppunktCutoff.plusDays(1)
-                    persistAktivitetskrav(
+                    val aktivitetskrav = generateAktivitetskrav(
+                        personIdent = personIdent,
+                        status = AktivitetskravStatus.AUTOMATISK_OPPFYLT,
+                        stoppunktAfterCutoff = true,
+                    )
+                    persistAktivitetskravAndTildelEnhet(
                         database = database,
                         personIdent = personIdent,
-                        sistVurdert = null,
-                        stoppunkt = stoppunkt,
-                        status = AktivitetskravStatus.AUTOMATISK_OPPFYLT
+                        aktivitetskrav = aktivitetskrav,
                     )
 
                     with(
@@ -123,13 +128,15 @@ object AktivitetskravPersonoversiktStatusApiV2 : Spek({
                 }
                 it("returns no content when person with aktivitetskrav status NY and stoppunkt before cutoff") {
                     val personIdent = PersonIdent(UserConstants.ARBEIDSTAKER_FNR)
-                    val stoppunkt = aktivitetskravStoppunktCutoff.minusDays(1)
-                    persistAktivitetskrav(
+                    val aktivitetskrav = generateAktivitetskrav(
+                        personIdent = personIdent,
+                        status = AktivitetskravStatus.NY,
+                        stoppunktAfterCutoff = false,
+                    )
+                    persistAktivitetskravAndTildelEnhet(
                         database = database,
                         personIdent = personIdent,
-                        sistVurdert = null,
-                        stoppunkt = stoppunkt,
-                        status = AktivitetskravStatus.NY
+                        aktivitetskrav = aktivitetskrav,
                     )
 
                     with(
@@ -154,19 +161,11 @@ fun setupExternalMockEnvironment(application: Application): ExternalMockEnvironm
     return externalMockEnvironment
 }
 
-fun persistAktivitetskrav(
+fun persistAktivitetskravAndTildelEnhet(
     database: TestDatabase,
     personIdent: PersonIdent,
-    sistVurdert: OffsetDateTime?,
-    stoppunkt: LocalDate,
-    status: AktivitetskravStatus,
+    aktivitetskrav: Aktivitetskrav,
 ) {
-    val aktivitetskrav = Aktivitetskrav(
-        personIdent = personIdent,
-        status = status,
-        sistVurdert = sistVurdert,
-        stoppunkt = stoppunkt,
-    )
     database.connection.use { connection ->
         persistAktivitetskrav(
             connection = connection,

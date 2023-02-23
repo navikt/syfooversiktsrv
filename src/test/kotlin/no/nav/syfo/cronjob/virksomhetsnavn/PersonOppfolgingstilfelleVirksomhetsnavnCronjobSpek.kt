@@ -5,6 +5,8 @@ import io.ktor.util.*
 import io.mockk.clearMocks
 import io.mockk.every
 import kotlinx.coroutines.runBlocking
+import no.nav.syfo.aktivitetskravvurdering.domain.AktivitetskravStatus
+import no.nav.syfo.aktivitetskravvurdering.persistAktivitetskrav
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.domain.Virksomhetsnummer
 import no.nav.syfo.personoppgavehendelse.kafka.KPersonoppgavehendelse
@@ -19,12 +21,11 @@ import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER_NO_VIRKSOMHETSNAVN
 import no.nav.syfo.testutil.assertion.checkPPersonOppfolgingstilfelleVirksomhet
 import no.nav.syfo.testutil.generator.*
 import no.nav.syfo.util.nowUTC
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeNull
+import org.amshove.kluent.*
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
-import java.time.Duration
+import java.time.*
 import java.util.UUID
 
 @InternalAPI
@@ -284,6 +285,69 @@ object PersonOppfolgingstilfelleVirksomhetsnavnCronjobSpek : Spek({
 
                         result.failed shouldBeEqualTo 0
                         result.updated shouldBeEqualTo 0
+                    }
+
+                    database.connection.use { connection ->
+                        val pPersonOppfolgingstilfelleVirksomhetList =
+                            connection.getPersonOppfolgingstilfelleVirksomhetList(
+                                pPersonOversikStatusId = pPersonOversiktStatus.id,
+                            )
+
+                        checkPPersonOppfolgingstilfelleVirksomhet(
+                            pPersonOppfolgingstilfelleVirksomhetList = pPersonOppfolgingstilfelleVirksomhetList,
+                            kafkaOppfolgingstilfellePerson = recordValue,
+                            updated = true,
+                        )
+                    }
+                }
+
+                it("updates Virksomhetsnavn of existing PersonOppfolgingstilfelleVirksomhet if active aktivitetskrav") {
+                    val aktivitetskrav = generateAktivitetskrav(
+                        personIdent = personIdentDefault,
+                        status = AktivitetskravStatus.AVVENT,
+                        stoppunktAfterCutoff = true,
+                    )
+                    database.connection.use { connection ->
+                        persistAktivitetskrav(
+                            connection = connection,
+                            aktivitetskrav = aktivitetskrav,
+                        )
+                        connection.commit()
+                    }
+
+                    kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                        kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
+                    )
+
+                    val recordValue = kafkaOppfolgingstilfellePersonServiceRecordRelevant.value()
+
+                    val pPersonOversiktStatusList = database.getPersonOversiktStatusList(
+                        fnr = recordValue.personIdentNumber,
+                    )
+
+                    pPersonOversiktStatusList.size shouldBeEqualTo 1
+
+                    val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+                    pPersonOversiktStatus.aktivitetskrav.shouldNotBeNull()
+
+                    database.connection.use { connection ->
+                        val pPersonOppfolgingstilfelleVirksomhetList =
+                            connection.getPersonOppfolgingstilfelleVirksomhetList(
+                                pPersonOversikStatusId = pPersonOversiktStatus.id,
+                            )
+
+                        checkPPersonOppfolgingstilfelleVirksomhet(
+                            pPersonOppfolgingstilfelleVirksomhetList = pPersonOppfolgingstilfelleVirksomhetList,
+                            kafkaOppfolgingstilfellePerson = recordValue,
+                            updated = false,
+                        )
+                    }
+
+                    runBlocking {
+                        val result = personOppfolgingstilfelleVirksomhetnavnCronjob.runJob()
+
+                        result.failed shouldBeEqualTo 0
+                        result.updated shouldBeEqualTo 2
                     }
 
                     database.connection.use { connection ->
