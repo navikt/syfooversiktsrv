@@ -10,7 +10,7 @@ import java.sql.Types
 const val queryUpdatePersonTildeltEnhetUpdatedAt =
     """
     UPDATE PERSON_OVERSIKT_STATUS
-    SET tildelt_enhet_updated_at = ?
+    SET tildelt_enhet_updated_at = ?, sist_endret = ?
     WHERE fnr = ?
     """
 
@@ -21,7 +21,8 @@ fun DatabaseInterface.updatePersonTildeltEnhetUpdatedAt(
     this.connection.use { connection ->
         connection.prepareStatement(queryUpdatePersonTildeltEnhetUpdatedAt).use {
             it.setObject(1, now)
-            it.setString(2, personIdent.value)
+            it.setObject(2, now)
+            it.setString(3, personIdent.value)
             it.execute()
         }
         connection.commit()

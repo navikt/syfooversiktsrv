@@ -31,16 +31,18 @@ fun DatabaseInterface.updatePersonOversiktStatusFnr(nyPersonident: PersonIdent, 
 const val queryUpdatePersonOversiktStatusVeileder =
     """
         UPDATE PERSON_OVERSIKT_STATUS
-        SET tildelt_veileder = ?
+        SET tildelt_veileder = ?, sist_endret = ?
         WHERE fnr = ?
     """
 
 fun DatabaseInterface.updatePersonOversiktStatusVeileder(veilederIdent: String, personident: PersonIdent): Int {
     var updatedRows: Int
+    val now = Timestamp.from(Instant.now())
     this.connection.use { connection ->
         updatedRows = connection.prepareStatement(queryUpdatePersonOversiktStatusVeileder).use {
             it.setString(1, veilederIdent)
-            it.setString(2, personident.value)
+            it.setObject(2, now)
+            it.setString(3, personident.value)
             it.executeUpdate()
         }.also {
             connection.commit()

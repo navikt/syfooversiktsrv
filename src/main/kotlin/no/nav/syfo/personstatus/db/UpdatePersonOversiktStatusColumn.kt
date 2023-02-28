@@ -82,7 +82,8 @@ const val queryUpdatePersonOversiktStatusMotestatus =
     """
         UPDATE PERSON_OVERSIKT_STATUS
         SET motestatus = ?,
-        motestatus_generated_at = ?
+        motestatus_generated_at = ?,
+        sist_endret = ?
         WHERE fnr = ?
     """
 
@@ -93,7 +94,8 @@ fun Connection.updatePersonOversiktStatusMotestatus(
     this.prepareStatement(queryUpdatePersonOversiktStatusMotestatus).use {
         it.setString(1, dialogmoteStatusendring.type.name)
         it.setObject(2, dialogmoteStatusendring.endringTidspunkt)
-        it.setString(3, pPersonOversiktStatus.fnr)
+        it.setObject(3, Timestamp.from(Instant.now()))
+        it.setString(4, pPersonOversiktStatus.fnr)
         it.execute()
     }
 }
@@ -103,7 +105,8 @@ const val queryUpdatePersonOversiktStatusAktivitetskrav =
         UPDATE PERSON_OVERSIKT_STATUS
         SET aktivitetskrav = ?,
         aktivitetskrav_sist_vurdert = ?,
-        aktivitetskrav_stoppunkt = ?
+        aktivitetskrav_stoppunkt = ?,
+        sist_endret = ?
         WHERE fnr = ?
     """
 
@@ -115,7 +118,8 @@ fun Connection.updatePersonOversiktStatusAktivitetskrav(
         it.setString(1, aktivitetskrav.status.name)
         it.setObject(2, aktivitetskrav.sistVurdert)
         it.setObject(3, aktivitetskrav.stoppunkt)
-        it.setString(4, pPersonOversiktStatus.fnr)
+        it.setObject(4, Timestamp.from(Instant.now()))
+        it.setString(5, pPersonOversiktStatus.fnr)
         it.execute()
     }
 }
@@ -128,7 +132,8 @@ fun Connection.updatePersonOversiktStatusKandidat(
     this.prepareStatement(queryUpdatePersonOversiktStatusKandidat).use {
         it.setBoolean(1, kandidat)
         it.setObject(2, generatedAt)
-        it.setString(3, pPersonOversiktStatus.fnr)
+        it.setObject(3, Timestamp.from(Instant.now()))
+        it.setString(4, pPersonOversiktStatus.fnr)
         it.execute()
     }
 }
@@ -137,7 +142,8 @@ const val queryUpdatePersonOversiktStatusKandidat =
     """
         UPDATE PERSON_OVERSIKT_STATUS
         SET dialogmotekandidat = ?,
-        dialogmotekandidat_generated_at = ?
+        dialogmotekandidat_generated_at = ?,
+        sist_endret = ?
         WHERE fnr = ?
     """
 
@@ -161,13 +167,14 @@ fun DatabaseInterface.oppdaterEnhetDersomKnytningFinnes(veilederBrukerKnytning: 
         id = knytningerPaVeileder[0]
         val updateQuery = """
                          UPDATE PERSON_OVERSIKT_STATUS
-                         SET tildelt_veileder = ?
+                         SET tildelt_veileder = ?, sist_endret = ?
                          WHERE id = ?
                 """
         connection.use { connection ->
             connection.prepareStatement(updateQuery).use {
                 it.setString(1, veilederBrukerKnytning.veilederIdent)
-                it.setLong(2, id)
+                it.setObject(2, Timestamp.from(Instant.now()))
+                it.setLong(3, id)
                 it.executeUpdate()
             }
             connection.commit()

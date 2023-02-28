@@ -120,7 +120,8 @@ const val queryUpdatePersonOversiktStatusOppfolgingstilfelle =
     oppfolgingstilfelle_start = ?,
     oppfolgingstilfelle_end = ?,
     oppfolgingstilfelle_bit_referanse_uuid = ?,
-    oppfolgingstilfelle_bit_referanse_inntruffet = ?
+    oppfolgingstilfelle_bit_referanse_inntruffet = ?,
+    sist_endret = ?
     WHERE fnr = ?
     """
 
@@ -135,7 +136,8 @@ fun Connection.updatePersonOversiktStatusOppfolgingstilfelle(
         it.setObject(4, oppfolgingstilfelle.oppfolgingstilfelleEnd)
         it.setString(5, oppfolgingstilfelle.oppfolgingstilfelleBitReferanseUuid.toString())
         it.setObject(6, oppfolgingstilfelle.oppfolgingstilfelleBitReferanseInntruffet)
-        it.setString(7, pPersonOversiktStatus.fnr)
+        it.setObject(7, Timestamp.from(Instant.now()))
+        it.setString(8, pPersonOversiktStatus.fnr)
         it.execute()
     }
     updatePersonOppfolgingstilfelleVirksomhetList(
@@ -177,18 +179,20 @@ fun DatabaseInterface.lagreBrukerKnytningPaEnhet(veilederBrukerKnytning: Veilede
 const val queryUpdatePersonOversiktStatusNavn =
     """
     UPDATE PERSON_OVERSIKT_STATUS
-    SET name = ?
+    SET name = ?, sist_endret = ?
     WHERE fnr = ?
     """
 
 fun DatabaseInterface.updatePersonOversiktStatusNavn(
     personIdentNameMap: Map<String, String>,
 ) {
+    val now = Timestamp.from(Instant.now())
     this.connection.use { connection ->
         connection.prepareStatement(queryUpdatePersonOversiktStatusNavn).use {
             personIdentNameMap.forEach { (personident, navn) ->
                 it.setString(1, navn)
-                it.setString(2, personident)
+                it.setObject(2, now)
+                it.setString(3, personident)
                 it.executeUpdate()
             }
         }
