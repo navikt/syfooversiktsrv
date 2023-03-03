@@ -3,25 +3,23 @@ package no.nav.syfo.personstatus.api.v2
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.ktor.http.*
-import io.ktor.server.application.*
 import io.ktor.server.testing.*
 import io.ktor.util.*
-import no.nav.syfo.aktivitetskravvurdering.domain.Aktivitetskrav
 import no.nav.syfo.aktivitetskravvurdering.domain.AktivitetskravStatus
-import no.nav.syfo.aktivitetskravvurdering.persistAktivitetskrav
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.testutil.*
+import no.nav.syfo.testutil.database.*
 import no.nav.syfo.testutil.generator.generateAktivitetskrav
 import no.nav.syfo.testutil.mock.behandlendeEnhetDTO
 import no.nav.syfo.util.*
 import org.amshove.kluent.shouldBeEqualTo
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
-import java.time.*
+import java.time.OffsetDateTime
 import java.time.temporal.ChronoUnit
 
 @InternalAPI
-object AktivitetskravPersonoversiktStatusApiV2 : Spek({
+object AktivitetskravPersonoversiktStatusApiV2Spek : Spek({
     val objectMapper: ObjectMapper = configuredJacksonMapper()
 
     describe("Hent aktivitetskrav fra personstatusoversikt") {
@@ -147,34 +145,30 @@ object AktivitetskravPersonoversiktStatusApiV2 : Spek({
                         response.status() shouldBeEqualTo HttpStatusCode.NoContent
                     }
                 }
+                it("returns no content when no aktivitetskrav and the person is removed as kandidat in the application level filter") {
+                    val personIdent = PersonIdent(UserConstants.ARBEIDSTAKER_FNR)
+                    val aktivitetskrav = generateAktivitetskrav(
+                        personIdent = personIdent,
+                        status = AktivitetskravStatus.NY,
+                        stoppunktAfterCutoff = false,
+                    )
+                    persistAktivitetskravAndTildelEnhet(
+                        database = database,
+                        personIdent = personIdent,
+                        aktivitetskrav = aktivitetskrav,
+                    )
+                    setAsKandidat(database)
+                    setAsOpenDialogmote(database, personIdent) // remove person as kandidat
+
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        }
+                    ) {
+                        response.status() shouldBeEqualTo HttpStatusCode.NoContent
+                    }
+                }
             }
         }
     }
 })
-
-fun setupExternalMockEnvironment(application: Application): ExternalMockEnvironment {
-    val externalMockEnvironment = ExternalMockEnvironment.instance
-
-    application.testApiModule(
-        externalMockEnvironment = externalMockEnvironment
-    )
-    return externalMockEnvironment
-}
-
-fun persistAktivitetskravAndTildelEnhet(
-    database: TestDatabase,
-    personIdent: PersonIdent,
-    aktivitetskrav: Aktivitetskrav,
-) {
-    database.connection.use { connection ->
-        persistAktivitetskrav(
-            connection = connection,
-            aktivitetskrav = aktivitetskrav,
-        )
-        connection.commit()
-    }
-    database.setTildeltEnhet(
-        ident = personIdent,
-        enhet = UserConstants.NAV_ENHET,
-    )
-}

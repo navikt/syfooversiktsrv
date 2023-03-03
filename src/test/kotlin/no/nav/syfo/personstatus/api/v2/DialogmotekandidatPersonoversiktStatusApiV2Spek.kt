@@ -5,16 +5,10 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import io.ktor.util.*
-import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendring
 import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendringType
-import no.nav.syfo.domain.PersonIdent
-import no.nav.syfo.domain.Virksomhetsnummer
-import no.nav.syfo.oppfolgingstilfelle.kafka.toPersonOversiktStatus
-import no.nav.syfo.personstatus.db.updatePersonOversiktStatusKandidat
-import no.nav.syfo.personstatus.db.updatePersonOversiktStatusMotestatus
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
-import no.nav.syfo.testutil.generator.*
+import no.nav.syfo.testutil.database.*
 import no.nav.syfo.testutil.mock.behandlendeEnhetDTO
 import no.nav.syfo.util.bearerHeader
 import no.nav.syfo.util.configuredJacksonMapper
@@ -142,61 +136,3 @@ object DialogmotekandidatPersonoversiktStatusApiV2Spek : Spek({
         }
     }
 })
-
-fun createPersonoversiktStatusWithTilfelle(database: TestDatabase) {
-    val kafkaOppfolgingstilfellePerson = generateKafkaOppfolgingstilfellePerson(
-        personIdent = PersonIdent(ARBEIDSTAKER_FNR),
-        virksomhetsnummerList = listOf(
-            UserConstants.VIRKSOMHETSNUMMER_DEFAULT,
-            Virksomhetsnummer(UserConstants.VIRKSOMHETSNUMMER_2),
-        )
-    )
-    val kafkaOppfolgingstilfelle = kafkaOppfolgingstilfellePerson.oppfolgingstilfelleList.first()
-    database.createPersonOversiktStatus(
-        personOversiktStatus = kafkaOppfolgingstilfellePerson.toPersonOversiktStatus(kafkaOppfolgingstilfelle)
-    )
-}
-
-fun setTildeltEnhet(database: TestDatabase) {
-    database.setTildeltEnhet(
-        ident = PersonIdent(ARBEIDSTAKER_FNR),
-        enhet = UserConstants.NAV_ENHET,
-    )
-}
-
-fun setDialogmotestatus(
-    database: TestDatabase,
-    status: DialogmoteStatusendringType = DialogmoteStatusendringType.INNKALT
-) {
-    val ppersonOversiktStatus = generatePPersonOversiktStatus()
-    val statusendring = DialogmoteStatusendring.create(
-        generateKafkaDialogmoteStatusendring(
-            personIdent = ARBEIDSTAKER_FNR,
-            type = status,
-            endringsTidspunkt = OffsetDateTime.now().minusDays(1)
-        )
-    )
-    database.connection.use { connection ->
-        connection.updatePersonOversiktStatusMotestatus(
-            pPersonOversiktStatus = ppersonOversiktStatus,
-            dialogmoteStatusendring = statusendring,
-        )
-        connection.commit()
-    }
-}
-
-fun setAsKandidat(
-    database: TestDatabase,
-    kandidatGeneratedAt: OffsetDateTime = OffsetDateTime.now().minusDays(10)
-) {
-    val ppersonOversiktStatus = generatePPersonOversiktStatus()
-
-    database.connection.use { connection ->
-        connection.updatePersonOversiktStatusKandidat(
-            pPersonOversiktStatus = ppersonOversiktStatus,
-            kandidat = true,
-            generatedAt = kandidatGeneratedAt
-        )
-        connection.commit()
-    }
-}
