@@ -12,8 +12,9 @@ class PersonoversiktStatusService(
     private val pdlClient: PdlClient,
 ) {
     fun hentPersonoversiktStatusTilknyttetEnhet(enhet: String, veilederIdent: String): List<PersonOversiktStatus> {
+        val isTestVeileder = isTestVeileder(veilederIdent)
         val personListe =
-            if (isTestVeileder(veilederIdent)) database.hentUbehandledePersonerTilknyttetEnhetTestVeileder(
+            if (isTestVeileder) database.hentUbehandledePersonerTilknyttetEnhetTestVeileder(
                 enhet = enhet,
             ) else database.hentUbehandledePersonerTilknyttetEnhet(
                 enhet = enhet,
@@ -30,7 +31,7 @@ class PersonoversiktStatusService(
                 personOversiktStatus.dialogmotesvarUbehandlet == true ||
                 personOversiktStatus.isDialogmotekandidat() ||
                 (personOversiktStatus.motebehovUbehandlet == true && personOversiktStatus.latestOppfolgingstilfelle != null) ||
-                personOversiktStatus.isActiveAktivitetskrav()
+                (isTestVeileder && personOversiktStatus.isActiveAktivitetskrav())
         }
     }
 
