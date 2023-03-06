@@ -35,7 +35,7 @@ const val queryPersonOppfolgingstilfelleVirksomhetNoVirksomhetsnavnList =
         OR oppfolgingsplan_lps_bistand_ubehandlet = 't' 
         OR dialogmotekandidat = 't' 
         OR dialogmotesvar_ubehandlet = 't' 
-        OR ((aktivitetskrav = 'NY' OR aktivitetskrav = 'AVVENT') AND aktivitetskrav_stoppunkt > '2023-02-01')
+        OR ((aktivitetskrav = 'NY' OR aktivitetskrav = 'AVVENT') AND aktivitetskrav_stoppunkt > '2023-03-10')
         )
     ORDER BY PERSON_OPPFOLGINGSTILFELLE_VIRKSOMHET.created_at ASC
     LIMIT 1000

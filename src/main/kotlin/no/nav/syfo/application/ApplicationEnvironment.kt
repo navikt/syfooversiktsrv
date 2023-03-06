@@ -6,6 +6,7 @@ import no.nav.syfo.client.ClientsEnvironment
 import no.nav.syfo.application.database.DatabaseEnvironment
 import no.nav.syfo.application.kafka.KafkaEnvironment
 import no.nav.syfo.client.azuread.AzureEnvironment
+import java.time.LocalDate
 
 const val NAIS_DATABASE_ENV_PREFIX = "NAIS_DATABASE_SYFOOVERSIKTSRV_SYFOOVERSIKTSRV_DB"
 
@@ -28,6 +29,7 @@ data class Environment(
     ),
 
     val electorPath: String = getEnvVar("ELECTOR_PATH"),
+    val arenaCutoff: LocalDate = LocalDate.parse(getEnvVar("ARENA_CUTOFF")),
 
     val kafka: KafkaEnvironment = KafkaEnvironment(
         aivenBootstrapServers = getEnvVar("KAFKA_BROKERS"),

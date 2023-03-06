@@ -47,9 +47,9 @@ fun PersonOversiktStatus.hasOpenDialogmoteInvitation() =
 
 fun PersonOversiktStatus.noOpenDialogmoteInvitation() = !hasOpenDialogmoteInvitation()
 
-fun PersonOversiktStatus.isActiveAktivitetskrav() =
+fun PersonOversiktStatus.isActiveAktivitetskrav(arenaCutoff: LocalDate) =
     (aktivitetskrav == AktivitetskravStatus.NY || aktivitetskrav == AktivitetskravStatus.AVVENT) &&
-        aktivitetskravStoppunkt?.isAfter(LocalDate.parse("2023-02-01")) ?: false
+        aktivitetskravStoppunkt?.isAfter(arenaCutoff) ?: false
 
 data class Oppfolgingstilfelle(
     val updatedAt: OffsetDateTime,

@@ -45,6 +45,10 @@ const val queryHentUbehandledePersonerTilknyttetEnhet = """
                                 dialogmotekandidat = 't' 
                                 AND dialogmotekandidat_generated_at + INTERVAL '7 DAY' < now()
                                 )
+                            OR (
+                                (aktivitetskrav = 'NY' OR aktivitetskrav = 'AVVENT') 
+                                AND aktivitetskrav_stoppunkt > '2023-03-10'
+                                )
                             )
                         );
                 """
@@ -52,36 +56,6 @@ const val queryHentUbehandledePersonerTilknyttetEnhet = """
 fun DatabaseInterface.hentUbehandledePersonerTilknyttetEnhet(enhet: String): List<PPersonOversiktStatus> {
     return connection.use { connection ->
         connection.prepareStatement(queryHentUbehandledePersonerTilknyttetEnhet).use {
-            it.setString(1, enhet)
-            it.executeQuery().toList { toPPersonOversiktStatus() }
-        }
-    }
-}
-
-const val queryHentUbehandledePersonerTilknyttetEnhetTestVeileder = """
-                        SELECT *
-                        FROM PERSON_OVERSIKT_STATUS
-                        WHERE ((tildelt_enhet = ?)
-                            AND (motebehov_ubehandlet = 't' 
-                            OR oppfolgingsplan_lps_bistand_ubehandlet = 't' 
-                            OR dialogmotesvar_ubehandlet = 't' 
-                            OR (
-                                dialogmotekandidat = 't' 
-                                AND dialogmotekandidat_generated_at + INTERVAL '7 DAY' < now()
-                                )
-                            OR (
-                                (aktivitetskrav = 'NY' OR aktivitetskrav = 'AVVENT') 
-                                AND aktivitetskrav_stoppunkt > '2023-02-01'
-                                )
-                            )
-                        );
-                """
-
-fun DatabaseInterface.hentUbehandledePersonerTilknyttetEnhetTestVeileder(
-    enhet: String,
-): List<PPersonOversiktStatus> {
-    return connection.use { connection ->
-        connection.prepareStatement(queryHentUbehandledePersonerTilknyttetEnhetTestVeileder).use {
             it.setString(1, enhet)
             it.executeQuery().toList { toPPersonOversiktStatus() }
         }

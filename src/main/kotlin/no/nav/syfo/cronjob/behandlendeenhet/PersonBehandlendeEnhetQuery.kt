@@ -62,7 +62,7 @@ const val queryGetPersonerWithOppgaveAndOldEnhet =
         OR oppfolgingsplan_lps_bistand_ubehandlet = 't' 
         OR dialogmotekandidat = 't' 
         OR dialogmotesvar_ubehandlet = 't'
-        OR ((aktivitetskrav = 'NY' OR aktivitetskrav = 'AVVENT') AND aktivitetskrav_stoppunkt > '2023-02-01')
+        OR ((aktivitetskrav = 'NY' OR aktivitetskrav = 'AVVENT') AND aktivitetskrav_stoppunkt > '2023-03-10')
         )
     AND (tildelt_enhet_updated_at IS NULL OR tildelt_enhet_updated_at <= NOW() - INTERVAL '24 HOURS')
     ORDER BY tildelt_enhet_updated_at ASC

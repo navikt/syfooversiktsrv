@@ -92,5 +92,6 @@ spec:
       value: "dev-fss.teamsykefravr.syfo-tilgangskontroll"
     - name: SYFOTILGANGSKONTROLL_URL
       value: "https://syfo-tilgangskontroll.dev-fss-pub.nais.io"
-    - name: AKTIVITETSKRAV_TEST_VEILEDER
-      value: "Z994235"
+    # Bruk samme dato i enhetens-oversikt-query og index
+    - name: ARENA_CUTOFF
+      value: "2023-03-10"

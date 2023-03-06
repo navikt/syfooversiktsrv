@@ -5,7 +5,6 @@ import io.ktor.http.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.micrometer.core.instrument.Timer
-import no.nav.syfo.application.api.authentication.getNAVIdentFromToken
 import no.nav.syfo.client.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.metric.COUNT_PERSONOVERSIKTSTATUS_ENHET_HENTET
 import no.nav.syfo.metric.HISTOGRAM_PERSONOVERSIKT
@@ -29,7 +28,6 @@ fun Route.registerPersonoversiktApiV2(
                 val callId = getCallId()
                 val token = getBearerHeader()
                     ?: throw IllegalArgumentException("No Authorization header supplied")
-                val veilederIdent = getNAVIdentFromToken(token) // TODO: Remove this when Berit is done testing
 
                 val enhet: String = call.parameters["enhet"]?.takeIf { validateEnhet(it) }
                     ?: throw IllegalArgumentException("Enhet mangler")
@@ -38,7 +36,7 @@ fun Route.registerPersonoversiktApiV2(
                     true -> {
                         val requestTimer: Timer.Sample = Timer.start()
                         val personOversiktStatusList: List<PersonOversiktStatus> = personoversiktStatusService
-                            .hentPersonoversiktStatusTilknyttetEnhet(enhet, veilederIdent)
+                            .hentPersonoversiktStatusTilknyttetEnhet(enhet)
 
                         val personFnrListWithVeilederAccess: List<String> = veilederTilgangskontrollClient.veilederPersonAccessListMedOBO(
                             personOversiktStatusList.map { it.fnr },
