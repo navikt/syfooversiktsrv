@@ -28,10 +28,10 @@ class PersonAktivitetskravRepairCronjob(
     suspend fun runJob(): CronjobResult {
         log.info("PersonAktivitetskravRepairCronjob: Repair aktivitetskravkandidater without arbeidsforhold")
         val result = CronjobResult()
-        database.getPersonOversiktStatusAktivitetskravList().forEach {
+        database.getPersonOversiktStatusAktivitetskravList().forEach { personStatus ->
             try {
-                val stoppunkt = it.aktivitetskravStoppunkt!!
-                val oppfolgingstilfellePerson = oppfolgingstilfelleClient.getOppfolgingstilfellePerson(PersonIdent(it.fnr))
+                val stoppunkt = personStatus.aktivitetskravStoppunkt!!
+                val oppfolgingstilfellePerson = oppfolgingstilfelleClient.getOppfolgingstilfellePerson(PersonIdent(personStatus.fnr))
                     ?: throw RuntimeException("PersonAktivitetskravRepairCronjob: Found no oppfolgingstilfelle!")
                 val oppfolgingstilfelleDTO = oppfolgingstilfellePerson.oppfolgingstilfelleList.firstOrNull { oppfolgingstilfelle ->
                     oppfolgingstilfelle.start.isBeforeOrEqual(stoppunkt) && stoppunkt.isBeforeOrEqual(oppfolgingstilfelle.end)
@@ -49,14 +49,15 @@ class PersonAktivitetskravRepairCronjob(
 
                 database.connection.use { connection ->
                     connection.updatePersonOversiktStatusOppfolgingstilfelle(
-                        pPersonOversiktStatus = it,
+                        pPersonOversiktStatus = personStatus,
                         oppfolgingstilfelle = oppfolgingstilfelle
                     )
                     connection.commit()
                 }
+                log.info("PersonAktivitetskravRepairCronjob: Processed ${personStatus.uuid}")
                 result.updated++
             } catch (exc: Exception) {
-                log.error("PersonAktivitetskravRepairCronjob: Processing for ${it.uuid} failed", exc)
+                log.error("PersonAktivitetskravRepairCronjob: Processing for ${personStatus.uuid} failed", exc)
                 result.failed++
             }
         }
