@@ -91,8 +91,7 @@ class KafkaOppfolgingstilfellePersonService(
             return
         }
         if (latestTilfelle.virksomhetsnummerList.isEmpty()) {
-            COUNT_KAFKA_CONSUMER_OPPFOLGINGSTILFELLE_PERSON_SKIPPED_NOT_ARBEIDSTAKER.increment()
-            return
+            COUNT_KAFKA_CONSUMER_OPPFOLGINGSTILFELLE_PERSON_NOT_ARBEIDSTAKER.increment()
         }
 
         val maybePPersonOversiktStatus: PPersonOversiktStatus? = connection.getPersonOversiktStatusList(
