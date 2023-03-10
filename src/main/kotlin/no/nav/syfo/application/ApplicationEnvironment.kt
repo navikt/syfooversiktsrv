@@ -47,10 +47,6 @@ data class Environment(
             baseUrl = getEnvVar("EREG_URL"),
             clientId = "",
         ),
-        oppfolgingstilfelle = ClientEnvironment(
-            baseUrl = getEnvVar("ISOPPFOLGINGSTILFELLE_URL"),
-            clientId = getEnvVar("ISOPPFOLGINGSTILFELLE_CLIENT_ID"),
-        ),
         pdl = ClientEnvironment(
             baseUrl = getEnvVar("PDL_URL"),
             clientId = getEnvVar("PDL_CLIENT_ID"),

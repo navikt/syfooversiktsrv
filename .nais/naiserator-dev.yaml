@@ -53,7 +53,6 @@ spec:
         - host: "pdl-api.dev-fss-pub.nais.io"
         - host: "syfo-tilgangskontroll.dev-fss-pub.nais.io"
       rules:
-        - application: isoppfolgingstilfelle
         - application: syfobehandlendeenhet
         - application: syfooversiktsrv-redis
   azure:
@@ -85,10 +84,6 @@ spec:
       value: "dev-fss.pdl.pdl-api"
     - name: PDL_URL
       value: "https://pdl-api.dev-fss-pub.nais.io/graphql"
-    - name: ISOPPFOLGINGSTILFELLE_CLIENT_ID
-      value: "dev-gcp.teamsykefravr.isoppfolgingstilfelle"
-    - name: ISOPPFOLGINGSTILFELLE_URL
-      value: "https://isoppfolgingstilfelle.dev.intern.nav.no"
     - name: SYFOBEHANDLENDEENHET_CLIENT_ID
       value: "dev-gcp.teamsykefravr.syfobehandlendeenhet"
     - name: SYFOBEHANDLENDEENHET_URL
