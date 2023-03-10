@@ -8,6 +8,8 @@ import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.client.azuread.AzureAdClient
 import no.nav.syfo.client.behandlendeenhet.BehandlendeEnhetClient
 import no.nav.syfo.client.ereg.EregClient
+import no.nav.syfo.client.oppfolgingstilfelle.OppfolgingstilfelleClient
+import no.nav.syfo.cronjob.aktivitetskrav.PersonAktivitetskravRepairCronjob
 import no.nav.syfo.cronjob.behandlendeenhet.PersonBehandlendeEnhetCronjob
 import no.nav.syfo.cronjob.behandlendeenhet.PersonBehandlendeEnhetService
 import no.nav.syfo.cronjob.leaderelection.LeaderPodClient
@@ -69,6 +71,22 @@ fun launchCronjobModule(
     ) {
         cronjobRunner.start(
             cronjob = personBehandlendeEnhetCronjob,
+        )
+    }
+
+    val oppfolgingstilfelleClient = OppfolgingstilfelleClient(
+        azureAdClient = azureAdClient,
+        clientEnvironment = environment.clients.oppfolgingstilfelle,
+    )
+    val aktivitetskravRepairCronjob = PersonAktivitetskravRepairCronjob(
+        database = database,
+        oppfolgingstilfelleClient = oppfolgingstilfelleClient,
+    )
+    launchBackgroundTask(
+        applicationState = applicationState,
+    ) {
+        cronjobRunner.start(
+            cronjob = aktivitetskravRepairCronjob,
         )
     }
 }

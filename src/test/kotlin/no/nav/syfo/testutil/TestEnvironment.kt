@@ -50,6 +50,10 @@ fun testEnvironment(
             baseUrl = eregUrl,
             clientId = "",
         ),
+        oppfolgingstilfelle = ClientEnvironment(
+            baseUrl = "",
+            clientId = "",
+        ),
         pdl = ClientEnvironment(
             baseUrl = pdlUrl,
             clientId = "dev-fss.pdl.pdl-api",
