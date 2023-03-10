@@ -49,6 +49,7 @@ fun Application.apiModule(
     val personoversiktStatusService = PersonoversiktStatusService(
         database = database,
         pdlClient = pdlClient,
+        arenaCutoff = environment.arenaCutoff,
     )
 
     val tilgangskontrollConsumer = VeilederTilgangskontrollClient(

@@ -9,7 +9,7 @@ import no.nav.syfo.aktivitetskravvurdering.domain.AktivitetskravStatus
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.database.*
-import no.nav.syfo.testutil.generator.generateAktivitetskrav
+import no.nav.syfo.testutil.generator.AktivitetskravGenerator
 import no.nav.syfo.testutil.mock.behandlendeEnhetDTO
 import no.nav.syfo.util.*
 import org.amshove.kluent.shouldBeEqualTo
@@ -28,6 +28,8 @@ object AktivitetskravPersonoversiktStatusApiV2Spek : Spek({
             start()
             val externalMockEnvironment = setupExternalMockEnvironment(application)
             val database = externalMockEnvironment.database
+            val aktivitetskravGenerator =
+                AktivitetskravGenerator(arenaCutoff = externalMockEnvironment.environment.arenaCutoff)
             val validToken = generateJWT(
                 audience = externalMockEnvironment.environment.azure.appClientId,
                 issuer = externalMockEnvironment.wellKnownVeilederV2.issuer,
@@ -43,7 +45,7 @@ object AktivitetskravPersonoversiktStatusApiV2Spek : Spek({
 
                 it("returns person with aktivitetskrav status NY and stoppunkt after cutoff") {
                     val personIdent = PersonIdent(UserConstants.ARBEIDSTAKER_FNR)
-                    val aktivitetskrav = generateAktivitetskrav(
+                    val aktivitetskrav = aktivitetskravGenerator.generateAktivitetskrav(
                         personIdent = personIdent,
                         status = AktivitetskravStatus.NY,
                         stoppunktAfterCutoff = true,
@@ -74,7 +76,7 @@ object AktivitetskravPersonoversiktStatusApiV2Spek : Spek({
                 it("returns person with aktivitetskrav status AVVENT and stoppunkt after cutoff") {
                     val personIdent = PersonIdent(UserConstants.ARBEIDSTAKER_FNR)
                     val sistVurdert = OffsetDateTime.now().truncatedTo(ChronoUnit.MILLIS)
-                    val aktivitetskrav = generateAktivitetskrav(
+                    val aktivitetskrav = aktivitetskravGenerator.generateAktivitetskrav(
                         personIdent = personIdent,
                         status = AktivitetskravStatus.AVVENT,
                         stoppunktAfterCutoff = true,
@@ -105,7 +107,7 @@ object AktivitetskravPersonoversiktStatusApiV2Spek : Spek({
 
                 it("returns no content when aktivitetskrav has status AUTOMATISK_OPPFYLT") {
                     val personIdent = PersonIdent(UserConstants.ARBEIDSTAKER_FNR)
-                    val aktivitetskrav = generateAktivitetskrav(
+                    val aktivitetskrav = aktivitetskravGenerator.generateAktivitetskrav(
                         personIdent = personIdent,
                         status = AktivitetskravStatus.AUTOMATISK_OPPFYLT,
                         stoppunktAfterCutoff = true,
@@ -126,7 +128,7 @@ object AktivitetskravPersonoversiktStatusApiV2Spek : Spek({
                 }
                 it("returns no content when person with aktivitetskrav status NY and stoppunkt before cutoff") {
                     val personIdent = PersonIdent(UserConstants.ARBEIDSTAKER_FNR)
-                    val aktivitetskrav = generateAktivitetskrav(
+                    val aktivitetskrav = aktivitetskravGenerator.generateAktivitetskrav(
                         personIdent = personIdent,
                         status = AktivitetskravStatus.NY,
                         stoppunktAfterCutoff = false,
@@ -147,7 +149,7 @@ object AktivitetskravPersonoversiktStatusApiV2Spek : Spek({
                 }
                 it("returns no content when no aktivitetskrav and the person is removed as kandidat in the application level filter") {
                     val personIdent = PersonIdent(UserConstants.ARBEIDSTAKER_FNR)
-                    val aktivitetskrav = generateAktivitetskrav(
+                    val aktivitetskrav = aktivitetskravGenerator.generateAktivitetskrav(
                         personIdent = personIdent,
                         status = AktivitetskravStatus.NY,
                         stoppunktAfterCutoff = false,

@@ -63,6 +63,8 @@ object PersonOppfolgingstilfelleVirksomhetsnavnCronjobSpek : Spek({
         val kafkaDialogmotekandidatEndringStoppunktConsumerRecord = dialogmotekandidatEndringConsumerRecord(
             kafkaDialogmotekandidatEndring = kafkaDialogmotekandidatEndringStoppunkt
         )
+        val aktivitetskravGenerator =
+            AktivitetskravGenerator(arenaCutoff = externalMockEnvironment.environment.arenaCutoff)
 
         beforeEachTest {
             database.connection.dropData()
@@ -302,7 +304,7 @@ object PersonOppfolgingstilfelleVirksomhetsnavnCronjobSpek : Spek({
                 }
 
                 it("updates Virksomhetsnavn of existing PersonOppfolgingstilfelleVirksomhet if active aktivitetskrav") {
-                    val aktivitetskrav = generateAktivitetskrav(
+                    val aktivitetskrav = aktivitetskravGenerator.generateAktivitetskrav(
                         personIdent = personIdentDefault,
                         status = AktivitetskravStatus.AVVENT,
                         stoppunktAfterCutoff = true,
