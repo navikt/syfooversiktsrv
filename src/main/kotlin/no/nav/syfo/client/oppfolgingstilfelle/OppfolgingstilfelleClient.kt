@@ -26,13 +26,13 @@ class OppfolgingstilfelleClient(
     suspend fun getOppfolgingstilfellePerson(
         personIdent: PersonIdent,
     ): OppfolgingstilfellePersonDTO? {
-        val callIdToUse = UUID.randomUUID().toString()
+        val callId = UUID.randomUUID().toString()
         return try {
             val token = azureAdClient.getSystemToken(clientEnvironment.clientId)
                 ?: throw RuntimeException("Could not get azuread access token")
             val response: HttpResponse = httpClient.get(personOppfolgingstilfelleSystemUrl) {
                 header(HttpHeaders.Authorization, bearerHeader(token.accessToken))
-                header(NAV_CALL_ID_HEADER, callIdToUse)
+                header(NAV_CALL_ID_HEADER, callId)
                 header(NAV_PERSONIDENT_HEADER, personIdent.value)
                 accept(ContentType.Application.Json)
             }
@@ -41,7 +41,7 @@ class OppfolgingstilfelleClient(
             log.error(
                 "Error while requesting OppfolgingstilfellePerson from Isoppfolgingstilfelle with {}, {}",
                 StructuredArguments.keyValue("statusCode", responseException.response.status.value),
-                callIdArgument(callIdToUse),
+                callIdArgument(callId),
             )
             throw responseException
         }

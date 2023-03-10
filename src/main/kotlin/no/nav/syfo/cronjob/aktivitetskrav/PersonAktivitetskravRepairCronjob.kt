@@ -18,7 +18,7 @@ class PersonAktivitetskravRepairCronjob(
     private val oppfolgingstilfelleClient: OppfolgingstilfelleClient,
 ) : Cronjob {
 
-    override val initialDelayMinutes: Long = 2
+    override val initialDelayMinutes: Long = 6
     override val intervalDelayMinutes: Long = 6000L
 
     override suspend fun run() {

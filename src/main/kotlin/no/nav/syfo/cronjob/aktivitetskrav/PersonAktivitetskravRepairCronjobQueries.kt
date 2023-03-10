@@ -9,7 +9,7 @@ const val queryGetPersonOversiktAktivitetskravList =
     """
     SELECT *
     FROM PERSON_OVERSIKT_STATUS
-    WHERE aktivitetskrav_stoppunkt IS NOT NULL AND aktivitetskrav_stoppunkt > '2023-03-10' 
+    WHERE aktivitetskrav_stoppunkt IS NOT NULL AND aktivitetskrav_stoppunkt > '2023-03-10' AND aktivitetskrav='NY'
           AND (oppfolgingstilfelle_start IS NULL OR oppfolgingstilfelle_end < aktivitetskrav_stoppunkt)
     """
 
