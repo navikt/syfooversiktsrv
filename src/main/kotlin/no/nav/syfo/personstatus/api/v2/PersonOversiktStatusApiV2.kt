@@ -13,6 +13,7 @@ import no.nav.syfo.personstatus.domain.*
 import no.nav.syfo.util.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.time.LocalDate
 
 private val log: Logger = LoggerFactory.getLogger("no.nav.syfo")
 
@@ -20,7 +21,8 @@ const val personOversiktApiV2Path = "/api/v2/personoversikt"
 
 fun Route.registerPersonoversiktApiV2(
     veilederTilgangskontrollClient: VeilederTilgangskontrollClient,
-    personoversiktStatusService: PersonoversiktStatusService
+    personoversiktStatusService: PersonoversiktStatusService,
+    arenaCutoff: LocalDate,
 ) {
     route(personOversiktApiV2Path) {
         get("/enhet/{enhet}") {
@@ -36,13 +38,14 @@ fun Route.registerPersonoversiktApiV2(
                     true -> {
                         val requestTimer: Timer.Sample = Timer.start()
                         val personOversiktStatusList: List<PersonOversiktStatus> = personoversiktStatusService
-                            .hentPersonoversiktStatusTilknyttetEnhet(enhet)
+                            .hentPersonoversiktStatusTilknyttetEnhet(enhet = enhet, arenaCutoff = arenaCutoff)
 
-                        val personFnrListWithVeilederAccess: List<String> = veilederTilgangskontrollClient.veilederPersonAccessListMedOBO(
-                            personOversiktStatusList.map { it.fnr },
-                            token,
-                            callId
-                        ) ?: emptyList()
+                        val personFnrListWithVeilederAccess: List<String> =
+                            veilederTilgangskontrollClient.veilederPersonAccessListMedOBO(
+                                personOversiktStatusList.map { it.fnr },
+                                token,
+                                callId
+                            ) ?: emptyList()
 
                         val personer = personOversiktStatusList
                             .filter { personFnrListWithVeilederAccess.contains(it.fnr) }
@@ -51,7 +54,7 @@ fun Route.registerPersonoversiktApiV2(
                             val personerWithName = personoversiktStatusService.getPersonOversiktStatusListWithName(
                                 callId = callId,
                                 personOversiktStatusList = personer
-                            ).map { it.toPersonOversiktStatusDTO() }
+                            ).map { it.toPersonOversiktStatusDTO(arenaCutoff = arenaCutoff) }
 
                             call.respond(personerWithName)
                         } else {
@@ -61,6 +64,7 @@ fun Route.registerPersonoversiktApiV2(
                         requestTimer.stop(HISTOGRAM_PERSONOVERSIKT)
                         COUNT_PERSONOVERSIKTSTATUS_ENHET_HENTET.increment()
                     }
+
                     else -> {
                         log.warn("Veileder mangler tilgang til enhet $enhet, {}", callIdArgument(callId))
                         call.respond(HttpStatusCode.Forbidden, "Veileder mangler tilgang til enhet")

@@ -103,7 +103,7 @@ object DialogmotekandidatPersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet.shouldBeNull()
                         personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo false
                         personOversiktStatus.dialogmotekandidat shouldBeEqualTo true
-                        personOversiktStatus
+                        personOversiktStatus.aktivitetskravActive shouldBeEqualTo false
                     }
                 }
 
@@ -130,6 +130,7 @@ object DialogmotekandidatPersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo false
                         personOversiktStatus.dialogmotekandidat shouldBeEqualTo true
                         personOversiktStatus.motestatus shouldBeEqualTo DialogmoteStatusendringType.AVLYST.name
+                        personOversiktStatus.aktivitetskravActive shouldBeEqualTo false
                     }
                 }
             }

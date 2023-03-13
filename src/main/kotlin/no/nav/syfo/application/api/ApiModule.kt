@@ -49,7 +49,6 @@ fun Application.apiModule(
     val personoversiktStatusService = PersonoversiktStatusService(
         database = database,
         pdlClient = pdlClient,
-        arenaCutoff = environment.arenaCutoff,
     )
 
     val tilgangskontrollConsumer = VeilederTilgangskontrollClient(
@@ -64,7 +63,11 @@ fun Application.apiModule(
         )
         registerPrometheusApi()
         authenticate(JwtIssuerType.VEILEDER_V2.name) {
-            registerPersonoversiktApiV2(tilgangskontrollConsumer, personoversiktStatusService)
+            registerPersonoversiktApiV2(
+                veilederTilgangskontrollClient = tilgangskontrollConsumer,
+                personoversiktStatusService = personoversiktStatusService,
+                arenaCutoff = environment.arenaCutoff
+            )
             registerPersonTildelingApiV2(tilgangskontrollConsumer, personTildelingService)
         }
     }
