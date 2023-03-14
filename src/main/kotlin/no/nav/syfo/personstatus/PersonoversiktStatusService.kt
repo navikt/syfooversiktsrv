@@ -10,9 +10,8 @@ import java.time.LocalDate
 class PersonoversiktStatusService(
     private val database: DatabaseInterface,
     private val pdlClient: PdlClient,
-    private val arenaCutoff: LocalDate,
 ) {
-    fun hentPersonoversiktStatusTilknyttetEnhet(enhet: String): List<PersonOversiktStatus> {
+    fun hentPersonoversiktStatusTilknyttetEnhet(enhet: String, arenaCutoff: LocalDate): List<PersonOversiktStatus> {
         val personListe = database.hentUbehandledePersonerTilknyttetEnhet(
             enhet = enhet,
         )

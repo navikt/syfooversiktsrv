@@ -70,6 +70,7 @@ object AktivitetskravPersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.aktivitetskrav shouldBeEqualTo AktivitetskravStatus.NY.name
                         personOversiktStatus.aktivitetskravSistVurdert shouldBeEqualTo null
                         personOversiktStatus.aktivitetskravStoppunkt shouldBeEqualTo aktivitetskrav.stoppunkt
+                        personOversiktStatus.aktivitetskravActive shouldBeEqualTo true
                     }
                 }
 
@@ -102,6 +103,7 @@ object AktivitetskravPersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.aktivitetskrav shouldBeEqualTo AktivitetskravStatus.AVVENT.name
                         personOversiktStatus.aktivitetskravSistVurdert shouldBeEqualTo sistVurdert.toLocalDateTimeOslo()
                         personOversiktStatus.aktivitetskravStoppunkt shouldBeEqualTo aktivitetskrav.stoppunkt
+                        personOversiktStatus.aktivitetskravActive shouldBeEqualTo true
                     }
                 }
 

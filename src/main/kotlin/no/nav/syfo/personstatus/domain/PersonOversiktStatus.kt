@@ -37,7 +37,8 @@ fun PersonOversiktStatus.isDialogmotekandidat() =
     dialogmotekandidat == true &&
         latestOppfolgingstilfelle != null &&
         dialogmotekandidatGeneratedAt != null &&
-        dialogmotekandidatGeneratedAt.toLocalDateOslo().isAfter(latestOppfolgingstilfelle.oppfolgingstilfelleStart) &&
+        dialogmotekandidatGeneratedAt.toLocalDateOslo()
+            .isAfter(latestOppfolgingstilfelle.oppfolgingstilfelleStart) &&
         dialogmotekandidatGeneratedAt.toLocalDateOslo().isBeforeOrEqual(LocalDate.now().minusDays(7)) &&
         noOpenDialogmoteInvitation()
 
@@ -101,7 +102,7 @@ fun List<PersonOversiktStatus>.addPersonName(
     }
 }
 
-fun PersonOversiktStatus.toPersonOversiktStatusDTO() =
+fun PersonOversiktStatus.toPersonOversiktStatusDTO(arenaCutoff: LocalDate) =
     PersonOversiktStatusDTO(
         veilederIdent = this.veilederIdent,
         fnr = this.fnr,
@@ -116,6 +117,7 @@ fun PersonOversiktStatus.toPersonOversiktStatusDTO() =
         aktivitetskrav = this.aktivitetskrav?.name,
         aktivitetskravStoppunkt = this.aktivitetskravStoppunkt,
         aktivitetskravSistVurdert = this.aktivitetskravSistVurdert?.toLocalDateTimeOslo(),
+        aktivitetskravActive = isActiveAktivitetskrav(arenaCutoff = arenaCutoff),
     )
 
 fun PersonOversiktStatus.applyHendelse(
@@ -125,18 +127,23 @@ fun PersonOversiktStatus.applyHendelse(
         OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT -> this.copy(
             motebehovUbehandlet = true,
         )
+
         OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET -> this.copy(
             motebehovUbehandlet = false,
         )
+
         OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT -> this.copy(
             oppfolgingsplanLPSBistandUbehandlet = true,
         )
+
         OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_BEHANDLET -> this.copy(
             oppfolgingsplanLPSBistandUbehandlet = false,
         )
+
         OversikthendelseType.DIALOGMOTESVAR_MOTTATT -> this.copy(
             dialogmotesvarUbehandlet = true,
         )
+
         OversikthendelseType.DIALOGMOTESVAR_BEHANDLET -> this.copy(
             dialogmotesvarUbehandlet = false,
         )
