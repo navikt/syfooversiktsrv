@@ -41,6 +41,7 @@ spec:
     path: /metrics
   ingresses:
     - "https://syfooversiktsrv.dev.intern.nav.no"
+    - "https://syfooversiktsrv.intern.dev.nav.no"
   accessPolicy:
     inbound:
       rules:
