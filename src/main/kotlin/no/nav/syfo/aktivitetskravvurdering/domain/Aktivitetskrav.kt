@@ -10,6 +10,7 @@ data class Aktivitetskrav(
     val status: AktivitetskravStatus,
     val sistVurdert: OffsetDateTime?,
     val stoppunkt: LocalDate,
+    val vurderingFrist: LocalDate?,
 )
 
 enum class AktivitetskravStatus {
@@ -38,4 +39,5 @@ fun Aktivitetskrav.toPersonOversiktStatus() = PersonOversiktStatus(
     aktivitetskrav = this.status,
     aktivitetskravStoppunkt = this.stoppunkt,
     aktivitetskravSistVurdert = this.sistVurdert,
+    aktivitetskravVurderingFrist = this.vurderingFrist,
 )

@@ -29,6 +29,7 @@ data class PPersonOversiktStatus(
     val aktivitetskrav: String?,
     val aktivitetskravStoppunkt: LocalDate?,
     val aktivitetskravUpdatedAt: OffsetDateTime?,
+    val aktivitetskravVurderingFrist: LocalDate?,
 )
 
 fun PPersonOversiktStatus.toPersonOversiktStatus(
@@ -51,6 +52,7 @@ fun PPersonOversiktStatus.toPersonOversiktStatus(
     aktivitetskrav = this.aktivitetskrav?.let { AktivitetskravStatus.valueOf(this.aktivitetskrav) },
     aktivitetskravStoppunkt = this.aktivitetskravStoppunkt,
     aktivitetskravSistVurdert = this.aktivitetskravUpdatedAt,
+    aktivitetskravVurderingFrist = this.aktivitetskravVurderingFrist,
 )
 
 fun PPersonOversiktStatus.toPersonOppfolgingstilfelle(

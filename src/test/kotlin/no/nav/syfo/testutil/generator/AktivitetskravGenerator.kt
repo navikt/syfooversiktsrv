@@ -13,6 +13,7 @@ class AktivitetskravGenerator(
         status: AktivitetskravStatus,
         stoppunktAfterCutoff: Boolean,
         sistVurdert: OffsetDateTime? = null,
+        vurderingFrist: LocalDate? = null,
     ): Aktivitetskrav {
         val stoppunkt =
             if (stoppunktAfterCutoff) arenaCutoff.plusDays(1) else arenaCutoff.minusDays(
@@ -23,6 +24,7 @@ class AktivitetskravGenerator(
             status = status,
             sistVurdert = sistVurdert,
             stoppunkt = stoppunkt,
+            vurderingFrist = vurderingFrist,
         )
     }
 }

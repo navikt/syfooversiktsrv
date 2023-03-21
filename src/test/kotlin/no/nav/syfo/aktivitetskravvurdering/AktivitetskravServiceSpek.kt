@@ -44,6 +44,7 @@ class AktivitetskravServiceSpek : Spek({
                 status = AktivitetskravStatus.NY,
                 sistVurdert = updatedAt,
                 stoppunkt = stoppunkt,
+                vurderingFrist = null,
             )
             val expectedPersonOversiktStatus = PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR).copy(
                 aktivitetskrav = AktivitetskravStatus.NY,
@@ -69,6 +70,7 @@ class AktivitetskravServiceSpek : Spek({
                 status = AktivitetskravStatus.UNNTAK,
                 sistVurdert = OffsetDateTime.now(),
                 stoppunkt = LocalDate.now().plusDays(7),
+                vurderingFrist = null,
             )
             val existingPPersonOversiktStatus = generatePPersonOversiktStatus()
             every { connection.getPersonOversiktStatusList(any()) } returns listOf(existingPPersonOversiktStatus)

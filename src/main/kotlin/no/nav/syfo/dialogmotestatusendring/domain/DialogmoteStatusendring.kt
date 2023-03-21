@@ -47,5 +47,6 @@ data class DialogmoteStatusendring private constructor(
         aktivitetskrav = null,
         aktivitetskravStoppunkt = null,
         aktivitetskravSistVurdert = null,
+        aktivitetskravVurderingFrist = null,
     )
 }
