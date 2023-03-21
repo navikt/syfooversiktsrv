@@ -40,7 +40,6 @@ spec:
     enabled: true
     path: /metrics
   ingresses:
-    - "https://syfooversiktsrv.dev.intern.nav.no"
     - "https://syfooversiktsrv.intern.dev.nav.no"
   accessPolicy:
     inbound:
@@ -88,7 +87,7 @@ spec:
     - name: SYFOBEHANDLENDEENHET_CLIENT_ID
       value: "dev-gcp.teamsykefravr.syfobehandlendeenhet"
     - name: SYFOBEHANDLENDEENHET_URL
-      value: "https://syfobehandlendeenhet.dev.intern.nav.no"
+      value: "https://syfobehandlendeenhet.intern.dev.nav.no"
     - name: SYFOTILGANGSKONTROLL_CLIENT_ID
       value: "dev-fss.teamsykefravr.syfo-tilgangskontroll"
     - name: SYFOTILGANGSKONTROLL_URL
