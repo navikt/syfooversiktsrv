@@ -89,7 +89,7 @@ spec:
     - name: SYFOBEHANDLENDEENHET_CLIENT_ID
       value: "prod-gcp.teamsykefravr.syfobehandlendeenhet"
     - name: SYFOBEHANDLENDEENHET_URL
-      value: "https://syfobehandlendeenhet.intern.nav.no"
+      value: "http://syfobehandlendeenhet"
     - name: SYFOTILGANGSKONTROLL_CLIENT_ID
       value: "prod-fss.teamsykefravr.syfo-tilgangskontroll"
     - name: SYFOTILGANGSKONTROLL_URL
