@@ -14,6 +14,7 @@ data class KafkaAktivitetskravVurdering(
     val stoppunktAt: LocalDate,
     val beskrivelse: String?,
     val sistVurdert: OffsetDateTime?,
+    val frist: LocalDate?,
 )
 
 fun KafkaAktivitetskravVurdering.toAktivitetskrav() = Aktivitetskrav(
@@ -21,4 +22,5 @@ fun KafkaAktivitetskravVurdering.toAktivitetskrav() = Aktivitetskrav(
     status = AktivitetskravStatus.valueOf(this.status),
     sistVurdert = this.sistVurdert,
     stoppunkt = this.stoppunktAt,
+    vurderingFrist = this.frist,
 )

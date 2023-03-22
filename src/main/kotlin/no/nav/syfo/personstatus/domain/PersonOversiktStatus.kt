@@ -25,11 +25,12 @@ data class PersonOversiktStatus(
     val aktivitetskrav: AktivitetskravStatus?,
     val aktivitetskravStoppunkt: LocalDate?,
     val aktivitetskravSistVurdert: OffsetDateTime?,
+    val aktivitetskravVurderingFrist: LocalDate?,
 ) {
     constructor(fnr: String) : this(
         null, fnr = fnr, null, null, null,
         null, false, null, null,
-        null, null, null, null, null, null,
+        null, null, null, null, null, null, null,
     )
 }
 
@@ -118,6 +119,7 @@ fun PersonOversiktStatus.toPersonOversiktStatusDTO(arenaCutoff: LocalDate) =
         aktivitetskravStoppunkt = this.aktivitetskravStoppunkt,
         aktivitetskravSistVurdert = this.aktivitetskravSistVurdert?.toLocalDateTimeOslo(),
         aktivitetskravActive = isActiveAktivitetskrav(arenaCutoff = arenaCutoff),
+        aktivitetskravVurderingFrist = this.aktivitetskravVurderingFrist,
     )
 
 fun PersonOversiktStatus.applyHendelse(

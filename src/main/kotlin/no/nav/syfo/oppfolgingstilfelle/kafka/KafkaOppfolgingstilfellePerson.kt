@@ -44,6 +44,7 @@ fun KafkaOppfolgingstilfellePerson.toPersonOversiktStatus(
     aktivitetskrav = null,
     aktivitetskravStoppunkt = null,
     aktivitetskravSistVurdert = null,
+    aktivitetskravVurderingFrist = null,
 )
 // TODO: Hent latest oppfolgingstilfelle fra this
 fun KafkaOppfolgingstilfellePerson.toPersonOppfolgingstilfelle(

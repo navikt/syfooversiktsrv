@@ -27,4 +27,5 @@ fun KafkaDialogmotekandidatEndring.toPersonOversiktStatus() = PersonOversiktStat
     aktivitetskrav = null,
     aktivitetskravStoppunkt = null,
     aktivitetskravSistVurdert = null,
+    aktivitetskravVurderingFrist = null,
 )

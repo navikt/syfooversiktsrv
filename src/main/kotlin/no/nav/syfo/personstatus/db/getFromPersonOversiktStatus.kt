@@ -108,6 +108,7 @@ fun ResultSet.toPPersonOversiktStatus(): PPersonOversiktStatus =
         aktivitetskrav = getString("aktivitetskrav"),
         aktivitetskravStoppunkt = getObject("aktivitetskrav_stoppunkt", LocalDate::class.java),
         aktivitetskravUpdatedAt = getObject("aktivitetskrav_sist_vurdert", OffsetDateTime::class.java),
+        aktivitetskravVurderingFrist = getObject("aktivitetskrav_vurdering_frist", LocalDate::class.java),
     )
 
 fun ResultSet.toVeilederBrukerKnytning(): VeilederBrukerKnytning =
