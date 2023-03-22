@@ -106,7 +106,7 @@ const val queryUpdatePersonOversiktStatusAktivitetskrav =
         SET aktivitetskrav = ?,
         aktivitetskrav_sist_vurdert = ?,
         aktivitetskrav_stoppunkt = ?,
-        aktivitetskrav_vurdering_frist,
+        aktivitetskrav_vurdering_frist = ?,
         sist_endret = ?
         WHERE fnr = ?
     """
