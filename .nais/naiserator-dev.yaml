@@ -87,7 +87,7 @@ spec:
     - name: SYFOBEHANDLENDEENHET_CLIENT_ID
       value: "dev-gcp.teamsykefravr.syfobehandlendeenhet"
     - name: SYFOBEHANDLENDEENHET_URL
-      value: "https://syfobehandlendeenhet.intern.dev.nav.no"
+      value: "http://syfobehandlendeenhet"
     - name: SYFOTILGANGSKONTROLL_CLIENT_ID
       value: "dev-fss.teamsykefravr.syfo-tilgangskontroll"
     - name: SYFOTILGANGSKONTROLL_URL
