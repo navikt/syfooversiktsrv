@@ -47,6 +47,9 @@ spec:
         - application: syfooversikt
           namespace: teamsykefravr
           cluster: dev-fss
+        - application: syfooversikt
+          namespace: teamsykefravr
+          cluster: dev-gcp
     outbound:
       external:
         - host: "ereg-services-q1.dev-fss-pub.nais.io"
