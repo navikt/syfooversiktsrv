@@ -48,6 +48,9 @@ spec:
         - application: syfooversikt
           namespace: teamsykefravr
           cluster: prod-fss
+        - application: syfooversikt
+          namespace: teamsykefravr
+          cluster: prod-gcp
     outbound:
       external:
         - host: "ereg-services.prod-fss-pub.nais.io"
