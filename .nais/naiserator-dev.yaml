@@ -46,9 +46,6 @@ spec:
       rules:
         - application: syfooversikt
           namespace: teamsykefravr
-          cluster: dev-fss
-        - application: syfooversikt
-          namespace: teamsykefravr
           cluster: dev-gcp
     outbound:
       external:
