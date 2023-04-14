@@ -11,6 +11,8 @@ import no.nav.syfo.client.ereg.EregClient
 import no.nav.syfo.cronjob.behandlendeenhet.PersonBehandlendeEnhetCronjob
 import no.nav.syfo.cronjob.behandlendeenhet.PersonBehandlendeEnhetService
 import no.nav.syfo.cronjob.leaderelection.LeaderPodClient
+import no.nav.syfo.cronjob.reaper.ReaperCronjob
+import no.nav.syfo.cronjob.reaper.ReaperService
 import no.nav.syfo.cronjob.virksomhetsnavn.PersonOppfolgingstilfelleVirksomhetnavnCronjob
 import no.nav.syfo.cronjob.virksomhetsnavn.PersonOppfolgingstilfelleVirksomhetsnavnService
 
@@ -69,6 +71,22 @@ fun launchCronjobModule(
     ) {
         cronjobRunner.start(
             cronjob = personBehandlendeEnhetCronjob,
+        )
+    }
+
+    val reaperService = ReaperService(
+        database = database,
+    )
+
+    val reaperCronjob = ReaperCronjob(
+        reaperService = reaperService,
+    )
+
+    launchBackgroundTask(
+        applicationState = applicationState,
+    ) {
+        cronjobRunner.start(
+            cronjob = reaperCronjob,
         )
     }
 }
