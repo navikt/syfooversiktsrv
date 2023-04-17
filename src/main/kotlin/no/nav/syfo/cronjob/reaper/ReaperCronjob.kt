@@ -11,7 +11,7 @@ class ReaperCronjob(
     private val log = LoggerFactory.getLogger(ReaperCronjob::class.java)
 
     override val initialDelayMinutes: Long = 2
-    override val intervalDelayMinutes: Long = 60L
+    override val intervalDelayMinutes: Long = 60L * 24
 
     override suspend fun run() {
         runJob()
