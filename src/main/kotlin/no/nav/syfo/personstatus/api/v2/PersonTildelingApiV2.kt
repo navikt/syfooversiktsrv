@@ -24,7 +24,6 @@ fun Route.registerPersonTildelingApiV2(
     personTildelingService: PersonTildelingService
 ) {
     route(personTildelingApiV2Path) {
-
         get("/veileder/{veileder}") {
             try {
                 val veileder: String = call.parameters["veileder"]?.takeIf { it.isNotEmpty() }

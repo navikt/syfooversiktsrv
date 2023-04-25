@@ -34,7 +34,6 @@ class PersonoppgavehendelseService(
     }
 
     private fun processRecords(records: ConsumerRecords<String, KPersonoppgavehendelse>) {
-
         // TODO: vurdere å legge inn støtte for tombstoned records
 
         database.connection.use { connection ->
@@ -120,7 +119,6 @@ class PersonoppgavehendelseService(
             )
             COUNT_KAFKA_CONSUMER_PERSONOPPGAVEHENDELSE_CREATED_PERSONOVERSIKT_STATUS.increment()
         } else {
-
             log.info("TRACE: Found existing PersonOversiktStatus, oversikthendelseType: $oversikthendelseType callId: $callId")
             when (oversikthendelseType) {
                 OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT ->
