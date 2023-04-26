@@ -11,7 +11,7 @@ import java.util.*
 
 const val KNYTNING_IKKE_FUNNET = 0L
 
-const val querygetPersonOversiktStatusList =
+const val queryGetPersonOversiktStatusList =
     """
     SELECT *
     FROM PERSON_OVERSIKT_STATUS
@@ -21,7 +21,7 @@ const val querygetPersonOversiktStatusList =
 fun Connection.getPersonOversiktStatusList(
     fnr: String,
 ): List<PPersonOversiktStatus> =
-    this.prepareStatement(querygetPersonOversiktStatusList).use {
+    this.prepareStatement(queryGetPersonOversiktStatusList).use {
         it.setString(1, fnr)
         it.executeQuery().toList { toPPersonOversiktStatus() }
     }
@@ -38,17 +38,18 @@ const val queryHentUbehandledePersonerTilknyttetEnhet = """
                         SELECT *
                         FROM PERSON_OVERSIKT_STATUS
                         WHERE ((tildelt_enhet = ?)
-                            AND (motebehov_ubehandlet = 't' 
-                            OR oppfolgingsplan_lps_bistand_ubehandlet = 't' 
-                            OR dialogmotesvar_ubehandlet = 't' 
+                            AND (motebehov_ubehandlet = 't'
+                            OR oppfolgingsplan_lps_bistand_ubehandlet = 't'
+                            OR dialogmotesvar_ubehandlet = 't'
                             OR (
-                                dialogmotekandidat = 't' 
+                                dialogmotekandidat = 't'
                                 AND dialogmotekandidat_generated_at + INTERVAL '7 DAY' < now()
                                 )
                             OR (
-                                (aktivitetskrav = 'NY' OR aktivitetskrav = 'AVVENT') 
+                                (aktivitetskrav = 'NY' OR aktivitetskrav = 'AVVENT')
                                 AND aktivitetskrav_stoppunkt > '2023-03-10'
                                 )
+                            OR behandlerdialog_ubehandlet = 't'
                             )
                         );
                 """
@@ -109,6 +110,7 @@ fun ResultSet.toPPersonOversiktStatus(): PPersonOversiktStatus =
         aktivitetskravStoppunkt = getObject("aktivitetskrav_stoppunkt", LocalDate::class.java),
         aktivitetskravUpdatedAt = getObject("aktivitetskrav_sist_vurdert", OffsetDateTime::class.java),
         aktivitetskravVurderingFrist = getObject("aktivitetskrav_vurdering_frist", LocalDate::class.java),
+        behandlerdialogUbehandlet = getObject("behandlerdialog_ubehandlet") as Boolean,
     )
 
 fun ResultSet.toVeilederBrukerKnytning(): VeilederBrukerKnytning =

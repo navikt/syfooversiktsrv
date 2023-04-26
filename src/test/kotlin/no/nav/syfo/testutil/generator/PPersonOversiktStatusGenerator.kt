@@ -29,4 +29,5 @@ fun generatePPersonOversiktStatus() = PPersonOversiktStatus(
     aktivitetskravStoppunkt = null,
     aktivitetskravUpdatedAt = null,
     aktivitetskravVurderingFrist = null,
+    behandlerdialogUbehandlet = false,
 )

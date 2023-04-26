@@ -698,6 +698,39 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     val personOversiktStatusList = database.getPersonOversiktStatusList(personIdent.value)
                     personOversiktStatusList.first().navn shouldBeEqualTo "Fornavn${personIdent.value} Mellomnavn${personIdent.value} Etternavn${personIdent.value}"
                 }
+
+                it("return person with behandlerdialog_ubehandlet true") {
+                    val oversikthendelseBehandlerdialogSvarMottatt = KPersonoppgavehendelse(
+                        ARBEIDSTAKER_FNR,
+                        OversikthendelseType.BEHANDLERDIALOG_SVAR_MOTTATT.name,
+                    )
+                    database.connection.use {
+                        personoppgavehendelseService.processPersonoppgavehendelse(
+                            connection = it,
+                            kPersonoppgavehendelse = oversikthendelseBehandlerdialogSvarMottatt,
+                            callId = UUID.randomUUID().toString(),
+                        )
+                        it.commit()
+                    }
+                    database.setTildeltEnhet(
+                        ident = PersonIdent(ARBEIDSTAKER_FNR),
+                        enhet = NAV_ENHET,
+                    )
+
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        }
+                    ) {
+                        response.status() shouldBeEqualTo HttpStatusCode.OK
+
+                        val personOversiktStatus =
+                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
+                        personOversiktStatus.fnr shouldBeEqualTo oversikthendelseBehandlerdialogSvarMottatt.personident
+                        personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
+                        personOversiktStatus.behandlerdialogUbehandlet shouldBeEqualTo true
+                    }
+                }
             }
         }
     }
