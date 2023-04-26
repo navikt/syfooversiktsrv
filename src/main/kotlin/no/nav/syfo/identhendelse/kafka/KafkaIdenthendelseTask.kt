@@ -15,7 +15,6 @@ fun launchKafkaTaskIdenthendelse(
     environment: Environment,
     azureAdClient: AzureAdClient,
 ) {
-
     val pdlClient = PdlClient(
         azureAdClient = azureAdClient,
         clientEnvironment = environment.clients.pdl,

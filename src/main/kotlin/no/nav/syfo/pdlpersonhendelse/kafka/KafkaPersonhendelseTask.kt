@@ -12,7 +12,6 @@ fun launchKafkaTaskPersonhendelse(
     applicationState: ApplicationState,
     environment: Environment,
 ) {
-
     val pdlPersonhendelseService = PdlPersonhendelseService(
         database = database,
     )
