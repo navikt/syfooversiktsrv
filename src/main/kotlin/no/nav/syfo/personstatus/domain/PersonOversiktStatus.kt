@@ -26,11 +26,12 @@ data class PersonOversiktStatus(
     val aktivitetskravStoppunkt: LocalDate?,
     val aktivitetskravSistVurdert: OffsetDateTime?,
     val aktivitetskravVurderingFrist: LocalDate?,
+    val behandlerdialogUbehandlet: Boolean,
 ) {
     constructor(fnr: String) : this(
         null, fnr = fnr, null, null, null,
-        null, false, null, null,
-        null, null, null, null, null, null, null,
+        null, false, null, null, null,
+        null, null, null, null, null, null, false,
     )
 }
 
@@ -52,6 +53,15 @@ fun PersonOversiktStatus.noOpenDialogmoteInvitation() = !hasOpenDialogmoteInvita
 fun PersonOversiktStatus.isActiveAktivitetskrav(arenaCutoff: LocalDate) =
     (aktivitetskrav == AktivitetskravStatus.NY || aktivitetskrav == AktivitetskravStatus.AVVENT) &&
         aktivitetskravStoppunkt?.isAfter(arenaCutoff) ?: false
+
+fun PersonOversiktStatus.hasActiveOppgave(arenaCutoff: LocalDate): Boolean {
+    return this.oppfolgingsplanLPSBistandUbehandlet == true ||
+        this.dialogmotesvarUbehandlet ||
+        this.isDialogmotekandidat() ||
+        (this.motebehovUbehandlet == true && this.latestOppfolgingstilfelle != null) ||
+        this.isActiveAktivitetskrav(arenaCutoff = arenaCutoff) ||
+        this.behandlerdialogUbehandlet
+}
 
 data class Oppfolgingstilfelle(
     val updatedAt: OffsetDateTime,
@@ -120,6 +130,7 @@ fun PersonOversiktStatus.toPersonOversiktStatusDTO(arenaCutoff: LocalDate) =
         aktivitetskravSistVurdert = this.aktivitetskravSistVurdert?.toLocalDateTimeOslo(),
         aktivitetskravActive = isActiveAktivitetskrav(arenaCutoff = arenaCutoff),
         aktivitetskravVurderingFrist = this.aktivitetskravVurderingFrist,
+        behandlerdialogUbehandlet = this.behandlerdialogUbehandlet,
     )
 
 fun PersonOversiktStatus.applyHendelse(
@@ -148,5 +159,13 @@ fun PersonOversiktStatus.applyHendelse(
 
         OversikthendelseType.DIALOGMOTESVAR_BEHANDLET -> this.copy(
             dialogmotesvarUbehandlet = false,
+        )
+
+        OversikthendelseType.BEHANDLERDIALOG_SVAR_MOTTATT -> this.copy(
+            behandlerdialogUbehandlet = true,
+        )
+
+        OversikthendelseType.BEHANDLERDIALOG_SVAR_BEHANDLET -> this.copy(
+            behandlerdialogUbehandlet = false,
         )
     }

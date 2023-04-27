@@ -149,6 +149,26 @@ const val queryUpdatePersonOversiktStatusKandidat =
         WHERE fnr = ?
     """
 
+const val queryUpdatePersonOversiktStatusBehandlerdialog =
+    """
+        UPDATE PERSON_OVERSIKT_STATUS
+        SET behandlerdialog_ubehandlet = ?,
+        sist_endret = ?
+        WHERE fnr = ?
+    """
+
+fun Connection.updatePersonOversiktStatusBehandlerdialog(
+    isBehandlerdialogUbehandlet: Boolean,
+    personIdent: PersonIdent,
+) {
+    this.prepareStatement(queryUpdatePersonOversiktStatusBehandlerdialog).use {
+        it.setBoolean(1, isBehandlerdialogUbehandlet)
+        it.setObject(2, Timestamp.from(Instant.now()))
+        it.setString(3, personIdent.value)
+        it.execute()
+    }
+}
+
 fun DatabaseInterface.oppdaterEnhetDersomKnytningFinnes(veilederBrukerKnytning: VeilederBrukerKnytning): Long {
     var id = KNYTNING_IKKE_FUNNET
 

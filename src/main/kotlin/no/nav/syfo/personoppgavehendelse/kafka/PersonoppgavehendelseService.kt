@@ -22,6 +22,8 @@ class PersonoppgavehendelseService(
     val LPS_BISTAND_UBEHANDLET_FALSE = false
     val DIALOGMOTESVAR_UBEHANDLET_TRUE = true
     val DIALOGMOTESVAR_UBEHANDLET_FALSE = false
+    val BEHANDLERDIALOG_SVAR_UBEHANDLET_TRUE = true
+    val BEHANDLERDIALOG_SVAR_UBEHANDLET_FALSE = false
 
     override fun pollAndProcessRecords(kafkaConsumer: KafkaConsumer<String, KPersonoppgavehendelse>) {
         val records = kafkaConsumer.poll(Duration.ofMillis(pollDurationInMillis))
@@ -133,6 +135,10 @@ class PersonoppgavehendelseService(
                     connection.updatePersonOversiktStatusDialogmotesvar(DIALOGMOTESVAR_UBEHANDLET_TRUE, personident)
                 OversikthendelseType.DIALOGMOTESVAR_BEHANDLET ->
                     connection.updatePersonOversiktStatusDialogmotesvar(DIALOGMOTESVAR_UBEHANDLET_FALSE, personident)
+                OversikthendelseType.BEHANDLERDIALOG_SVAR_MOTTATT ->
+                    connection.updatePersonOversiktStatusBehandlerdialog(BEHANDLERDIALOG_SVAR_UBEHANDLET_TRUE, personident)
+                OversikthendelseType.BEHANDLERDIALOG_SVAR_BEHANDLET ->
+                    connection.updatePersonOversiktStatusBehandlerdialog(BEHANDLERDIALOG_SVAR_UBEHANDLET_FALSE, personident)
             }
 
             COUNT_KAFKA_CONSUMER_PERSONOPPGAVEHENDELSE_UPDATED_PERSONOVERSIKT_STATUS.increment()

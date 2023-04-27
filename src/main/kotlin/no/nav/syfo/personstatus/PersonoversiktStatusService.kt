@@ -23,11 +23,7 @@ class PersonoversiktStatusService(
                 personOppfolgingstilfelleVirksomhetList = personOppfolgingstilfelleVirksomhetList,
             )
         }.filter { personOversiktStatus ->
-            personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet == true ||
-                personOversiktStatus.dialogmotesvarUbehandlet == true ||
-                personOversiktStatus.isDialogmotekandidat() ||
-                (personOversiktStatus.motebehovUbehandlet == true && personOversiktStatus.latestOppfolgingstilfelle != null) ||
-                personOversiktStatus.isActiveAktivitetskrav(arenaCutoff = arenaCutoff)
+            personOversiktStatus.hasActiveOppgave(arenaCutoff = arenaCutoff)
         }
     }
 

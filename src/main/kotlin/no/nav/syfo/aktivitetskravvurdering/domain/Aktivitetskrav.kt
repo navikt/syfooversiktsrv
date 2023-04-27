@@ -41,4 +41,5 @@ fun Aktivitetskrav.toPersonOversiktStatus() = PersonOversiktStatus(
     aktivitetskravStoppunkt = this.stoppunkt,
     aktivitetskravSistVurdert = this.sistVurdert,
     aktivitetskravVurderingFrist = this.vurderingFrist,
+    behandlerdialogUbehandlet = false,
 )

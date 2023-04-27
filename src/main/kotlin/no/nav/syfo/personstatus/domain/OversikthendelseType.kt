@@ -7,9 +7,6 @@ enum class OversikthendelseType {
     OPPFOLGINGSPLANLPS_BISTAND_BEHANDLET,
     DIALOGMOTESVAR_MOTTATT,
     DIALOGMOTESVAR_BEHANDLET,
+    BEHANDLERDIALOG_SVAR_MOTTATT,
+    BEHANDLERDIALOG_SVAR_BEHANDLET,
 }
-
-fun OversikthendelseType.isNotBehandling() =
-    this == OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT ||
-        this == OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT ||
-        this == OversikthendelseType.DIALOGMOTESVAR_MOTTATT
