@@ -81,7 +81,7 @@ fun DatabaseInterface.updateTildeltEnhetUpdatedAt(
 ) {
     this.connection.use { connection ->
         connection.prepareStatement(queryUpdateTildeltEnhetAt).use {
-            it.setObject(1, time.toLocalDateTime())
+            it.setObject(1, time)
             it.setString(2, ident.value)
             it.execute()
         }
