@@ -52,10 +52,10 @@ spec:
       external:
         - host: "ereg-services.prod-fss-pub.nais.io"
         - host: "pdl-api.prod-fss-pub.nais.io"
-        - host: "syfo-tilgangskontroll.prod-fss-pub.nais.io"
       rules:
         - application: syfobehandlendeenhet
         - application: syfooversiktsrv-redis
+        - application: syfo-tilgangskontroll
   azure:
     application:
       allowAllUsers: true
@@ -91,9 +91,9 @@ spec:
     - name: SYFOBEHANDLENDEENHET_URL
       value: "http://syfobehandlendeenhet"
     - name: SYFOTILGANGSKONTROLL_CLIENT_ID
-      value: "prod-fss.teamsykefravr.syfo-tilgangskontroll"
+      value: "prod-gcp.teamsykefravr.syfo-tilgangskontroll"
     - name: SYFOTILGANGSKONTROLL_URL
-      value: "https://syfo-tilgangskontroll.prod-fss-pub.nais.io"
+      value: "http://syfo-tilgangskontroll"
     # Bruk samme dato i enhetens-oversikt-query og index
     - name: ARENA_CUTOFF
       value: "2023-03-10"
