@@ -8,9 +8,11 @@ import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.client.azuread.AzureAdClient
 import no.nav.syfo.client.behandlendeenhet.BehandlendeEnhetClient
 import no.nav.syfo.client.ereg.EregClient
+import no.nav.syfo.client.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.cronjob.behandlendeenhet.PersonBehandlendeEnhetCronjob
 import no.nav.syfo.cronjob.behandlendeenhet.PersonBehandlendeEnhetService
 import no.nav.syfo.cronjob.leaderelection.LeaderPodClient
+import no.nav.syfo.cronjob.preloadcache.PreloadCacheCronjob
 import no.nav.syfo.cronjob.reaper.ReaperCronjob
 import no.nav.syfo.cronjob.reaper.ReaperService
 import no.nav.syfo.cronjob.virksomhetsnavn.PersonOppfolgingstilfelleVirksomhetnavnCronjob
@@ -27,14 +29,6 @@ fun launchCronjobModule(
         clientEnvironment = environment.clients.ereg,
         redisStore = redisStore,
     )
-
-    val leaderPodClient = LeaderPodClient(
-        electorPath = environment.electorPath,
-    )
-    val cronjobRunner = CronjobRunner(
-        applicationState = applicationState,
-        leaderPodClient = leaderPodClient,
-    )
     val personOppfolgingstilfelleVirksomhetsnavnService = PersonOppfolgingstilfelleVirksomhetsnavnService(
         database = database,
         eregClient = eregClient,
@@ -43,49 +37,51 @@ fun launchCronjobModule(
         personOppfolgingstilfelleVirksomhetsnavnService = personOppfolgingstilfelleVirksomhetsnavnService,
     )
 
-    launchBackgroundTask(
-        applicationState = applicationState,
-    ) {
-        cronjobRunner.start(
-            cronjob = personOppfolgingstilfelleVirksomhetnavnCronjob,
-        )
-    }
-
     val behandlendeEnhetClient = BehandlendeEnhetClient(
         azureAdClient = azureAdClient,
         clientEnvironment = environment.clients.syfobehandlendeenhet,
     )
-
     val personBehandlendeEnhetService = PersonBehandlendeEnhetService(
         database = database,
         behandlendeEnhetClient = behandlendeEnhetClient,
     )
-
     val personBehandlendeEnhetCronjob = PersonBehandlendeEnhetCronjob(
         personBehandlendeEnhetService = personBehandlendeEnhetService,
     )
 
-    launchBackgroundTask(
-        applicationState = applicationState,
-    ) {
-        cronjobRunner.start(
-            cronjob = personBehandlendeEnhetCronjob,
-        )
-    }
-
     val reaperService = ReaperService(
         database = database,
     )
-
     val reaperCronjob = ReaperCronjob(
         reaperService = reaperService,
     )
 
-    launchBackgroundTask(
+    val tilgangskontrollClient = VeilederTilgangskontrollClient(
+        azureAdClient = azureAdClient,
+        clientEnvironment = environment.clients.syfotilgangskontroll,
+    )
+    val preloadCacheCronjob = PreloadCacheCronjob(
+        database = database,
+        tilgangskontrollClient = tilgangskontrollClient,
+    )
+
+    val cronjobRunner = CronjobRunner(
         applicationState = applicationState,
-    ) {
-        cronjobRunner.start(
-            cronjob = reaperCronjob,
-        )
+        leaderPodClient = LeaderPodClient(
+            electorPath = environment.electorPath,
+        ),
+    )
+
+    listOf(
+        personOppfolgingstilfelleVirksomhetnavnCronjob,
+        personBehandlendeEnhetCronjob,
+        reaperCronjob,
+        preloadCacheCronjob,
+    ).forEach { cronjob ->
+        launchBackgroundTask(
+            applicationState = applicationState,
+        ) {
+            cronjobRunner.start(cronjob)
+        }
     }
 }

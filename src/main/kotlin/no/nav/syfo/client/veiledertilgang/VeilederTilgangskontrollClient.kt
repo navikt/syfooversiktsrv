@@ -13,6 +13,7 @@ import no.nav.syfo.metric.*
 import no.nav.syfo.util.NAV_CALL_ID_HEADER
 import no.nav.syfo.util.bearerHeader
 import org.slf4j.LoggerFactory
+import java.util.UUID
 
 class VeilederTilgangskontrollClient(
     private val azureAdClient: AzureAdClient,
@@ -21,6 +22,7 @@ class VeilederTilgangskontrollClient(
     private val httpClient = httpClientDefault()
 
     private val pathTilgangTilBrukereOBO = "/navident/brukere"
+    private val pathPreloadCache = "/system/preloadbrukere"
     private val pathTilgangTilEnhetOBO = "/navident/enhet"
 
     suspend fun veilederPersonAccessListMedOBO(
@@ -62,6 +64,36 @@ class VeilederTilgangskontrollClient(
             COUNT_CALL_TILGANGSKONTROLL_PERSONS_FAIL.increment()
             log.error("Error while requesting access to list of person from syfo-tilgangskontroll: ${e.message}", e)
             return null
+        }
+    }
+
+    suspend fun preloadCache(
+        personIdentNumberList: List<String>,
+    ): Boolean {
+        val systemToken = azureAdClient.getSystemToken(
+            scopeClientId = clientEnvironment.clientId,
+        )?.accessToken
+            ?: throw RuntimeException("Failed to request preload of list of persons: Failed to get system token")
+
+        return try {
+            val response = httpClient.post(getTilgangskontrollUrl(pathPreloadCache)) {
+                header(HttpHeaders.Authorization, bearerHeader(systemToken))
+                header(NAV_CALL_ID_HEADER, UUID.randomUUID().toString())
+                accept(ContentType.Application.Json)
+                contentType(ContentType.Application.Json)
+                setBody(personIdentNumberList)
+            }
+            HttpStatusCode.OK == response.status
+        } catch (e: ClientRequestException) {
+            if (e.response.status == HttpStatusCode.Forbidden) {
+                log.warn("Forbidden to request preload of list of person from syfo-tilgangskontroll")
+            } else {
+                log.error("Error while requesting preload of list of person from syfo-tilgangskontroll: ${e.message}", e)
+            }
+            false
+        } catch (e: ServerResponseException) {
+            log.error("Error while requesting preload of list of person from syfo-tilgangskontroll: ${e.message}", e)
+            false
         }
     }
 

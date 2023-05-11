@@ -1,5 +1,6 @@
 package no.nav.syfo.testutil.mock
 
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
@@ -33,6 +34,9 @@ class VeilederTilgangskontrollMock {
             }
             post("/syfo-tilgangskontroll/api/tilgang/navident/brukere") {
                 call.respond(responseAccessPersons)
+            }
+            post("/syfo-tilgangskontroll/api/tilgang/system/preloadbrukere") {
+                call.respond(HttpStatusCode.OK)
             }
         }
     }
