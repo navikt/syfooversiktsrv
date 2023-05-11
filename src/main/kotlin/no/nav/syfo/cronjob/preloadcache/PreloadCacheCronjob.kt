@@ -37,14 +37,14 @@ class PreloadCacheCronjob(
                     personer.chunked(chunkSize).forEach { subList ->
                         if (subList.isNotEmpty()) {
                             runBlocking {
-                                val response = tilgangskontrollClient.preloadCache(
+                                val isResponseOK = tilgangskontrollClient.preloadCache(
                                     subList.map { personOversiktStatus -> personOversiktStatus.fnr }
                                 )
-                                if (!response) {
+                                if (isResponseOK) {
+                                    result.updated += subList.size
+                                } else {
                                     log.warn("Caching for $enhetNr failed")
                                     result.failed += subList.size
-                                } else {
-                                    result.updated += subList.size
                                 }
                             }
                         }
@@ -66,14 +66,15 @@ class PreloadCacheCronjob(
         return result
     }
 
-    private fun calculateInitialDelay(): Long {
-        val now = LocalDateTime.now()
+    internal fun calculateInitialDelay() = calculateInitialDelay(LocalDateTime.now())
+
+    internal fun calculateInitialDelay(from: LocalDateTime): Long {
         val nowDate = LocalDate.now()
         val nextTimeToRun = LocalDateTime.of(
-            if (now.hour < runAtHour) nowDate else nowDate.plusDays(1),
+            if (from.hour < runAtHour) nowDate else nowDate.plusDays(1),
             LocalTime.of(runAtHour, 0),
         )
-        val initialDelay = Duration.between(LocalDateTime.now(), nextTimeToRun).toMinutes()
+        val initialDelay = Duration.between(from, nextTimeToRun).toMinutes()
         log.info("PreloadCacheCronJob will run in $initialDelay minutes at $nextTimeToRun")
         return initialDelay
     }
