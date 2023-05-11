@@ -7,12 +7,15 @@ import no.nav.syfo.client.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.cronjob.Cronjob
 import no.nav.syfo.cronjob.CronjobResult
 import no.nav.syfo.personstatus.db.hentUbehandledePersonerTilknyttetEnhet
+import no.nav.syfo.personstatus.domain.hasActiveOppgave
+import no.nav.syfo.personstatus.domain.toPersonOversiktStatus
 import org.slf4j.LoggerFactory
 import java.time.*
 
 class PreloadCacheCronjob(
     private val database: DatabaseInterface,
     private val tilgangskontrollClient: VeilederTilgangskontrollClient,
+    private val arenaCutoff: LocalDate,
 ) : Cronjob {
     private val log = LoggerFactory.getLogger(PreloadCacheCronjob::class.java)
     private val runAtHour = 6
@@ -32,7 +35,12 @@ class PreloadCacheCronjob(
         database.getEnheter()
             .forEach { enhetNr ->
                 try {
-                    val personer = database.hentUbehandledePersonerTilknyttetEnhet(enhetNr)
+                    val personer = database.hentUbehandledePersonerTilknyttetEnhet(enhetNr).map { pPersonOversiktStatus ->
+                        pPersonOversiktStatus.toPersonOversiktStatus(emptyList())
+                    }.filter { personOversiktStatus ->
+                        personOversiktStatus.hasActiveOppgave(arenaCutoff)
+                    }
+
                     log.info("Caching ${personer.size} for enhet $enhetNr")
                     personer.chunked(chunkSize).forEach { subList ->
                         if (subList.isNotEmpty()) {

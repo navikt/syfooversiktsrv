@@ -5,15 +5,12 @@ import kotlinx.coroutines.runBlocking
 import no.nav.syfo.application.cache.RedisStore
 import no.nav.syfo.client.azuread.AzureAdClient
 import no.nav.syfo.client.veiledertilgang.VeilederTilgangskontrollClient
-import no.nav.syfo.personstatus.domain.PersonOversiktStatus
-import no.nav.syfo.personstatus.domain.toPersonOversiktStatus
 import no.nav.syfo.testutil.*
-import no.nav.syfo.testutil.generator.generatePPersonOversiktStatus
+import no.nav.syfo.testutil.generator.generatePersonOversiktStatus
 import org.amshove.kluent.shouldBeEqualTo
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import java.time.*
-import java.util.*
 
 object PreloadCacheCronjobSpek : Spek({
 
@@ -33,7 +30,8 @@ object PreloadCacheCronjobSpek : Spek({
             tilgangskontrollClient = VeilederTilgangskontrollClient(
                 azureAdClient = azureAdClient,
                 clientEnvironment = externalMockEnvironment.environment.clients.syfotilgangskontroll,
-            )
+            ),
+            arenaCutoff = externalMockEnvironment.environment.arenaCutoff,
         )
 
         describe(PreloadCacheCronjobSpek::class.java.simpleName) {
@@ -89,20 +87,3 @@ object PreloadCacheCronjobSpek : Spek({
         }
     }
 })
-
-fun generatePersonOversiktStatus(
-    fnr: String = UserConstants.ARBEIDSTAKER_FNR,
-    enhet: String = UserConstants.NAV_ENHET,
-): PersonOversiktStatus =
-    generatePPersonOversiktStatus(fnr).copy(
-        veilederIdent = "Z999999",
-        enhet = enhet,
-        oppfolgingstilfelleUpdatedAt = OffsetDateTime.now(),
-        oppfolgingstilfelleGeneratedAt = OffsetDateTime.now(),
-        oppfolgingstilfelleStart = LocalDate.now().minusDays(14),
-        oppfolgingstilfelleEnd = LocalDate.now(),
-        oppfolgingstilfelleBitReferanseInntruffet = OffsetDateTime.now(),
-        oppfolgingstilfelleBitReferanseUuid = UUID.randomUUID(),
-        dialogmotekandidat = true,
-        dialogmotekandidatGeneratedAt = OffsetDateTime.now().minusDays(8),
-    ).toPersonOversiktStatus(emptyList())
