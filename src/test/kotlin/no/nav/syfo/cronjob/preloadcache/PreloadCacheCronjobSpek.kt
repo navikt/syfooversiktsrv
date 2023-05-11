@@ -44,15 +44,15 @@ object PreloadCacheCronjobSpek : Spek({
 
                 it("Initial run when restart before 6") {
                     val initalDelay = preloadCacheCronjob.calculateInitialDelay(
-                        LocalDateTime.of(LocalDate.now(), LocalTime.of(4,0))
+                        LocalDateTime.of(LocalDate.now(), LocalTime.of(4, 0))
                     )
-                    initalDelay shouldBeEqualTo 2*60
+                    initalDelay shouldBeEqualTo 2 * 60
                 }
                 it("Initial run when restart after 6") {
                     val initalDelay = preloadCacheCronjob.calculateInitialDelay(
-                        LocalDateTime.of(LocalDate.now(), LocalTime.of(7,0))
+                        LocalDateTime.of(LocalDate.now(), LocalTime.of(7, 0))
                     )
-                    initalDelay shouldBeEqualTo 23*60
+                    initalDelay shouldBeEqualTo 23 * 60
                 }
                 it("should cache persons in enhetens oversikt") {
                     database.createPersonOversiktStatus(generatePersonOversiktStatus())
