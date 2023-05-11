@@ -18,7 +18,7 @@ class PreloadCacheCronjob(
     private val runAtHour = 6
     private val chunkSize = 50
 
-    override val initialDelayMinutes: Long = Duration.between(LocalDateTime.now(), nextTimeToRun()).toMinutes()
+    override val initialDelayMinutes: Long = calculateInitialDelay()
     override val intervalDelayMinutes: Long = 60L * 24
 
     override suspend fun run() {
@@ -66,12 +66,15 @@ class PreloadCacheCronjob(
         return result
     }
 
-    private fun nextTimeToRun(): LocalDateTime {
+    private fun calculateInitialDelay(): Long {
         val now = LocalDateTime.now()
         val nowDate = LocalDate.now()
-        return LocalDateTime.of(
+        val nextTimeToRun = LocalDateTime.of(
             if (now.hour < runAtHour) nowDate else nowDate.plusDays(1),
             LocalTime.of(runAtHour, 0),
         )
+        val initialDelay = Duration.between(LocalDateTime.now(), nextTimeToRun).toMinutes()
+        log.info("PreloadCacheCronJob will run in $initialDelay minutes at $nextTimeToRun")
+        return initialDelay
     }
 }
