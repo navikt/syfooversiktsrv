@@ -18,7 +18,7 @@ object PreloadCacheCronjobWithMockSpek : Spek({
 
         val externalMockEnvironment = ExternalMockEnvironment.instance
         val database = externalMockEnvironment.database
-        val veilederTilgangskontrollMockClien = mockk<VeilederTilgangskontrollClient>(relaxed = true)
+        val veilederTilgangskontrollMockClient = mockk<VeilederTilgangskontrollClient>(relaxed = true)
 
         val preloadCacheCronjob = PreloadCacheCronjob(
             database = database,
