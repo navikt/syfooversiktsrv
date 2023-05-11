@@ -15,7 +15,7 @@ class PreloadCacheCronjob(
     private val tilgangskontrollClient: VeilederTilgangskontrollClient,
 ) : Cronjob {
     private val log = LoggerFactory.getLogger(PreloadCacheCronjob::class.java)
-    private val runAtHour = 6
+    private val runAtHour = 10
     private val chunkSize = 50
 
     override val initialDelayMinutes: Long = calculateInitialDelay()
