@@ -4,9 +4,9 @@ import no.nav.syfo.personstatus.domain.PPersonOversiktStatus
 import no.nav.syfo.testutil.UserConstants
 import java.util.*
 
-fun generatePPersonOversiktStatus() = PPersonOversiktStatus(
+fun generatePPersonOversiktStatus(fnr: String = UserConstants.ARBEIDSTAKER_FNR) = PPersonOversiktStatus(
     veilederIdent = null,
-    fnr = UserConstants.ARBEIDSTAKER_FNR,
+    fnr = fnr,
     uuid = UUID.randomUUID(),
     navn = null,
     id = 1,
