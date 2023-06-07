@@ -31,7 +31,7 @@ object Versions {
 plugins {
     kotlin("jvm") version "1.8.21"
     id("com.github.johnrengelman.shadow") version "8.1.1"
-    id("org.jlleitschuh.gradle.ktlint") version "11.3.2"
+    id("org.jlleitschuh.gradle.ktlint") version "11.4.0"
     id("com.github.davidmc24.gradle.plugin.avro") version "1.7.0"
 }
 
