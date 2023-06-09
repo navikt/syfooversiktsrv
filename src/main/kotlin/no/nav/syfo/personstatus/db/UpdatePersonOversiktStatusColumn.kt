@@ -149,20 +149,40 @@ const val queryUpdatePersonOversiktStatusKandidat =
         WHERE fnr = ?
     """
 
-const val queryUpdatePersonOversiktStatusBehandlerdialog =
+const val queryUpdatePersonOversiktStatusBehandlerdialogSvar =
     """
         UPDATE PERSON_OVERSIKT_STATUS
-        SET behandlerdialog_ubehandlet = ?,
+        SET behandlerdialog_svar_ubehandlet = ?,
         sist_endret = ?
         WHERE fnr = ?
     """
 
-fun Connection.updatePersonOversiktStatusBehandlerdialog(
-    isBehandlerdialogUbehandlet: Boolean,
+fun Connection.updatePersonOversiktStatusBehandlerdialogSvar(
+    isBehandlerdialogSvarUbehandlet: Boolean,
     personIdent: PersonIdent,
 ) {
-    this.prepareStatement(queryUpdatePersonOversiktStatusBehandlerdialog).use {
-        it.setBoolean(1, isBehandlerdialogUbehandlet)
+    this.prepareStatement(queryUpdatePersonOversiktStatusBehandlerdialogSvar).use {
+        it.setBoolean(1, isBehandlerdialogSvarUbehandlet)
+        it.setObject(2, Timestamp.from(Instant.now()))
+        it.setString(3, personIdent.value)
+        it.execute()
+    }
+}
+
+const val queryUpdatePersonOversiktStatusBehandlerdialogUbesvart =
+    """
+        UPDATE PERSON_OVERSIKT_STATUS
+        SET behandlerdialog_ubesvart_ubehandlet = ?,
+        sist_endret = ?
+        WHERE fnr = ?
+    """
+
+fun Connection.updatePersonOversiktStatusBehandlerdialogUbesvart(
+    isBehandlerdialogUbesvartUbehandlet: Boolean,
+    personIdent: PersonIdent,
+) {
+    this.prepareStatement(queryUpdatePersonOversiktStatusBehandlerdialogUbesvart).use {
+        it.setBoolean(1, isBehandlerdialogUbesvartUbehandlet)
         it.setObject(2, Timestamp.from(Instant.now()))
         it.setString(3, personIdent.value)
         it.execute()

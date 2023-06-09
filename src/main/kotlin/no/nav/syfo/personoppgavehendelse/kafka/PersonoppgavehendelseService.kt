@@ -18,12 +18,8 @@ class PersonoppgavehendelseService(
     private val database: DatabaseInterface,
 ) : KafkaConsumerService<KPersonoppgavehendelse> {
     override val pollDurationInMillis: Long = 100
-    val LPS_BISTAND_UBEHANDLET_TRUE = true
-    val LPS_BISTAND_UBEHANDLET_FALSE = false
-    val DIALOGMOTESVAR_UBEHANDLET_TRUE = true
-    val DIALOGMOTESVAR_UBEHANDLET_FALSE = false
-    val BEHANDLERDIALOG_SVAR_UBEHANDLET_TRUE = true
-    val BEHANDLERDIALOG_SVAR_UBEHANDLET_FALSE = false
+    private val isUbehandlet = true
+    private val isBehandlet = false
 
     override fun pollAndProcessRecords(kafkaConsumer: KafkaConsumer<String, KPersonoppgavehendelse>) {
         val records = kafkaConsumer.poll(Duration.ofMillis(pollDurationInMillis))
@@ -124,21 +120,25 @@ class PersonoppgavehendelseService(
             log.info("TRACE: Found existing PersonOversiktStatus, oversikthendelseType: $oversikthendelseType callId: $callId")
             when (oversikthendelseType) {
                 OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT ->
-                    connection.updatePersonOversiktStatusLPS(LPS_BISTAND_UBEHANDLET_TRUE, personident)
+                    connection.updatePersonOversiktStatusLPS(isUbehandlet, personident)
                 OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_BEHANDLET ->
-                    connection.updatePersonOversiktStatusLPS(LPS_BISTAND_UBEHANDLET_FALSE, personident)
+                    connection.updatePersonOversiktStatusLPS(isBehandlet, personident)
                 OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT ->
-                    connection.updatePersonOversiktMotebehov(true, personident)
+                    connection.updatePersonOversiktMotebehov(isUbehandlet, personident)
                 OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET ->
-                    connection.updatePersonOversiktMotebehov(false, personident)
+                    connection.updatePersonOversiktMotebehov(isBehandlet, personident)
                 OversikthendelseType.DIALOGMOTESVAR_MOTTATT ->
-                    connection.updatePersonOversiktStatusDialogmotesvar(DIALOGMOTESVAR_UBEHANDLET_TRUE, personident)
+                    connection.updatePersonOversiktStatusDialogmotesvar(isUbehandlet, personident)
                 OversikthendelseType.DIALOGMOTESVAR_BEHANDLET ->
-                    connection.updatePersonOversiktStatusDialogmotesvar(DIALOGMOTESVAR_UBEHANDLET_FALSE, personident)
+                    connection.updatePersonOversiktStatusDialogmotesvar(isBehandlet, personident)
                 OversikthendelseType.BEHANDLERDIALOG_SVAR_MOTTATT ->
-                    connection.updatePersonOversiktStatusBehandlerdialog(BEHANDLERDIALOG_SVAR_UBEHANDLET_TRUE, personident)
+                    connection.updatePersonOversiktStatusBehandlerdialogSvar(isUbehandlet, personident)
                 OversikthendelseType.BEHANDLERDIALOG_SVAR_BEHANDLET ->
-                    connection.updatePersonOversiktStatusBehandlerdialog(BEHANDLERDIALOG_SVAR_UBEHANDLET_FALSE, personident)
+                    connection.updatePersonOversiktStatusBehandlerdialogSvar(isBehandlet, personident)
+                OversikthendelseType.BEHANDLERDIALOG_MELDING_UBESVART_MOTTATT ->
+                    connection.updatePersonOversiktStatusBehandlerdialogUbesvart(isUbehandlet, personident)
+                OversikthendelseType.BEHANDLERDIALOG_MELDING_UBESVART_BEHANDLET ->
+                    connection.updatePersonOversiktStatusBehandlerdialogUbesvart(isBehandlet, personident)
             }
 
             COUNT_KAFKA_CONSUMER_PERSONOPPGAVEHENDELSE_UPDATED_PERSONOVERSIKT_STATUS.increment()
