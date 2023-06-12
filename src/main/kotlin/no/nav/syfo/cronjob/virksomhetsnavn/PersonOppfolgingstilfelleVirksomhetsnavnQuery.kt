@@ -36,7 +36,8 @@ const val queryPersonOppfolgingstilfelleVirksomhetNoVirksomhetsnavnList =
         OR dialogmotekandidat = 't' 
         OR dialogmotesvar_ubehandlet = 't' 
         OR ((aktivitetskrav = 'NY' OR aktivitetskrav = 'AVVENT') AND aktivitetskrav_stoppunkt > '2023-03-10')
-        OR behandlerdialog_ubehandlet = 't'
+        OR behandlerdialog_svar_ubehandlet = 't'
+        OR behandlerdialog_ubesvart_ubehandlet = 't'
         )
     ORDER BY PERSON_OPPFOLGINGSTILFELLE_VIRKSOMHET.created_at ASC
     LIMIT 1000

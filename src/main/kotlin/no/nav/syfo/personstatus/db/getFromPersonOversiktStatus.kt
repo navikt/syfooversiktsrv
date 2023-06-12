@@ -49,7 +49,8 @@ const val queryHentUbehandledePersonerTilknyttetEnhet = """
                                 (aktivitetskrav = 'NY' OR aktivitetskrav = 'AVVENT')
                                 AND aktivitetskrav_stoppunkt > '2023-03-10'
                                 )
-                            OR behandlerdialog_ubehandlet = 't'
+                            OR behandlerdialog_svar_ubehandlet = 't'
+                            OR behandlerdialog_ubesvart_ubehandlet = 't'
                             )
                         );
                 """
@@ -110,7 +111,8 @@ fun ResultSet.toPPersonOversiktStatus(): PPersonOversiktStatus =
         aktivitetskravStoppunkt = getObject("aktivitetskrav_stoppunkt", LocalDate::class.java),
         aktivitetskravUpdatedAt = getObject("aktivitetskrav_sist_vurdert", OffsetDateTime::class.java),
         aktivitetskravVurderingFrist = getObject("aktivitetskrav_vurdering_frist", LocalDate::class.java),
-        behandlerdialogUbehandlet = getObject("behandlerdialog_ubehandlet") as Boolean,
+        behandlerdialogSvarUbehandlet = getObject("behandlerdialog_svar_ubehandlet") as Boolean,
+        behandlerdialogUbesvartUbehandlet = getObject("behandlerdialog_ubesvart_ubehandlet") as Boolean,
     )
 
 fun ResultSet.toVeilederBrukerKnytning(): VeilederBrukerKnytning =

@@ -30,7 +30,8 @@ data class PPersonOversiktStatus(
     val aktivitetskravStoppunkt: LocalDate?,
     val aktivitetskravUpdatedAt: OffsetDateTime?,
     val aktivitetskravVurderingFrist: LocalDate?,
-    val behandlerdialogUbehandlet: Boolean,
+    val behandlerdialogSvarUbehandlet: Boolean,
+    val behandlerdialogUbesvartUbehandlet: Boolean,
 )
 
 fun PPersonOversiktStatus.toPersonOversiktStatus(
@@ -54,7 +55,8 @@ fun PPersonOversiktStatus.toPersonOversiktStatus(
     aktivitetskravStoppunkt = this.aktivitetskravStoppunkt,
     aktivitetskravSistVurdert = this.aktivitetskravUpdatedAt,
     aktivitetskravVurderingFrist = this.aktivitetskravVurderingFrist,
-    behandlerdialogUbehandlet = this.behandlerdialogUbehandlet,
+    behandlerdialogSvarUbehandlet = this.behandlerdialogSvarUbehandlet,
+    behandlerdialogUbesvartUbehandlet = this.behandlerdialogUbesvartUbehandlet,
 )
 
 fun PPersonOversiktStatus.toPersonOppfolgingstilfelle(

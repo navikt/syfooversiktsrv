@@ -41,8 +41,9 @@ const val queryCreatePersonOversiktStatus =
         aktivitetskrav_stoppunkt,
         aktivitetskrav_sist_vurdert,
         aktivitetskrav_vurdering_frist,
-        behandlerdialog_ubehandlet
-    ) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        behandlerdialog_svar_ubehandlet,
+        behandlerdialog_ubesvart_ubehandlet
+    ) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     RETURNING id
     """
 
@@ -100,7 +101,8 @@ fun Connection.createPersonOversiktStatus(
         it.setObject(24, personOversiktStatus.aktivitetskravStoppunkt)
         it.setObject(25, personOversiktStatus.aktivitetskravSistVurdert)
         it.setObject(26, personOversiktStatus.aktivitetskravVurderingFrist)
-        it.setBoolean(27, personOversiktStatus.behandlerdialogUbehandlet)
+        it.setBoolean(27, personOversiktStatus.behandlerdialogSvarUbehandlet)
+        it.setBoolean(28, personOversiktStatus.behandlerdialogUbesvartUbehandlet)
         it.executeQuery().toList { getInt("id") }.firstOrNull()
     } ?: throw SQLException("Creating PersonOversikStatus failed, no rows affected.")
 
@@ -171,7 +173,8 @@ fun DatabaseInterface.lagreBrukerKnytningPaEnhet(veilederBrukerKnytning: Veilede
             aktivitetskravStoppunkt = null,
             aktivitetskravSistVurdert = null,
             aktivitetskravVurderingFrist = null,
-            behandlerdialogUbehandlet = false,
+            behandlerdialogSvarUbehandlet = false,
+            behandlerdialogUbesvartUbehandlet = false,
         )
         this.connection.use { connection ->
             connection.createPersonOversiktStatus(

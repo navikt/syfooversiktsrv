@@ -26,12 +26,13 @@ data class PersonOversiktStatus(
     val aktivitetskravStoppunkt: LocalDate?,
     val aktivitetskravSistVurdert: OffsetDateTime?,
     val aktivitetskravVurderingFrist: LocalDate?,
-    val behandlerdialogUbehandlet: Boolean,
+    val behandlerdialogSvarUbehandlet: Boolean,
+    val behandlerdialogUbesvartUbehandlet: Boolean,
 ) {
     constructor(fnr: String) : this(
         null, fnr = fnr, null, null, null,
         null, false, null, null, null,
-        null, null, null, null, null, null, false,
+        null, null, null, null, null, null, false, false,
     )
 }
 
@@ -60,7 +61,7 @@ fun PersonOversiktStatus.hasActiveOppgave(arenaCutoff: LocalDate): Boolean {
         this.isDialogmotekandidat() ||
         (this.motebehovUbehandlet == true && this.latestOppfolgingstilfelle != null) ||
         this.isActiveAktivitetskrav(arenaCutoff = arenaCutoff) ||
-        this.behandlerdialogUbehandlet
+        hasActiveBehandlerdialogOppgave()
 }
 
 data class Oppfolgingstilfelle(
@@ -130,8 +131,12 @@ fun PersonOversiktStatus.toPersonOversiktStatusDTO(arenaCutoff: LocalDate) =
         aktivitetskravSistVurdert = this.aktivitetskravSistVurdert?.toLocalDateTimeOslo(),
         aktivitetskravActive = isActiveAktivitetskrav(arenaCutoff = arenaCutoff),
         aktivitetskravVurderingFrist = this.aktivitetskravVurderingFrist,
-        behandlerdialogUbehandlet = this.behandlerdialogUbehandlet,
+        behandlerdialogUbehandlet = hasActiveBehandlerdialogOppgave(),
     )
+
+fun PersonOversiktStatus.hasActiveBehandlerdialogOppgave(): Boolean {
+    return this.behandlerdialogSvarUbehandlet || this.behandlerdialogUbesvartUbehandlet
+}
 
 fun PersonOversiktStatus.applyHendelse(
     oversikthendelseType: OversikthendelseType,
@@ -162,10 +167,18 @@ fun PersonOversiktStatus.applyHendelse(
         )
 
         OversikthendelseType.BEHANDLERDIALOG_SVAR_MOTTATT -> this.copy(
-            behandlerdialogUbehandlet = true,
+            behandlerdialogSvarUbehandlet = true,
         )
 
         OversikthendelseType.BEHANDLERDIALOG_SVAR_BEHANDLET -> this.copy(
-            behandlerdialogUbehandlet = false,
+            behandlerdialogSvarUbehandlet = false,
+        )
+
+        OversikthendelseType.BEHANDLERDIALOG_MELDING_UBESVART_MOTTATT -> this.copy(
+            behandlerdialogUbesvartUbehandlet = true,
+        )
+
+        OversikthendelseType.BEHANDLERDIALOG_MELDING_UBESVART_BEHANDLET -> this.copy(
+            behandlerdialogUbesvartUbehandlet = false,
         )
     }
