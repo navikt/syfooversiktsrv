@@ -11,6 +11,7 @@ object Versions {
     const val hikari = "5.0.1"
     const val isdialogmoteSchema = "1.0.5"
     const val jacksonDataType = "2.14.2"
+    const val janino = "3.1.9"
     const val jedis = "4.3.2"
     const val kafka = "3.4.0"
     const val kafkaEmbedded = "3.2.3"
@@ -67,6 +68,7 @@ dependencies {
     // Logging
     implementation("ch.qos.logback:logback-classic:${Versions.logback}")
     implementation("net.logstash.logback:logstash-logback-encoder:${Versions.logstashEncoder}")
+    implementation("org.codehaus.janino:janino:${Versions.janino}")
 
     // Metrics and Prometheus
     implementation("io.ktor:ktor-server-metrics-micrometer:${Versions.ktor}")
