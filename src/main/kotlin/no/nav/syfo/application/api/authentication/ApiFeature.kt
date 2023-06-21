@@ -12,6 +12,7 @@ import io.ktor.server.plugins.callid.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.response.*
+import io.ktor.util.cio.ChannelWriteException
 import io.micrometer.core.instrument.distribution.DistributionStatisticConfig
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.metric.METRICS_REGISTRY
@@ -89,7 +90,11 @@ fun Application.installStatusPages() {
             val callId = call.getCallId()
             val consumerId = call.getConsumerId()
             val exceptionMessage = "Caught exception, callId=$callId, consumerClientId=$consumerId"
-            call.application.log.error(exceptionMessage, cause)
+            if (cause is ChannelWriteException) {
+                call.application.log.warn(exceptionMessage, cause)
+            } else {
+                call.application.log.error(exceptionMessage, cause)
+            }
 
             var isUnexpectedException = false
 
