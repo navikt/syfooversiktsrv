@@ -11,7 +11,6 @@ object Versions {
     const val hikari = "5.0.1"
     const val isdialogmoteSchema = "1.0.5"
     const val jacksonDataType = "2.14.2"
-    const val janino = "3.1.9"
     const val jedis = "4.3.2"
     const val kafka = "3.4.0"
     const val kafkaEmbedded = "3.2.3"
@@ -30,7 +29,7 @@ object Versions {
 }
 
 plugins {
-    kotlin("jvm") version "1.8.21"
+    kotlin("jvm") version "1.8.20"
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("org.jlleitschuh.gradle.ktlint") version "11.3.2"
     id("com.github.davidmc24.gradle.plugin.avro") version "1.7.0"
@@ -68,7 +67,6 @@ dependencies {
     // Logging
     implementation("ch.qos.logback:logback-classic:${Versions.logback}")
     implementation("net.logstash.logback:logstash-logback-encoder:${Versions.logstashEncoder}")
-    implementation("org.codehaus.janino:janino:${Versions.janino}")
 
     // Metrics and Prometheus
     implementation("io.ktor:ktor-server-metrics-micrometer:${Versions.ktor}")

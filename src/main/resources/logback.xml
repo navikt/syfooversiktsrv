@@ -11,15 +11,6 @@
                 </valueMask>
             </jsonGeneratorDecorator>
         </encoder>
-        <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
-            <evaluator>
-                <expression>
-                    return throwable instanceof io.ktor.util.cio.ChannelWriteException;
-                </expression>
-            </evaluator>
-            <OnMismatch>NEUTRAL</OnMismatch>
-            <OnMatch>DENY</OnMatch>
-        </filter>
     </appender>
 
     <logger name="no.nav" level="INFO"/>
