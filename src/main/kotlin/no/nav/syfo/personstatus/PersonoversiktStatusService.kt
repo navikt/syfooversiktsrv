@@ -3,14 +3,22 @@ package no.nav.syfo.personstatus
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.client.pdl.PdlClient
 import no.nav.syfo.domain.PersonIdent
+import no.nav.syfo.personoppgavehendelse.kafka.*
 import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.*
+import no.nav.syfo.util.kafkaCallId
+import org.slf4j.LoggerFactory
+import java.sql.Connection
+import java.sql.SQLException
 import java.time.LocalDate
 
 class PersonoversiktStatusService(
     private val database: DatabaseInterface,
     private val pdlClient: PdlClient,
 ) {
+    private val isUbehandlet = true
+    private val isBehandlet = false
+
     fun hentPersonoversiktStatusTilknyttetEnhet(enhet: String, arenaCutoff: LocalDate): List<PersonOversiktStatus> {
         val personListe = database.hentUbehandledePersonerTilknyttetEnhet(
             enhet = enhet,
@@ -56,5 +64,95 @@ class PersonoversiktStatusService(
             database.updatePersonOversiktStatusNavn(personIdentNavnMap)
             personOversiktStatusList.addPersonName(personIdentNameMap = personIdentNavnMap)
         }
+    }
+
+    fun createOrUpdatePersonoversiktStatuser(
+        personoppgavehendelser: List<KPersonoppgavehendelse>,
+    ) {
+        database.connection.use { connection ->
+            personoppgavehendelser.forEach { personoppgavehendelse ->
+                val callId = kafkaCallId()
+                val personident = PersonIdent(personoppgavehendelse.personident)
+                val hendelsetype = personoppgavehendelse.hendelsetype
+
+                try {
+                    createOrUpdatePersonOversiktStatus(
+                        connection = connection,
+                        personident = personident,
+                        oversikthendelseType = hendelsetype,
+                        callId = callId,
+                    )
+                } catch (sqlException: SQLException) {
+                    // retry once before giving up (could be database concurrency conflict)
+                    log.info("Got sqlException, try again, callId: $callId")
+                    createOrUpdatePersonOversiktStatus(
+                        connection = connection,
+                        personident = personident,
+                        oversikthendelseType = hendelsetype,
+                        callId = callId,
+                    )
+                }
+                log.info("TRACE: Finished processing record with callId: $callId")
+                COUNT_KAFKA_CONSUMER_PERSONOPPGAVEHENDELSE_READ.increment()
+            }
+            connection.commit()
+        }
+    }
+
+    private fun createOrUpdatePersonOversiktStatus(
+        connection: Connection,
+        personident: PersonIdent,
+        oversikthendelseType: OversikthendelseType,
+        callId: String,
+    ) {
+        val existingPersonOversiktStatus = connection.getPersonOversiktStatusList(
+            fnr = personident.value,
+        ).firstOrNull()
+
+        if (existingPersonOversiktStatus == null) {
+            val personOversiktStatus = PersonOversiktStatus(fnr = personident.value)
+            val personOversiktStatusWithHendelseType = personOversiktStatus.applyHendelse(oversikthendelseType)
+
+            log.info("TRACE: No existing status for person, callId: $callId")
+            connection.createPersonOversiktStatus(
+                commit = false,
+                personOversiktStatus = personOversiktStatusWithHendelseType,
+            )
+            COUNT_KAFKA_CONSUMER_PERSONOPPGAVEHENDELSE_CREATED_PERSONOVERSIKT_STATUS.increment()
+        } else {
+            log.info("TRACE: Found existing PersonOversiktStatus, oversikthendelseType: $oversikthendelseType callId: $callId")
+            when (oversikthendelseType) {
+                OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT ->
+                    connection.updatePersonOversiktStatusLPS(isUbehandlet, personident)
+                OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_BEHANDLET ->
+                    connection.updatePersonOversiktStatusLPS(isBehandlet, personident)
+                OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT ->
+                    connection.updatePersonOversiktMotebehov(isUbehandlet, personident)
+                OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET ->
+                    connection.updatePersonOversiktMotebehov(isBehandlet, personident)
+                OversikthendelseType.DIALOGMOTESVAR_MOTTATT ->
+                    connection.updatePersonOversiktStatusDialogmotesvar(isUbehandlet, personident)
+                OversikthendelseType.DIALOGMOTESVAR_BEHANDLET ->
+                    connection.updatePersonOversiktStatusDialogmotesvar(isBehandlet, personident)
+                OversikthendelseType.BEHANDLERDIALOG_SVAR_MOTTATT ->
+                    connection.updatePersonOversiktStatusBehandlerdialogSvar(isUbehandlet, personident)
+                OversikthendelseType.BEHANDLERDIALOG_SVAR_BEHANDLET ->
+                    connection.updatePersonOversiktStatusBehandlerdialogSvar(isBehandlet, personident)
+                OversikthendelseType.BEHANDLERDIALOG_MELDING_UBESVART_MOTTATT ->
+                    connection.updatePersonOversiktStatusBehandlerdialogUbesvart(isUbehandlet, personident)
+                OversikthendelseType.BEHANDLERDIALOG_MELDING_UBESVART_BEHANDLET ->
+                    connection.updatePersonOversiktStatusBehandlerdialogUbesvart(isBehandlet, personident)
+                OversikthendelseType.BEHANDLERDIALOG_MELDING_AVVIST_MOTTATT ->
+                    connection.updatePersonOversiktStatusBehandlerdialogAvvist(isUbehandlet, personident)
+                OversikthendelseType.BEHANDLERDIALOG_MELDING_AVVIST_BEHANDLET ->
+                    connection.updatePersonOversiktStatusBehandlerdialogAvvist(isBehandlet, personident)
+            }
+
+            COUNT_KAFKA_CONSUMER_PERSONOPPGAVEHENDELSE_UPDATED_PERSONOVERSIKT_STATUS.increment()
+        }
+    }
+
+    companion object {
+        private val log = LoggerFactory.getLogger(PersonoversiktStatusService::class.java)
     }
 }

@@ -17,20 +17,18 @@ object PersonoppgavehendelseServiceSpek : Spek({
 
     describe("Add personoppgavehendelser in syfooversikt") {
 
-        val database = TestDatabase()
-        val personoppgavehendelseService = PersonoppgavehendelseService(database)
+        val internalMockEnvironment = InternalMockEnvironment.instance
+        val database = ExternalMockEnvironment.instance.database
+        val personoversiktStatusService = internalMockEnvironment.personoversiktStatusService
+        val personoppgavehendelseConsumerService = PersonoppgavehendelseConsumerService(personoversiktStatusService)
         val mockPersonoppgavehendelse = TestKafkaModule.kafkaPersonoppgavehendelse
         val lpsbistandMottatt = KPersonoppgavehendelse(
             personident = UserConstants.ARBEIDSTAKER_FNR,
-            hendelsetype = OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT.name,
+            hendelsetype = OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT,
         )
         val lpsbistandBehandlet = KPersonoppgavehendelse(
             personident = UserConstants.ARBEIDSTAKER_FNR,
-            hendelsetype = OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_BEHANDLET.name,
-        )
-        val unknownHendelsetype = KPersonoppgavehendelse(
-            personident = UserConstants.ARBEIDSTAKER_FNR,
-            hendelsetype = "UNKNOWN_TYPE",
+            hendelsetype = OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_BEHANDLET,
         )
 
         beforeEachTest {
@@ -43,7 +41,7 @@ object PersonoppgavehendelseServiceSpek : Spek({
         it("Create personoversiktstatus on read from topic personoppgavehendelser") {
             mockReceiveHendelse(lpsbistandMottatt, mockPersonoppgavehendelse)
 
-            personoppgavehendelseService.pollAndProcessRecords(kafkaConsumer = mockPersonoppgavehendelse)
+            personoppgavehendelseConsumerService.pollAndProcessRecords(kafkaConsumer = mockPersonoppgavehendelse)
 
             val personoversiktStatuser = database.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
             val firstStatus = personoversiktStatuser.first()
@@ -57,7 +55,7 @@ object PersonoppgavehendelseServiceSpek : Spek({
                 .applyHendelse(OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT)
             database.createPersonOversiktStatus(personOversiktStatus)
 
-            personoppgavehendelseService.pollAndProcessRecords(kafkaConsumer = mockPersonoppgavehendelse)
+            personoppgavehendelseConsumerService.pollAndProcessRecords(kafkaConsumer = mockPersonoppgavehendelse)
 
             val personoversiktStatuser = database.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
             val firstStatus = personoversiktStatuser.first()
@@ -68,14 +66,14 @@ object PersonoppgavehendelseServiceSpek : Spek({
         it("Update personoversiktstatus with dialogmotesvar") {
             val dialogmotesvarBehandlet = KPersonoppgavehendelse(
                 personident = UserConstants.ARBEIDSTAKER_FNR,
-                hendelsetype = OversikthendelseType.DIALOGMOTESVAR_BEHANDLET.name,
+                hendelsetype = OversikthendelseType.DIALOGMOTESVAR_BEHANDLET,
             )
             mockReceiveHendelse(dialogmotesvarBehandlet, mockPersonoppgavehendelse)
             val personOversiktStatus = PersonOversiktStatus(UserConstants.ARBEIDSTAKER_FNR)
                 .applyHendelse(OversikthendelseType.DIALOGMOTESVAR_MOTTATT)
             database.createPersonOversiktStatus(personOversiktStatus)
 
-            personoppgavehendelseService.pollAndProcessRecords(kafkaConsumer = mockPersonoppgavehendelse)
+            personoppgavehendelseConsumerService.pollAndProcessRecords(kafkaConsumer = mockPersonoppgavehendelse)
 
             val personoversiktStatuser = database.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
             val firstStatus = personoversiktStatuser.first()
@@ -86,11 +84,11 @@ object PersonoppgavehendelseServiceSpek : Spek({
         it("Create personoversiktstatus from behandlerdialog svar mottatt") {
             val behandlerdialogSvarMottatt = KPersonoppgavehendelse(
                 personident = UserConstants.ARBEIDSTAKER_FNR,
-                hendelsetype = OversikthendelseType.BEHANDLERDIALOG_SVAR_MOTTATT.name,
+                hendelsetype = OversikthendelseType.BEHANDLERDIALOG_SVAR_MOTTATT,
             )
             mockReceiveHendelse(behandlerdialogSvarMottatt, mockPersonoppgavehendelse)
 
-            personoppgavehendelseService.pollAndProcessRecords(kafkaConsumer = mockPersonoppgavehendelse)
+            personoppgavehendelseConsumerService.pollAndProcessRecords(kafkaConsumer = mockPersonoppgavehendelse)
 
             val personoversiktStatuser = database.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
             val firstStatus = personoversiktStatuser.first()
@@ -101,14 +99,14 @@ object PersonoppgavehendelseServiceSpek : Spek({
         it("Update personoversiktstatus from behandlerdialog svar behandlet") {
             val behandlerdialogSvarBehandlet = KPersonoppgavehendelse(
                 personident = UserConstants.ARBEIDSTAKER_FNR,
-                hendelsetype = OversikthendelseType.BEHANDLERDIALOG_SVAR_BEHANDLET.name,
+                hendelsetype = OversikthendelseType.BEHANDLERDIALOG_SVAR_BEHANDLET,
             )
             mockReceiveHendelse(behandlerdialogSvarBehandlet, mockPersonoppgavehendelse)
             val personOversiktStatus = PersonOversiktStatus(UserConstants.ARBEIDSTAKER_FNR)
                 .applyHendelse(OversikthendelseType.BEHANDLERDIALOG_SVAR_MOTTATT)
             database.createPersonOversiktStatus(personOversiktStatus)
 
-            personoppgavehendelseService.pollAndProcessRecords(kafkaConsumer = mockPersonoppgavehendelse)
+            personoppgavehendelseConsumerService.pollAndProcessRecords(kafkaConsumer = mockPersonoppgavehendelse)
 
             val personoversiktStatuser = database.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
             val firstStatus = personoversiktStatuser.first()
@@ -119,11 +117,11 @@ object PersonoppgavehendelseServiceSpek : Spek({
         it("Create personoversiktstatus from behandlerdialog ubesvart mottatt") {
             val behandlerdialogUbesvartMottatt = KPersonoppgavehendelse(
                 personident = UserConstants.ARBEIDSTAKER_FNR,
-                hendelsetype = OversikthendelseType.BEHANDLERDIALOG_MELDING_UBESVART_MOTTATT.name,
+                hendelsetype = OversikthendelseType.BEHANDLERDIALOG_MELDING_UBESVART_MOTTATT,
             )
             mockReceiveHendelse(behandlerdialogUbesvartMottatt, mockPersonoppgavehendelse)
 
-            personoppgavehendelseService.pollAndProcessRecords(kafkaConsumer = mockPersonoppgavehendelse)
+            personoppgavehendelseConsumerService.pollAndProcessRecords(kafkaConsumer = mockPersonoppgavehendelse)
 
             val personoversiktStatuser = database.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
             val firstStatus = personoversiktStatuser.first()
@@ -134,14 +132,14 @@ object PersonoppgavehendelseServiceSpek : Spek({
         it("Update personoversiktstatus from behandlerdialog ubesvart behandlet") {
             val behandlerdialogUbesvartBehandlet = KPersonoppgavehendelse(
                 personident = UserConstants.ARBEIDSTAKER_FNR,
-                hendelsetype = OversikthendelseType.BEHANDLERDIALOG_MELDING_UBESVART_BEHANDLET.name,
+                hendelsetype = OversikthendelseType.BEHANDLERDIALOG_MELDING_UBESVART_BEHANDLET,
             )
             mockReceiveHendelse(behandlerdialogUbesvartBehandlet, mockPersonoppgavehendelse)
             val personOversiktStatus = PersonOversiktStatus(UserConstants.ARBEIDSTAKER_FNR)
                 .applyHendelse(OversikthendelseType.BEHANDLERDIALOG_MELDING_UBESVART_MOTTATT)
             database.createPersonOversiktStatus(personOversiktStatus)
 
-            personoppgavehendelseService.pollAndProcessRecords(kafkaConsumer = mockPersonoppgavehendelse)
+            personoppgavehendelseConsumerService.pollAndProcessRecords(kafkaConsumer = mockPersonoppgavehendelse)
 
             val personoversiktStatuser = database.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
             val firstStatus = personoversiktStatuser.first()
@@ -152,11 +150,11 @@ object PersonoppgavehendelseServiceSpek : Spek({
         it("Create personoversiktstatus from behandlerdialog avvist mottatt hendelse") {
             val behandlerdialogAvvistMottatt = KPersonoppgavehendelse(
                 personident = UserConstants.ARBEIDSTAKER_FNR,
-                hendelsetype = OversikthendelseType.BEHANDLERDIALOG_MELDING_AVVIST_MOTTATT.name,
+                hendelsetype = OversikthendelseType.BEHANDLERDIALOG_MELDING_AVVIST_MOTTATT,
             )
             mockReceiveHendelse(behandlerdialogAvvistMottatt, mockPersonoppgavehendelse)
 
-            personoppgavehendelseService.pollAndProcessRecords(kafkaConsumer = mockPersonoppgavehendelse)
+            personoppgavehendelseConsumerService.pollAndProcessRecords(kafkaConsumer = mockPersonoppgavehendelse)
 
             val personoversiktStatuser = database.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
             val firstStatus = personoversiktStatuser.first()
@@ -166,27 +164,18 @@ object PersonoppgavehendelseServiceSpek : Spek({
         it("Update personoversiktstatus from behandlerdialog avvist behandlet hendelse") {
             val behandlerdialogAvvistBehandlet = KPersonoppgavehendelse(
                 personident = UserConstants.ARBEIDSTAKER_FNR,
-                hendelsetype = OversikthendelseType.BEHANDLERDIALOG_MELDING_AVVIST_BEHANDLET.name,
+                hendelsetype = OversikthendelseType.BEHANDLERDIALOG_MELDING_AVVIST_BEHANDLET,
             )
             mockReceiveHendelse(behandlerdialogAvvistBehandlet, mockPersonoppgavehendelse)
             val personOversiktStatus = PersonOversiktStatus(UserConstants.ARBEIDSTAKER_FNR)
                 .applyHendelse(OversikthendelseType.BEHANDLERDIALOG_MELDING_AVVIST_MOTTATT)
             database.createPersonOversiktStatus(personOversiktStatus)
 
-            personoppgavehendelseService.pollAndProcessRecords(kafkaConsumer = mockPersonoppgavehendelse)
+            personoppgavehendelseConsumerService.pollAndProcessRecords(kafkaConsumer = mockPersonoppgavehendelse)
 
             val personoversiktStatuser = database.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
             val firstStatus = personoversiktStatuser.first()
             firstStatus.behandlerdialogAvvistUbehandlet.shouldBeFalse()
-        }
-
-        it("Ignore records with unknown hendelsetype") {
-            mockReceiveHendelse(unknownHendelsetype, mockPersonoppgavehendelse)
-
-            personoppgavehendelseService.pollAndProcessRecords(kafkaConsumer = mockPersonoppgavehendelse)
-
-            val personoversiktStatuser = database.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
-            personoversiktStatuser.size shouldBeEqualTo 0
         }
     }
 })

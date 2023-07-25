@@ -10,7 +10,6 @@ import no.nav.syfo.aktivitetskravvurdering.persistAktivitetskrav
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.domain.Virksomhetsnummer
 import no.nav.syfo.personoppgavehendelse.kafka.KPersonoppgavehendelse
-import no.nav.syfo.personoppgavehendelse.kafka.PersonoppgavehendelseService
 import no.nav.syfo.personstatus.domain.OversikthendelseType
 import no.nav.syfo.personstatus.getPersonOppfolgingstilfelleVirksomhetList
 import no.nav.syfo.personstatus.db.*
@@ -26,7 +25,6 @@ import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import java.time.*
-import java.util.UUID
 
 @InternalAPI
 object PersonOppfolgingstilfelleVirksomhetsnavnCronjobSpek : Spek({
@@ -44,7 +42,7 @@ object PersonOppfolgingstilfelleVirksomhetsnavnCronjobSpek : Spek({
 
         val kafkaOppfolgingstilfellePersonService = TestKafkaModule.kafkaOppfolgingstilfellePersonService
 
-        val personoppgavehendelseService = PersonoppgavehendelseService(database)
+        val personoversiktStatusService = internalMockEnvironment.personoversiktStatusService
 
         val mockKafkaConsumerOppfolgingstilfellePerson =
             TestKafkaModule.kafkaConsumerOppfolgingstilfellePerson
@@ -142,11 +140,11 @@ object PersonOppfolgingstilfelleVirksomhetsnavnCronjobSpek : Spek({
                 it("should update Virksomhetsnavn of existing PersonOppfolgingstilfelleVirksomhet if motebehovUbehandlet, or oppfolgingsplanLPSBistandUbehandlet is true") {
                     val oversiktHendelseMotebehovSvarMottatt = KPersonoppgavehendelse(
                         personIdentDefault.value,
-                        OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name,
+                        OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT,
                     )
                     val oversiktHendelseOPLPSBistandMottatt = KPersonoppgavehendelse(
                         personIdentDefault.value,
-                        OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT.name,
+                        OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT,
                     )
                     val oversikthendelseList = listOf(
                         oversiktHendelseOPLPSBistandMottatt,
@@ -155,14 +153,9 @@ object PersonOppfolgingstilfelleVirksomhetsnavnCronjobSpek : Spek({
                     oversikthendelseList.forEach { oversikthendelse ->
                         database.connection.dropData()
 
-                        database.connection.use {
-                            personoppgavehendelseService.processPersonoppgavehendelse(
-                                connection = it,
-                                kPersonoppgavehendelse = oversikthendelse,
-                                callId = UUID.randomUUID().toString(),
-                            )
-                            it.commit()
-                        }
+                        personoversiktStatusService.createOrUpdatePersonoversiktStatuser(
+                            personoppgavehendelser = listOf(oversikthendelse)
+                        )
 
                         kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
                             kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
@@ -180,12 +173,12 @@ object PersonOppfolgingstilfelleVirksomhetsnavnCronjobSpek : Spek({
 
                         val pPersonOversiktStatus = pPersonOversiktStatusList.first()
 
-                        if (oversikthendelse.hendelsetype == OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name) {
+                        if (oversikthendelse.hendelsetype == OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT) {
                             pPersonOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
                         } else {
                             pPersonOversiktStatus.motebehovUbehandlet.shouldBeNull()
                         }
-                        if (oversikthendelse.hendelsetype == OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT.name) {
+                        if (oversikthendelse.hendelsetype == OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT) {
                             pPersonOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
                         } else {
                             pPersonOversiktStatus.oppfolgingsplanLPSBistandUbehandlet.shouldBeNull()
@@ -392,16 +385,11 @@ object PersonOppfolgingstilfelleVirksomhetsnavnCronjobSpek : Spek({
                 it("should fail to update Virksomhetsnavn of existing PersonOppfolgingstilfelleVirksomhet exception is thrown when requesting Virksomhetsnavn from Ereg") {
                     val oversiktHendelseOPLPSBistandMottatt = KPersonoppgavehendelse(
                         personIdentDefault.value,
-                        OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT.name,
+                        OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT,
                     )
-                    database.connection.use {
-                        personoppgavehendelseService.processPersonoppgavehendelse(
-                            connection = it,
-                            kPersonoppgavehendelse = oversiktHendelseOPLPSBistandMottatt,
-                            callId = UUID.randomUUID().toString(),
-                        )
-                        it.commit()
-                    }
+                    personoversiktStatusService.createOrUpdatePersonoversiktStatuser(
+                        personoppgavehendelser = listOf(oversiktHendelseOPLPSBistandMottatt)
+                    )
 
                     kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
                         kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,

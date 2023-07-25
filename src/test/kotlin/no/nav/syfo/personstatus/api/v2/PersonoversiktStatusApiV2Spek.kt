@@ -12,7 +12,6 @@ import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendringType
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.domain.Virksomhetsnummer
 import no.nav.syfo.personoppgavehendelse.kafka.KPersonoppgavehendelse
-import no.nav.syfo.personoppgavehendelse.kafka.PersonoppgavehendelseService
 import no.nav.syfo.personstatus.db.getPersonOversiktStatusList
 import no.nav.syfo.personstatus.db.lagreBrukerKnytningPaEnhet
 import no.nav.syfo.personstatus.domain.*
@@ -31,7 +30,6 @@ import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import java.time.*
-import java.util.UUID
 
 @InternalAPI
 object PersonoversiktStatusApiV2Spek : Spek({
@@ -53,7 +51,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
             val personOppfolgingstilfelleVirksomhetnavnCronjob =
                 internalMockEnvironment.personOppfolgingstilfelleVirksomhetnavnCronjob
 
-            val personoppgavehendelseService = PersonoppgavehendelseService(database)
+            val personoversiktStatusService = internalMockEnvironment.personoversiktStatusService
             val kafkaOppfolgingstilfellePersonService = TestKafkaModule.kafkaOppfolgingstilfellePersonService
 
             val personIdentDefault = PersonIdent(ARBEIDSTAKER_FNR)
@@ -168,16 +166,11 @@ object PersonoversiktStatusApiV2Spek : Spek({
                 it("skal returnere NoContent med ubehandlet motebehovsvar og ikke har oppfolgingstilfelle") {
                     val oversiktHendelse = KPersonoppgavehendelse(
                         ARBEIDSTAKER_FNR,
-                        OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name,
+                        OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT,
                     )
-                    database.connection.use {
-                        personoppgavehendelseService.processPersonoppgavehendelse(
-                            connection = it,
-                            kPersonoppgavehendelse = oversiktHendelse,
-                            callId = UUID.randomUUID().toString(),
-                        )
-                        it.commit()
-                    }
+                    personoversiktStatusService.createOrUpdatePersonoversiktStatuser(
+                        personoppgavehendelser = listOf(oversiktHendelse)
+                    )
 
                     database.setTildeltEnhet(
                         ident = PersonIdent(ARBEIDSTAKER_FNR),
@@ -199,28 +192,18 @@ object PersonoversiktStatusApiV2Spek : Spek({
                 it("skal returnere NoContent, om alle personer i personoversikt er behandlet og ikke har oppfolgingstilfelle") {
                     val oversiktHendelse = KPersonoppgavehendelse(
                         ARBEIDSTAKER_FNR,
-                        OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name,
+                        OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT,
                     )
-                    database.connection.use {
-                        personoppgavehendelseService.processPersonoppgavehendelse(
-                            connection = it,
-                            kPersonoppgavehendelse = oversiktHendelse,
-                            callId = UUID.randomUUID().toString(),
-                        )
-                        it.commit()
-                    }
+                    personoversiktStatusService.createOrUpdatePersonoversiktStatuser(
+                        personoppgavehendelser = listOf(oversiktHendelse)
+                    )
                     val oversiktHendelseNy = KPersonoppgavehendelse(
                         ARBEIDSTAKER_FNR,
-                        OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET.name,
+                        OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET,
                     )
-                    database.connection.use {
-                        personoppgavehendelseService.processPersonoppgavehendelse(
-                            connection = it,
-                            kPersonoppgavehendelse = oversiktHendelseNy,
-                            callId = UUID.randomUUID().toString(),
-                        )
-                        it.commit()
-                    }
+                    personoversiktStatusService.createOrUpdatePersonoversiktStatuser(
+                        personoppgavehendelser = listOf(oversiktHendelseNy)
+                    )
 
                     database.setTildeltEnhet(
                         ident = PersonIdent(ARBEIDSTAKER_FNR),
@@ -266,34 +249,23 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     )
                     val oversiktHendelse = KPersonoppgavehendelse(
                         ARBEIDSTAKER_FNR,
-                        OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name,
+                        OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT,
                     )
                     val oversiktHendelseOPLPSBistandMottatt = KPersonoppgavehendelse(
                         ARBEIDSTAKER_FNR,
-                        OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT.name,
+                        OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT,
                     )
                     val dialogmotesvarMottatt = KPersonoppgavehendelse(
                         ARBEIDSTAKER_FNR,
-                        OversikthendelseType.DIALOGMOTESVAR_MOTTATT.name,
+                        OversikthendelseType.DIALOGMOTESVAR_MOTTATT,
                     )
-                    database.connection.use {
-                        personoppgavehendelseService.processPersonoppgavehendelse(
-                            connection = it,
-                            kPersonoppgavehendelse = oversiktHendelse,
-                            callId = UUID.randomUUID().toString(),
+                    personoversiktStatusService.createOrUpdatePersonoversiktStatuser(
+                        personoppgavehendelser = listOf(
+                            oversiktHendelse,
+                            oversiktHendelseOPLPSBistandMottatt,
+                            dialogmotesvarMottatt,
                         )
-                        personoppgavehendelseService.processPersonoppgavehendelse(
-                            connection = it,
-                            kPersonoppgavehendelse = oversiktHendelseOPLPSBistandMottatt,
-                            callId = UUID.randomUUID().toString(),
-                        )
-                        personoppgavehendelseService.processPersonoppgavehendelse(
-                            connection = it,
-                            kPersonoppgavehendelse = dialogmotesvarMottatt,
-                            callId = UUID.randomUUID().toString(),
-                        )
-                        it.commit()
-                    }
+                    )
 
                     runBlocking {
                         personOppfolgingstilfelleVirksomhetnavnCronjob.runJob()
@@ -336,16 +308,11 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     )
                     val oversiktHendelse = KPersonoppgavehendelse(
                         ARBEIDSTAKER_FNR,
-                        OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name,
+                        OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT,
                     )
-                    database.connection.use {
-                        personoppgavehendelseService.processPersonoppgavehendelse(
-                            connection = it,
-                            kPersonoppgavehendelse = oversiktHendelse,
-                            callId = UUID.randomUUID().toString(),
-                        )
-                        it.commit()
-                    }
+                    personoversiktStatusService.createOrUpdatePersonoversiktStatuser(
+                        personoppgavehendelser = listOf(oversiktHendelse)
+                    )
 
                     runBlocking {
                         personOppfolgingstilfelleVirksomhetnavnCronjob.runJob()
@@ -385,25 +352,15 @@ object PersonoversiktStatusApiV2Spek : Spek({
                 it("should return Person, with MOTEBEHOV_SVAR_MOTTATT, and then receives Oppfolgingstilfelle and the OPPFOLGINGSPLANLPS_BISTAND_MOTTATT") {
                     val oversiktHendelse = KPersonoppgavehendelse(
                         ARBEIDSTAKER_FNR,
-                        OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name,
+                        OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT,
                     )
                     val oversiktHendelseOPLPSBistandMottatt = KPersonoppgavehendelse(
                         ARBEIDSTAKER_FNR,
-                        OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT.name,
+                        OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT,
                     )
-                    database.connection.use {
-                        personoppgavehendelseService.processPersonoppgavehendelse(
-                            connection = it,
-                            kPersonoppgavehendelse = oversiktHendelse,
-                            callId = UUID.randomUUID().toString(),
-                        )
-                        personoppgavehendelseService.processPersonoppgavehendelse(
-                            connection = it,
-                            kPersonoppgavehendelse = oversiktHendelseOPLPSBistandMottatt,
-                            callId = UUID.randomUUID().toString(),
-                        )
-                        it.commit()
-                    }
+                    personoversiktStatusService.createOrUpdatePersonoversiktStatuser(
+                        personoppgavehendelser = listOf(oversiktHendelse, oversiktHendelseOPLPSBistandMottatt)
+                    )
 
                     kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
                         kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
@@ -453,25 +410,15 @@ object PersonoversiktStatusApiV2Spek : Spek({
 
                     val oversiktHendelse = KPersonoppgavehendelse(
                         ARBEIDSTAKER_FNR,
-                        OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT.name,
+                        OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT,
                     )
                     val oversiktHendelseOPLPSBistandMottatt = KPersonoppgavehendelse(
                         ARBEIDSTAKER_FNR,
-                        OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT.name,
+                        OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT,
                     )
-                    database.connection.use {
-                        personoppgavehendelseService.processPersonoppgavehendelse(
-                            connection = it,
-                            kPersonoppgavehendelse = oversiktHendelse,
-                            callId = UUID.randomUUID().toString(),
-                        )
-                        personoppgavehendelseService.processPersonoppgavehendelse(
-                            connection = it,
-                            kPersonoppgavehendelse = oversiktHendelseOPLPSBistandMottatt,
-                            callId = UUID.randomUUID().toString(),
-                        )
-                        it.commit()
-                    }
+                    personoversiktStatusService.createOrUpdatePersonoversiktStatuser(
+                        personoppgavehendelser = listOf(oversiktHendelse, oversiktHendelseOPLPSBistandMottatt)
+                    )
 
                     runBlocking {
                         personOppfolgingstilfelleVirksomhetnavnCronjob.runJob()
@@ -514,16 +461,11 @@ object PersonoversiktStatusApiV2Spek : Spek({
                 it("should return Person, no Oppfolgingstilfelle, and then OPPFOLGINGSPLANLPS_BISTAND_MOTTATT") {
                     val oversiktHendelseOPLPSBistandMottatt = KPersonoppgavehendelse(
                         ARBEIDSTAKER_FNR,
-                        OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT.name,
+                        OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT,
                     )
-                    database.connection.use {
-                        personoppgavehendelseService.processPersonoppgavehendelse(
-                            connection = it,
-                            kPersonoppgavehendelse = oversiktHendelseOPLPSBistandMottatt,
-                            callId = UUID.randomUUID().toString(),
-                        )
-                        it.commit()
-                    }
+                    personoversiktStatusService.createOrUpdatePersonoversiktStatuser(
+                        personoppgavehendelser = listOf(oversiktHendelseOPLPSBistandMottatt)
+                    )
 
                     database.setTildeltEnhet(
                         ident = PersonIdent(ARBEIDSTAKER_FNR),
@@ -555,16 +497,11 @@ object PersonoversiktStatusApiV2Spek : Spek({
                 it("should return Person with no Oppfolgingstilfelle and no Navn for OPPFOLGINGSPLANLPS_BISTAND_MOTTATT") {
                     val oversiktHendelseOPLPSBistandMottatt = KPersonoppgavehendelse(
                         ARBEIDSTAKER_NO_NAME_FNR,
-                        OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT.name,
+                        OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT,
                     )
-                    database.connection.use {
-                        personoppgavehendelseService.processPersonoppgavehendelse(
-                            connection = it,
-                            kPersonoppgavehendelse = oversiktHendelseOPLPSBistandMottatt,
-                            callId = UUID.randomUUID().toString(),
-                        )
-                        it.commit()
-                    }
+                    personoversiktStatusService.createOrUpdatePersonoversiktStatuser(
+                        personoppgavehendelser = listOf(oversiktHendelseOPLPSBistandMottatt)
+                    )
 
                     database.setTildeltEnhet(
                         ident = PersonIdent(ARBEIDSTAKER_NO_NAME_FNR),
@@ -596,25 +533,18 @@ object PersonoversiktStatusApiV2Spek : Spek({
                 it("should not return Person if OversikthendelseType for Behandling is received without existing Person") {
                     val oversiktHendelseMotebehovSvarBehandlet = KPersonoppgavehendelse(
                         ARBEIDSTAKER_FNR,
-                        OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET.name,
+                        OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET,
                     )
                     val oversiktHendelseOPLPSBistandBehandlet = KPersonoppgavehendelse(
                         ARBEIDSTAKER_FNR,
-                        OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_BEHANDLET.name,
+                        OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_BEHANDLET,
                     )
-                    database.connection.use {
-                        personoppgavehendelseService.processPersonoppgavehendelse(
-                            connection = it,
-                            kPersonoppgavehendelse = oversiktHendelseMotebehovSvarBehandlet,
-                            callId = UUID.randomUUID().toString(),
+                    personoversiktStatusService.createOrUpdatePersonoversiktStatuser(
+                        personoppgavehendelser = listOf(
+                            oversiktHendelseMotebehovSvarBehandlet,
+                            oversiktHendelseOPLPSBistandBehandlet,
                         )
-                        personoppgavehendelseService.processPersonoppgavehendelse(
-                            connection = it,
-                            kPersonoppgavehendelse = oversiktHendelseOPLPSBistandBehandlet,
-                            callId = UUID.randomUUID().toString(),
-                        )
-                        it.commit()
-                    }
+                    )
 
                     database.setTildeltEnhet(
                         ident = PersonIdent(ARBEIDSTAKER_FNR),
@@ -633,16 +563,11 @@ object PersonoversiktStatusApiV2Spek : Spek({
                 it("return person with dialogmotesvar_ubehandlet true") {
                     val oversikthendelseDialogmotesvarMottatt = KPersonoppgavehendelse(
                         ARBEIDSTAKER_FNR,
-                        OversikthendelseType.DIALOGMOTESVAR_MOTTATT.name,
+                        OversikthendelseType.DIALOGMOTESVAR_MOTTATT,
                     )
-                    database.connection.use {
-                        personoppgavehendelseService.processPersonoppgavehendelse(
-                            connection = it,
-                            kPersonoppgavehendelse = oversikthendelseDialogmotesvarMottatt,
-                            callId = UUID.randomUUID().toString(),
-                        )
-                        it.commit()
-                    }
+                    personoversiktStatusService.createOrUpdatePersonoversiktStatuser(
+                        personoppgavehendelser = listOf(oversikthendelseDialogmotesvarMottatt)
+                    )
                     database.setTildeltEnhet(
                         ident = PersonIdent(ARBEIDSTAKER_FNR),
                         enhet = NAV_ENHET,
@@ -667,16 +592,11 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     val personIdent = PersonIdent(ARBEIDSTAKER_FNR)
                     val oversikthendelseDialogmotesvarMottatt = KPersonoppgavehendelse(
                         ARBEIDSTAKER_FNR,
-                        OversikthendelseType.DIALOGMOTESVAR_MOTTATT.name,
+                        OversikthendelseType.DIALOGMOTESVAR_MOTTATT,
                     )
-                    database.connection.use {
-                        personoppgavehendelseService.processPersonoppgavehendelse(
-                            connection = it,
-                            kPersonoppgavehendelse = oversikthendelseDialogmotesvarMottatt,
-                            callId = UUID.randomUUID().toString(),
-                        )
-                        it.commit()
-                    }
+                    personoversiktStatusService.createOrUpdatePersonoversiktStatuser(
+                        personoppgavehendelser = listOf(oversikthendelseDialogmotesvarMottatt)
+                    )
 
                     val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, personIdent.value, NAV_ENHET)
                     database.lagreBrukerKnytningPaEnhet(tilknytning)
