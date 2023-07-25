@@ -41,7 +41,7 @@ object BehandlerdialogPersonoversiktStatusApiV2Spek : Spek({
                 database.connection.dropData()
             }
 
-            it("return person with behandlerdialog_ubehandlet true when mottatt svar") {
+            it("return person with behandlerdialog_ubehandlet true when svar mottatt") {
                 val oversikthendelseBehandlerdialogSvarMottatt = KPersonoppgavehendelse(
                     UserConstants.ARBEIDSTAKER_FNR,
                     OversikthendelseType.BEHANDLERDIALOG_SVAR_MOTTATT.name,
@@ -74,7 +74,7 @@ object BehandlerdialogPersonoversiktStatusApiV2Spek : Spek({
                 }
             }
 
-            it("return person with behandlerdialog_ubehandlet true when ubesvart melding") {
+            it("return person with behandlerdialog_ubehandlet true when ubesvart melding mottatt") {
                 val oversikthendelseBehandlerdialogUbesvartMottatt = KPersonoppgavehendelse(
                     UserConstants.ARBEIDSTAKER_FNR,
                     OversikthendelseType.BEHANDLERDIALOG_MELDING_UBESVART_MOTTATT.name,
@@ -146,6 +146,66 @@ object BehandlerdialogPersonoversiktStatusApiV2Spek : Spek({
                     personOversiktStatus.fnr shouldBeEqualTo oversikthendelseBehandlerdialogSvarMottatt.personident
                     personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
                     personOversiktStatus.behandlerdialogUbehandlet shouldBeEqualTo true
+                }
+            }
+
+            it("return person with behandlerdialog_ubehandlet true when avvist melding mottatt") {
+                val oversikthendelseBehandlerdialogAvvistMottatt = KPersonoppgavehendelse(
+                    UserConstants.ARBEIDSTAKER_FNR,
+                    OversikthendelseType.BEHANDLERDIALOG_MELDING_AVVIST_MOTTATT.name,
+                )
+                database.connection.use {
+                    personoppgavehendelseService.processPersonoppgavehendelse(
+                        connection = it,
+                        kPersonoppgavehendelse = oversikthendelseBehandlerdialogAvvistMottatt,
+                        callId = UUID.randomUUID().toString(),
+                    )
+                    it.commit()
+                }
+                database.setTildeltEnhet(
+                    ident = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),
+                    enhet = NAV_ENHET,
+                )
+
+                with(
+                    handleRequest(HttpMethod.Get, url) {
+                        addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                    }
+                ) {
+                    response.status() shouldBeEqualTo HttpStatusCode.OK
+
+                    val personOversiktStatus =
+                        objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
+                    personOversiktStatus.fnr shouldBeEqualTo oversikthendelseBehandlerdialogAvvistMottatt.personident
+                    personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
+                    personOversiktStatus.behandlerdialogUbehandlet shouldBeEqualTo true
+                }
+            }
+
+            it("return no person when avvist melding behandlet") {
+                val oversikthendelseBehandlerdialogAvvistMottatt = KPersonoppgavehendelse(
+                    UserConstants.ARBEIDSTAKER_FNR,
+                    OversikthendelseType.BEHANDLERDIALOG_MELDING_AVVIST_BEHANDLET.name,
+                )
+                database.connection.use {
+                    personoppgavehendelseService.processPersonoppgavehendelse(
+                        connection = it,
+                        kPersonoppgavehendelse = oversikthendelseBehandlerdialogAvvistMottatt,
+                        callId = UUID.randomUUID().toString(),
+                    )
+                    it.commit()
+                }
+                database.setTildeltEnhet(
+                    ident = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),
+                    enhet = NAV_ENHET,
+                )
+
+                with(
+                    handleRequest(HttpMethod.Get, url) {
+                        addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                    }
+                ) {
+                    response.status() shouldBeEqualTo HttpStatusCode.NoContent
                 }
             }
         }

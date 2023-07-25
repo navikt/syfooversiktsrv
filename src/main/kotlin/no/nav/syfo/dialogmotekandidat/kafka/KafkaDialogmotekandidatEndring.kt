@@ -30,4 +30,5 @@ fun KafkaDialogmotekandidatEndring.toPersonOversiktStatus() = PersonOversiktStat
     aktivitetskravVurderingFrist = null,
     behandlerdialogSvarUbehandlet = false,
     behandlerdialogUbesvartUbehandlet = false,
+    behandlerdialogAvvistUbehandlet = false,
 )

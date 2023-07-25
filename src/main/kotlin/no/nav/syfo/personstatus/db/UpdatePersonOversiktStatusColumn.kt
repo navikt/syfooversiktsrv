@@ -189,6 +189,25 @@ fun Connection.updatePersonOversiktStatusBehandlerdialogUbesvart(
     }
 }
 
+const val queryUpdatePersonOversiktStatusBehandlerdialogAvvist =
+    """
+        UPDATE PERSON_OVERSIKT_STATUS
+        SET behandlerdialog_avvist_ubehandlet = ?, sist_endret = ?
+        WHERE fnr = ?
+    """
+
+fun Connection.updatePersonOversiktStatusBehandlerdialogAvvist(
+    isBehandlerdialogAvvistUbehandlet: Boolean,
+    personIdent: PersonIdent,
+) {
+    this.prepareStatement(queryUpdatePersonOversiktStatusBehandlerdialogAvvist).use {
+        it.setBoolean(1, isBehandlerdialogAvvistUbehandlet)
+        it.setObject(2, Timestamp.from(Instant.now()))
+        it.setString(3, personIdent.value)
+        it.execute()
+    }
+}
+
 fun DatabaseInterface.oppdaterEnhetDersomKnytningFinnes(veilederBrukerKnytning: VeilederBrukerKnytning): Long {
     var id = KNYTNING_IKKE_FUNNET
 

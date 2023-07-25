@@ -32,6 +32,7 @@ data class PPersonOversiktStatus(
     val aktivitetskravVurderingFrist: LocalDate?,
     val behandlerdialogSvarUbehandlet: Boolean,
     val behandlerdialogUbesvartUbehandlet: Boolean,
+    val behandlerdialogAvvistUbehandlet: Boolean,
 )
 
 fun PPersonOversiktStatus.toPersonOversiktStatus(
@@ -57,6 +58,7 @@ fun PPersonOversiktStatus.toPersonOversiktStatus(
     aktivitetskravVurderingFrist = this.aktivitetskravVurderingFrist,
     behandlerdialogSvarUbehandlet = this.behandlerdialogSvarUbehandlet,
     behandlerdialogUbesvartUbehandlet = this.behandlerdialogUbesvartUbehandlet,
+    behandlerdialogAvvistUbehandlet = this.behandlerdialogAvvistUbehandlet,
 )
 
 fun PPersonOversiktStatus.toPersonOppfolgingstilfelle(
