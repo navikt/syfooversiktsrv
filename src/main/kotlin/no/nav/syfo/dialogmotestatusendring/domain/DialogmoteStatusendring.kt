@@ -50,5 +50,6 @@ data class DialogmoteStatusendring private constructor(
         aktivitetskravVurderingFrist = null,
         behandlerdialogSvarUbehandlet = false,
         behandlerdialogUbesvartUbehandlet = false,
+        behandlerdialogAvvistUbehandlet = false,
     )
 }

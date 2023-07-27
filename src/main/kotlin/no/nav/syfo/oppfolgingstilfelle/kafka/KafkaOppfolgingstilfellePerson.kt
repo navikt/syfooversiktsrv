@@ -47,6 +47,7 @@ fun KafkaOppfolgingstilfellePerson.toPersonOversiktStatus(
     aktivitetskravVurderingFrist = null,
     behandlerdialogSvarUbehandlet = false,
     behandlerdialogUbesvartUbehandlet = false,
+    behandlerdialogAvvistUbehandlet = false,
 )
 
 // TODO: Hent latest oppfolgingstilfelle fra this

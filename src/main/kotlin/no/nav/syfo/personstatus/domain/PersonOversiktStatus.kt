@@ -28,11 +28,12 @@ data class PersonOversiktStatus(
     val aktivitetskravVurderingFrist: LocalDate?,
     val behandlerdialogSvarUbehandlet: Boolean,
     val behandlerdialogUbesvartUbehandlet: Boolean,
+    val behandlerdialogAvvistUbehandlet: Boolean,
 ) {
     constructor(fnr: String) : this(
         null, fnr = fnr, null, null, null,
         null, false, null, null, null,
-        null, null, null, null, null, null, false, false,
+        null, null, null, null, null, null, false, false, false,
     )
 }
 
@@ -135,7 +136,9 @@ fun PersonOversiktStatus.toPersonOversiktStatusDTO(arenaCutoff: LocalDate) =
     )
 
 fun PersonOversiktStatus.hasActiveBehandlerdialogOppgave(): Boolean {
-    return this.behandlerdialogSvarUbehandlet || this.behandlerdialogUbesvartUbehandlet
+    return this.behandlerdialogSvarUbehandlet ||
+        this.behandlerdialogUbesvartUbehandlet ||
+        this.behandlerdialogAvvistUbehandlet
 }
 
 fun PersonOversiktStatus.applyHendelse(
@@ -180,5 +183,13 @@ fun PersonOversiktStatus.applyHendelse(
 
         OversikthendelseType.BEHANDLERDIALOG_MELDING_UBESVART_BEHANDLET -> this.copy(
             behandlerdialogUbesvartUbehandlet = false,
+        )
+
+        OversikthendelseType.BEHANDLERDIALOG_MELDING_AVVIST_MOTTATT -> this.copy(
+            behandlerdialogAvvistUbehandlet = true,
+        )
+
+        OversikthendelseType.BEHANDLERDIALOG_MELDING_AVVIST_BEHANDLET -> this.copy(
+            behandlerdialogAvvistUbehandlet = false,
         )
     }

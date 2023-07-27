@@ -65,6 +65,7 @@ const val queryGetPersonerWithOppgaveAndOldEnhet =
         OR ((aktivitetskrav = 'NY' OR aktivitetskrav = 'AVVENT') AND aktivitetskrav_stoppunkt > '2023-03-10')
         OR behandlerdialog_svar_ubehandlet = 't'
         OR behandlerdialog_ubesvart_ubehandlet = 't'
+        OR behandlerdialog_avvist_ubehandlet = 't'
         )
     AND (tildelt_enhet_updated_at IS NULL OR tildelt_enhet_updated_at <= NOW() - INTERVAL '24 HOURS')
     ORDER BY tildelt_enhet_updated_at ASC

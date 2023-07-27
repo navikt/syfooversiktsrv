@@ -149,6 +149,37 @@ object PersonoppgavehendelseServiceSpek : Spek({
             isUbehandlet.shouldBeFalse()
         }
 
+        it("Create personoversiktstatus from behandlerdialog avvist mottatt hendelse") {
+            val behandlerdialogAvvistMottatt = KPersonoppgavehendelse(
+                personident = UserConstants.ARBEIDSTAKER_FNR,
+                hendelsetype = OversikthendelseType.BEHANDLERDIALOG_MELDING_AVVIST_MOTTATT.name,
+            )
+            mockReceiveHendelse(behandlerdialogAvvistMottatt, mockPersonoppgavehendelse)
+
+            personoppgavehendelseService.pollAndProcessRecords(kafkaConsumer = mockPersonoppgavehendelse)
+
+            val personoversiktStatuser = database.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
+            val firstStatus = personoversiktStatuser.first()
+            firstStatus.behandlerdialogAvvistUbehandlet.shouldBeTrue()
+        }
+
+        it("Update personoversiktstatus from behandlerdialog avvist behandlet hendelse") {
+            val behandlerdialogAvvistBehandlet = KPersonoppgavehendelse(
+                personident = UserConstants.ARBEIDSTAKER_FNR,
+                hendelsetype = OversikthendelseType.BEHANDLERDIALOG_MELDING_AVVIST_BEHANDLET.name,
+            )
+            mockReceiveHendelse(behandlerdialogAvvistBehandlet, mockPersonoppgavehendelse)
+            val personOversiktStatus = PersonOversiktStatus(UserConstants.ARBEIDSTAKER_FNR)
+                .applyHendelse(OversikthendelseType.BEHANDLERDIALOG_MELDING_AVVIST_MOTTATT)
+            database.createPersonOversiktStatus(personOversiktStatus)
+
+            personoppgavehendelseService.pollAndProcessRecords(kafkaConsumer = mockPersonoppgavehendelse)
+
+            val personoversiktStatuser = database.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
+            val firstStatus = personoversiktStatuser.first()
+            firstStatus.behandlerdialogAvvistUbehandlet.shouldBeFalse()
+        }
+
         it("Ignore records with unknown hendelsetype") {
             mockReceiveHendelse(unknownHendelsetype, mockPersonoppgavehendelse)
 
