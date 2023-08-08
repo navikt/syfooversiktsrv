@@ -1,19 +1,21 @@
-apiVersion: "nais.io/v1"
-kind: "Alert"
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
 metadata:
   name: syfooversiktsrv-alerts
   namespace: teamsykefravr
   labels:
     team: teamsykefravr
 spec:
-  receivers:
-    slack:
-      channel: '#syfo-alarm'
-      prependText: '<!here> | '
-  alerts:
-    - alert: SYFOOVERSIKTSRV IS DOWN
-      expr: sum(up{app="syfooversiktsrv", job="kubernetes-pods"}) == 0
-      for: 30s
-      description: "Det er ingen pods for app kjørende i namespace og dermed er appen nede"
-      action: "Undersøk hvorfor pods er nede og få den kjørende igjen!"
-      severity: danger
+  groups:
+    - name: syfooversiktsrv-alerts
+      rules:
+        - alert: SYFOOVERSIKTSRV IS DOWN
+          expr: kube_deployment_status_replicas_available{deployment="syfooversiktsrv"} == 0
+          for: 30s
+          annotations:
+            consequence: Application is unavailable
+            action: "Undersøk hvorfor pods er nede og få den kjørende igjen!"
+            summary: "Det er ingen pods for app kjørende i namespace og dermed er appen nede."
+          labels:
+            namespace: teamsykefravr
+            severity: danger
