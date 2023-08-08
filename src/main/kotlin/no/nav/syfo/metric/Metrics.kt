@@ -43,6 +43,7 @@ const val OVERSIKTHENDELSE_DIALOGMOTESVAR_BEHANDLET_OPPDATER = "${OVERSIKTHENDEL
 const val OVERSIKTHENDELSE_DIALOGMOTESVAR_BEHANDLET_FEILET = "${OVERSIKTHENDELSE_DIALOGMOTESVAR_BEHANDLET_BASE}_feilet_count"
 
 const val SYFOTILGANGSKONTROLL_HISTOGRAM_ENHET = "${METRICS_NS}_syfotilgangskontroll_histogram_enhet"
+const val ISTILGANGSKONTROLL_HISTOGRAM_ENHET = "${METRICS_NS}_istilgangskontroll_histogram_enhet"
 const val SYFOTILGANGSKONTROLL_HISTOGRAM_PERSONER = "${METRICS_NS}_syfotilgangskontroll_histogram_personer"
 
 const val PERSONOVERSIKT_HISTOGRAM_ENHET = "${METRICS_NS}_personoversikt_histogram_enhet"
@@ -152,6 +153,10 @@ val HISTOGRAM_SYFOTILGANGSKONTROLL_PERSONER: Timer = Timer.builder(SYFOTILGANGSK
 
 val HISTOGRAM_SYFOTILGANGSKONTROLL_ENHET: Timer = Timer.builder(SYFOTILGANGSKONTROLL_HISTOGRAM_ENHET)
     .description("Measure the current time it takes to get a response from Syfotilgangskontroll - enhet ")
+    .register(METRICS_REGISTRY)
+
+val HISTOGRAM_ISTILGANGSKONTROLL_ENHET: Timer = Timer.builder(ISTILGANGSKONTROLL_HISTOGRAM_ENHET)
+    .description("Measure the current time it takes to get a response from istilgangskontroll - enhet ")
     .register(METRICS_REGISTRY)
 
 val HISTOGRAM_PERSONOVERSIKT: Timer = Timer.builder(PERSONOVERSIKT_HISTOGRAM_ENHET)

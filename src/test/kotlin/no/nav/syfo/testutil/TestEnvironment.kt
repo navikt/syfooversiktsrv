@@ -1,5 +1,6 @@
 package no.nav.syfo.testutil
 
+import io.ktor.http.*
 import no.nav.syfo.application.*
 import no.nav.syfo.application.cache.RedisEnvironment
 import no.nav.syfo.application.database.DatabaseEnvironment
@@ -18,6 +19,7 @@ fun testEnvironment(
     pdlUrl: String,
     syfobehandlendeenhetUrl: String = "syfobehandlendeenhet",
     syfotilgangskontrollUrl: String = "syfotilgangskontroll",
+    istilgangskontrollUrl: String = "istilgangskontroll",
 ) = Environment(
     applicationName = "syfooversiktsrv",
     azure = AzureEnvironment(
@@ -60,8 +62,12 @@ fun testEnvironment(
         ),
         syfotilgangskontroll = ClientEnvironment(
             baseUrl = syfotilgangskontrollUrl,
-            clientId = "dev-fss.teamsykefravr.syfotilgangskontroll",
+            clientId = "dev-gcp.teamsykefravr.syfotilgangskontroll",
         ),
+        istilgangskontroll = ClientEnvironment(
+            baseUrl = istilgangskontrollUrl,
+            clientId = "dev.gcp.teamsykefravr.istilgangskontroll",
+        )
     ),
     redis = RedisEnvironment(
         host = "localhost",

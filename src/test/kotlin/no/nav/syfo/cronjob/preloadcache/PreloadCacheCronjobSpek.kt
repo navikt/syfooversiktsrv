@@ -29,7 +29,8 @@ object PreloadCacheCronjobSpek : Spek({
             database = database,
             tilgangskontrollClient = VeilederTilgangskontrollClient(
                 azureAdClient = azureAdClient,
-                clientEnvironment = externalMockEnvironment.environment.clients.syfotilgangskontroll,
+                syfotilgangskontrollEnv = externalMockEnvironment.environment.clients.syfotilgangskontroll,
+                istilgangskontrollEnv = externalMockEnvironment.environment.clients.istilgangskontroll,
             ),
             arenaCutoff = externalMockEnvironment.environment.arenaCutoff,
         )

@@ -28,6 +28,7 @@ class ExternalMockEnvironment private constructor() {
         pdlUrl = pdlMock.url,
         syfobehandlendeenhetUrl = syfobehandlendeenhetMock.url,
         syfotilgangskontrollUrl = tilgangskontrollMock.url,
+        istilgangskontrollUrl = tilgangskontrollMock.url,
         kafkaBootstrapServers = embeddedEnvironment.brokersURL
     )
     val redisServer = testRedis(

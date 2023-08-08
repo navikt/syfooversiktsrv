@@ -5,6 +5,7 @@ data class ClientsEnvironment(
     val pdl: ClientEnvironment,
     val syfobehandlendeenhet: ClientEnvironment,
     val syfotilgangskontroll: ClientEnvironment,
+    val istilgangskontroll: ClientEnvironment,
 )
 
 data class ClientEnvironment(
