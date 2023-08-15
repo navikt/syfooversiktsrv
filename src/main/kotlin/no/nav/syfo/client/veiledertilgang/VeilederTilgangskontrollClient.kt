@@ -17,7 +17,8 @@ import java.util.UUID
 
 class VeilederTilgangskontrollClient(
     private val azureAdClient: AzureAdClient,
-    private val clientEnvironment: ClientEnvironment,
+    private val syfotilgangskontrollEnv: ClientEnvironment,
+    private val istilgangskontrollEnv: ClientEnvironment
 ) {
     private val httpClient = httpClientDefault()
 
@@ -31,7 +32,7 @@ class VeilederTilgangskontrollClient(
         callId: String
     ): List<String>? {
         val oboToken = azureAdClient.getOnBehalfOfToken(
-            scopeClientId = clientEnvironment.clientId,
+            scopeClientId = syfotilgangskontrollEnv.clientId,
             token = token
         )?.accessToken
             ?: throw RuntimeException("Failed to request access to list of persons: Failed to get OBO token")
@@ -71,7 +72,7 @@ class VeilederTilgangskontrollClient(
         personIdentNumberList: List<String>,
     ): Boolean {
         val systemToken = azureAdClient.getSystemToken(
-            scopeClientId = clientEnvironment.clientId,
+            scopeClientId = syfotilgangskontrollEnv.clientId,
         )?.accessToken
             ?: throw RuntimeException("Failed to request preload of list of persons: Failed to get system token")
 
@@ -103,20 +104,20 @@ class VeilederTilgangskontrollClient(
         callId: String
     ): Boolean {
         val oboToken = azureAdClient.getOnBehalfOfToken(
-            scopeClientId = clientEnvironment.clientId,
+            scopeClientId = istilgangskontrollEnv.clientId,
             token = token
         )?.accessToken ?: throw RuntimeException("Failed to request access to Enhet: Failed to get OBO token")
 
         try {
             val requestTimer: Timer.Sample = Timer.start()
-            val url = getTilgangskontrollUrl("$pathTilgangTilEnhetOBO/$enhet")
+            val url = getTilgangskontrollHost("$pathTilgangTilEnhetOBO/$enhet")
             val response: HttpResponse = httpClient.get(url) {
                 header(HttpHeaders.Authorization, bearerHeader(oboToken))
                 header(NAV_CALL_ID_HEADER, callId)
                 accept(ContentType.Application.Json)
             }
-            requestTimer.stop(HISTOGRAM_SYFOTILGANGSKONTROLL_ENHET)
-            return response.body<Tilgang>().harTilgang
+            requestTimer.stop(HISTOGRAM_ISTILGANGSKONTROLL_ENHET)
+            return response.body<Tilgang>().erGodkjent
         } catch (e: ClientRequestException) {
             return if (e.response.status == HttpStatusCode.Forbidden) {
                 false
@@ -124,15 +125,19 @@ class VeilederTilgangskontrollClient(
                 return false
             }
         } catch (e: ServerResponseException) {
-            log.error("Failed to get access to enhet from syfo-tilgangskontroll. requested enhet: $enhet", e)
+            log.error("Failed to get access to enhet from istilgangskontroll. requested enhet: $enhet", e)
             return false
         }
     }
 
+    // TODO: delete this function when syfo-tilgangskontroll is no longer in use
     private fun getTilgangskontrollUrl(path: String): String {
-        return "${clientEnvironment.baseUrl}/syfo-tilgangskontroll/api/tilgang$path"
+        return "${syfotilgangskontrollEnv.baseUrl}/syfo-tilgangskontroll/api/tilgang$path"
     }
 
+    private fun getTilgangskontrollHost(path: String): String {
+        return "${istilgangskontrollEnv.baseUrl}/api/tilgang$path"
+    }
     companion object {
         private val log = LoggerFactory.getLogger(VeilederTilgangskontrollClient::class.java)
     }

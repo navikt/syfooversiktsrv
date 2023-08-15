@@ -16,7 +16,7 @@ class VeilederTilgangskontrollMock {
     private val port = getRandomPort()
     val url = "http://localhost:$port"
 
-    val responseAccessEnhet = Tilgang(harTilgang = true)
+    val responseAccessEnhet = Tilgang(erGodkjent = true)
     val responseAccessPersons = listOf(
         UserConstants.ARBEIDSTAKER_FNR,
         UserConstants.ARBEIDSTAKER_2_FNR,
@@ -30,7 +30,7 @@ class VeilederTilgangskontrollMock {
     ) {
         installContentNegotiation()
         routing {
-            get("/syfo-tilgangskontroll/api/tilgang/navident/enhet/${UserConstants.NAV_ENHET}") {
+            get("/api/tilgang/navident/enhet/${UserConstants.NAV_ENHET}") {
                 call.respond(responseAccessEnhet)
             }
             post("/syfo-tilgangskontroll/api/tilgang/navident/brukere") {
