@@ -46,10 +46,7 @@ fun main() {
         clientEnvironment = environment.clients.pdl,
     )
 
-    val personoversiktStatusService = PersonoversiktStatusService(
-        database = database,
-        pdlClient = pdlClient,
-    )
+    lateinit var personoversiktStatusService: PersonoversiktStatusService
 
     val applicationEngineEnvironment = applicationEngineEnvironment {
         log = logger
@@ -62,6 +59,10 @@ fun main() {
         module {
             databaseModule(
                 databaseEnvironment = environment.database,
+            )
+            personoversiktStatusService = PersonoversiktStatusService(
+                database = database,
+                pdlClient = pdlClient,
             )
             apiModule(
                 applicationState = applicationState,
