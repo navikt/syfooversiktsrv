@@ -6,7 +6,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.slf4j.LoggerFactory
 import java.time.Duration
 
-class PersonoppgavehendelseConsumerService(
+class PersonoppgavehendelseConsumer(
     private val personoversiktStatusService: PersonoversiktStatusService,
 ) : KafkaConsumerService<KPersonoppgavehendelse> {
     override val pollDurationInMillis: Long = 100
@@ -15,15 +15,15 @@ class PersonoppgavehendelseConsumerService(
         val records = kafkaConsumer.poll(Duration.ofMillis(pollDurationInMillis))
 
         if (records.count() > 0) {
-            log.info("TRACE: Received ${records.count()} records")
+            log.info("Received ${records.count()} records")
             personoversiktStatusService.createOrUpdatePersonoversiktStatuser(
-                personoppgavehendelser = records.map { it.value() }
+                personoppgavehendelser = records.mapNotNull { it.value() }
             )
             kafkaConsumer.commitSync()
         }
     }
 
     companion object {
-        private val log = LoggerFactory.getLogger(PersonoppgavehendelseConsumerService::class.java)
+        private val log = LoggerFactory.getLogger(PersonoppgavehendelseConsumer::class.java)
     }
 }

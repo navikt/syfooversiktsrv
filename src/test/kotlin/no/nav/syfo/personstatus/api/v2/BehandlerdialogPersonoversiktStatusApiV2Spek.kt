@@ -8,6 +8,8 @@ import io.ktor.util.*
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.personoppgavehendelse.kafka.KPersonoppgavehendelse
 import no.nav.syfo.personstatus.domain.OversikthendelseType
+import no.nav.syfo.personstatus.domain.PersonOversiktStatus
+import no.nav.syfo.personstatus.domain.applyHendelse
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.NAV_ENHET
 import no.nav.syfo.testutil.database.*
@@ -26,9 +28,7 @@ object BehandlerdialogPersonoversiktStatusApiV2Spek : Spek({
         with(TestApplicationEngine()) {
             start()
             val externalMockEnvironment = setupExternalMockEnvironment(application)
-            val internalMockEnvironment = InternalMockEnvironment.instance
             val database = externalMockEnvironment.database
-            val personoversiktStatusService = internalMockEnvironment.personoversiktStatusService
             val validToken = generateJWT(
                 audience = externalMockEnvironment.environment.azure.appClientId,
                 issuer = externalMockEnvironment.wellKnownVeilederV2.issuer,
@@ -45,9 +45,11 @@ object BehandlerdialogPersonoversiktStatusApiV2Spek : Spek({
                     UserConstants.ARBEIDSTAKER_FNR,
                     OversikthendelseType.BEHANDLERDIALOG_SVAR_MOTTATT,
                 )
-                personoversiktStatusService.createOrUpdatePersonoversiktStatuser(
-                    personoppgavehendelser = listOf(oversikthendelseBehandlerdialogSvarMottatt)
-                )
+                val personoversiktStatus = PersonOversiktStatus(
+                    fnr = oversikthendelseBehandlerdialogSvarMottatt.personident
+                ).applyHendelse(oversikthendelseBehandlerdialogSvarMottatt.hendelsetype)
+
+                database.createPersonOversiktStatus(personoversiktStatus)
 
                 database.setTildeltEnhet(
                     ident = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),
@@ -74,9 +76,12 @@ object BehandlerdialogPersonoversiktStatusApiV2Spek : Spek({
                     UserConstants.ARBEIDSTAKER_FNR,
                     OversikthendelseType.BEHANDLERDIALOG_MELDING_UBESVART_MOTTATT,
                 )
-                personoversiktStatusService.createOrUpdatePersonoversiktStatuser(
-                    personoppgavehendelser = listOf(oversikthendelseBehandlerdialogUbesvartMottatt)
-                )
+                val personoversiktStatus = PersonOversiktStatus(
+                    fnr = oversikthendelseBehandlerdialogUbesvartMottatt.personident
+                ).applyHendelse(oversikthendelseBehandlerdialogUbesvartMottatt.hendelsetype)
+
+                database.createPersonOversiktStatus(personoversiktStatus)
+
                 database.setTildeltEnhet(
                     ident = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),
                     enhet = NAV_ENHET,
@@ -106,12 +111,14 @@ object BehandlerdialogPersonoversiktStatusApiV2Spek : Spek({
                     UserConstants.ARBEIDSTAKER_FNR,
                     OversikthendelseType.BEHANDLERDIALOG_SVAR_MOTTATT,
                 )
-                personoversiktStatusService.createOrUpdatePersonoversiktStatuser(
-                    personoppgavehendelser = listOf(
-                        oversikthendelseBehandlerdialogUbesvartBehandlet,
-                        oversikthendelseBehandlerdialogSvarMottatt,
-                    )
+                val personoversiktStatus = PersonOversiktStatus(
+                    fnr = oversikthendelseBehandlerdialogSvarMottatt.personident
                 )
+                    .applyHendelse(oversikthendelseBehandlerdialogUbesvartBehandlet.hendelsetype)
+                    .applyHendelse(oversikthendelseBehandlerdialogSvarMottatt.hendelsetype)
+
+                database.createPersonOversiktStatus(personoversiktStatus)
+
                 database.setTildeltEnhet(
                     ident = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),
                     enhet = NAV_ENHET,
@@ -137,9 +144,12 @@ object BehandlerdialogPersonoversiktStatusApiV2Spek : Spek({
                     UserConstants.ARBEIDSTAKER_FNR,
                     OversikthendelseType.BEHANDLERDIALOG_MELDING_AVVIST_MOTTATT,
                 )
-                personoversiktStatusService.createOrUpdatePersonoversiktStatuser(
-                    personoppgavehendelser = listOf(oversikthendelseBehandlerdialogAvvistMottatt)
-                )
+                val personoversiktStatus = PersonOversiktStatus(
+                    fnr = oversikthendelseBehandlerdialogAvvistMottatt.personident
+                ).applyHendelse(oversikthendelseBehandlerdialogAvvistMottatt.hendelsetype)
+
+                database.createPersonOversiktStatus(personoversiktStatus)
+
                 database.setTildeltEnhet(
                     ident = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),
                     enhet = NAV_ENHET,
@@ -165,9 +175,12 @@ object BehandlerdialogPersonoversiktStatusApiV2Spek : Spek({
                     UserConstants.ARBEIDSTAKER_FNR,
                     OversikthendelseType.BEHANDLERDIALOG_MELDING_AVVIST_BEHANDLET,
                 )
-                personoversiktStatusService.createOrUpdatePersonoversiktStatuser(
-                    personoppgavehendelser = listOf(oversikthendelseBehandlerdialogAvvistMottatt)
-                )
+                val personoversiktStatus = PersonOversiktStatus(
+                    fnr = oversikthendelseBehandlerdialogAvvistMottatt.personident
+                ).applyHendelse(oversikthendelseBehandlerdialogAvvistMottatt.hendelsetype)
+
+                database.createPersonOversiktStatus(personoversiktStatus)
+
                 database.setTildeltEnhet(
                     ident = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),
                     enhet = NAV_ENHET,

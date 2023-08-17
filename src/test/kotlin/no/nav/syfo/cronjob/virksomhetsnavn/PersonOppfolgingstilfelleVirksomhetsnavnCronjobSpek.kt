@@ -13,6 +13,8 @@ import no.nav.syfo.personoppgavehendelse.kafka.KPersonoppgavehendelse
 import no.nav.syfo.personstatus.domain.OversikthendelseType
 import no.nav.syfo.personstatus.getPersonOppfolgingstilfelleVirksomhetList
 import no.nav.syfo.personstatus.db.*
+import no.nav.syfo.personstatus.domain.PersonOversiktStatus
+import no.nav.syfo.personstatus.domain.applyHendelse
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER_DEFAULT
@@ -41,8 +43,6 @@ object PersonOppfolgingstilfelleVirksomhetsnavnCronjobSpek : Spek({
             internalMockEnvironment.personOppfolgingstilfelleVirksomhetnavnCronjob
 
         val kafkaOppfolgingstilfellePersonService = TestKafkaModule.kafkaOppfolgingstilfellePersonService
-
-        val personoversiktStatusService = internalMockEnvironment.personoversiktStatusService
 
         val mockKafkaConsumerOppfolgingstilfellePerson =
             TestKafkaModule.kafkaConsumerOppfolgingstilfellePerson
@@ -153,9 +153,11 @@ object PersonOppfolgingstilfelleVirksomhetsnavnCronjobSpek : Spek({
                     oversikthendelseList.forEach { oversikthendelse ->
                         database.connection.dropData()
 
-                        personoversiktStatusService.createOrUpdatePersonoversiktStatuser(
-                            personoppgavehendelser = listOf(oversikthendelse)
-                        )
+                        val personoversiktStatus = PersonOversiktStatus(
+                            fnr = oversikthendelse.personident
+                        ).applyHendelse(oversikthendelse.hendelsetype)
+
+                        database.createPersonOversiktStatus(personoversiktStatus)
 
                         kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
                             kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
@@ -387,9 +389,11 @@ object PersonOppfolgingstilfelleVirksomhetsnavnCronjobSpek : Spek({
                         personIdentDefault.value,
                         OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT,
                     )
-                    personoversiktStatusService.createOrUpdatePersonoversiktStatuser(
-                        personoppgavehendelser = listOf(oversiktHendelseOPLPSBistandMottatt)
-                    )
+                    val personoversiktStatus = PersonOversiktStatus(
+                        fnr = oversiktHendelseOPLPSBistandMottatt.personident
+                    ).applyHendelse(oversiktHendelseOPLPSBistandMottatt.hendelsetype)
+
+                    database.createPersonOversiktStatus(personoversiktStatus)
 
                     kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
                         kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,

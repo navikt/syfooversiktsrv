@@ -6,11 +6,10 @@ import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.personoppgavehendelse.kafka.*
 import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.*
-import no.nav.syfo.util.kafkaCallId
 import org.slf4j.LoggerFactory
 import java.sql.Connection
-import java.sql.SQLException
 import java.time.LocalDate
+import java.util.UUID
 
 class PersonoversiktStatusService(
     private val database: DatabaseInterface,
@@ -71,28 +70,18 @@ class PersonoversiktStatusService(
     ) {
         database.connection.use { connection ->
             personoppgavehendelser.forEach { personoppgavehendelse ->
-                val callId = kafkaCallId()
+                val callId = UUID.randomUUID().toString()
                 val personident = PersonIdent(personoppgavehendelse.personident)
                 val hendelsetype = personoppgavehendelse.hendelsetype
 
-                try {
-                    createOrUpdatePersonOversiktStatus(
-                        connection = connection,
-                        personident = personident,
-                        oversikthendelseType = hendelsetype,
-                        callId = callId,
-                    )
-                } catch (sqlException: SQLException) {
-                    // retry once before giving up (could be database concurrency conflict)
-                    log.info("Got sqlException, try again, callId: $callId")
-                    createOrUpdatePersonOversiktStatus(
-                        connection = connection,
-                        personident = personident,
-                        oversikthendelseType = hendelsetype,
-                        callId = callId,
-                    )
-                }
-                log.info("TRACE: Finished processing record with callId: $callId")
+                createOrUpdatePersonOversiktStatus(
+                    connection = connection,
+                    personident = personident,
+                    oversikthendelseType = hendelsetype,
+                    callId = callId,
+                )
+
+                log.info("Finished processing record with callId: $callId")
                 COUNT_KAFKA_CONSUMER_PERSONOPPGAVEHENDELSE_READ.increment()
             }
             connection.commit()

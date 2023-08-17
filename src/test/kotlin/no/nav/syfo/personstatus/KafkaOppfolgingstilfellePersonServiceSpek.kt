@@ -10,6 +10,8 @@ import no.nav.syfo.oppfolgingstilfelle.kafka.KafkaOppfolgingstilfelle
 import no.nav.syfo.personoppgavehendelse.kafka.KPersonoppgavehendelse
 import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.OversikthendelseType
+import no.nav.syfo.personstatus.domain.PersonOversiktStatus
+import no.nav.syfo.personstatus.domain.applyHendelse
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER
@@ -31,7 +33,6 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
         start()
 
         val externalMockEnvironment = ExternalMockEnvironment.instance
-        val internalMockEnvironment = InternalMockEnvironment.instance
         val database = externalMockEnvironment.database
 
         application.testApiModule(
@@ -39,8 +40,6 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
         )
 
         val kafkaOppfolgingstilfellePersonService = TestKafkaModule.kafkaOppfolgingstilfellePersonService
-
-        val personoversiktStatusService = internalMockEnvironment.personoversiktStatusService
 
         val mockKafkaConsumerOppfolgingstilfellePerson = TestKafkaModule.kafkaConsumerOppfolgingstilfellePerson
 
@@ -162,9 +161,11 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     personIdentDefault.value,
                     OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT,
                 )
-                personoversiktStatusService.createOrUpdatePersonoversiktStatuser(
-                    personoppgavehendelser = listOf(oversiktHendelseOPLPSBistandMottatt)
-                )
+                val personoversiktStatus = PersonOversiktStatus(
+                    fnr = oversiktHendelseOPLPSBistandMottatt.personident
+                ).applyHendelse(oversiktHendelseOPLPSBistandMottatt.hendelsetype)
+
+                database.createPersonOversiktStatus(personoversiktStatus)
 
                 kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
                     kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,

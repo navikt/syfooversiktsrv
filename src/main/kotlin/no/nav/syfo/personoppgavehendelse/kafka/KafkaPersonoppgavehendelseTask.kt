@@ -17,7 +17,7 @@ fun launchKafkaTaskPersonoppgavehendelse(
     kafkaEnvironment: KafkaEnvironment,
     personoversiktStatusService: PersonoversiktStatusService,
 ) {
-    val personoppgavehendelseConsumerService = PersonoppgavehendelseConsumerService(personoversiktStatusService)
+    val personoppgavehendelseConsumer = PersonoppgavehendelseConsumer(personoversiktStatusService)
     val consumerProperties = Properties().apply {
         putAll(kafkaAivenConsumerConfig(kafkaEnvironment = kafkaEnvironment))
         this[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] =
@@ -27,7 +27,7 @@ fun launchKafkaTaskPersonoppgavehendelse(
         applicationState = applicationState,
         topic = PERSONOPPGAVEHENDELSE_TOPIC,
         consumerProperties = consumerProperties,
-        kafkaConsumerService = personoppgavehendelseConsumerService,
+        kafkaConsumerService = personoppgavehendelseConsumer,
     )
 }
 

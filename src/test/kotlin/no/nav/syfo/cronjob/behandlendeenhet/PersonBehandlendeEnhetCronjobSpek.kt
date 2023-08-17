@@ -12,7 +12,9 @@ import no.nav.syfo.personoppgavehendelse.kafka.KPersonoppgavehendelse
 import no.nav.syfo.personstatus.*
 import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.OversikthendelseType
+import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
+import no.nav.syfo.personstatus.domain.applyHendelse
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_ENHET_ERROR_PERSONIDENT
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_ENHET_NOT_FOUND_PERSONIDENT
@@ -42,7 +44,6 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
         val personBehandlendeEnhetCronjob = internalMockEnvironment.personBehandlendeEnhetCronjob
 
         val kafkaOppfolgingstilfellePersonService = TestKafkaModule.kafkaOppfolgingstilfellePersonService
-        val personoversiktStatusService = internalMockEnvironment.personoversiktStatusService
 
         val mockKafkaConsumerOppfolgingstilfellePerson =
             TestKafkaModule.kafkaConsumerOppfolgingstilfellePerson
@@ -159,9 +160,10 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
 
                         database.connection.dropData()
 
-                        personoversiktStatusService.createOrUpdatePersonoversiktStatuser(
-                            personoppgavehendelser = listOf(oversikthendelse)
-                        )
+                        val personoversiktStatus = PersonOversiktStatus(
+                            fnr = oversikthendelse.personident
+                        ).applyHendelse(oversikthendelse.hendelsetype)
+                        database.createPersonOversiktStatus(personoversiktStatus)
 
                         database.updatePersonTildeltEnhetAndRemoveTildeltVeileder(
                             personIdent = PersonIdent(oversikthendelse.personident),
@@ -345,9 +347,11 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                         personIdentDefault.value,
                         OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT,
                     )
-                    personoversiktStatusService.createOrUpdatePersonoversiktStatuser(
-                        personoppgavehendelser = listOf(oversikthendelse)
-                    )
+                    val personoversiktStatus = PersonOversiktStatus(
+                        fnr = oversikthendelse.personident
+                    ).applyHendelse(oversikthendelse.hendelsetype)
+
+                    database.createPersonOversiktStatus(personoversiktStatus)
 
                     var tildeltEnhetUpdatedAtBeforeUpdate: OffsetDateTime?
 
@@ -425,9 +429,11 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                         personIdent.value,
                         OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT,
                     )
-                    personoversiktStatusService.createOrUpdatePersonoversiktStatuser(
-                        personoppgavehendelser = listOf(oversikthendelse)
-                    )
+                    val personoversiktStatus = PersonOversiktStatus(
+                        fnr = oversikthendelse.personident
+                    ).applyHendelse(oversikthendelse.hendelsetype)
+
+                    database.createPersonOversiktStatus(personoversiktStatus)
 
                     var tildeltEnhetUpdatedAtBeforeUpdate: OffsetDateTime?
 
@@ -539,9 +545,11 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
 
                     database.connection.dropData()
 
-                    personoversiktStatusService.createOrUpdatePersonoversiktStatuser(
-                        personoppgavehendelser = listOf(oversikthendelse)
-                    )
+                    val personoversiktStatus = PersonOversiktStatus(
+                        fnr = oversikthendelse.personident
+                    ).applyHendelse(oversikthendelse.hendelsetype)
+
+                    database.createPersonOversiktStatus(personoversiktStatus)
 
                     database.updatePersonTildeltEnhetAndRemoveTildeltVeileder(
                         personIdent = PersonIdent(oversikthendelse.personident),
@@ -585,9 +593,11 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                         ARBEIDSTAKER_ENHET_ERROR_PERSONIDENT.value,
                         OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT,
                     )
-                    personoversiktStatusService.createOrUpdatePersonoversiktStatuser(
-                        personoppgavehendelser = listOf(oversikthendelse)
-                    )
+                    val personoversiktStatus = PersonOversiktStatus(
+                        fnr = oversikthendelse.personident
+                    ).applyHendelse(oversikthendelse.hendelsetype)
+
+                    database.createPersonOversiktStatus(personoversiktStatus)
 
                     kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
                         kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
