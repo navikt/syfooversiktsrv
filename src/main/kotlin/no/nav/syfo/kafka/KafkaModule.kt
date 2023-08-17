@@ -10,15 +10,18 @@ import no.nav.syfo.identhendelse.kafka.launchKafkaTaskIdenthendelse
 import no.nav.syfo.oppfolgingstilfelle.kafka.launchKafkaTaskOppfolgingstilfellePerson
 import no.nav.syfo.pdlpersonhendelse.kafka.launchKafkaTaskPersonhendelse
 import no.nav.syfo.personoppgavehendelse.kafka.launchKafkaTaskPersonoppgavehendelse
+import no.nav.syfo.personstatus.PersonoversiktStatusService
 
 fun launchKafkaModule(
     applicationState: ApplicationState,
     environment: Environment,
     azureAdClient: AzureAdClient,
+    personoversiktStatusService: PersonoversiktStatusService,
 ) {
     launchKafkaTaskPersonoppgavehendelse(
         applicationState = applicationState,
         kafkaEnvironment = environment.kafka,
+        personoversiktStatusService = personoversiktStatusService,
     )
     launchKafkaTaskOppfolgingstilfellePerson(
         applicationState = applicationState,

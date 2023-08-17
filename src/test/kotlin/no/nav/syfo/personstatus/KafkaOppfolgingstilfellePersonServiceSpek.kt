@@ -8,9 +8,10 @@ import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.domain.Virksomhetsnummer
 import no.nav.syfo.oppfolgingstilfelle.kafka.KafkaOppfolgingstilfelle
 import no.nav.syfo.personoppgavehendelse.kafka.KPersonoppgavehendelse
-import no.nav.syfo.personoppgavehendelse.kafka.PersonoppgavehendelseService
 import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.OversikthendelseType
+import no.nav.syfo.personstatus.domain.PersonOversiktStatus
+import no.nav.syfo.personstatus.domain.applyHendelse
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER
@@ -24,7 +25,6 @@ import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import java.time.Duration
-import java.util.UUID
 
 @InternalAPI
 object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
@@ -40,8 +40,6 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
         )
 
         val kafkaOppfolgingstilfellePersonService = TestKafkaModule.kafkaOppfolgingstilfellePersonService
-
-        val personoppgavehendelseService = PersonoppgavehendelseService(database)
 
         val mockKafkaConsumerOppfolgingstilfellePerson = TestKafkaModule.kafkaConsumerOppfolgingstilfellePerson
 
@@ -161,16 +159,13 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
 
                 val oversiktHendelseOPLPSBistandMottatt = KPersonoppgavehendelse(
                     personIdentDefault.value,
-                    OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT.name,
+                    OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT,
                 )
-                database.connection.use {
-                    personoppgavehendelseService.processPersonoppgavehendelse(
-                        connection = it,
-                        kPersonoppgavehendelse = oversiktHendelseOPLPSBistandMottatt,
-                        callId = UUID.randomUUID().toString(),
-                    )
-                    it.commit()
-                }
+                val personoversiktStatus = PersonOversiktStatus(
+                    fnr = oversiktHendelseOPLPSBistandMottatt.personident
+                ).applyHendelse(oversiktHendelseOPLPSBistandMottatt.hendelsetype)
+
+                database.createPersonOversiktStatus(personoversiktStatus)
 
                 kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
                     kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,

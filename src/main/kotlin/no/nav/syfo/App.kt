@@ -13,8 +13,10 @@ import no.nav.syfo.application.cache.RedisStore
 import no.nav.syfo.application.database.database
 import no.nav.syfo.application.database.databaseModule
 import no.nav.syfo.client.azuread.AzureAdClient
+import no.nav.syfo.client.pdl.PdlClient
 import no.nav.syfo.cronjob.launchCronjobModule
 import no.nav.syfo.kafka.launchKafkaModule
+import no.nav.syfo.personstatus.PersonoversiktStatusService
 import org.slf4j.LoggerFactory
 import java.util.concurrent.TimeUnit
 
@@ -39,6 +41,16 @@ fun main() {
         redisStore = redisStore,
     )
 
+    val pdlClient = PdlClient(
+        azureAdClient = azureAdClient,
+        clientEnvironment = environment.clients.pdl,
+    )
+
+    val personoversiktStatusService = PersonoversiktStatusService(
+        database = database,
+        pdlClient = pdlClient,
+    )
+
     val applicationEngineEnvironment = applicationEngineEnvironment {
         log = logger
         config = HoconApplicationConfig(ConfigFactory.load())
@@ -57,6 +69,7 @@ fun main() {
                 environment = environment,
                 wellKnownVeilederV2 = wellKnownVeilederV2,
                 azureAdClient = azureAdClient,
+                personoversiktStatusService = personoversiktStatusService,
             )
         }
     }
@@ -77,6 +90,7 @@ fun main() {
             applicationState = applicationState,
             environment = environment,
             azureAdClient = azureAdClient,
+            personoversiktStatusService = personoversiktStatusService,
         )
         launchCronjobModule(
             applicationState = applicationState,

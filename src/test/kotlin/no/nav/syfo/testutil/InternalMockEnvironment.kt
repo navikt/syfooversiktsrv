@@ -4,10 +4,12 @@ import no.nav.syfo.application.cache.RedisStore
 import no.nav.syfo.client.azuread.AzureAdClient
 import no.nav.syfo.client.behandlendeenhet.BehandlendeEnhetClient
 import no.nav.syfo.client.ereg.EregClient
+import no.nav.syfo.client.pdl.PdlClient
 import no.nav.syfo.cronjob.behandlendeenhet.PersonBehandlendeEnhetCronjob
 import no.nav.syfo.cronjob.behandlendeenhet.PersonBehandlendeEnhetService
 import no.nav.syfo.cronjob.virksomhetsnavn.PersonOppfolgingstilfelleVirksomhetnavnCronjob
 import no.nav.syfo.cronjob.virksomhetsnavn.PersonOppfolgingstilfelleVirksomhetsnavnService
+import no.nav.syfo.personstatus.PersonoversiktStatusService
 
 class InternalMockEnvironment private constructor() {
     private val externalMockEnvironment: ExternalMockEnvironment = ExternalMockEnvironment.instance
@@ -20,6 +22,10 @@ class InternalMockEnvironment private constructor() {
     private val azureAdClient = AzureAdClient(
         azureEnvironment = environment.azure,
         redisStore = redisStore,
+    )
+    private val pdlClient = PdlClient(
+        azureAdClient = azureAdClient,
+        clientEnvironment = environment.clients.pdl,
     )
     private val behandlendeEnhetClient = BehandlendeEnhetClient(
         azureAdClient = azureAdClient,
@@ -44,6 +50,10 @@ class InternalMockEnvironment private constructor() {
     )
     val personOppfolgingstilfelleVirksomhetnavnCronjob = PersonOppfolgingstilfelleVirksomhetnavnCronjob(
         personOppfolgingstilfelleVirksomhetsnavnService = personOppfolgingstilfelleVirksomhetsnavnService,
+    )
+    val personoversiktStatusService = PersonoversiktStatusService(
+        database = database,
+        pdlClient = pdlClient,
     )
 
     companion object {

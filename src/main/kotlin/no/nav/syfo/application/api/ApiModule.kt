@@ -8,7 +8,6 @@ import no.nav.syfo.application.Environment
 import no.nav.syfo.application.api.authentication.*
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.client.azuread.AzureAdClient
-import no.nav.syfo.client.pdl.PdlClient
 import no.nav.syfo.client.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.personstatus.PersonTildelingService
 import no.nav.syfo.personstatus.PersonoversiktStatusService
@@ -21,6 +20,7 @@ fun Application.apiModule(
     environment: Environment,
     wellKnownVeilederV2: WellKnown,
     azureAdClient: AzureAdClient,
+    personoversiktStatusService: PersonoversiktStatusService,
 ) {
     installCallId()
     installContentNegotiation()
@@ -39,16 +39,6 @@ fun Application.apiModule(
 
     val personTildelingService = PersonTildelingService(
         database = database,
-    )
-
-    val pdlClient = PdlClient(
-        azureAdClient = azureAdClient,
-        clientEnvironment = environment.clients.pdl,
-    )
-
-    val personoversiktStatusService = PersonoversiktStatusService(
-        database = database,
-        pdlClient = pdlClient,
     )
 
     val tilgangskontrollConsumer = VeilederTilgangskontrollClient(
