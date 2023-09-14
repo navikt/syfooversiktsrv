@@ -18,6 +18,7 @@ enum class AktivitetskravStatus {
     AVVENT,
     UNNTAK,
     OPPFYLT,
+    FORHANDSVARSEL,
     AUTOMATISK_OPPFYLT,
     STANS,
     IKKE_OPPFYLT,
