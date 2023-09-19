@@ -111,6 +111,50 @@ object AktivitetskravPersonoversiktStatusApiV2Spek : Spek({
                     }
                 }
 
+                it("returns no content when aktivitetskrav has status LUKKET") {
+                    val personIdent = PersonIdent(UserConstants.ARBEIDSTAKER_FNR)
+                    val nyttAtivitetskrav = aktivitetskravGenerator.generateAktivitetskrav(
+                        personIdent = personIdent,
+                        status = AktivitetskravStatus.NY,
+                        stoppunktAfterCutoff = true,
+                    )
+                    persistAktivitetskravAndTildelEnhet(
+                        database = database,
+                        personIdent = personIdent,
+                        aktivitetskrav = nyttAtivitetskrav,
+                    )
+
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        }
+                    ) {
+                        response.status() shouldBeEqualTo HttpStatusCode.OK
+
+                        val personOversiktStatus =
+                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
+                        personOversiktStatus.aktivitetskrav shouldBeEqualTo AktivitetskravStatus.NY.name
+                    }
+
+                    val lukketAktivitetskrav = aktivitetskravGenerator.generateAktivitetskrav(
+                        personIdent = personIdent,
+                        status = AktivitetskravStatus.LUKKET,
+                        stoppunktAfterCutoff = true,
+                    )
+                    persistAktivitetskravAndTildelEnhet(
+                        database = database,
+                        personIdent = personIdent,
+                        aktivitetskrav = lukketAktivitetskrav,
+                    )
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        }
+                    ) {
+                        response.status() shouldBeEqualTo HttpStatusCode.NoContent
+                    }
+                }
+
                 it("returns no content when aktivitetskrav has status AUTOMATISK_OPPFYLT") {
                     val personIdent = PersonIdent(UserConstants.ARBEIDSTAKER_FNR)
                     val aktivitetskrav = aktivitetskravGenerator.generateAktivitetskrav(
