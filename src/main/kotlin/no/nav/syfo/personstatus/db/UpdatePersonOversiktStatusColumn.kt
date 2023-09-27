@@ -1,11 +1,9 @@
 package no.nav.syfo.personstatus.db
 
 import no.nav.syfo.aktivitetskravvurdering.domain.Aktivitetskrav
-import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendring
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.PPersonOversiktStatus
-import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
 import java.sql.Connection
 import java.sql.Timestamp
 import java.time.Instant
@@ -204,25 +202,5 @@ fun Connection.updatePersonOversiktStatusBehandlerdialogAvvist(
         it.setObject(2, Timestamp.from(Instant.now()))
         it.setString(3, personIdent.value)
         it.execute()
-    }
-}
-
-const val updateTildeltVeilederQuery =
-    """
-         UPDATE PERSON_OVERSIKT_STATUS
-         SET tildelt_veileder = ?, sist_endret = ?
-         WHERE fnr = ?
-    """
-
-fun DatabaseInterface.oppdaterVeilederDersomBrukerFinnes(veilederBrukerKnytning: VeilederBrukerKnytning): Boolean {
-    connection.use { connection ->
-        val rowCount = connection.prepareStatement(updateTildeltVeilederQuery).use {
-            it.setString(1, veilederBrukerKnytning.veilederIdent)
-            it.setObject(2, Timestamp.from(Instant.now()))
-            it.setString(3, veilederBrukerKnytning.fnr)
-            it.executeUpdate()
-        }
-        connection.commit()
-        return rowCount > 0
     }
 }

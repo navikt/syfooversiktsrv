@@ -154,30 +154,31 @@ fun Connection.updatePersonOversiktStatusOppfolgingstilfelle(
     )
 }
 
-fun DatabaseInterface.lagreBrukerKnytningPaEnhet(veilederBrukerKnytning: VeilederBrukerKnytning) {
-    val exists = oppdaterVeilederDersomBrukerFinnes(veilederBrukerKnytning)
+const val updateTildeltVeilederQuery =
+    """
+         UPDATE PERSON_OVERSIKT_STATUS
+         SET tildelt_veileder = ?, sist_endret = ?
+         WHERE fnr = ?
+    """
 
-    if (!exists) {
+fun DatabaseInterface.lagreVeilederForBruker(veilederBrukerKnytning: VeilederBrukerKnytning) {
+    val rowCount = this.connection.use { connection ->
+        connection.prepareStatement(updateTildeltVeilederQuery).use {
+            it.setString(1, veilederBrukerKnytning.veilederIdent)
+            it.setObject(2, Timestamp.from(Instant.now()))
+            it.setString(3, veilederBrukerKnytning.fnr)
+            it.executeUpdate()
+        }.also {
+            connection.commit()
+        }
+    }
+
+    if (rowCount == 0) {
         val personOversiktStatus = PersonOversiktStatus(
             veilederIdent = veilederBrukerKnytning.veilederIdent,
             fnr = veilederBrukerKnytning.fnr,
             navn = null,
             enhet = null,
-            motebehovUbehandlet = null,
-            oppfolgingsplanLPSBistandUbehandlet = null,
-            dialogmotesvarUbehandlet = false,
-            dialogmotekandidat = null,
-            dialogmotekandidatGeneratedAt = null,
-            motestatus = null,
-            motestatusGeneratedAt = null,
-            latestOppfolgingstilfelle = null,
-            aktivitetskrav = null,
-            aktivitetskravStoppunkt = null,
-            aktivitetskravSistVurdert = null,
-            aktivitetskravVurderingFrist = null,
-            behandlerdialogSvarUbehandlet = false,
-            behandlerdialogUbesvartUbehandlet = false,
-            behandlerdialogAvvistUbehandlet = false,
         )
         this.connection.use { connection ->
             connection.createPersonOversiktStatus(

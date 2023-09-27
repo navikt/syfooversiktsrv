@@ -60,7 +60,7 @@ object PersontildelingApiV2Spek : Spek({
                 it("skal hente veileder sine tilknytninger ") {
                     val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
 
-                    database.lagreBrukerKnytningPaEnhet(tilknytning)
+                    database.lagreVeilederForBruker(tilknytning)
 
                     with(
                         handleRequest(HttpMethod.Get, url) {

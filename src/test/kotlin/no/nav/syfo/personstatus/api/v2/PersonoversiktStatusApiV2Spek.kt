@@ -13,7 +13,7 @@ import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.domain.Virksomhetsnummer
 import no.nav.syfo.personoppgavehendelse.kafka.KPersonoppgavehendelse
 import no.nav.syfo.personstatus.db.getPersonOversiktStatusList
-import no.nav.syfo.personstatus.db.lagreBrukerKnytningPaEnhet
+import no.nav.syfo.personstatus.db.lagreVeilederForBruker
 import no.nav.syfo.personstatus.domain.*
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
@@ -178,7 +178,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     )
 
                     val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
-                    database.lagreBrukerKnytningPaEnhet(tilknytning)
+                    database.lagreVeilederForBruker(tilknytning)
 
                     with(
                         handleRequest(HttpMethod.Get, url) {
@@ -211,7 +211,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     )
 
                     val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
-                    database.lagreBrukerKnytningPaEnhet(tilknytning)
+                    database.lagreVeilederForBruker(tilknytning)
 
                     with(
                         handleRequest(HttpMethod.Get, url) {
@@ -375,7 +375,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     )
 
                     val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
-                    database.lagreBrukerKnytningPaEnhet(tilknytning)
+                    database.lagreVeilederForBruker(tilknytning)
 
                     with(
                         handleRequest(HttpMethod.Get, url) {
@@ -430,7 +430,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     )
 
                     val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
-                    database.lagreBrukerKnytningPaEnhet(tilknytning)
+                    database.lagreVeilederForBruker(tilknytning)
 
                     with(
                         handleRequest(HttpMethod.Get, url) {
@@ -599,7 +599,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     )
 
                     val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, personIdent.value, NAV_ENHET)
-                    database.lagreBrukerKnytningPaEnhet(tilknytning)
+                    database.lagreVeilederForBruker(tilknytning)
                     database.setTildeltEnhet(
                         ident = personIdent,
                         enhet = NAV_ENHET,
