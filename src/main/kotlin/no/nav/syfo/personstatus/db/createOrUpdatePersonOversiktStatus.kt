@@ -155,9 +155,9 @@ fun Connection.updatePersonOversiktStatusOppfolgingstilfelle(
 }
 
 fun DatabaseInterface.lagreBrukerKnytningPaEnhet(veilederBrukerKnytning: VeilederBrukerKnytning) {
-    val id = oppdaterEnhetDersomKnytningFinnes(veilederBrukerKnytning)
+    val exists = oppdaterVeilederDersomBrukerFinnes(veilederBrukerKnytning)
 
-    if (id == KNYTNING_IKKE_FUNNET) {
+    if (!exists) {
         val personOversiktStatus = PersonOversiktStatus(
             veilederIdent = veilederBrukerKnytning.veilederIdent,
             fnr = veilederBrukerKnytning.fnr,

@@ -2,7 +2,6 @@ package no.nav.syfo.personstatus.db
 
 import no.nav.syfo.aktivitetskravvurdering.domain.Aktivitetskrav
 import no.nav.syfo.application.database.DatabaseInterface
-import no.nav.syfo.application.database.toList
 import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendring
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.PPersonOversiktStatus
@@ -208,38 +207,22 @@ fun Connection.updatePersonOversiktStatusBehandlerdialogAvvist(
     }
 }
 
-fun DatabaseInterface.oppdaterEnhetDersomKnytningFinnes(veilederBrukerKnytning: VeilederBrukerKnytning): Long {
-    var id = KNYTNING_IKKE_FUNNET
+const val updateTildeltVeilederQuery =
+    """
+         UPDATE PERSON_OVERSIKT_STATUS
+         SET tildelt_veileder = ?, sist_endret = ?
+         WHERE fnr = ?
+    """
 
-    val selectQuery = """
-                         SELECT id
-                         FROM PERSON_OVERSIKT_STATUS
-                         WHERE fnr=?
-                """
-
-    val knytningerPaVeileder = connection.use { connection ->
-        connection.prepareStatement(selectQuery).use {
-            it.setString(1, veilederBrukerKnytning.fnr)
-            it.executeQuery().toList { getLong("id") }
+fun DatabaseInterface.oppdaterVeilederDersomBrukerFinnes(veilederBrukerKnytning: VeilederBrukerKnytning): Boolean {
+    connection.use { connection ->
+        val rowCount = connection.prepareStatement(updateTildeltVeilederQuery).use {
+            it.setString(1, veilederBrukerKnytning.veilederIdent)
+            it.setObject(2, Timestamp.from(Instant.now()))
+            it.setString(3, veilederBrukerKnytning.fnr)
+            it.executeUpdate()
         }
+        connection.commit()
+        return rowCount > 0
     }
-
-    if (knytningerPaVeileder.isNotEmpty()) {
-        id = knytningerPaVeileder[0]
-        val updateQuery = """
-                         UPDATE PERSON_OVERSIKT_STATUS
-                         SET tildelt_veileder = ?, sist_endret = ?
-                         WHERE id = ?
-                """
-        connection.use { connection ->
-            connection.prepareStatement(updateQuery).use {
-                it.setString(1, veilederBrukerKnytning.veilederIdent)
-                it.setObject(2, Timestamp.from(Instant.now()))
-                it.setLong(3, id)
-                it.executeUpdate()
-            }
-            connection.commit()
-        }
-    }
-    return id
 }

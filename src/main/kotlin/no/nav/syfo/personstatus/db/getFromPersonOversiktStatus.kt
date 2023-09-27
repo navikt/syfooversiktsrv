@@ -9,8 +9,6 @@ import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.*
 
-const val KNYTNING_IKKE_FUNNET = 0L
-
 const val queryGetPersonOversiktStatusList =
     """
     SELECT *

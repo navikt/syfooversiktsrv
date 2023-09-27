@@ -12,6 +12,7 @@ const val queryGetPersonerWithOutdatedVeiledertildeling =
     FROM person_oversikt_status
     WHERE tildelt_veileder IS NOT NULL
     AND oppfolgingstilfelle_end + INTERVAL '3 MONTH' < now()
+    AND (sist_endret IS NULL OR sist_endret + INTERVAL '3 MONTH' < now())
     LIMIT 2000;
     """
 

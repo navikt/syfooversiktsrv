@@ -68,11 +68,11 @@ object PersontildelingApiV2Spek : Spek({
                         }
                     ) {
                         response.status() shouldBeEqualTo HttpStatusCode.OK
-                        val returnertVerdig =
+                        val returnertVerdi =
                             objectMapper.readValue<List<VeilederBrukerKnytning>>(response.content!!)[0]
-                        returnertVerdig.veilederIdent shouldBeEqualTo tilknytning.veilederIdent
-                        returnertVerdig.fnr shouldBeEqualTo tilknytning.fnr
-                        returnertVerdig.enhet shouldBeEqualTo ""
+                        returnertVerdi.veilederIdent shouldBeEqualTo tilknytning.veilederIdent
+                        returnertVerdi.fnr shouldBeEqualTo tilknytning.fnr
+                        returnertVerdi.enhet shouldBeEqualTo ""
                     }
                 }
             }

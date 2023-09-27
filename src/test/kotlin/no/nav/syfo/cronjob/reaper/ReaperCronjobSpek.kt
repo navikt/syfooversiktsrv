@@ -8,8 +8,10 @@ import no.nav.syfo.personstatus.domain.toPersonOversiktStatus
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.generator.generatePPersonOversiktStatus
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldNotBeEqualTo
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
+import java.sql.Timestamp
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.*
@@ -36,9 +38,13 @@ object ReaperCronjobSpek : Spek({
                 }
 
                 it("reset tildelt veileder for personer with tilfelle that ended three months ago") {
-                    val twoMonthsAgo = LocalDate.now().minusMonths(3)
-                    val personOversiktStatus = generatePersonOversiktStatusWithTilfelleEnd(twoMonthsAgo)
+                    val threeMonthsAgo = LocalDate.now().minusMonths(3)
+                    val personOversiktStatus = generatePersonOversiktStatusWithTilfelleEnd(threeMonthsAgo)
                     database.createPersonOversiktStatus(personOversiktStatus)
+                    database.setSistEndret(
+                        fnr = personOversiktStatus.fnr,
+                        sistEndret = Timestamp.from(OffsetDateTime.now().minusMonths(3).toInstant()),
+                    )
 
                     runBlocking {
                         val result = reaperCronjob.runJob()
@@ -47,9 +53,29 @@ object ReaperCronjobSpek : Spek({
                         result.updated shouldBeEqualTo 1
                     }
 
-                    val personOversiktStatuses = database.connection.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
+                    val personOversiktStatuses = database.connection.getPersonOversiktStatusList(personOversiktStatus.fnr)
                     val status = personOversiktStatuses[0]
                     status.veilederIdent shouldBeEqualTo null
+                }
+                it("does not reset tildelt veileder for personer with sist_endret less than three months ago") {
+                    val threeMonthsAgo = LocalDate.now().minusMonths(3)
+                    val personOversiktStatus = generatePersonOversiktStatusWithTilfelleEnd(threeMonthsAgo)
+                    database.createPersonOversiktStatus(personOversiktStatus)
+                    database.setSistEndret(
+                        fnr = personOversiktStatus.fnr,
+                        sistEndret = Timestamp.from(OffsetDateTime.now().minusMonths(2).toInstant()),
+                    )
+
+                    runBlocking {
+                        val result = reaperCronjob.runJob()
+
+                        result.failed shouldBeEqualTo 0
+                        result.updated shouldBeEqualTo 0
+                    }
+
+                    val personOversiktStatuses = database.connection.getPersonOversiktStatusList(personOversiktStatus.fnr)
+                    val status = personOversiktStatuses[0]
+                    status.veilederIdent shouldNotBeEqualTo null
                 }
 
                 it("don't process personer with tilfelle that ended less than three months ago") {

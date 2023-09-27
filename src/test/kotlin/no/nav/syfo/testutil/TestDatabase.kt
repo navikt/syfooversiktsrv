@@ -7,6 +7,7 @@ import no.nav.syfo.personstatus.db.createPersonOversiktStatus
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import org.flywaydb.core.Flyway
 import java.sql.Connection
+import java.sql.Timestamp
 import java.time.OffsetDateTime
 
 class TestDatabase : DatabaseInterface {
@@ -105,6 +106,24 @@ fun DatabaseInterface.setTildeltEnhet(
             it.setString(1, enhet)
             it.setString(2, ident.value)
             it.execute()
+        }
+        connection.commit()
+    }
+}
+
+const val querySetSistEndret =
+    """
+    UPDATE PERSON_OVERSIKT_STATUS
+    SET sist_endret = ?
+    WHERE fnr = ?
+    """
+
+fun DatabaseInterface.setSistEndret(fnr: String, sistEndret: Timestamp) {
+    this.connection.use { connection ->
+        connection.prepareStatement(querySetSistEndret).use {
+            it.setTimestamp(1, sistEndret)
+            it.setString(2, fnr)
+            it.executeUpdate()
         }
         connection.commit()
     }
