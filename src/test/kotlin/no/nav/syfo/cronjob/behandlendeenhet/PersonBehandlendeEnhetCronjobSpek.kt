@@ -179,7 +179,7 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                             fnr = oversikthendelse.personident,
                             enhet = firstEnhet,
                         )
-                        database.lagreBrukerKnytningPaEnhet(
+                        database.lagreVeilederForBruker(
                             veilederBrukerKnytning = veilederBrukerKnytning,
                         )
 
@@ -360,7 +360,7 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                         fnr = oversikthendelse.personident,
                         enhet = behandlendeEnhetDTO().enhetId,
                     )
-                    database.lagreBrukerKnytningPaEnhet(
+                    database.lagreVeilederForBruker(
                         veilederBrukerKnytning = veilederBrukerKnytning,
                     )
 
