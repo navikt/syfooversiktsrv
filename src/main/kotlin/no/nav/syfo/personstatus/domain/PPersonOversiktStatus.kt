@@ -33,6 +33,7 @@ data class PPersonOversiktStatus(
     val behandlerdialogSvarUbehandlet: Boolean,
     val behandlerdialogUbesvartUbehandlet: Boolean,
     val behandlerdialogAvvistUbehandlet: Boolean,
+    val aktivitetskravVurderStansUbehandlet: Boolean,
 )
 
 fun PPersonOversiktStatus.toPersonOversiktStatus(
@@ -59,6 +60,7 @@ fun PPersonOversiktStatus.toPersonOversiktStatus(
     behandlerdialogSvarUbehandlet = this.behandlerdialogSvarUbehandlet,
     behandlerdialogUbesvartUbehandlet = this.behandlerdialogUbesvartUbehandlet,
     behandlerdialogAvvistUbehandlet = this.behandlerdialogAvvistUbehandlet,
+    aktivitetskravVurderStansUbehandlet = this.aktivitetskravVurderStansUbehandlet,
 )
 
 fun PPersonOversiktStatus.toPersonOppfolgingstilfelle(

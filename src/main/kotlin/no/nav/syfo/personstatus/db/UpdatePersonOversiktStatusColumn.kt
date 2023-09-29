@@ -204,3 +204,22 @@ fun Connection.updatePersonOversiktStatusBehandlerdialogAvvist(
         it.execute()
     }
 }
+
+const val queryUpdatePersonOversiktStatusAktivitetskravVurderStans =
+    """
+        UPDATE PERSON_OVERSIKT_STATUS
+        SET aktivitetskrav_vurder_stans_ubehandlet = ?, sist_endret = ?
+        WHERE fnr = ?
+    """
+
+fun Connection.updateAktivitetskravVurderStans(
+    isAktivitetskravVurderStansUbehandlet: Boolean,
+    personIdent: PersonIdent,
+) {
+    this.prepareStatement(queryUpdatePersonOversiktStatusAktivitetskravVurderStans).use {
+        it.setBoolean(1, isAktivitetskravVurderStansUbehandlet)
+        it.setObject(2, Timestamp.from(Instant.now()))
+        it.setString(3, personIdent.value)
+        it.execute()
+    }
+}

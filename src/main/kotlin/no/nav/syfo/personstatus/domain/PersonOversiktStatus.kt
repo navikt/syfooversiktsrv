@@ -29,11 +29,13 @@ data class PersonOversiktStatus(
     val behandlerdialogSvarUbehandlet: Boolean = false,
     val behandlerdialogUbesvartUbehandlet: Boolean = false,
     val behandlerdialogAvvistUbehandlet: Boolean = false,
+    val aktivitetskravVurderStansUbehandlet: Boolean = false,
 ) {
     constructor(fnr: String) : this(
         null, fnr = fnr, null, null, null,
         null, false, null, null, null,
-        null, null, null, null, null, null, false, false, false,
+        null, null, null, null, null, null,
+        false, false, false, false,
     )
 }
 
@@ -62,7 +64,8 @@ fun PersonOversiktStatus.hasActiveOppgave(arenaCutoff: LocalDate): Boolean {
         this.isDialogmotekandidat() ||
         (this.motebehovUbehandlet == true && this.latestOppfolgingstilfelle != null) ||
         this.isActiveAktivitetskrav(arenaCutoff = arenaCutoff) ||
-        hasActiveBehandlerdialogOppgave()
+        hasActiveBehandlerdialogOppgave() ||
+        this.aktivitetskravVurderStansUbehandlet
 }
 
 data class Oppfolgingstilfelle(
@@ -133,6 +136,7 @@ fun PersonOversiktStatus.toPersonOversiktStatusDTO(arenaCutoff: LocalDate) =
         aktivitetskravActive = isActiveAktivitetskrav(arenaCutoff = arenaCutoff),
         aktivitetskravVurderingFrist = this.aktivitetskravVurderingFrist,
         behandlerdialogUbehandlet = hasActiveBehandlerdialogOppgave(),
+        aktivitetskravVurderStansUbehandlet = this.aktivitetskravVurderStansUbehandlet,
     )
 
 fun PersonOversiktStatus.hasActiveBehandlerdialogOppgave(): Boolean {
@@ -191,5 +195,13 @@ fun PersonOversiktStatus.applyHendelse(
 
         OversikthendelseType.BEHANDLERDIALOG_MELDING_AVVIST_BEHANDLET -> this.copy(
             behandlerdialogAvvistUbehandlet = false,
+        )
+
+        OversikthendelseType.AKTIVITETSKRAV_VURDER_STANS_MOTTATT -> this.copy(
+            aktivitetskravVurderStansUbehandlet = true,
+        )
+
+        OversikthendelseType.AKTIVITETSKRAV_VURDER_STANS_BEHANDLET -> this.copy(
+            aktivitetskravVurderStansUbehandlet = false,
         )
     }

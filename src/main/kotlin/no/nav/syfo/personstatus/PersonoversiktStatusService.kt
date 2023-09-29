@@ -135,6 +135,10 @@ class PersonoversiktStatusService(
                     connection.updatePersonOversiktStatusBehandlerdialogAvvist(isUbehandlet, personident)
                 OversikthendelseType.BEHANDLERDIALOG_MELDING_AVVIST_BEHANDLET ->
                     connection.updatePersonOversiktStatusBehandlerdialogAvvist(isBehandlet, personident)
+                OversikthendelseType.AKTIVITETSKRAV_VURDER_STANS_MOTTATT ->
+                    connection.updateAktivitetskravVurderStans(isUbehandlet, personident)
+                OversikthendelseType.AKTIVITETSKRAV_VURDER_STANS_BEHANDLET ->
+                    connection.updateAktivitetskravVurderStans(isBehandlet, personident)
             }
 
             COUNT_KAFKA_CONSUMER_PERSONOPPGAVEHENDELSE_UPDATED_PERSONOVERSIKT_STATUS.increment()
