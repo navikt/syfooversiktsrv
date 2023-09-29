@@ -204,3 +204,10 @@ fun Connection.updatePersonOversiktStatusBehandlerdialogAvvist(
         it.execute()
     }
 }
+
+fun Connection.updateAktivitetskravForhandsvarselFristExpired(
+    isAktivitetskravForhandsvarselFristExpiredUbehandlet: Boolean,
+    personIdent: PersonIdent,
+) {
+    // TODO: Add query
+}

@@ -192,4 +192,12 @@ fun PersonOversiktStatus.applyHendelse(
         OversikthendelseType.BEHANDLERDIALOG_MELDING_AVVIST_BEHANDLET -> this.copy(
             behandlerdialogAvvistUbehandlet = false,
         )
+
+        OversikthendelseType.AKTIVITETSKRAV_FORHANDSVARSEL_FRIST_EXPIRED_MOTTATT -> this.copy(
+            // TODO: Sett til true når vi har implementert behandling av aktivitetskrav forhåndsvarsel
+        )
+
+        OversikthendelseType.AKTIVITETSKRAV_FORHANDSVARSEL_FRIST_EXPIRED_BEHANDLET -> this.copy(
+            // TODO: Sett til false når vi har implementert behandling av aktivitetskrav forhåndsvarsel
+        )
     }
