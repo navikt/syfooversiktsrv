@@ -43,8 +43,9 @@ const val queryCreatePersonOversiktStatus =
         aktivitetskrav_vurdering_frist,
         behandlerdialog_svar_ubehandlet,
         behandlerdialog_ubesvart_ubehandlet,
-        behandlerdialog_avvist_ubehandlet
-    ) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        behandlerdialog_avvist_ubehandlet,
+        aktivitetskrav_vurder_stans_ubehandlet
+    ) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     RETURNING id
     """
 
@@ -105,6 +106,7 @@ fun Connection.createPersonOversiktStatus(
         it.setBoolean(27, personOversiktStatus.behandlerdialogSvarUbehandlet)
         it.setBoolean(28, personOversiktStatus.behandlerdialogUbesvartUbehandlet)
         it.setBoolean(29, personOversiktStatus.behandlerdialogAvvistUbehandlet)
+        it.setBoolean(30, personOversiktStatus.aktivitetskravVurderStansUbehandlet)
         it.executeQuery().toList { getInt("id") }.firstOrNull()
     } ?: throw SQLException("Creating PersonOversikStatus failed, no rows affected.")
 

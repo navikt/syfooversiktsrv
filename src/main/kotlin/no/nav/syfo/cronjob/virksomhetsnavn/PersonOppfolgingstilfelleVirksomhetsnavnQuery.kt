@@ -39,6 +39,7 @@ const val queryPersonOppfolgingstilfelleVirksomhetNoVirksomhetsnavnList =
         OR behandlerdialog_svar_ubehandlet = 't'
         OR behandlerdialog_ubesvart_ubehandlet = 't'
         OR behandlerdialog_avvist_ubehandlet = 't'
+        OR aktivitetskrav_vurder_stans_ubehandlet = 't'
         )
     ORDER BY PERSON_OPPFOLGINGSTILFELLE_VIRKSOMHET.created_at ASC
     LIMIT 1000
