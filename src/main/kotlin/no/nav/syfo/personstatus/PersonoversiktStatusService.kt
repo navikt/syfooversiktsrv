@@ -139,6 +139,10 @@ class PersonoversiktStatusService(
                     connection.updateAktivitetskravVurderStans(isUbehandlet, personident)
                 OversikthendelseType.AKTIVITETSKRAV_VURDER_STANS_BEHANDLET ->
                     connection.updateAktivitetskravVurderStans(isBehandlet, personident)
+                OversikthendelseType.HUSKELAPP_MOTTATT ->
+                    connection.updateHuskelappActive(isUbehandlet, personident)
+                OversikthendelseType.HUSKELAPP_BEHANDLET ->
+                    connection.updateHuskelappActive(isBehandlet, personident)
             }
 
             COUNT_KAFKA_CONSUMER_PERSONOPPGAVEHENDELSE_UPDATED_PERSONOVERSIKT_STATUS.increment()

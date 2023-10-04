@@ -674,6 +674,62 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         response.status() shouldBeEqualTo HttpStatusCode.NoContent
                     }
                 }
+
+                it("return person with huskelapp_active true when oppgave mottatt") {
+                    val huskelappMottatt = KPersonoppgavehendelse(
+                        personident = ARBEIDSTAKER_FNR,
+                        hendelsetype = OversikthendelseType.HUSKELAPP_MOTTATT,
+                    )
+                    val personoversiktStatus = PersonOversiktStatus(
+                        fnr = huskelappMottatt.personident
+                    ).applyHendelse(huskelappMottatt.hendelsetype)
+
+                    database.createPersonOversiktStatus(personoversiktStatus)
+
+                    database.setTildeltEnhet(
+                        ident = PersonIdent(ARBEIDSTAKER_FNR),
+                        enhet = NAV_ENHET,
+                    )
+
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        }
+                    ) {
+                        response.status() shouldBeEqualTo HttpStatusCode.OK
+
+                        val personOversiktStatus =
+                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
+                        personOversiktStatus.fnr shouldBeEqualTo huskelappMottatt.personident
+                        personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
+                        personOversiktStatus.huskelappActive shouldBeEqualTo true
+                    }
+                }
+
+                it("return no person when huskelapp_active oppgave behandlet") {
+                    val huskelappBehandlet = KPersonoppgavehendelse(
+                        personident = ARBEIDSTAKER_FNR,
+                        hendelsetype = OversikthendelseType.HUSKELAPP_BEHANDLET,
+                    )
+                    val personoversiktStatus = PersonOversiktStatus(
+                        fnr = huskelappBehandlet.personident
+                    ).applyHendelse(huskelappBehandlet.hendelsetype)
+
+                    database.createPersonOversiktStatus(personoversiktStatus)
+
+                    database.setTildeltEnhet(
+                        ident = PersonIdent(ARBEIDSTAKER_FNR),
+                        enhet = NAV_ENHET,
+                    )
+
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        }
+                    ) {
+                        response.status() shouldBeEqualTo HttpStatusCode.NoContent
+                    }
+                }
             }
         }
     }

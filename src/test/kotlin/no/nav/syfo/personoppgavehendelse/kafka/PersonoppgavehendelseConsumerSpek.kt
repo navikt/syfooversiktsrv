@@ -208,6 +208,37 @@ object PersonoppgavehendelseServiceSpek : Spek({
             val firstStatus = personoversiktStatuser.first()
             firstStatus.aktivitetskravVurderStansUbehandlet.shouldBeFalse()
         }
+
+        it("Update personoversiktstatus from huskelapp mottatt hendelse") {
+            val huskelappMottatt = KPersonoppgavehendelse(
+                personident = UserConstants.ARBEIDSTAKER_FNR,
+                hendelsetype = OversikthendelseType.HUSKELAPP_MOTTATT,
+            )
+            mockReceiveHendelse(huskelappMottatt, mockPersonoppgavehendelseConsumer)
+
+            personoppgavehendelseConsumer.pollAndProcessRecords(kafkaConsumer = mockPersonoppgavehendelseConsumer)
+
+            val personoversiktStatuser = database.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
+            val firstStatus = personoversiktStatuser.first()
+            firstStatus.huskelappActive.shouldBeTrue()
+        }
+
+        it("Update personoversiktstatus from huskelapp behandlet hendelse") {
+            val personOversiktStatus = PersonOversiktStatus(UserConstants.ARBEIDSTAKER_FNR)
+                .applyHendelse(OversikthendelseType.HUSKELAPP_MOTTATT)
+            database.createPersonOversiktStatus(personOversiktStatus)
+
+            val huskelappBehandlet = KPersonoppgavehendelse(
+                personident = UserConstants.ARBEIDSTAKER_FNR,
+                hendelsetype = OversikthendelseType.HUSKELAPP_BEHANDLET,
+            )
+            mockReceiveHendelse(huskelappBehandlet, mockPersonoppgavehendelseConsumer)
+            personoppgavehendelseConsumer.pollAndProcessRecords(kafkaConsumer = mockPersonoppgavehendelseConsumer)
+
+            val personoversiktStatuser = database.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
+            val firstStatus = personoversiktStatuser.first()
+            firstStatus.huskelappActive.shouldBeFalse()
+        }
     }
 })
 
