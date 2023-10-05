@@ -33,4 +33,5 @@ fun generatePPersonOversiktStatus(fnr: String = UserConstants.ARBEIDSTAKER_FNR) 
     behandlerdialogUbesvartUbehandlet = false,
     behandlerdialogAvvistUbehandlet = false,
     aktivitetskravVurderStansUbehandlet = false,
+    huskelappActive = false,
 )

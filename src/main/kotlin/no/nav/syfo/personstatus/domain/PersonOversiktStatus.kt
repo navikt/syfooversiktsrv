@@ -30,12 +30,13 @@ data class PersonOversiktStatus(
     val behandlerdialogUbesvartUbehandlet: Boolean = false,
     val behandlerdialogAvvistUbehandlet: Boolean = false,
     val aktivitetskravVurderStansUbehandlet: Boolean = false,
+    val huskelappActive: Boolean = false,
 ) {
     constructor(fnr: String) : this(
         null, fnr = fnr, null, null, null,
         null, false, null, null, null,
         null, null, null, null, null, null,
-        false, false, false, false,
+        false, false, false, false, false,
     )
 }
 
@@ -65,7 +66,8 @@ fun PersonOversiktStatus.hasActiveOppgave(arenaCutoff: LocalDate): Boolean {
         (this.motebehovUbehandlet == true && this.latestOppfolgingstilfelle != null) ||
         this.isActiveAktivitetskrav(arenaCutoff = arenaCutoff) ||
         hasActiveBehandlerdialogOppgave() ||
-        this.aktivitetskravVurderStansUbehandlet
+        this.aktivitetskravVurderStansUbehandlet ||
+        this.huskelappActive
 }
 
 data class Oppfolgingstilfelle(
@@ -120,23 +122,24 @@ fun List<PersonOversiktStatus>.addPersonName(
 
 fun PersonOversiktStatus.toPersonOversiktStatusDTO(arenaCutoff: LocalDate) =
     PersonOversiktStatusDTO(
-        veilederIdent = this.veilederIdent,
-        fnr = this.fnr,
-        navn = this.navn ?: "",
-        enhet = this.enhet ?: "",
-        motebehovUbehandlet = this.motebehovUbehandlet,
-        oppfolgingsplanLPSBistandUbehandlet = this.oppfolgingsplanLPSBistandUbehandlet,
-        dialogmotesvarUbehandlet = this.dialogmotesvarUbehandlet,
-        dialogmotekandidat = this.dialogmotekandidat?.let { isDialogmotekandidat() },
-        motestatus = this.motestatus,
-        latestOppfolgingstilfelle = this.latestOppfolgingstilfelle?.toPersonOppfolgingstilfelleDTO(),
-        aktivitetskrav = this.aktivitetskrav?.name,
-        aktivitetskravStoppunkt = this.aktivitetskravStoppunkt,
-        aktivitetskravSistVurdert = this.aktivitetskravSistVurdert?.toLocalDateTimeOslo(),
+        veilederIdent = veilederIdent,
+        fnr = fnr,
+        navn = navn ?: "",
+        enhet = enhet ?: "",
+        motebehovUbehandlet = motebehovUbehandlet,
+        oppfolgingsplanLPSBistandUbehandlet = oppfolgingsplanLPSBistandUbehandlet,
+        dialogmotesvarUbehandlet = dialogmotesvarUbehandlet,
+        dialogmotekandidat = dialogmotekandidat?.let { isDialogmotekandidat() },
+        motestatus = motestatus,
+        latestOppfolgingstilfelle = latestOppfolgingstilfelle?.toPersonOppfolgingstilfelleDTO(),
+        aktivitetskrav = aktivitetskrav?.name,
+        aktivitetskravStoppunkt = aktivitetskravStoppunkt,
+        aktivitetskravSistVurdert = aktivitetskravSistVurdert?.toLocalDateTimeOslo(),
         aktivitetskravActive = isActiveAktivitetskrav(arenaCutoff = arenaCutoff),
-        aktivitetskravVurderingFrist = this.aktivitetskravVurderingFrist,
+        aktivitetskravVurderingFrist = aktivitetskravVurderingFrist,
         behandlerdialogUbehandlet = hasActiveBehandlerdialogOppgave(),
-        aktivitetskravVurderStansUbehandlet = this.aktivitetskravVurderStansUbehandlet,
+        aktivitetskravVurderStansUbehandlet = aktivitetskravVurderStansUbehandlet,
+        huskelappActive = huskelappActive,
     )
 
 fun PersonOversiktStatus.hasActiveBehandlerdialogOppgave(): Boolean {
