@@ -24,14 +24,7 @@ class HuskelappConsumer(
     private fun processRecords(
         consumerRecords: ConsumerRecords<String, KafkaHuskelapp>,
     ) {
-        val (tombstones, validRecords) = consumerRecords.partition { it.value() == null }
-
-        if (tombstones.isNotEmpty()) {
-            val numberOfTombstones = tombstones.size
-            log.error("Value of $numberOfTombstones ConsumerRecord are null, most probably due to a tombstone. Contact the owner of the topic if an error is suspected")
-            COUNT_KAFKA_CONSUMER_HUSKELAPP_TOMBSTONE.increment(numberOfTombstones.toDouble())
-        }
-
+        val validRecords = consumerRecords.requireNoNulls()
         huskelappService.processHuskelapp(
             records = validRecords.map { it.value().toHuskelapp() }
         )

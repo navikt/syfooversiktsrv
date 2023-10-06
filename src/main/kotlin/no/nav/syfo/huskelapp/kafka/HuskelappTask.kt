@@ -26,7 +26,7 @@ fun launchHuskelappConsumer(
     )
     val consumerProperties = Properties().apply {
         putAll(kafkaAivenConsumerConfig(kafkaEnvironment = kafkaEnvironment))
-        this[ConsumerConfig.MAX_POLL_RECORDS_CONFIG] = "1"
+        this[ConsumerConfig.MAX_POLL_RECORDS_CONFIG] = "10"
         this[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = KafkaHuskelappDeserializer::class.java.canonicalName
     }
     launchKafkaTask(
