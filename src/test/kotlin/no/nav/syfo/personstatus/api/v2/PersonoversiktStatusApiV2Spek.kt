@@ -674,6 +674,56 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         response.status() shouldBeEqualTo HttpStatusCode.NoContent
                     }
                 }
+
+                it("return person when huskelapp_active true") {
+                    val personident = ARBEIDSTAKER_FNR
+                    val personoversiktStatus = PersonOversiktStatus(
+                        fnr = personident,
+                    ).copy(huskelappActive = true)
+
+                    database.createPersonOversiktStatus(personoversiktStatus)
+
+                    database.setTildeltEnhet(
+                        ident = PersonIdent(ARBEIDSTAKER_FNR),
+                        enhet = NAV_ENHET,
+                    )
+
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        }
+                    ) {
+                        response.status() shouldBeEqualTo HttpStatusCode.OK
+
+                        val personOversiktStatus =
+                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
+                        personOversiktStatus.fnr shouldBeEqualTo personident
+                        personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
+                        personOversiktStatus.huskelappActive shouldBeEqualTo true
+                    }
+                }
+
+                it("return no person when huskelapp_active false") {
+                    val personident = ARBEIDSTAKER_FNR
+                    val personoversiktStatus = PersonOversiktStatus(
+                        fnr = personident,
+                    )
+
+                    database.createPersonOversiktStatus(personoversiktStatus)
+
+                    database.setTildeltEnhet(
+                        ident = PersonIdent(ARBEIDSTAKER_FNR),
+                        enhet = NAV_ENHET,
+                    )
+
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        }
+                    ) {
+                        response.status() shouldBeEqualTo HttpStatusCode.NoContent
+                    }
+                }
             }
         }
     }

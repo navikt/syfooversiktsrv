@@ -6,6 +6,7 @@ import no.nav.syfo.application.Environment
 import no.nav.syfo.client.azuread.AzureAdClient
 import no.nav.syfo.dialogmotekandidat.kafka.launchKafkaTaskDialogmotekandidatEndring
 import no.nav.syfo.dialogmotestatusendring.kafka.launchKafkaTaskDialogmoteStatusendring
+import no.nav.syfo.huskelapp.kafka.launchHuskelappConsumer
 import no.nav.syfo.identhendelse.kafka.launchKafkaTaskIdenthendelse
 import no.nav.syfo.oppfolgingstilfelle.kafka.launchKafkaTaskOppfolgingstilfellePerson
 import no.nav.syfo.pdlpersonhendelse.kafka.launchKafkaTaskPersonhendelse
@@ -51,4 +52,11 @@ fun launchKafkaModule(
         applicationState = applicationState,
         environment = environment,
     )
+
+    if (environment.isHuskelappConsumerEnabled) {
+        launchHuskelappConsumer(
+            applicationState = applicationState,
+            kafkaEnvironment = environment.kafka,
+        )
+    }
 }

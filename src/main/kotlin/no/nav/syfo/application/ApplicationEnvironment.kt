@@ -70,6 +70,8 @@ data class Environment(
         port = getEnvVar("REDIS_PORT", "6379").toInt(),
         secret = getEnvVar("REDIS_PASSWORD"),
     ),
+
+    val isHuskelappConsumerEnabled: Boolean = getEnvVar("IS_HUSKELAPP_CONSUMER_ENABLED").toBoolean()
 )
 
 fun getEnvVar(varName: String, defaultValue: String? = null) =
