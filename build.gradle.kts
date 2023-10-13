@@ -123,6 +123,12 @@ dependencies {
                 require("2.8.9")
             }
         }
+        implementation("org.json:json") {
+            because("io.confluent:kafka-schema-registry:${Versions.confluent} -> https://nvd.nist.gov/vuln/detail/CVE-2022-45688")
+            version {
+                require("20230227")
+            }
+        }
     }
     implementation("no.nav.syfo.dialogmote.avro:isdialogmote-schema:${Versions.isdialogmoteSchema}")
     testImplementation("no.nav:kafka-embedded-env:${Versions.kafkaEmbedded}", excludeLog4j)
