@@ -32,7 +32,7 @@ plugins {
     kotlin("jvm") version "1.9.10"
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("org.jlleitschuh.gradle.ktlint") version "11.6.0"
-    id("com.github.davidmc24.gradle.plugin.avro") version "1.8.0"
+    id("com.github.davidmc24.gradle.plugin.avro") version "1.9.1"
 }
 
 val githubUser: String by project
