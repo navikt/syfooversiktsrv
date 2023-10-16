@@ -74,7 +74,7 @@ fun testEnvironment(
         port = 6376,
         secret = "password",
     ),
-    isHuskelappConsumerEnabled = true,
+    cronjobBehandlendeEnhetIntervalDelayMinutes = 5,
 )
 
 fun testAppState() = ApplicationState(

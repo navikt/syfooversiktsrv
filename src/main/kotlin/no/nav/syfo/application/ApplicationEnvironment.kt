@@ -71,7 +71,7 @@ data class Environment(
         secret = getEnvVar("REDIS_PASSWORD"),
     ),
 
-    val isHuskelappConsumerEnabled: Boolean = getEnvVar("IS_HUSKELAPP_CONSUMER_ENABLED").toBoolean()
+    val cronjobBehandlendeEnhetIntervalDelayMinutes: Long = getEnvVar("CRONJOB_BEHANDLENDE_ENHET_INTERVAL_DELAY_MINUTES").toLong(),
 )
 
 fun getEnvVar(varName: String, defaultValue: String? = null) =

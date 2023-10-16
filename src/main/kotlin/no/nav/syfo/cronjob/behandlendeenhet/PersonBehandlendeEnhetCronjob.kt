@@ -7,10 +7,10 @@ import org.slf4j.LoggerFactory
 
 class PersonBehandlendeEnhetCronjob(
     private val personBehandlendeEnhetService: PersonBehandlendeEnhetService,
+    override val intervalDelayMinutes: Long,
 ) : Cronjob {
 
     override val initialDelayMinutes: Long = 2
-    override val intervalDelayMinutes: Long = 60L
 
     override suspend fun run() {
         runJob()

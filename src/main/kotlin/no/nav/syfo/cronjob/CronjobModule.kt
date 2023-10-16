@@ -47,6 +47,7 @@ fun launchCronjobModule(
     )
     val personBehandlendeEnhetCronjob = PersonBehandlendeEnhetCronjob(
         personBehandlendeEnhetService = personBehandlendeEnhetService,
+        intervalDelayMinutes = environment.cronjobBehandlendeEnhetIntervalDelayMinutes,
     )
 
     val reaperService = ReaperService(

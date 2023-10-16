@@ -53,10 +53,8 @@ fun launchKafkaModule(
         environment = environment,
     )
 
-    if (environment.isHuskelappConsumerEnabled) {
-        launchHuskelappConsumer(
-            applicationState = applicationState,
-            kafkaEnvironment = environment.kafka,
-        )
-    }
+    launchHuskelappConsumer(
+        applicationState = applicationState,
+        kafkaEnvironment = environment.kafka,
+    )
 }
