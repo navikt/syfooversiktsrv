@@ -100,9 +100,9 @@ dependencies {
             }
         }
         implementation("org.yaml:snakeyaml") {
-            because("io.confluent:kafka-schema-registry:${Versions.confluent} -> https://advisory.checkmarx.net/advisory/vulnerability/CVE-2022-25857/")
+            because("io.confluent:kafka-schema-registry:${Versions.confluent} -> https://nvd.nist.gov/vuln/detail/CVE-2022-1471")
             version {
-                require("1.33")
+                require("2.0")
             }
         }
         implementation("org.glassfish:jakarta.el") {
