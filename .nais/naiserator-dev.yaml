@@ -99,5 +99,5 @@ spec:
     # Bruk samme dato i enhetens-oversikt-query og index
     - name: ARENA_CUTOFF
       value: "2023-03-10"
-    - name: IS_HUSKELAPP_CONSUMER_ENABLED
-      value: "true"
+    - name: CRONJOB_BEHANDLENDE_ENHET_INTERVAL_DELAY_MINUTES
+      value: "2"

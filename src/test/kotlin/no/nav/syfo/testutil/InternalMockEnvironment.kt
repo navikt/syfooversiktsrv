@@ -42,6 +42,7 @@ class InternalMockEnvironment private constructor() {
     )
     val personBehandlendeEnhetCronjob = PersonBehandlendeEnhetCronjob(
         personBehandlendeEnhetService = personBehandlendeEnhetService,
+        intervalDelayMinutes = environment.cronjobBehandlendeEnhetIntervalDelayMinutes,
     )
 
     private val personOppfolgingstilfelleVirksomhetsnavnService = PersonOppfolgingstilfelleVirksomhetsnavnService(
