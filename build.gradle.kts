@@ -129,6 +129,12 @@ dependencies {
                 require("20230227")
             }
         }
+        implementation("org.apache.zookeeper:zookeeper") {
+            because("io.confluent:kafka-schema-registry:${Versions.confluent} -> https://www.cve.org/CVERecord?id=CVE-2023-44981")
+            version {
+                require("3.9.1")
+            }
+        }
     }
     implementation("no.nav.syfo.dialogmote.avro:isdialogmote-schema:${Versions.isdialogmoteSchema}")
     testImplementation("no.nav:kafka-embedded-env:${Versions.kafkaEmbedded}", excludeLog4j)
