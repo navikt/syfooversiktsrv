@@ -126,7 +126,7 @@ dependencies {
         implementation("org.json:json") {
             because("io.confluent:kafka-schema-registry:${Versions.confluent} -> https://nvd.nist.gov/vuln/detail/CVE-2022-45688")
             version {
-                require("20230227")
+                require("20231013")
             }
         }
         implementation("org.apache.zookeeper:zookeeper") {
