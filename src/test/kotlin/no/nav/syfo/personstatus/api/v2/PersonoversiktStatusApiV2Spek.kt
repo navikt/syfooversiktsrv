@@ -724,6 +724,54 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         response.status() shouldBeEqualTo HttpStatusCode.NoContent
                     }
                 }
+
+                it("return person with behandler_ber_om_bistand_ubehandlet true when oppgave mottatt") {
+                    val personoversiktStatus = PersonOversiktStatus(
+                        fnr = ARBEIDSTAKER_FNR
+                    ).applyHendelse(OversikthendelseType.BEHANDLER_BER_OM_BISTAND_MOTTATT)
+
+                    database.createPersonOversiktStatus(personoversiktStatus)
+
+                    database.setTildeltEnhet(
+                        ident = PersonIdent(ARBEIDSTAKER_FNR),
+                        enhet = NAV_ENHET,
+                    )
+
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        }
+                    ) {
+                        response.status() shouldBeEqualTo HttpStatusCode.OK
+
+                        val personOversiktStatus =
+                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
+                        personOversiktStatus.fnr shouldBeEqualTo ARBEIDSTAKER_FNR
+                        personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
+                        personOversiktStatus.behandlerBerOmBistandUbehandlet shouldBeEqualTo true
+                    }
+                }
+
+                it("return no person when behandler_ber_om_bistand-oppgave behandlet") {
+                    val personoversiktStatus = PersonOversiktStatus(
+                        fnr = ARBEIDSTAKER_FNR
+                    ).applyHendelse(OversikthendelseType.BEHANDLER_BER_OM_BISTAND_BEHANDLET)
+
+                    database.createPersonOversiktStatus(personoversiktStatus)
+
+                    database.setTildeltEnhet(
+                        ident = PersonIdent(ARBEIDSTAKER_FNR),
+                        enhet = NAV_ENHET,
+                    )
+
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        }
+                    ) {
+                        response.status() shouldBeEqualTo HttpStatusCode.NoContent
+                    }
+                }
             }
         }
     }

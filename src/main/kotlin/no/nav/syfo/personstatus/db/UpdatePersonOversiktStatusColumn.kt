@@ -242,3 +242,22 @@ fun Connection.updateHuskelappActive(
         it.execute()
     }
 }
+
+const val queryUpdatePersonOversiktStatusBehandlerBerOmBistand =
+    """
+        UPDATE PERSON_OVERSIKT_STATUS
+        SET behandler_bistand_ubehandlet = ?, sist_endret = ?
+        WHERE fnr = ?
+    """
+
+fun Connection.updateBehandlerBerOmBistand(
+    isBehandlerBerOmBistandUbehandlet: Boolean,
+    personIdent: PersonIdent,
+) {
+    this.prepareStatement(queryUpdatePersonOversiktStatusBehandlerBerOmBistand).use {
+        it.setBoolean(1, isBehandlerBerOmBistandUbehandlet)
+        it.setObject(2, Timestamp.from(Instant.now()))
+        it.setString(3, personIdent.value)
+        it.execute()
+    }
+}

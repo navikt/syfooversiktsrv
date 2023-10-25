@@ -5,6 +5,7 @@ import io.mockk.every
 import no.nav.syfo.personstatus.domain.*
 import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.testutil.*
+import no.nav.syfo.testutil.generator.generateKPersonoppgavehendelse
 import org.amshove.kluent.*
 import org.apache.kafka.clients.consumer.*
 import org.apache.kafka.common.TopicPartition
@@ -207,6 +208,31 @@ object PersonoppgavehendelseServiceSpek : Spek({
             val personoversiktStatuser = database.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
             val firstStatus = personoversiktStatuser.first()
             firstStatus.aktivitetskravVurderStansUbehandlet.shouldBeFalse()
+        }
+
+        it("Update personoversiktstatus from behandler_ber_om_bistand_mottatt-hendelse") {
+            val behandlerBistandHendelseMottatt = generateKPersonoppgavehendelse(OversikthendelseType.BEHANDLER_BER_OM_BISTAND_MOTTATT)
+            mockReceiveHendelse(behandlerBistandHendelseMottatt, mockPersonoppgavehendelseConsumer)
+
+            personoppgavehendelseConsumer.pollAndProcessRecords(kafkaConsumer = mockPersonoppgavehendelseConsumer)
+
+            val personoversiktStatuser = database.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
+            val firstStatus = personoversiktStatuser.first()
+            firstStatus.behandlerBerOmBistandUbehandlet.shouldBeTrue()
+        }
+
+        it("Update personoversiktstatus from behandler_ber_om_bistand_behandlet-hendelse") {
+            val behandlerBistandHendelseBehandlet = generateKPersonoppgavehendelse(OversikthendelseType.BEHANDLER_BER_OM_BISTAND_BEHANDLET)
+            mockReceiveHendelse(behandlerBistandHendelseBehandlet, mockPersonoppgavehendelseConsumer)
+            val personOversiktStatus = PersonOversiktStatus(UserConstants.ARBEIDSTAKER_FNR)
+                .applyHendelse(OversikthendelseType.BEHANDLER_BER_OM_BISTAND_MOTTATT)
+            database.createPersonOversiktStatus(personOversiktStatus)
+
+            personoppgavehendelseConsumer.pollAndProcessRecords(kafkaConsumer = mockPersonoppgavehendelseConsumer)
+
+            val personoversiktStatuser = database.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
+            val firstStatus = personoversiktStatuser.first()
+            firstStatus.behandlerBerOmBistandUbehandlet.shouldBeFalse()
         }
     }
 })

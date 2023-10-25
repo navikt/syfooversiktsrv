@@ -31,12 +31,14 @@ data class PersonOversiktStatus(
     val behandlerdialogAvvistUbehandlet: Boolean = false,
     val aktivitetskravVurderStansUbehandlet: Boolean = false,
     val huskelappActive: Boolean = false,
+    val behandlerBerOmBistandUbehandlet: Boolean = false,
 ) {
     constructor(fnr: String) : this(
         null, fnr = fnr, null, null, null,
         null, false, null, null, null,
         null, null, null, null, null, null,
         false, false, false, false, false,
+        false,
     )
 }
 
@@ -67,7 +69,7 @@ fun PersonOversiktStatus.hasActiveOppgave(arenaCutoff: LocalDate): Boolean {
         this.isActiveAktivitetskrav(arenaCutoff = arenaCutoff) ||
         hasActiveBehandlerdialogOppgave() ||
         this.aktivitetskravVurderStansUbehandlet ||
-        this.huskelappActive
+        this.huskelappActive || this.behandlerBerOmBistandUbehandlet
 }
 
 data class Oppfolgingstilfelle(
@@ -140,6 +142,7 @@ fun PersonOversiktStatus.toPersonOversiktStatusDTO(arenaCutoff: LocalDate) =
         behandlerdialogUbehandlet = hasActiveBehandlerdialogOppgave(),
         aktivitetskravVurderStansUbehandlet = aktivitetskravVurderStansUbehandlet,
         huskelappActive = huskelappActive,
+        behandlerBerOmBistandUbehandlet = behandlerBerOmBistandUbehandlet,
     )
 
 fun PersonOversiktStatus.hasActiveBehandlerdialogOppgave(): Boolean {
@@ -206,5 +209,12 @@ fun PersonOversiktStatus.applyHendelse(
 
         OversikthendelseType.AKTIVITETSKRAV_VURDER_STANS_BEHANDLET -> this.copy(
             aktivitetskravVurderStansUbehandlet = false,
+        )
+
+        OversikthendelseType.BEHANDLER_BER_OM_BISTAND_MOTTATT -> this.copy(
+            behandlerBerOmBistandUbehandlet = true
+        )
+        OversikthendelseType.BEHANDLER_BER_OM_BISTAND_BEHANDLET -> this.copy(
+            behandlerBerOmBistandUbehandlet = false
         )
     }

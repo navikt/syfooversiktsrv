@@ -52,6 +52,7 @@ const val queryHentUbehandledePersonerTilknyttetEnhet = """
                             OR behandlerdialog_avvist_ubehandlet = 't'
                             OR aktivitetskrav_vurder_stans_ubehandlet = 't'
                             OR huskelapp_active = 't'
+                            OR behandler_bistand_ubehandlet = 't'
                             )
                         );
                 """
@@ -117,6 +118,7 @@ fun ResultSet.toPPersonOversiktStatus(): PPersonOversiktStatus =
         behandlerdialogAvvistUbehandlet = getObject("behandlerdialog_avvist_ubehandlet") as Boolean,
         aktivitetskravVurderStansUbehandlet = getObject("aktivitetskrav_vurder_stans_ubehandlet") as Boolean,
         huskelappActive = getObject("huskelapp_active") as Boolean,
+        behandlerBerOmBistandUbehandlet = getObject("behandler_bistand_ubehandlet") as Boolean,
     )
 
 fun ResultSet.toVeilederBrukerKnytning(): VeilederBrukerKnytning =
