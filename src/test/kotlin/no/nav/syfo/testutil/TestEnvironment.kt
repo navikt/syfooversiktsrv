@@ -1,7 +1,7 @@
 package no.nav.syfo.testutil
 
-import io.ktor.http.*
-import no.nav.syfo.application.*
+import no.nav.syfo.application.ApplicationState
+import no.nav.syfo.application.Environment
 import no.nav.syfo.application.cache.RedisEnvironment
 import no.nav.syfo.application.database.DatabaseEnvironment
 import no.nav.syfo.application.kafka.KafkaEnvironment
@@ -18,7 +18,6 @@ fun testEnvironment(
     eregUrl: String = "ereg",
     pdlUrl: String,
     syfobehandlendeenhetUrl: String = "syfobehandlendeenhet",
-    syfotilgangskontrollUrl: String = "syfotilgangskontroll",
     istilgangskontrollUrl: String = "istilgangskontroll",
 ) = Environment(
     applicationName = "syfooversiktsrv",
@@ -59,10 +58,6 @@ fun testEnvironment(
         syfobehandlendeenhet = ClientEnvironment(
             baseUrl = syfobehandlendeenhetUrl,
             clientId = "dev-gcp.teamsykefravr.syfobehandlendeenhet",
-        ),
-        syfotilgangskontroll = ClientEnvironment(
-            baseUrl = syfotilgangskontrollUrl,
-            clientId = "dev-gcp.teamsykefravr.syfotilgangskontroll",
         ),
         istilgangskontroll = ClientEnvironment(
             baseUrl = istilgangskontrollUrl,
