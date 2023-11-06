@@ -59,6 +59,7 @@ fun launchCronjobModule(
 
     val tilgangskontrollClient = VeilederTilgangskontrollClient(
         azureAdClient = azureAdClient,
+        syfotilgangskontrollEnv = environment.clients.syfotilgangskontroll,
         istilgangskontrollEnv = environment.clients.istilgangskontroll,
     )
     val preloadCacheCronjob = PreloadCacheCronjob(
