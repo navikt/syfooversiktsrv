@@ -33,10 +33,10 @@ class VeilederTilgangskontrollMock {
             get("/api/tilgang/navident/enhet/${UserConstants.NAV_ENHET}") {
                 call.respond(responseAccessEnhet)
             }
-            post("/api/tilgang/navident/brukere") {
+            post("/syfo-tilgangskontroll/api/tilgang/navident/brukere") {
                 call.respond(responseAccessPersons)
             }
-            post("/api/tilgang/system/preloadbrukere") {
+            post("/syfo-tilgangskontroll/api/tilgang/system/preloadbrukere") {
                 val identer = call.receive<List<String>>()
                 call.respond(
                     if (identer.contains(UserConstants.ARBEIDSTAKER_4_FNR_WITH_ERROR)) {
