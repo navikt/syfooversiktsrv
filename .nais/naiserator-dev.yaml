@@ -53,7 +53,6 @@ spec:
       rules:
         - application: syfobehandlendeenhet
         - application: syfooversiktsrv-redis
-        - application: syfo-tilgangskontroll
         - application: istilgangskontroll
   azure:
     application:
@@ -88,10 +87,6 @@ spec:
       value: "dev-gcp.teamsykefravr.syfobehandlendeenhet"
     - name: SYFOBEHANDLENDEENHET_URL
       value: "http://syfobehandlendeenhet"
-    - name: SYFOTILGANGSKONTROLL_CLIENT_ID
-      value: "dev-gcp.teamsykefravr.syfo-tilgangskontroll"
-    - name: SYFOTILGANGSKONTROLL_URL
-      value: "http://syfo-tilgangskontroll"
     - name: ISTILGANGSKONTROLL_CLIENT_ID
       value: "dev-gcp.teamsykefravr.istilgangskontroll"
     - name: ISTILGANGSKONTROLL_HOST

@@ -42,9 +42,8 @@ const val OVERSIKTHENDELSE_DIALOGMOTESVAR_BEHANDLET_BASE = "${METRICS_NS}_oversi
 const val OVERSIKTHENDELSE_DIALOGMOTESVAR_BEHANDLET_OPPDATER = "${OVERSIKTHENDELSE_DIALOGMOTESVAR_BEHANDLET_BASE}_oppdater_count"
 const val OVERSIKTHENDELSE_DIALOGMOTESVAR_BEHANDLET_FEILET = "${OVERSIKTHENDELSE_DIALOGMOTESVAR_BEHANDLET_BASE}_feilet_count"
 
-const val SYFOTILGANGSKONTROLL_HISTOGRAM_ENHET = "${METRICS_NS}_syfotilgangskontroll_histogram_enhet"
 const val ISTILGANGSKONTROLL_HISTOGRAM_ENHET = "${METRICS_NS}_istilgangskontroll_histogram_enhet"
-const val SYFOTILGANGSKONTROLL_HISTOGRAM_PERSONER = "${METRICS_NS}_syfotilgangskontroll_histogram_personer"
+const val ISTILGANGSKONTROLL_HISTOGRAM_PERSONER = "${METRICS_NS}_istilgangskontroll_histogram_personer"
 
 const val PERSONOVERSIKT_HISTOGRAM_ENHET = "${METRICS_NS}_personoversikt_histogram_enhet"
 
@@ -57,10 +56,10 @@ const val KAFKA_CONSUMER_PDL_PERSONHENDELSE_UPDATES = "${KAFKA_CONSUMER_PDL_PERS
 const val KAFKA_CONSUMER_PDL_PERSONHENDELSE_TOMBSTONE = "${KAFKA_CONSUMER_PDL_PERSONHENDELSE_BASE}_tombstone"
 
 val COUNT_CALL_TILGANGSKONTROLL_PERSONS_SUCCESS: Counter = Counter.builder(CALL_TILGANGSKONTROLL_PERSONS_SUCCESS)
-    .description("Counts the number of successful calls to syfo-tilgangskontroll - persons")
+    .description("Counts the number of successful calls to tilgangskontroll - persons")
     .register(METRICS_REGISTRY)
 val COUNT_CALL_TILGANGSKONTROLL_PERSONS_FAIL: Counter = Counter.builder(CALL_TILGANGSKONTROLL_PERSONS_FAIL)
-    .description("Counts the number of failed calls to syfo-tilgangskontroll - persons")
+    .description("Counts the number of failed calls to tilgangskontroll - persons")
     .register(METRICS_REGISTRY)
 
 val COUNT_PERSONOVERSIKTSTATUS_ENHET_HENTET: Counter = Counter.builder(PERSONOVERSIKTSTATUS_ENHET_HENTET)
@@ -147,12 +146,8 @@ val COUNT_KAFKA_CONSUMER_PDL_PERSONHENDELSE_TOMBSTONE: Counter =
         .description("Counts the number of tombstones received from topic - pdl.leesah-v1")
         .register(METRICS_REGISTRY)
 
-val HISTOGRAM_SYFOTILGANGSKONTROLL_PERSONER: Timer = Timer.builder(SYFOTILGANGSKONTROLL_HISTOGRAM_PERSONER)
-    .description("Measure the current time it takes to get a response from Syfotilgangskontroll - personer")
-    .register(METRICS_REGISTRY)
-
-val HISTOGRAM_SYFOTILGANGSKONTROLL_ENHET: Timer = Timer.builder(SYFOTILGANGSKONTROLL_HISTOGRAM_ENHET)
-    .description("Measure the current time it takes to get a response from Syfotilgangskontroll - enhet ")
+val HISTOGRAM_ISTILGANGSKONTROLL_PERSONER: Timer = Timer.builder(ISTILGANGSKONTROLL_HISTOGRAM_PERSONER)
+    .description("Measure the current time it takes to get a response from istilgangskontroll - personer")
     .register(METRICS_REGISTRY)
 
 val HISTOGRAM_ISTILGANGSKONTROLL_ENHET: Timer = Timer.builder(ISTILGANGSKONTROLL_HISTOGRAM_ENHET)
