@@ -21,8 +21,8 @@ class PreloadCacheCronjob(
     private val runAtHour = 6
     private val chunkSize = 50
 
-    override val initialDelayMinutes: Long = calculateInitialDelay()
-    override val intervalDelayMinutes: Long = 60L * 24
+    override val initialDelayMinutes: Long = 10L
+    override val intervalDelayMinutes: Long = 30L
 
     override suspend fun run() {
         runJob()
