@@ -15,6 +15,7 @@ data class Aktivitetskrav(
 
 enum class AktivitetskravStatus {
     NY,
+    NY_VURDERING,
     AVVENT,
     UNNTAK,
     OPPFYLT,
