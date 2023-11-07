@@ -17,6 +17,7 @@ import java.util.UUID
 
 class VeilederTilgangskontrollClient(
     private val azureAdClient: AzureAdClient,
+    private val syfotilgangskontrollEnv: ClientEnvironment,
     private val istilgangskontrollEnv: ClientEnvironment
 ) {
     private val httpClient = httpClientDefault()
@@ -31,7 +32,7 @@ class VeilederTilgangskontrollClient(
         callId: String
     ): List<String>? {
         val oboToken = azureAdClient.getOnBehalfOfToken(
-            scopeClientId = istilgangskontrollEnv.clientId,
+            scopeClientId = syfotilgangskontrollEnv.clientId,
             token = token
         )?.accessToken
             ?: throw RuntimeException("Failed to request access to list of persons: Failed to get OBO token")
@@ -48,22 +49,21 @@ class VeilederTilgangskontrollClient(
                 setBody(personIdentNumberList)
             }
 
-            requestTimer.stop(HISTOGRAM_ISTILGANGSKONTROLL_PERSONER)
+            requestTimer.stop(HISTOGRAM_SYFOTILGANGSKONTROLL_PERSONER)
             COUNT_CALL_TILGANGSKONTROLL_PERSONS_SUCCESS.increment()
-
-            return response.body<List<String>>()
+            return response.body()
         } catch (e: ClientRequestException) {
             return if (e.response.status == HttpStatusCode.Forbidden) {
-                log.warn("Forbidden to request access to list of person from istilgangskontroll")
+                log.warn("Forbidden to request access to list of person from syfo-tilgangskontroll")
                 null
             } else {
                 COUNT_CALL_TILGANGSKONTROLL_PERSONS_FAIL.increment()
-                log.error("Error while requesting access to list of person from istilgangskontroll: ${e.message}", e)
+                log.error("Error while requesting access to list of person from syfo-tilgangskontroll: ${e.message}", e)
                 null
             }
         } catch (e: ServerResponseException) {
             COUNT_CALL_TILGANGSKONTROLL_PERSONS_FAIL.increment()
-            log.error("Error while requesting access to list of person from istilgangskontroll: ${e.message}", e)
+            log.error("Error while requesting access to list of person from syfo-tilgangskontroll: ${e.message}", e)
             return null
         }
     }
@@ -72,7 +72,7 @@ class VeilederTilgangskontrollClient(
         personIdentNumberList: List<String>,
     ): Boolean {
         val systemToken = azureAdClient.getSystemToken(
-            scopeClientId = istilgangskontrollEnv.clientId,
+            scopeClientId = syfotilgangskontrollEnv.clientId,
         )?.accessToken
             ?: throw RuntimeException("Failed to request preload of list of persons: Failed to get system token")
 
@@ -87,13 +87,13 @@ class VeilederTilgangskontrollClient(
             HttpStatusCode.OK == response.status
         } catch (e: ClientRequestException) {
             if (e.response.status == HttpStatusCode.Forbidden) {
-                log.warn("Forbidden to request preload of list of person from istilgangskontroll")
+                log.warn("Forbidden to request preload of list of person from syfo-tilgangskontroll")
             } else {
-                log.error("Error while requesting preload of list of person from istilgangskontroll: ${e.message}", e)
+                log.error("Error while requesting preload of list of person from syfo-tilgangskontroll: ${e.message}", e)
             }
             false
         } catch (e: ServerResponseException) {
-            log.error("Error while requesting preload of list of person from istilgangskontroll: ${e.message}", e)
+            log.error("Error while requesting preload of list of person from syfo-tilgangskontroll: ${e.message}", e)
             false
         }
     }
@@ -110,7 +110,7 @@ class VeilederTilgangskontrollClient(
 
         try {
             val requestTimer: Timer.Sample = Timer.start()
-            val url = getTilgangskontrollUrl("$pathTilgangTilEnhetOBO/$enhet")
+            val url = getTilgangskontrollHost("$pathTilgangTilEnhetOBO/$enhet")
             val response: HttpResponse = httpClient.get(url) {
                 header(HttpHeaders.Authorization, bearerHeader(oboToken))
                 header(NAV_CALL_ID_HEADER, callId)
@@ -130,7 +130,12 @@ class VeilederTilgangskontrollClient(
         }
     }
 
+    // TODO: delete this function when syfo-tilgangskontroll is no longer in use
     private fun getTilgangskontrollUrl(path: String): String {
+        return "${syfotilgangskontrollEnv.baseUrl}/syfo-tilgangskontroll/api/tilgang$path"
+    }
+
+    private fun getTilgangskontrollHost(path: String): String {
         return "${istilgangskontrollEnv.baseUrl}/api/tilgang$path"
     }
     companion object {
