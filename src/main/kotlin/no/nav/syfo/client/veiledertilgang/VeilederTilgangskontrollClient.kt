@@ -98,6 +98,36 @@ class VeilederTilgangskontrollClient(
         }
     }
 
+    suspend fun preloadCacheIstilgangskontroll(
+        personIdentNumberList: List<String>,
+    ): Boolean {
+        val systemToken = azureAdClient.getSystemToken(
+            scopeClientId = istilgangskontrollEnv.clientId,
+        )?.accessToken
+            ?: throw RuntimeException("Failed to request preload of list of persons istilgangskontroll: Failed to get system token")
+
+        return try {
+            val response = httpClient.post(getTilgangskontrollHost(pathPreloadCache)) {
+                header(HttpHeaders.Authorization, bearerHeader(systemToken))
+                header(NAV_CALL_ID_HEADER, UUID.randomUUID().toString())
+                accept(ContentType.Application.Json)
+                contentType(ContentType.Application.Json)
+                setBody(personIdentNumberList)
+            }
+            HttpStatusCode.OK == response.status
+        } catch (e: ClientRequestException) {
+            if (e.response.status == HttpStatusCode.Forbidden) {
+                log.warn("Forbidden to request preload of list of person from istilgangskontroll")
+            } else {
+                log.error("Error while requesting preload of list of person from istilgangskontroll: ${e.message}", e)
+            }
+            false
+        } catch (e: ServerResponseException) {
+            log.error("Error while requesting preload of list of person from istilgangskontroll: ${e.message}", e)
+            false
+        }
+    }
+
     suspend fun harVeilederTilgangTilEnhetMedOBO(
         enhet: String,
         token: String,
