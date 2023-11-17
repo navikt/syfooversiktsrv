@@ -20,7 +20,7 @@ class PreloadCacheIstilgangskontrollCronjob(
     private val log = LoggerFactory.getLogger(PreloadCacheIstilgangskontrollCronjob::class.java)
     private val chunkSize = 50
 
-    override val initialDelayMinutes = 2L
+    override val initialDelayMinutes = 3L
     override val intervalDelayMinutes = 240L
 
     override suspend fun run() {
