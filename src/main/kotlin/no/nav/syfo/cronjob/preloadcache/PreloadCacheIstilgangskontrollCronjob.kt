@@ -18,10 +18,11 @@ class PreloadCacheIstilgangskontrollCronjob(
     private val arenaCutoff: LocalDate,
 ) : Cronjob {
     private val log = LoggerFactory.getLogger(PreloadCacheIstilgangskontrollCronjob::class.java)
+    private val runAtHour = 6
     private val chunkSize = 50
 
-    override val initialDelayMinutes = 3L
-    override val intervalDelayMinutes = 240L
+    override val initialDelayMinutes: Long = calculateInitialDelay()
+    override val intervalDelayMinutes: Long = 60L * 24
 
     override suspend fun run() {
         runJob()
@@ -71,5 +72,18 @@ class PreloadCacheIstilgangskontrollCronjob(
             StructuredArguments.keyValue("updated", result.updated),
         )
         return result
+    }
+
+    private fun calculateInitialDelay() = calculateInitialDelay(LocalDateTime.now())
+
+    private fun calculateInitialDelay(from: LocalDateTime): Long {
+        val nowDate = LocalDate.now()
+        val nextTimeToRun = LocalDateTime.of(
+            if (from.hour < runAtHour) nowDate else nowDate.plusDays(1),
+            LocalTime.of(runAtHour, 0),
+        )
+        val initialDelay = Duration.between(from, nextTimeToRun).toMinutes()
+        log.info("PreloadCacheCronJob will run in $initialDelay minutes at $nextTimeToRun")
+        return initialDelay
     }
 }
