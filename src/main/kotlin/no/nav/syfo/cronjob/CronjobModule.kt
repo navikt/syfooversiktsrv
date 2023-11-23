@@ -13,7 +13,6 @@ import no.nav.syfo.cronjob.behandlendeenhet.PersonBehandlendeEnhetCronjob
 import no.nav.syfo.cronjob.behandlendeenhet.PersonBehandlendeEnhetService
 import no.nav.syfo.cronjob.leaderelection.LeaderPodClient
 import no.nav.syfo.cronjob.preloadcache.PreloadCacheCronjob
-import no.nav.syfo.cronjob.preloadcache.PreloadCacheIstilgangskontrollCronjob
 import no.nav.syfo.cronjob.reaper.ReaperCronjob
 import no.nav.syfo.cronjob.reaper.ReaperService
 import no.nav.syfo.cronjob.virksomhetsnavn.PersonOppfolgingstilfelleVirksomhetnavnCronjob
@@ -60,16 +59,9 @@ fun launchCronjobModule(
 
     val tilgangskontrollClient = VeilederTilgangskontrollClient(
         azureAdClient = azureAdClient,
-        syfotilgangskontrollEnv = environment.clients.syfotilgangskontroll,
         istilgangskontrollEnv = environment.clients.istilgangskontroll,
     )
     val preloadCacheCronjob = PreloadCacheCronjob(
-        database = database,
-        tilgangskontrollClient = tilgangskontrollClient,
-        arenaCutoff = environment.arenaCutoff,
-    )
-
-    val preloadCacheIstilgangskontrollCronjob = PreloadCacheIstilgangskontrollCronjob(
         database = database,
         tilgangskontrollClient = tilgangskontrollClient,
         arenaCutoff = environment.arenaCutoff,
@@ -87,7 +79,6 @@ fun launchCronjobModule(
         personBehandlendeEnhetCronjob,
         reaperCronjob,
         preloadCacheCronjob,
-        preloadCacheIstilgangskontrollCronjob,
     ).forEach { cronjob ->
         launchBackgroundTask(
             applicationState = applicationState,

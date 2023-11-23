@@ -17,7 +17,6 @@ import java.util.UUID
 
 class VeilederTilgangskontrollClient(
     private val azureAdClient: AzureAdClient,
-    private val syfotilgangskontrollEnv: ClientEnvironment,
     private val istilgangskontrollEnv: ClientEnvironment
 ) {
     private val httpClient = httpClientDefault()
@@ -32,7 +31,7 @@ class VeilederTilgangskontrollClient(
         callId: String
     ): List<String>? {
         val oboToken = azureAdClient.getOnBehalfOfToken(
-            scopeClientId = syfotilgangskontrollEnv.clientId,
+            scopeClientId = istilgangskontrollEnv.clientId,
             token = token
         )?.accessToken
             ?: throw RuntimeException("Failed to request access to list of persons: Failed to get OBO token")
@@ -49,21 +48,22 @@ class VeilederTilgangskontrollClient(
                 setBody(personIdentNumberList)
             }
 
-            requestTimer.stop(HISTOGRAM_SYFOTILGANGSKONTROLL_PERSONER)
+            requestTimer.stop(HISTOGRAM_ISTILGANGSKONTROLL_PERSONER)
             COUNT_CALL_TILGANGSKONTROLL_PERSONS_SUCCESS.increment()
-            return response.body()
+
+            return response.body<List<String>>()
         } catch (e: ClientRequestException) {
             return if (e.response.status == HttpStatusCode.Forbidden) {
-                log.warn("Forbidden to request access to list of person from syfo-tilgangskontroll")
+                log.warn("Forbidden to request access to list of person from istilgangskontroll")
                 null
             } else {
                 COUNT_CALL_TILGANGSKONTROLL_PERSONS_FAIL.increment()
-                log.error("Error while requesting access to list of person from syfo-tilgangskontroll: ${e.message}", e)
+                log.error("Error while requesting access to list of person from istilgangskontroll: ${e.message}", e)
                 null
             }
         } catch (e: ServerResponseException) {
             COUNT_CALL_TILGANGSKONTROLL_PERSONS_FAIL.increment()
-            log.error("Error while requesting access to list of person from syfo-tilgangskontroll: ${e.message}", e)
+            log.error("Error while requesting access to list of person from istilgangskontroll: ${e.message}", e)
             return null
         }
     }
@@ -72,42 +72,12 @@ class VeilederTilgangskontrollClient(
         personIdentNumberList: List<String>,
     ): Boolean {
         val systemToken = azureAdClient.getSystemToken(
-            scopeClientId = syfotilgangskontrollEnv.clientId,
+            scopeClientId = istilgangskontrollEnv.clientId,
         )?.accessToken
             ?: throw RuntimeException("Failed to request preload of list of persons: Failed to get system token")
 
         return try {
             val response = httpClient.post(getTilgangskontrollUrl(pathPreloadCache)) {
-                header(HttpHeaders.Authorization, bearerHeader(systemToken))
-                header(NAV_CALL_ID_HEADER, UUID.randomUUID().toString())
-                accept(ContentType.Application.Json)
-                contentType(ContentType.Application.Json)
-                setBody(personIdentNumberList)
-            }
-            HttpStatusCode.OK == response.status
-        } catch (e: ClientRequestException) {
-            if (e.response.status == HttpStatusCode.Forbidden) {
-                log.warn("Forbidden to request preload of list of person from syfo-tilgangskontroll")
-            } else {
-                log.error("Error while requesting preload of list of person from syfo-tilgangskontroll: ${e.message}", e)
-            }
-            false
-        } catch (e: ServerResponseException) {
-            log.error("Error while requesting preload of list of person from syfo-tilgangskontroll: ${e.message}", e)
-            false
-        }
-    }
-
-    suspend fun preloadCacheIstilgangskontroll(
-        personIdentNumberList: List<String>,
-    ): Boolean {
-        val systemToken = azureAdClient.getSystemToken(
-            scopeClientId = istilgangskontrollEnv.clientId,
-        )?.accessToken
-            ?: throw RuntimeException("Failed to request preload of list of persons istilgangskontroll: Failed to get system token")
-
-        return try {
-            val response = httpClient.post(getTilgangskontrollHost(pathPreloadCache)) {
                 header(HttpHeaders.Authorization, bearerHeader(systemToken))
                 header(NAV_CALL_ID_HEADER, UUID.randomUUID().toString())
                 accept(ContentType.Application.Json)
@@ -140,7 +110,7 @@ class VeilederTilgangskontrollClient(
 
         try {
             val requestTimer: Timer.Sample = Timer.start()
-            val url = getTilgangskontrollHost("$pathTilgangTilEnhetOBO/$enhet")
+            val url = getTilgangskontrollUrl("$pathTilgangTilEnhetOBO/$enhet")
             val response: HttpResponse = httpClient.get(url) {
                 header(HttpHeaders.Authorization, bearerHeader(oboToken))
                 header(NAV_CALL_ID_HEADER, callId)
@@ -160,12 +130,7 @@ class VeilederTilgangskontrollClient(
         }
     }
 
-    // TODO: delete this function when syfo-tilgangskontroll is no longer in use
     private fun getTilgangskontrollUrl(path: String): String {
-        return "${syfotilgangskontrollEnv.baseUrl}/syfo-tilgangskontroll/api/tilgang$path"
-    }
-
-    private fun getTilgangskontrollHost(path: String): String {
         return "${istilgangskontrollEnv.baseUrl}/api/tilgang$path"
     }
     companion object {
