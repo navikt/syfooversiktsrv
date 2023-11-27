@@ -19,6 +19,7 @@ fun generateKafkaHuskelapp(
     veilederIdent = UserConstants.VEILEDER_ID,
     isActive = isActive,
     tekst = "En huskelapp",
+    oppfolgingsgrunner = emptyList(),
     updatedAt = OffsetDateTime.now(),
 )
 
