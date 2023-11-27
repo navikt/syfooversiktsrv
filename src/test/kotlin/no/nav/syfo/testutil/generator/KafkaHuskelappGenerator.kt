@@ -1,7 +1,7 @@
 package no.nav.syfo.testutil.generator
 
-import no.nav.syfo.huskelapp.kafka.HUSKELAPP_TOPIC
-import no.nav.syfo.huskelapp.kafka.KafkaHuskelapp
+import no.nav.syfo.trengeroppfolging.kafka.HUSKELAPP_TOPIC
+import no.nav.syfo.trengeroppfolging.kafka.KafkaHuskelapp
 import no.nav.syfo.testutil.UserConstants
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.TopicPartition

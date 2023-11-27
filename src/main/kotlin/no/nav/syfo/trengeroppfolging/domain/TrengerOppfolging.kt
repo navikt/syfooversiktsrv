@@ -1,10 +1,10 @@
-package no.nav.syfo.huskelapp.domain
+package no.nav.syfo.trengeroppfolging.domain
 
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import java.util.UUID
 
-data class Huskelapp(
+data class TrengerOppfolging(
     val uuid: UUID,
     val personIdent: PersonIdent,
     val isActive: Boolean,
@@ -12,6 +12,6 @@ data class Huskelapp(
     fun toPersonoversiktStatus() = PersonOversiktStatus(
         fnr = personIdent.value,
     ).copy(
-        huskelappActive = isActive,
+        trengerOppfolging = isActive,
     )
 }

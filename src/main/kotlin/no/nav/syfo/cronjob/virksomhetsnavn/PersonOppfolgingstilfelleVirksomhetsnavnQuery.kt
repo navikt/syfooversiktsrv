@@ -40,7 +40,7 @@ const val queryPersonOppfolgingstilfelleVirksomhetNoVirksomhetsnavnList =
         OR behandlerdialog_ubesvart_ubehandlet = 't'
         OR behandlerdialog_avvist_ubehandlet = 't'
         OR aktivitetskrav_vurder_stans_ubehandlet = 't'
-        OR huskelapp_active = 't'
+        OR trenger_oppfolging = 't'
         OR behandler_bistand_ubehandlet = 't'
         )
     ORDER BY PERSON_OPPFOLGINGSTILFELLE_VIRKSOMHET.created_at ASC

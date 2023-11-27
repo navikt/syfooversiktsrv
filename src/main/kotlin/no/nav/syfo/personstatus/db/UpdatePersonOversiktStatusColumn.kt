@@ -224,19 +224,19 @@ fun Connection.updateAktivitetskravVurderStans(
     }
 }
 
-const val queryUpdatePersonOversiktStatusHuskelappActive =
+const val queryUpdatePersonOversiktStatusTrengerOppfolging =
     """
         UPDATE PERSON_OVERSIKT_STATUS
-        SET huskelapp_active = ?, sist_endret = ?
+        SET trenger_oppfolging = ?, sist_endret = ?
         WHERE fnr = ?
     """
 
-fun Connection.updateHuskelappActive(
-    isHuskelappActive: Boolean,
+fun Connection.updateTrengerOppfolging(
+    trengerOppfolging: Boolean,
     personIdent: PersonIdent,
 ) {
-    this.prepareStatement(queryUpdatePersonOversiktStatusHuskelappActive).use {
-        it.setBoolean(1, isHuskelappActive)
+    this.prepareStatement(queryUpdatePersonOversiktStatusTrengerOppfolging).use {
+        it.setBoolean(1, trengerOppfolging)
         it.setObject(2, Timestamp.from(Instant.now()))
         it.setString(3, personIdent.value)
         it.execute()

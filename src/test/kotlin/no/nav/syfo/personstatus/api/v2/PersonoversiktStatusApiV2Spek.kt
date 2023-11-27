@@ -675,11 +675,11 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     }
                 }
 
-                it("return person when huskelapp_active true") {
+                it("return person when trenger_oppfolging true") {
                     val personident = ARBEIDSTAKER_FNR
                     val personoversiktStatus = PersonOversiktStatus(
                         fnr = personident,
-                    ).copy(huskelappActive = true)
+                    ).copy(trengerOppfolging = true)
 
                     database.createPersonOversiktStatus(personoversiktStatus)
 
@@ -699,11 +699,11 @@ object PersonoversiktStatusApiV2Spek : Spek({
                             objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
                         personOversiktStatus.fnr shouldBeEqualTo personident
                         personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
-                        personOversiktStatus.huskelappActive shouldBeEqualTo true
+                        personOversiktStatus.trengerOppfolging shouldBeEqualTo true
                     }
                 }
 
-                it("return no person when huskelapp_active false") {
+                it("return no person when trenger_oppfolging false") {
                     val personident = ARBEIDSTAKER_FNR
                     val personoversiktStatus = PersonOversiktStatus(
                         fnr = personident,

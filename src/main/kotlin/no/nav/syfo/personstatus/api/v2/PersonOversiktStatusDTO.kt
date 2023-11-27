@@ -21,7 +21,7 @@ data class PersonOversiktStatusDTO(
     val aktivitetskravVurderingFrist: LocalDate?,
     val behandlerdialogUbehandlet: Boolean,
     val aktivitetskravVurderStansUbehandlet: Boolean,
-    val huskelappActive: Boolean,
+    val trengerOppfolging: Boolean,
     val behandlerBerOmBistandUbehandlet: Boolean,
 )
 

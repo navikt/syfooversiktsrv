@@ -1,10 +1,10 @@
-package no.nav.syfo.huskelapp.kafka
+package no.nav.syfo.trengeroppfolging.kafka
 
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.database.database
 import no.nav.syfo.application.kafka.KafkaEnvironment
 import no.nav.syfo.application.kafka.kafkaAivenConsumerConfig
-import no.nav.syfo.huskelapp.HuskelappService
+import no.nav.syfo.trengeroppfolging.TrengerOppfolgingService
 import no.nav.syfo.kafka.launchKafkaTask
 import no.nav.syfo.util.configuredJacksonMapper
 import org.apache.kafka.clients.consumer.ConsumerConfig
@@ -14,15 +14,15 @@ import java.util.*
 const val HUSKELAPP_TOPIC =
     "teamsykefravr.huskelapp"
 
-fun launchHuskelappConsumer(
+fun launchTrengerOppfolgingConsumer(
     applicationState: ApplicationState,
     kafkaEnvironment: KafkaEnvironment,
 ) {
-    val huskelappService = HuskelappService(
+    val trengerOppfolgingService = TrengerOppfolgingService(
         database = database
     )
-    val huskelappConsumer = HuskelappConsumer(
-        huskelappService = huskelappService,
+    val trengerOppfolgingConsumer = TrengerOppfolgingConsumer(
+        trengerOppfolgingService = trengerOppfolgingService,
     )
     val consumerProperties = Properties().apply {
         putAll(kafkaAivenConsumerConfig(kafkaEnvironment = kafkaEnvironment))
@@ -33,7 +33,7 @@ fun launchHuskelappConsumer(
         applicationState = applicationState,
         topic = HUSKELAPP_TOPIC,
         consumerProperties = consumerProperties,
-        kafkaConsumerService = huskelappConsumer
+        kafkaConsumerService = trengerOppfolgingConsumer
     )
 }
 
