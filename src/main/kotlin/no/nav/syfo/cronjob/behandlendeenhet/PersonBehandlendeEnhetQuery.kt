@@ -67,7 +67,7 @@ const val queryGetPersonerWithOppgaveAndOldEnhet =
         OR behandlerdialog_ubesvart_ubehandlet = 't'
         OR behandlerdialog_avvist_ubehandlet = 't'
         OR aktivitetskrav_vurder_stans_ubehandlet = 't'
-        OR huskelapp_active = 't'
+        OR trenger_oppfolging = 't'
         OR behandler_bistand_ubehandlet = 't'
         )
     AND (tildelt_enhet_updated_at IS NULL OR tildelt_enhet_updated_at <= NOW() - INTERVAL '24 HOURS')

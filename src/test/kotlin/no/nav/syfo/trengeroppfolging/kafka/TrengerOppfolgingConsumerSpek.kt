@@ -1,11 +1,11 @@
-package no.nav.syfo.huskelapp.kafka
+package no.nav.syfo.trengeroppfolging.kafka
 
 import io.ktor.server.testing.*
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import no.nav.syfo.huskelapp.HuskelappService
+import no.nav.syfo.trengeroppfolging.TrengerOppfolgingService
 import no.nav.syfo.personstatus.db.getPersonOversiktStatusList
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.testutil.ExternalMockEnvironment
@@ -24,7 +24,7 @@ import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import java.time.Duration
 
-class HuskelappConsumerSpek : Spek({
+class TrengerOppfolgingConsumerSpek : Spek({
     with(TestApplicationEngine()) {
         start()
 
@@ -32,8 +32,8 @@ class HuskelappConsumerSpek : Spek({
         val database = externalMockEnvironment.database
 
         val kafkaConsumerMock = mockk<KafkaConsumer<String, KafkaHuskelapp>>()
-        val huskelappService = HuskelappService(database)
-        val huskelappConsumer = HuskelappConsumer(huskelappService)
+        val trengerOppfolgingService = TrengerOppfolgingService(database)
+        val trengerOppfolgingConsumer = TrengerOppfolgingConsumer(trengerOppfolgingService)
 
         val kafkaHuskelapp = generateKafkaHuskelapp()
 
@@ -44,14 +44,14 @@ class HuskelappConsumerSpek : Spek({
             every { kafkaConsumerMock.commitSync() } returns Unit
         }
 
-        describe("${HuskelappConsumer::class.java.simpleName}: pollAndProcessRecords") {
-            it("creates new PersonOversiktStatus with huskelappActive true if no PersonOversiktStatus exists for personident") {
+        describe("${TrengerOppfolgingConsumer::class.java.simpleName}: pollAndProcessRecords") {
+            it("creates new PersonOversiktStatus with trengerOppfolging true if no PersonOversiktStatus exists for personident") {
                 mockIncomingKafkaRecord(
                     kafkaRecord = kafkaHuskelapp,
                     kafkaConsumerMock = kafkaConsumerMock,
                 )
 
-                huskelappConsumer.pollAndProcessRecords(
+                trengerOppfolgingConsumer.pollAndProcessRecords(
                     kafkaConsumer = kafkaConsumerMock,
                 )
 
@@ -64,10 +64,10 @@ class HuskelappConsumerSpek : Spek({
                 pPersonOversiktStatusList.size shouldBeEqualTo 1
                 val pPersonOversiktStatus = pPersonOversiktStatusList.first()
                 pPersonOversiktStatus.fnr shouldBeEqualTo kafkaHuskelapp.personIdent
-                pPersonOversiktStatus.huskelappActive.shouldBeTrue()
+                pPersonOversiktStatus.trengerOppfolging.shouldBeTrue()
             }
 
-            it("updates existing PersonOversikStatus with huskelappActive true when PersonOversiktStatus exists for personident") {
+            it("updates existing PersonOversikStatus with trengerOppfolging true when PersonOversiktStatus exists for personident") {
                 val personident = UserConstants.ARBEIDSTAKER_FNR
                 database.createPersonOversiktStatus(
                     personOversiktStatus = PersonOversiktStatus(fnr = personident)
@@ -77,7 +77,7 @@ class HuskelappConsumerSpek : Spek({
                     kafkaConsumerMock = kafkaConsumerMock,
                 )
 
-                huskelappConsumer.pollAndProcessRecords(
+                trengerOppfolgingConsumer.pollAndProcessRecords(
                     kafkaConsumer = kafkaConsumerMock,
                 )
 
@@ -89,16 +89,16 @@ class HuskelappConsumerSpek : Spek({
                 pPersonOversiktStatusList.size shouldBeEqualTo 1
                 val pPersonOversiktStatus = pPersonOversiktStatusList.first()
                 pPersonOversiktStatus.fnr shouldBeEqualTo kafkaHuskelapp.personIdent
-                pPersonOversiktStatus.huskelappActive.shouldBeTrue()
+                pPersonOversiktStatus.trengerOppfolging.shouldBeTrue()
             }
 
-            it("updates existing PersonOversikStatus with huskelappActive false when PersonOversiktStatus exists for personident") {
+            it("updates existing PersonOversikStatus with trengerOppfolging false when PersonOversiktStatus exists for personident") {
                 val personident = UserConstants.ARBEIDSTAKER_FNR
                 database.createPersonOversiktStatus(
                     personOversiktStatus = PersonOversiktStatus(
                         fnr = personident,
                     ).copy(
-                        huskelappActive = true,
+                        trengerOppfolging = true,
                     )
                 )
                 mockIncomingKafkaRecord(
@@ -106,7 +106,7 @@ class HuskelappConsumerSpek : Spek({
                     kafkaConsumerMock = kafkaConsumerMock,
                 )
 
-                huskelappConsumer.pollAndProcessRecords(
+                trengerOppfolgingConsumer.pollAndProcessRecords(
                     kafkaConsumer = kafkaConsumerMock,
                 )
 
@@ -118,7 +118,7 @@ class HuskelappConsumerSpek : Spek({
                 pPersonOversiktStatusList.size shouldBeEqualTo 1
                 val pPersonOversiktStatus = pPersonOversiktStatusList.first()
                 pPersonOversiktStatus.fnr shouldBeEqualTo kafkaHuskelapp.personIdent
-                pPersonOversiktStatus.huskelappActive.shouldBeFalse()
+                pPersonOversiktStatus.trengerOppfolging.shouldBeFalse()
             }
         }
     }

@@ -30,7 +30,7 @@ data class PersonOversiktStatus(
     val behandlerdialogUbesvartUbehandlet: Boolean = false,
     val behandlerdialogAvvistUbehandlet: Boolean = false,
     val aktivitetskravVurderStansUbehandlet: Boolean = false,
-    val huskelappActive: Boolean = false,
+    val trengerOppfolging: Boolean = false,
     val behandlerBerOmBistandUbehandlet: Boolean = false,
 ) {
     constructor(fnr: String) : this(
@@ -69,7 +69,7 @@ fun PersonOversiktStatus.hasActiveOppgave(arenaCutoff: LocalDate): Boolean {
         this.isActiveAktivitetskrav(arenaCutoff = arenaCutoff) ||
         hasActiveBehandlerdialogOppgave() ||
         this.aktivitetskravVurderStansUbehandlet ||
-        this.huskelappActive || this.behandlerBerOmBistandUbehandlet
+        this.trengerOppfolging || this.behandlerBerOmBistandUbehandlet
 }
 
 data class Oppfolgingstilfelle(
@@ -141,7 +141,7 @@ fun PersonOversiktStatus.toPersonOversiktStatusDTO(arenaCutoff: LocalDate) =
         aktivitetskravVurderingFrist = aktivitetskravVurderingFrist,
         behandlerdialogUbehandlet = hasActiveBehandlerdialogOppgave(),
         aktivitetskravVurderStansUbehandlet = aktivitetskravVurderStansUbehandlet,
-        huskelappActive = huskelappActive,
+        trengerOppfolging = trengerOppfolging,
         behandlerBerOmBistandUbehandlet = behandlerBerOmBistandUbehandlet,
     )
 

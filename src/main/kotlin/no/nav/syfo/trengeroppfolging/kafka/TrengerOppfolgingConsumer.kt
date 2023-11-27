@@ -1,14 +1,13 @@
-package no.nav.syfo.huskelapp.kafka
+package no.nav.syfo.trengeroppfolging.kafka
 
-import no.nav.syfo.huskelapp.HuskelappService
+import no.nav.syfo.trengeroppfolging.TrengerOppfolgingService
 import no.nav.syfo.kafka.KafkaConsumerService
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.consumer.KafkaConsumer
-import org.slf4j.LoggerFactory
 import java.time.Duration
 
-class HuskelappConsumer(
-    private val huskelappService: HuskelappService
+class TrengerOppfolgingConsumer(
+    private val trengerOppfolgingService: TrengerOppfolgingService
 ) : KafkaConsumerService<KafkaHuskelapp> {
 
     override val pollDurationInMillis: Long = 1000
@@ -25,12 +24,8 @@ class HuskelappConsumer(
         consumerRecords: ConsumerRecords<String, KafkaHuskelapp>,
     ) {
         val validRecords = consumerRecords.requireNoNulls()
-        huskelappService.processHuskelapp(
-            records = validRecords.map { it.value().toHuskelapp() }
+        trengerOppfolgingService.processTrengerOppfolging(
+            records = validRecords.map { it.value().toTrengerOppfolging() }
         )
-    }
-
-    companion object {
-        private val log = LoggerFactory.getLogger(HuskelappConsumer::class.java)
     }
 }
