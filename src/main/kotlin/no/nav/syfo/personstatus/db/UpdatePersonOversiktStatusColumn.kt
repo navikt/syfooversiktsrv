@@ -4,6 +4,7 @@ import no.nav.syfo.aktivitetskravvurdering.domain.Aktivitetskrav
 import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendring
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.PPersonOversiktStatus
+import no.nav.syfo.trengeroppfolging.domain.TrengerOppfolging
 import java.sql.Connection
 import java.sql.Timestamp
 import java.time.Instant
@@ -227,18 +228,18 @@ fun Connection.updateAktivitetskravVurderStans(
 const val queryUpdatePersonOversiktStatusTrengerOppfolging =
     """
         UPDATE PERSON_OVERSIKT_STATUS
-        SET trenger_oppfolging = ?, sist_endret = ?
+        SET trenger_oppfolging = ?, trenger_oppfolging_frist = ?, sist_endret = ?
         WHERE fnr = ?
     """
 
 fun Connection.updateTrengerOppfolging(
-    trengerOppfolging: Boolean,
-    personIdent: PersonIdent,
+    trengerOppfolging: TrengerOppfolging,
 ) {
     this.prepareStatement(queryUpdatePersonOversiktStatusTrengerOppfolging).use {
-        it.setBoolean(1, trengerOppfolging)
-        it.setObject(2, Timestamp.from(Instant.now()))
-        it.setString(3, personIdent.value)
+        it.setBoolean(1, trengerOppfolging.isActive)
+        it.setObject(2, trengerOppfolging.frist)
+        it.setObject(3, Timestamp.from(Instant.now()))
+        it.setString(4, trengerOppfolging.personIdent.value)
         it.execute()
     }
 }

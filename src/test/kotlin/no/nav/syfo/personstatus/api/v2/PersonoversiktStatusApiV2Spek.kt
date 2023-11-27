@@ -677,9 +677,10 @@ object PersonoversiktStatusApiV2Spek : Spek({
 
                 it("return person when trenger_oppfolging true") {
                     val personident = ARBEIDSTAKER_FNR
+                    val frist = LocalDate.now().plusDays(5)
                     val personoversiktStatus = PersonOversiktStatus(
                         fnr = personident,
-                    ).copy(trengerOppfolging = true)
+                    ).copy(trengerOppfolging = true, trengerOppfolgingFrist = frist)
 
                     database.createPersonOversiktStatus(personoversiktStatus)
 
@@ -700,6 +701,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.fnr shouldBeEqualTo personident
                         personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
                         personOversiktStatus.trengerOppfolging shouldBeEqualTo true
+                        personOversiktStatus.trengerOppfolgingFrist shouldBeEqualTo frist
                     }
                 }
 

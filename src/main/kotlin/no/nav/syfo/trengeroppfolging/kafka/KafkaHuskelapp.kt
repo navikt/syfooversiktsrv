@@ -2,6 +2,7 @@ package no.nav.syfo.trengeroppfolging.kafka
 
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.trengeroppfolging.domain.TrengerOppfolging
+import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.UUID
 
@@ -11,6 +12,7 @@ data class KafkaHuskelapp(
     val veilederIdent: String,
     val tekst: String?,
     val oppfolgingsgrunner: List<String>,
+    val frist: LocalDate?,
     val isActive: Boolean,
     val createdAt: OffsetDateTime,
     val updatedAt: OffsetDateTime,
@@ -19,5 +21,6 @@ data class KafkaHuskelapp(
         uuid = uuid,
         personIdent = PersonIdent(personIdent),
         isActive = isActive,
+        frist = frist,
     )
 }

@@ -23,6 +23,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import java.time.Duration
+import java.time.LocalDate
 
 class TrengerOppfolgingConsumerSpek : Spek({
     with(TestApplicationEngine()) {
@@ -35,7 +36,8 @@ class TrengerOppfolgingConsumerSpek : Spek({
         val trengerOppfolgingService = TrengerOppfolgingService(database)
         val trengerOppfolgingConsumer = TrengerOppfolgingConsumer(trengerOppfolgingService)
 
-        val kafkaHuskelapp = generateKafkaHuskelapp()
+        val frist = LocalDate.now().plusWeeks(1)
+        val kafkaHuskelapp = generateKafkaHuskelapp(frist = frist)
 
         beforeEachTest {
             database.connection.dropData()
@@ -45,7 +47,7 @@ class TrengerOppfolgingConsumerSpek : Spek({
         }
 
         describe("${TrengerOppfolgingConsumer::class.java.simpleName}: pollAndProcessRecords") {
-            it("creates new PersonOversiktStatus with trengerOppfolging true if no PersonOversiktStatus exists for personident") {
+            it("creates new PersonOversiktStatus with trengerOppfolging true and frist if no PersonOversiktStatus exists for personident") {
                 mockIncomingKafkaRecord(
                     kafkaRecord = kafkaHuskelapp,
                     kafkaConsumerMock = kafkaConsumerMock,
@@ -65,9 +67,10 @@ class TrengerOppfolgingConsumerSpek : Spek({
                 val pPersonOversiktStatus = pPersonOversiktStatusList.first()
                 pPersonOversiktStatus.fnr shouldBeEqualTo kafkaHuskelapp.personIdent
                 pPersonOversiktStatus.trengerOppfolging.shouldBeTrue()
+                pPersonOversiktStatus.trengerOppfolgingFrist shouldBeEqualTo frist
             }
 
-            it("updates existing PersonOversikStatus with trengerOppfolging true when PersonOversiktStatus exists for personident") {
+            it("updates existing PersonOversikStatus with trengerOppfolging true and frist when PersonOversiktStatus exists for personident") {
                 val personident = UserConstants.ARBEIDSTAKER_FNR
                 database.createPersonOversiktStatus(
                     personOversiktStatus = PersonOversiktStatus(fnr = personident)
@@ -90,9 +93,10 @@ class TrengerOppfolgingConsumerSpek : Spek({
                 val pPersonOversiktStatus = pPersonOversiktStatusList.first()
                 pPersonOversiktStatus.fnr shouldBeEqualTo kafkaHuskelapp.personIdent
                 pPersonOversiktStatus.trengerOppfolging.shouldBeTrue()
+                pPersonOversiktStatus.trengerOppfolgingFrist shouldBeEqualTo frist
             }
 
-            it("updates existing PersonOversikStatus with trengerOppfolging false when PersonOversiktStatus exists for personident") {
+            it("updates existing PersonOversikStatus with trengerOppfolging false from Kafka when PersonOversiktStatus with trengerOppfolging true exists for personident") {
                 val personident = UserConstants.ARBEIDSTAKER_FNR
                 database.createPersonOversiktStatus(
                     personOversiktStatus = PersonOversiktStatus(
