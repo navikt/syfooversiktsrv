@@ -5,6 +5,7 @@ import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.isActive
 import no.nav.syfo.trengeroppfolging.TrengerOppfolgingService
 import no.nav.syfo.personstatus.db.getPersonOversiktStatusList
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
@@ -38,7 +39,6 @@ class TrengerOppfolgingConsumerSpek : Spek({
         val trengerOppfolgingConsumer = TrengerOppfolgingConsumer(trengerOppfolgingService)
 
         val frist = LocalDate.now().plusWeeks(1)
-        val kafkaHuskelapp = generateKafkaHuskelapp(frist = frist)
 
         beforeEachTest {
             database.connection.dropData()
@@ -48,83 +48,141 @@ class TrengerOppfolgingConsumerSpek : Spek({
         }
 
         describe("${TrengerOppfolgingConsumer::class.java.simpleName}: pollAndProcessRecords") {
-            it("creates new PersonOversiktStatus with trengerOppfolging true and frist if no PersonOversiktStatus exists for personident") {
-                mockIncomingKafkaRecord(
-                    kafkaRecord = kafkaHuskelapp,
-                    kafkaConsumerMock = kafkaConsumerMock,
-                )
-
-                trengerOppfolgingConsumer.pollAndProcessRecords(
-                    kafkaConsumer = kafkaConsumerMock,
-                )
-
-                verify(exactly = 1) {
-                    kafkaConsumerMock.commitSync()
-                }
-
-                val pPersonOversiktStatusList =
-                    database.connection.use { it.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR) }
-                pPersonOversiktStatusList.size shouldBeEqualTo 1
-                val pPersonOversiktStatus = pPersonOversiktStatusList.first()
-                pPersonOversiktStatus.fnr shouldBeEqualTo kafkaHuskelapp.personIdent
-                pPersonOversiktStatus.trengerOppfolging.shouldBeTrue()
-                pPersonOversiktStatus.trengerOppfolgingFrist shouldBeEqualTo frist
-            }
-
-            it("updates existing PersonOversikStatus with trengerOppfolging true and frist when PersonOversiktStatus exists for personident") {
-                val personident = UserConstants.ARBEIDSTAKER_FNR
-                database.createPersonOversiktStatus(
-                    personOversiktStatus = PersonOversiktStatus(fnr = personident)
-                )
-                mockIncomingKafkaRecord(
-                    kafkaRecord = kafkaHuskelapp,
-                    kafkaConsumerMock = kafkaConsumerMock,
-                )
-
-                trengerOppfolgingConsumer.pollAndProcessRecords(
-                    kafkaConsumer = kafkaConsumerMock,
-                )
-
-                verify(exactly = 1) {
-                    kafkaConsumerMock.commitSync()
-                }
-                val pPersonOversiktStatusList =
-                    database.connection.use { it.getPersonOversiktStatusList(personident) }
-                pPersonOversiktStatusList.size shouldBeEqualTo 1
-                val pPersonOversiktStatus = pPersonOversiktStatusList.first()
-                pPersonOversiktStatus.fnr shouldBeEqualTo kafkaHuskelapp.personIdent
-                pPersonOversiktStatus.trengerOppfolging.shouldBeTrue()
-                pPersonOversiktStatus.trengerOppfolgingFrist shouldBeEqualTo frist
-            }
-
-            it("updates existing PersonOversikStatus with trengerOppfolging false and no frist when PersonOversiktStatus with trengerOppfolging true exists for personident") {
-                val personident = UserConstants.ARBEIDSTAKER_FNR
-                database.createPersonOversiktStatus(
-                    personOversiktStatus = PersonOversiktStatus(
-                        fnr = personident,
-                    ).copy(
-                        trengerOppfolging = true,
+            describe("no PersonOversiktStatus exists for personident") {
+                it("creates new PersonOversiktStatus for personident from kafka record with active huskelapp and frist") {
+                    val activeHuskelappWithFrist = generateKafkaHuskelapp(isActive = true, frist = frist)
+                    mockIncomingKafkaRecord(
+                        kafkaRecord = activeHuskelappWithFrist,
+                        kafkaConsumerMock = kafkaConsumerMock,
                     )
-                )
-                mockIncomingKafkaRecord(
-                    kafkaRecord = kafkaHuskelapp.copy(isActive = false),
-                    kafkaConsumerMock = kafkaConsumerMock,
-                )
 
-                trengerOppfolgingConsumer.pollAndProcessRecords(
-                    kafkaConsumer = kafkaConsumerMock,
-                )
+                    trengerOppfolgingConsumer.pollAndProcessRecords(
+                        kafkaConsumer = kafkaConsumerMock,
+                    )
 
-                verify(exactly = 1) {
-                    kafkaConsumerMock.commitSync()
+                    verify(exactly = 1) {
+                        kafkaConsumerMock.commitSync()
+                    }
+
+                    val pPersonOversiktStatusList =
+                        database.connection.use { it.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR) }
+                    pPersonOversiktStatusList.size shouldBeEqualTo 1
+                    val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+                    pPersonOversiktStatus.fnr shouldBeEqualTo activeHuskelappWithFrist.personIdent
+                    pPersonOversiktStatus.trengerOppfolging.shouldBeTrue()
+                    pPersonOversiktStatus.trengerOppfolgingFrist shouldBeEqualTo frist
                 }
-                val pPersonOversiktStatusList =
-                    database.connection.use { it.getPersonOversiktStatusList(personident) }
-                pPersonOversiktStatusList.size shouldBeEqualTo 1
-                val pPersonOversiktStatus = pPersonOversiktStatusList.first()
-                pPersonOversiktStatus.fnr shouldBeEqualTo kafkaHuskelapp.personIdent
-                pPersonOversiktStatus.trengerOppfolging.shouldBeFalse()
-                pPersonOversiktStatus.trengerOppfolgingFrist.shouldBeNull()
+                it("creates new PersonOversiktStatus for personident from kafka record with active huskelapp no frist") {
+                    val activeHuskelappNoFrist = generateKafkaHuskelapp(isActive = true, frist = null)
+                    mockIncomingKafkaRecord(
+                        kafkaRecord = activeHuskelappNoFrist,
+                        kafkaConsumerMock = kafkaConsumerMock,
+                    )
+
+                    trengerOppfolgingConsumer.pollAndProcessRecords(
+                        kafkaConsumer = kafkaConsumerMock,
+                    )
+
+                    verify(exactly = 1) {
+                        kafkaConsumerMock.commitSync()
+                    }
+
+                    val pPersonOversiktStatusList =
+                        database.connection.use { it.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR) }
+                    pPersonOversiktStatusList.size shouldBeEqualTo 1
+                    val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+                    pPersonOversiktStatus.fnr shouldBeEqualTo activeHuskelappNoFrist.personIdent
+                    pPersonOversiktStatus.trengerOppfolging.shouldBeTrue()
+                    pPersonOversiktStatus.trengerOppfolgingFrist.shouldBeNull()
+                }
+            }
+            describe("existing PersonOversikStatus for personident") {
+                it("updates trenger_oppfolging and trenger_oppfolging_frist from kafka record with active huskelapp and frist") {
+                    val activeHuskelappWithFrist = generateKafkaHuskelapp(isActive = true, frist = frist)
+                    val personident = UserConstants.ARBEIDSTAKER_FNR
+                    database.createPersonOversiktStatus(
+                        personOversiktStatus = PersonOversiktStatus(fnr = personident)
+                    )
+                    mockIncomingKafkaRecord(
+                        kafkaRecord = activeHuskelappWithFrist,
+                        kafkaConsumerMock = kafkaConsumerMock,
+                    )
+
+                    trengerOppfolgingConsumer.pollAndProcessRecords(
+                        kafkaConsumer = kafkaConsumerMock,
+                    )
+
+                    verify(exactly = 1) {
+                        kafkaConsumerMock.commitSync()
+                    }
+                    val pPersonOversiktStatusList =
+                        database.connection.use { it.getPersonOversiktStatusList(personident) }
+                    pPersonOversiktStatusList.size shouldBeEqualTo 1
+                    val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+                    pPersonOversiktStatus.fnr shouldBeEqualTo activeHuskelappWithFrist.personIdent
+                    pPersonOversiktStatus.trengerOppfolging.shouldBeTrue()
+                    pPersonOversiktStatus.trengerOppfolgingFrist shouldBeEqualTo frist
+                }
+                it("updates to trenger_oppfolging false and trenger_oppfolging_frist null from kafka record with inactive huskelapp and frist") {
+                    val inActiveHuskelappWithFrist = generateKafkaHuskelapp(isActive = false, frist = frist)
+                    val personident = UserConstants.ARBEIDSTAKER_FNR
+                    database.createPersonOversiktStatus(
+                        personOversiktStatus = PersonOversiktStatus(
+                            fnr = personident,
+                        ).copy(
+                            trengerOppfolging = true,
+                        )
+                    )
+                    mockIncomingKafkaRecord(
+                        kafkaRecord = inActiveHuskelappWithFrist,
+                        kafkaConsumerMock = kafkaConsumerMock,
+                    )
+
+                    trengerOppfolgingConsumer.pollAndProcessRecords(
+                        kafkaConsumer = kafkaConsumerMock,
+                    )
+
+                    verify(exactly = 1) {
+                        kafkaConsumerMock.commitSync()
+                    }
+                    val pPersonOversiktStatusList =
+                        database.connection.use { it.getPersonOversiktStatusList(personident) }
+                    pPersonOversiktStatusList.size shouldBeEqualTo 1
+                    val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+                    pPersonOversiktStatus.fnr shouldBeEqualTo inActiveHuskelappWithFrist.personIdent
+                    pPersonOversiktStatus.trengerOppfolging.shouldBeFalse()
+                    pPersonOversiktStatus.trengerOppfolgingFrist.shouldBeNull()
+                }
+                it("updates to trenger_oppfolging false and trenger_oppfolging_frist null from kafka record with inactive huskelapp and no frist") {
+                    val inActiveHuskelappNoFrist = generateKafkaHuskelapp(isActive = false, frist = null)
+                    val personident = UserConstants.ARBEIDSTAKER_FNR
+                    database.createPersonOversiktStatus(
+                        personOversiktStatus = PersonOversiktStatus(
+                            fnr = personident,
+                        ).copy(
+                            trengerOppfolging = true,
+                        )
+                    )
+                    mockIncomingKafkaRecord(
+                        kafkaRecord = inActiveHuskelappNoFrist,
+                        kafkaConsumerMock = kafkaConsumerMock,
+                    )
+
+                    trengerOppfolgingConsumer.pollAndProcessRecords(
+                        kafkaConsumer = kafkaConsumerMock,
+                    )
+
+                    verify(exactly = 1) {
+                        kafkaConsumerMock.commitSync()
+                    }
+                    val pPersonOversiktStatusList =
+                        database.connection.use { it.getPersonOversiktStatusList(personident) }
+                    pPersonOversiktStatusList.size shouldBeEqualTo 1
+                    val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+                    pPersonOversiktStatus.fnr shouldBeEqualTo inActiveHuskelappNoFrist.personIdent
+                    pPersonOversiktStatus.trengerOppfolging.shouldBeFalse()
+                    pPersonOversiktStatus.trengerOppfolgingFrist.shouldBeNull()
+                }
             }
         }
     }
