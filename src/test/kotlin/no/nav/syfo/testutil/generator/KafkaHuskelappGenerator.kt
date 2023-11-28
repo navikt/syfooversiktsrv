@@ -5,6 +5,7 @@ import no.nav.syfo.trengeroppfolging.kafka.KafkaHuskelapp
 import no.nav.syfo.testutil.UserConstants
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.TopicPartition
+import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.*
 
@@ -12,6 +13,7 @@ fun generateKafkaHuskelapp(
     uuid: UUID = UUID.randomUUID(),
     personIdent: String = UserConstants.ARBEIDSTAKER_FNR,
     isActive: Boolean = true,
+    frist: LocalDate,
 ) = KafkaHuskelapp(
     uuid = uuid,
     personIdent = personIdent,
@@ -19,6 +21,7 @@ fun generateKafkaHuskelapp(
     veilederIdent = UserConstants.VEILEDER_ID,
     isActive = isActive,
     tekst = "En huskelapp",
+    frist = frist,
     oppfolgingsgrunner = emptyList(),
     updatedAt = OffsetDateTime.now(),
 )

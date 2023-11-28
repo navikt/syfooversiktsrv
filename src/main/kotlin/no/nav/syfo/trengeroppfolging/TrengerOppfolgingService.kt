@@ -26,10 +26,7 @@ class TrengerOppfolgingService(
                         personOversiktStatus = personoversiktStatus,
                     )
                 } else {
-                    connection.updateTrengerOppfolging(
-                        trengerOppfolging = trengerOppfolging.isActive,
-                        personIdent = trengerOppfolging.personIdent,
-                    )
+                    connection.updateTrengerOppfolging(trengerOppfolging = trengerOppfolging)
                 }
 
                 log.info("Received trengerOppfolging with uuid=${trengerOppfolging.uuid}")

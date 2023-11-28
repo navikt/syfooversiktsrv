@@ -118,6 +118,7 @@ fun ResultSet.toPPersonOversiktStatus(): PPersonOversiktStatus =
         behandlerdialogAvvistUbehandlet = getObject("behandlerdialog_avvist_ubehandlet") as Boolean,
         aktivitetskravVurderStansUbehandlet = getObject("aktivitetskrav_vurder_stans_ubehandlet") as Boolean,
         trengerOppfolging = getObject("trenger_oppfolging") as Boolean,
+        trengerOppfolgingFrist = getObject("trenger_oppfolging_frist", LocalDate::class.java),
         behandlerBerOmBistandUbehandlet = getObject("behandler_bistand_ubehandlet") as Boolean,
     )
 

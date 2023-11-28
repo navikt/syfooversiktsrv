@@ -1,0 +1,2 @@
+ALTER TABLE PERSON_OVERSIKT_STATUS
+ADD COLUMN trenger_oppfolging_frist DATE;
