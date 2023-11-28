@@ -13,7 +13,7 @@ fun generateKafkaHuskelapp(
     uuid: UUID = UUID.randomUUID(),
     personIdent: String = UserConstants.ARBEIDSTAKER_FNR,
     isActive: Boolean = true,
-    frist: LocalDate,
+    frist: LocalDate?,
 ) = KafkaHuskelapp(
     uuid = uuid,
     personIdent = personIdent,
