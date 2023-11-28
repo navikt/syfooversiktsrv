@@ -17,6 +17,7 @@ import no.nav.syfo.testutil.generator.huskelappConsumerRecord
 import no.nav.syfo.testutil.generator.huskelappTopicPartition
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
+import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.consumer.KafkaConsumer
@@ -96,7 +97,7 @@ class TrengerOppfolgingConsumerSpek : Spek({
                 pPersonOversiktStatus.trengerOppfolgingFrist shouldBeEqualTo frist
             }
 
-            it("updates existing PersonOversikStatus with trengerOppfolging false from Kafka when PersonOversiktStatus with trengerOppfolging true exists for personident") {
+            it("updates existing PersonOversikStatus with trengerOppfolging false and no frist when PersonOversiktStatus with trengerOppfolging true exists for personident") {
                 val personident = UserConstants.ARBEIDSTAKER_FNR
                 database.createPersonOversiktStatus(
                     personOversiktStatus = PersonOversiktStatus(
@@ -123,6 +124,7 @@ class TrengerOppfolgingConsumerSpek : Spek({
                 val pPersonOversiktStatus = pPersonOversiktStatusList.first()
                 pPersonOversiktStatus.fnr shouldBeEqualTo kafkaHuskelapp.personIdent
                 pPersonOversiktStatus.trengerOppfolging.shouldBeFalse()
+                pPersonOversiktStatus.trengerOppfolgingFrist.shouldBeNull()
             }
         }
     }

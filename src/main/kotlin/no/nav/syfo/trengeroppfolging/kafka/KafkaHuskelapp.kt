@@ -1,6 +1,5 @@
 package no.nav.syfo.trengeroppfolging.kafka
 
-import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.trengeroppfolging.domain.TrengerOppfolging
 import java.time.LocalDate
 import java.time.OffsetDateTime
@@ -17,9 +16,9 @@ data class KafkaHuskelapp(
     val createdAt: OffsetDateTime,
     val updatedAt: OffsetDateTime,
 ) {
-    fun toTrengerOppfolging() = TrengerOppfolging(
+    fun toTrengerOppfolging() = TrengerOppfolging.create(
         uuid = uuid,
-        personIdent = PersonIdent(personIdent),
+        personIdent = personIdent,
         isActive = isActive,
         frist = frist,
     )
