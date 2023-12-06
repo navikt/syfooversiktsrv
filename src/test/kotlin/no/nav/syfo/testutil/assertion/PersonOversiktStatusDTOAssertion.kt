@@ -1,6 +1,7 @@
 package no.nav.syfo.testutil.assertion
 
 import no.nav.syfo.oppfolgingstilfelle.kafka.KafkaOppfolgingstilfellePerson
+import no.nav.syfo.oppfolgingstilfelle.kafka.toPersonOppfolgingstilfelle
 import no.nav.syfo.personstatus.api.v2.PersonOppfolgingstilfelleDTO
 import no.nav.syfo.personstatus.api.v2.PersonOppfolgingstilfelleVirksomhetDTO
 import no.nav.syfo.testutil.mock.eregOrganisasjonResponse
@@ -19,6 +20,7 @@ fun checkPersonOppfolgingstilfelleDTO(
 
     personOppfolgingstilfelleDTO.oppfolgingstilfelleStart shouldBeEqualTo latestOppfolgingstilfelle.start
     personOppfolgingstilfelleDTO.oppfolgingstilfelleEnd shouldBeEqualTo latestOppfolgingstilfelle.end
+    personOppfolgingstilfelleDTO.varighetUker shouldBeEqualTo kafkaOppfolgingstilfellePerson.toPersonOppfolgingstilfelle(latestOppfolgingstilfelle).varighetUker()
 
     checkPersonOppfolgingstilfelleVirksomhetDTOList(
         personOppfolgingstilfelleVirksomhetDTOList = personOppfolgingstilfelleDTO.virksomhetList,

@@ -6,9 +6,9 @@ import java.time.OffsetDateTime
 import java.util.*
 
 fun generateOppfolgingstilfelle(
-    start: LocalDate = LocalDate.now().minusDays(1),
-    end: LocalDate = LocalDate.now(),
-    antallSykedager: Int? = null
+    start: LocalDate,
+    end: LocalDate,
+    antallSykedager: Int?,
 ) = Oppfolgingstilfelle(
     updatedAt = OffsetDateTime.now(),
     generatedAt = OffsetDateTime.now(),

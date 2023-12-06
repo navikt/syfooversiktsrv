@@ -19,13 +19,26 @@ data class Oppfolgingstilfelle(
     val oppfolgingstilfelleBitReferanseInntruffet: OffsetDateTime,
     val oppfolgingstilfelleBitReferanseUuid: UUID,
     val virksomhetList: List<PersonOppfolgingstilfelleVirksomhet>,
-)
+) {
+    fun varighetUker(): Int {
+        val currentVarighetDaysBrutto = ChronoUnit.DAYS.between(oppfolgingstilfelleStart, minOf(LocalDate.now(), oppfolgingstilfelleEnd)) + 1
+        val currentVarighetDays = if (antallSykedager == null) {
+            currentVarighetDaysBrutto
+        } else {
+            val totalVarighetDays = ChronoUnit.DAYS.between(oppfolgingstilfelleStart, oppfolgingstilfelleEnd) + 1
+            val ikkeSykedager = totalVarighetDays - antallSykedager
+            currentVarighetDaysBrutto - ikkeSykedager
+        }
+        return currentVarighetDays.toInt() / DAYS_IN_WEEK
+    }
+}
 
 fun Oppfolgingstilfelle.toPersonOppfolgingstilfelleDTO() =
     PersonOppfolgingstilfelleDTO(
         oppfolgingstilfelleStart = this.oppfolgingstilfelleStart,
         oppfolgingstilfelleEnd = this.oppfolgingstilfelleEnd,
         virksomhetList = this.virksomhetList.toPersonOppfolgingstilfelleVirksomhetDTO(),
+        varighetUker = this.varighetUker(),
     )
 
 data class PersonOppfolgingstilfelleVirksomhet(

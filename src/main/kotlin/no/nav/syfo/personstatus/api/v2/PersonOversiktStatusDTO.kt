@@ -29,6 +29,7 @@ data class PersonOversiktStatusDTO(
 data class PersonOppfolgingstilfelleDTO(
     val oppfolgingstilfelleStart: LocalDate,
     val oppfolgingstilfelleEnd: LocalDate,
+    val varighetUker: Int,
     val virksomhetList: List<PersonOppfolgingstilfelleVirksomhetDTO>,
 )
 

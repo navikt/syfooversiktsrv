@@ -774,6 +774,40 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         response.status() shouldBeEqualTo HttpStatusCode.NoContent
                     }
                 }
+
+                it("return person with correct varighetUker based on antallSykedager") {
+                    val oppfolgingstilfelle = generateOppfolgingstilfelle(
+                        start = LocalDate.now().minusDays(30),
+                        end = LocalDate.now().minusDays(1),
+                        antallSykedager = 14,
+                    )
+                    val personoversiktStatus = PersonOversiktStatus(
+                        fnr = ARBEIDSTAKER_FNR
+                    ).copy(
+                        latestOppfolgingstilfelle = oppfolgingstilfelle,
+                        motebehovUbehandlet = true,
+                    )
+
+                    database.createPersonOversiktStatus(personoversiktStatus)
+
+                    database.setTildeltEnhet(
+                        ident = PersonIdent(ARBEIDSTAKER_FNR),
+                        enhet = NAV_ENHET,
+                    )
+
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        }
+                    ) {
+                        response.status() shouldBeEqualTo HttpStatusCode.OK
+
+                        val personOversiktStatus =
+                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
+                        personOversiktStatus.fnr shouldBeEqualTo ARBEIDSTAKER_FNR
+                        personOversiktStatus.latestOppfolgingstilfelle?.varighetUker shouldBeEqualTo 2
+                    }
+                }
             }
         }
     }
