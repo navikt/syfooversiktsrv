@@ -9,7 +9,6 @@ import no.nav.syfo.aktivitetskravvurdering.domain.AktivitetskravStatus
 import no.nav.syfo.aktivitetskravvurdering.persistAktivitetskrav
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.personoppgavehendelse.kafka.KPersonoppgavehendelse
-import no.nav.syfo.personstatus.*
 import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.OversikthendelseType
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus

@@ -34,6 +34,7 @@ fun generateKafkaOppfolgingstilfellePerson(
                 virksomhetsnummerList = virksomhetsnummerList.map { virksomhetsnummer ->
                     virksomhetsnummer.value
                 },
+                antallSykedager = oppfolgingstilfelleDurationInDays.toInt(),
             ),
         ),
         referanseTilfelleBitUuid = UUID.randomUUID().toString(),

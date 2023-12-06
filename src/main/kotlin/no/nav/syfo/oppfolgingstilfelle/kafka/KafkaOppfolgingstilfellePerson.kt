@@ -1,6 +1,8 @@
 package no.nav.syfo.oppfolgingstilfelle.kafka
 
 import no.nav.syfo.domain.Virksomhetsnummer
+import no.nav.syfo.oppfolgingstilfelle.domain.Oppfolgingstilfelle
+import no.nav.syfo.oppfolgingstilfelle.domain.PersonOppfolgingstilfelleVirksomhet
 import no.nav.syfo.personstatus.domain.*
 import no.nav.syfo.util.nowUTC
 import java.time.LocalDate
@@ -20,6 +22,7 @@ data class KafkaOppfolgingstilfelle(
     val arbeidstakerAtTilfelleEnd: Boolean,
     val start: LocalDate,
     val end: LocalDate,
+    val antallSykedager: Int?,
     val virksomhetsnummerList: List<String>,
 )
 
@@ -68,4 +71,5 @@ fun KafkaOppfolgingstilfellePerson.toPersonOppfolgingstilfelle(
             virksomhetsnavn = null,
         )
     },
+    antallSykedager = latestKafkaOppfolgingstilfelle.antallSykedager,
 )

@@ -1,6 +1,8 @@
 package no.nav.syfo.personstatus.domain
 
 import no.nav.syfo.aktivitetskravvurdering.domain.AktivitetskravStatus
+import no.nav.syfo.oppfolgingstilfelle.domain.Oppfolgingstilfelle
+import no.nav.syfo.oppfolgingstilfelle.domain.PersonOppfolgingstilfelleVirksomhet
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.*
@@ -37,6 +39,7 @@ data class PPersonOversiktStatus(
     val trengerOppfolging: Boolean,
     val trengerOppfolgingFrist: LocalDate?,
     val behandlerBerOmBistandUbehandlet: Boolean,
+    val antallSykedager: Int?,
 )
 
 fun PPersonOversiktStatus.toPersonOversiktStatus(
@@ -88,6 +91,7 @@ fun PPersonOversiktStatus.toPersonOppfolgingstilfelle(
             oppfolgingstilfelleBitReferanseInntruffet = this.oppfolgingstilfelleBitReferanseInntruffet,
             oppfolgingstilfelleBitReferanseUuid = this.oppfolgingstilfelleBitReferanseUuid,
             virksomhetList = personOppfolgingstilfelleVirksomhetList,
+            antallSykedager = this.antallSykedager,
         )
     } else {
         null

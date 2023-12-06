@@ -484,6 +484,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                             start = oppfolgingstilfelle.start.minusDays(7),
                             end = oppfolgingstilfelle.end,
                             virksomhetsnummerList = oppfolgingstilfelle.virksomhetsnummerList,
+                            antallSykedager = oppfolgingstilfelle.antallSykedager,
                         ),
                     )
                 )

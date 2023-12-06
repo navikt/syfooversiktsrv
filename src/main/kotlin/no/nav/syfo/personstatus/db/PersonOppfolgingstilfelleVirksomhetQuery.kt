@@ -1,9 +1,9 @@
-package no.nav.syfo.personstatus
+package no.nav.syfo.personstatus.db
 
 import no.nav.syfo.application.database.toList
 import no.nav.syfo.domain.Virksomhetsnummer
+import no.nav.syfo.oppfolgingstilfelle.domain.PersonOppfolgingstilfelleVirksomhet
 import no.nav.syfo.personstatus.domain.PPersonOppfolgingstilfelleVirksomhet
-import no.nav.syfo.personstatus.domain.PersonOppfolgingstilfelleVirksomhet
 import java.sql.Connection
 import java.sql.ResultSet
 import java.time.OffsetDateTime
