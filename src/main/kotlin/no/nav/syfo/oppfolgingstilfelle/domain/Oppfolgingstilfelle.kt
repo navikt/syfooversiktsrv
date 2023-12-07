@@ -27,7 +27,7 @@ data class Oppfolgingstilfelle(
         } else {
             val totalVarighetDays = ChronoUnit.DAYS.between(oppfolgingstilfelleStart, oppfolgingstilfelleEnd) + 1
             val ikkeSykedager = totalVarighetDays - antallSykedager
-            currentVarighetDaysBrutto - ikkeSykedager
+            maxOf(currentVarighetDaysBrutto - ikkeSykedager, 0)
         }
         return currentVarighetDays.toInt() / DAYS_IN_WEEK
     }

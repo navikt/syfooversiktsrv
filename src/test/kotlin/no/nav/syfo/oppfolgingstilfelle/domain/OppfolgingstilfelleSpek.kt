@@ -19,7 +19,7 @@ class OppfolgingstilfelleSpek : Spek({
             oppfolgingstilfelle.varighetUker() shouldBeEqualTo 2
         }
 
-        it("Calculates varighet based on start and end when end is in the future") {
+        it("Calculates varighet based on start and now when end is in the future") {
             val oppfolgingstilfelle = generateOppfolgingstilfelle(
                 start = LocalDate.now().minusDays(19),
                 end = LocalDate.now().plusDays(1),
@@ -37,6 +37,26 @@ class OppfolgingstilfelleSpek : Spek({
             )
 
             oppfolgingstilfelle.varighetUker() shouldBeEqualTo 1
+        }
+        
+        it("Calculates varighet based on start and antallSykedager when end is in the future") {
+            val oppfolgingstilfelle = generateOppfolgingstilfelle(
+                start = LocalDate.now().minusDays(19),
+                end = LocalDate.now().plusDays(100),
+                antallSykedager = 110,
+            )
+            
+            oppfolgingstilfelle.varighetUker() shouldBeEqualTo 1
+        }
+        
+        it("Sets varighet to 0 when missing sykedager in the future") {
+            val oppfolgingstilfelle = generateOppfolgingstilfelle(
+                start = LocalDate.now().minusDays(19),
+                end = LocalDate.now().plusDays(100),
+                antallSykedager = 10,
+            )
+            
+            oppfolgingstilfelle.varighetUker() shouldBeEqualTo 0
         }
     }
 })
