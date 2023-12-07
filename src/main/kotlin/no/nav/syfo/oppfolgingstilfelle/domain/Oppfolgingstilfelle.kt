@@ -3,12 +3,14 @@ package no.nav.syfo.oppfolgingstilfelle.domain
 import no.nav.syfo.domain.Virksomhetsnummer
 import no.nav.syfo.personstatus.api.v2.PersonOppfolgingstilfelleDTO
 import no.nav.syfo.personstatus.api.v2.PersonOppfolgingstilfelleVirksomhetDTO
+import org.slf4j.LoggerFactory
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.temporal.ChronoUnit
 import java.util.*
 
 private const val DAYS_IN_WEEK = 7
+private val log = LoggerFactory.getLogger(Oppfolgingstilfelle::class.java)
 
 data class Oppfolgingstilfelle(
     val updatedAt: OffsetDateTime,
@@ -27,6 +29,9 @@ data class Oppfolgingstilfelle(
         } else {
             val totalVarighetDays = ChronoUnit.DAYS.between(oppfolgingstilfelleStart, oppfolgingstilfelleEnd) + 1
             val ikkeSykedager = totalVarighetDays - antallSykedager
+            if (currentVarighetDaysBrutto - ikkeSykedager < 0) {
+                log.error("Calculation of varighetUker is a negative value for tilfellebitReferanseUuid=$oppfolgingstilfelleBitReferanseUuid")
+            }
             maxOf(currentVarighetDaysBrutto - ikkeSykedager, 0)
         }
         return currentVarighetDays.toInt() / DAYS_IN_WEEK
