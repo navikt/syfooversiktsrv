@@ -113,7 +113,9 @@ fun Connection.createPersonOversiktStatus(
         it.setBoolean(31, personOversiktStatus.trengerOppfolging)
         it.setObject(32, personOversiktStatus.trengerOppfolgingFrist)
         it.setBoolean(33, personOversiktStatus.behandlerBerOmBistandUbehandlet)
-        it.setObject(34, personOversiktStatus.latestOppfolgingstilfelle?.antallSykedager)
+        if (personOversiktStatus.latestOppfolgingstilfelle?.antallSykedager != null) {
+            it.setInt(34, personOversiktStatus.latestOppfolgingstilfelle.antallSykedager)
+        } else it.setNull(34, Types.INTEGER)
         it.executeQuery().toList { getInt("id") }.firstOrNull()
     } ?: throw SQLException("Creating PersonOversikStatus failed, no rows affected.")
 
@@ -155,7 +157,9 @@ fun Connection.updatePersonOversiktStatusOppfolgingstilfelle(
         it.setString(5, oppfolgingstilfelle.oppfolgingstilfelleBitReferanseUuid.toString())
         it.setObject(6, oppfolgingstilfelle.oppfolgingstilfelleBitReferanseInntruffet)
         it.setObject(7, Timestamp.from(Instant.now()))
-        it.setObject(8, oppfolgingstilfelle.antallSykedager)
+        if (oppfolgingstilfelle.antallSykedager != null) {
+            it.setInt(8, oppfolgingstilfelle.antallSykedager)
+        } else it.setNull(8, Types.INTEGER)
         it.setString(9, pPersonOversiktStatus.fnr)
         it.execute()
     }

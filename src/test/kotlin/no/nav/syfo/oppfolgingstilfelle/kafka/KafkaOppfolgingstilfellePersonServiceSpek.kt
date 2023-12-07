@@ -107,6 +107,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     )
                 }
             }
+
             it("should create new PersonOversiktStatus if no PersonOversiktStatus exists for PersonIdent even if not arbeidstaker") {
                 every { mockKafkaConsumerOppfolgingstilfellePerson.poll(any<Duration>()) } returns ConsumerRecords(
                     mapOf(
@@ -762,6 +763,53 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
 
                     pPersonOppfolgingstilfelleVirksomhetList.first().virksomhetsnummer.value shouldBeEqualTo virksomhetsnummerListSecond.first().value
                     pPersonOppfolgingstilfelleVirksomhetList.last().virksomhetsnummer.value shouldBeEqualTo virksomhetsnummerListSecond.last().value
+                }
+            }
+
+            it("creates new PersonOversiktStatus and handles antallSykedager = null") {
+                val kafkaOppfolgingstilfellePerson = generateKafkaOppfolgingstilfellePerson(
+                    personIdent = personIdentDefault,
+                    antallSykedager = null,
+                )
+                val kafkaOppfolgingstilfellePersonRecord = oppfolgingstilfellePersonConsumerRecord(
+                    kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePerson
+                )
+                every { mockKafkaConsumerOppfolgingstilfellePerson.poll(any<Duration>()) } returns ConsumerRecords(
+                    mapOf(
+                        oppfolgingstilfellePersonTopicPartition to listOf(
+                            kafkaOppfolgingstilfellePersonRecord,
+                        )
+                    )
+                )
+
+                kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                    kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
+                )
+
+                val recordValue = kafkaOppfolgingstilfellePersonRecord.value()
+
+                database.connection.use { connection ->
+                    val pPersonOversiktStatusList = connection.getPersonOversiktStatusList(
+                        fnr = recordValue.personIdentNumber,
+                    )
+
+                    pPersonOversiktStatusList.size shouldBeEqualTo 1
+
+                    val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+
+                    pPersonOversiktStatus.fnr shouldBeEqualTo recordValue.personIdentNumber
+                    pPersonOversiktStatus.enhet.shouldBeNull()
+                    pPersonOversiktStatus.veilederIdent.shouldBeNull()
+
+                    pPersonOversiktStatus.motebehovUbehandlet.shouldBeNull()
+                    pPersonOversiktStatus.oppfolgingsplanLPSBistandUbehandlet.shouldBeNull()
+                    pPersonOversiktStatus.dialogmotekandidat.shouldBeNull()
+                    pPersonOversiktStatus.dialogmotekandidatGeneratedAt.shouldBeNull()
+
+                    checkPPersonOversiktStatusOppfolgingstilfelle(
+                        pPersonOversiktStatus = pPersonOversiktStatus,
+                        kafkaOppfolgingstilfellePerson = recordValue,
+                    )
                 }
             }
         }
