@@ -24,4 +24,5 @@ fun checkPPersonOversiktStatusOppfolgingstilfelle(
         .toEpochMilli()
     pPersonOversiktStatus.oppfolgingstilfelleBitReferanseInntruffet?.offset shouldBeEqualTo kafkaOppfolgingstilfellePerson.referanseTilfelleBitInntruffet.offset
     pPersonOversiktStatus.oppfolgingstilfelleBitReferanseUuid.toString() shouldBeEqualTo kafkaOppfolgingstilfellePerson.referanseTilfelleBitUuid
+    pPersonOversiktStatus.antallSykedager shouldBeEqualTo latestOppfolgingstilfelle.antallSykedager
 }

@@ -11,7 +11,7 @@ import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.domain.Virksomhetsnummer
 import no.nav.syfo.personoppgavehendelse.kafka.KPersonoppgavehendelse
 import no.nav.syfo.personstatus.domain.OversikthendelseType
-import no.nav.syfo.personstatus.getPersonOppfolgingstilfelleVirksomhetList
+import no.nav.syfo.personstatus.db.getPersonOppfolgingstilfelleVirksomhetList
 import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.personstatus.domain.applyHendelse

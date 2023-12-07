@@ -36,4 +36,5 @@ fun generatePPersonOversiktStatus(fnr: String = UserConstants.ARBEIDSTAKER_FNR) 
     trengerOppfolging = false,
     trengerOppfolgingFrist = null,
     behandlerBerOmBistandUbehandlet = false,
+    antallSykedager = null,
 )

@@ -2,12 +2,14 @@ package no.nav.syfo.personstatus.domain
 
 import no.nav.syfo.aktivitetskravvurdering.domain.AktivitetskravStatus
 import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendringType
-import no.nav.syfo.domain.Virksomhetsnummer
-import no.nav.syfo.personstatus.api.v2.*
-import no.nav.syfo.util.*
+import no.nav.syfo.oppfolgingstilfelle.domain.Oppfolgingstilfelle
+import no.nav.syfo.oppfolgingstilfelle.domain.toPersonOppfolgingstilfelleDTO
+import no.nav.syfo.personstatus.api.v2.PersonOversiktStatusDTO
+import no.nav.syfo.util.isBeforeOrEqual
+import no.nav.syfo.util.toLocalDateOslo
+import no.nav.syfo.util.toLocalDateTimeOslo
 import java.time.LocalDate
 import java.time.OffsetDateTime
-import java.util.*
 
 data class PersonOversiktStatus(
     val veilederIdent: String?,
@@ -72,38 +74,6 @@ fun PersonOversiktStatus.hasActiveOppgave(arenaCutoff: LocalDate): Boolean {
         this.aktivitetskravVurderStansUbehandlet ||
         this.trengerOppfolging || this.behandlerBerOmBistandUbehandlet
 }
-
-data class Oppfolgingstilfelle(
-    val updatedAt: OffsetDateTime,
-    val generatedAt: OffsetDateTime,
-    val oppfolgingstilfelleStart: LocalDate,
-    val oppfolgingstilfelleEnd: LocalDate,
-    val oppfolgingstilfelleBitReferanseInntruffet: OffsetDateTime,
-    val oppfolgingstilfelleBitReferanseUuid: UUID,
-    val virksomhetList: List<PersonOppfolgingstilfelleVirksomhet>,
-)
-
-fun Oppfolgingstilfelle.toPersonOppfolgingstilfelleDTO() =
-    PersonOppfolgingstilfelleDTO(
-        oppfolgingstilfelleStart = this.oppfolgingstilfelleStart,
-        oppfolgingstilfelleEnd = this.oppfolgingstilfelleEnd,
-        virksomhetList = this.virksomhetList.toPersonOppfolgingstilfelleVirksomhetDTO()
-    )
-
-data class PersonOppfolgingstilfelleVirksomhet(
-    val uuid: UUID,
-    val createdAt: OffsetDateTime,
-    val virksomhetsnummer: Virksomhetsnummer,
-    val virksomhetsnavn: String?,
-)
-
-fun List<PersonOppfolgingstilfelleVirksomhet>.toPersonOppfolgingstilfelleVirksomhetDTO() =
-    this.map { virksomhet ->
-        PersonOppfolgingstilfelleVirksomhetDTO(
-            virksomhetsnummer = virksomhet.virksomhetsnummer.value,
-            virksomhetsnavn = virksomhet.virksomhetsnavn,
-        )
-    }
 
 fun List<PersonOversiktStatus>.addPersonName(
     personIdentNameMap: Map<String, String>,

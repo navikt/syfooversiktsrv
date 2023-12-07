@@ -2,10 +2,14 @@ package no.nav.syfo.oppfolgingstilfelle.kafka
 
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.kafka.KafkaConsumerService
-import no.nav.syfo.personstatus.db.*
+import no.nav.syfo.oppfolgingstilfelle.domain.Oppfolgingstilfelle
+import no.nav.syfo.personstatus.db.createPersonOversiktStatus
+import no.nav.syfo.personstatus.db.getPersonOversiktStatusList
+import no.nav.syfo.personstatus.db.updatePersonOversiktStatusOppfolgingstilfelle
 import no.nav.syfo.personstatus.domain.PPersonOversiktStatus
-import no.nav.syfo.personstatus.domain.Oppfolgingstilfelle
-import org.apache.kafka.clients.consumer.*
+import org.apache.kafka.clients.consumer.ConsumerRecord
+import org.apache.kafka.clients.consumer.ConsumerRecords
+import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.slf4j.LoggerFactory
 import java.sql.Connection
 import java.sql.SQLException

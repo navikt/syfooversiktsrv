@@ -120,6 +120,7 @@ fun ResultSet.toPPersonOversiktStatus(): PPersonOversiktStatus =
         trengerOppfolging = getObject("trenger_oppfolging") as Boolean,
         trengerOppfolgingFrist = getObject("trenger_oppfolging_frist", LocalDate::class.java),
         behandlerBerOmBistandUbehandlet = getObject("behandler_bistand_ubehandlet") as Boolean,
+        antallSykedager = getObject("antall_sykedager") as Int?,
     )
 
 fun ResultSet.toVeilederBrukerKnytning(): VeilederBrukerKnytning =

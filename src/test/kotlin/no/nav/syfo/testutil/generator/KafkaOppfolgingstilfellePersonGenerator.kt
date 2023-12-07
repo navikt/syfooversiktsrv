@@ -20,6 +20,7 @@ fun generateKafkaOppfolgingstilfellePerson(
     virksomhetsnummerList: List<Virksomhetsnummer> = listOf(
         Virksomhetsnummer(VIRKSOMHETSNUMMER)
     ),
+    antallSykedager: Int? = oppfolgingstilfelleDurationInDays.toInt()
 ): KafkaOppfolgingstilfellePerson {
     val start = end.minusDays(oppfolgingstilfelleDurationInDays)
     return KafkaOppfolgingstilfellePerson(
@@ -34,6 +35,7 @@ fun generateKafkaOppfolgingstilfellePerson(
                 virksomhetsnummerList = virksomhetsnummerList.map { virksomhetsnummer ->
                     virksomhetsnummer.value
                 },
+                antallSykedager = antallSykedager,
             ),
         ),
         referanseTilfelleBitUuid = UUID.randomUUID().toString(),

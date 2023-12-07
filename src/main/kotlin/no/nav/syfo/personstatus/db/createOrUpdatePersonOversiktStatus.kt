@@ -2,9 +2,8 @@ package no.nav.syfo.personstatus.db
 
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.application.database.toList
-import no.nav.syfo.personstatus.createPersonOppfolgingstilfelleVirksomhetList
+import no.nav.syfo.oppfolgingstilfelle.domain.Oppfolgingstilfelle
 import no.nav.syfo.personstatus.domain.*
-import no.nav.syfo.personstatus.updatePersonOppfolgingstilfelleVirksomhetList
 import no.nav.syfo.util.nowUTC
 import java.sql.*
 import java.sql.Types.NULL
@@ -47,8 +46,9 @@ const val queryCreatePersonOversiktStatus =
         aktivitetskrav_vurder_stans_ubehandlet,
         trenger_oppfolging,
         trenger_oppfolging_frist,
-        behandler_bistand_ubehandlet
-    ) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        behandler_bistand_ubehandlet,
+        antall_sykedager
+    ) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     RETURNING id
     """
 
@@ -113,6 +113,9 @@ fun Connection.createPersonOversiktStatus(
         it.setBoolean(31, personOversiktStatus.trengerOppfolging)
         it.setObject(32, personOversiktStatus.trengerOppfolgingFrist)
         it.setBoolean(33, personOversiktStatus.behandlerBerOmBistandUbehandlet)
+        if (personOversiktStatus.latestOppfolgingstilfelle?.antallSykedager != null) {
+            it.setInt(34, personOversiktStatus.latestOppfolgingstilfelle.antallSykedager)
+        } else it.setNull(34, Types.INTEGER)
         it.executeQuery().toList { getInt("id") }.firstOrNull()
     } ?: throw SQLException("Creating PersonOversikStatus failed, no rows affected.")
 
@@ -137,7 +140,8 @@ const val queryUpdatePersonOversiktStatusOppfolgingstilfelle =
     oppfolgingstilfelle_end = ?,
     oppfolgingstilfelle_bit_referanse_uuid = ?,
     oppfolgingstilfelle_bit_referanse_inntruffet = ?,
-    sist_endret = ?
+    sist_endret = ?,
+    antall_sykedager = ?
     WHERE fnr = ?
     """
 
@@ -153,7 +157,10 @@ fun Connection.updatePersonOversiktStatusOppfolgingstilfelle(
         it.setString(5, oppfolgingstilfelle.oppfolgingstilfelleBitReferanseUuid.toString())
         it.setObject(6, oppfolgingstilfelle.oppfolgingstilfelleBitReferanseInntruffet)
         it.setObject(7, Timestamp.from(Instant.now()))
-        it.setString(8, pPersonOversiktStatus.fnr)
+        if (oppfolgingstilfelle.antallSykedager != null) {
+            it.setInt(8, oppfolgingstilfelle.antallSykedager)
+        } else it.setNull(8, Types.INTEGER)
+        it.setString(9, pPersonOversiktStatus.fnr)
         it.execute()
     }
     updatePersonOppfolgingstilfelleVirksomhetList(
