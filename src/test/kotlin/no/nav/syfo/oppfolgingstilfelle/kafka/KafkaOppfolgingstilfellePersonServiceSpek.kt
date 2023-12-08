@@ -20,6 +20,7 @@ import no.nav.syfo.testutil.assertion.checkPPersonOversiktStatusOppfolgingstilfe
 import no.nav.syfo.testutil.generator.*
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
+import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
@@ -59,6 +60,17 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
         val kafkaOppfolgingstilfellePersonRelevantNotArbeidstakerRecord = oppfolgingstilfellePersonConsumerRecord(
             kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonRelevantNotArbeidstaker
         )
+
+        fun mockConsumer(vararg records: ConsumerRecord<String, KafkaOppfolgingstilfellePerson>) {
+            every { mockKafkaConsumerOppfolgingstilfellePerson.poll(any<Duration>()) } returns ConsumerRecords(
+                mapOf(
+                    oppfolgingstilfellePersonTopicPartition to listOf(
+                        *records,
+                    )
+                )
+            )
+        }
+
         beforeEachTest {
             database.connection.dropData()
 
@@ -69,13 +81,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
         describe("Read KafkaOppfolgingstilfellePerson") {
 
             it("should create new PersonOversiktStatus if no PersonOversiktStatus exists for PersonIdent") {
-                every { mockKafkaConsumerOppfolgingstilfellePerson.poll(any<Duration>()) } returns ConsumerRecords(
-                    mapOf(
-                        oppfolgingstilfellePersonTopicPartition to listOf(
-                            kafkaOppfolgingstilfellePersonServiceRecordRelevant,
-                        )
-                    )
-                )
+                mockConsumer(kafkaOppfolgingstilfellePersonServiceRecordRelevant)
 
                 kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
                     kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
@@ -109,13 +115,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
             }
 
             it("should create new PersonOversiktStatus if no PersonOversiktStatus exists for PersonIdent even if not arbeidstaker") {
-                every { mockKafkaConsumerOppfolgingstilfellePerson.poll(any<Duration>()) } returns ConsumerRecords(
-                    mapOf(
-                        oppfolgingstilfellePersonTopicPartition to listOf(
-                            kafkaOppfolgingstilfellePersonRelevantNotArbeidstakerRecord,
-                        )
-                    )
-                )
+                mockConsumer(kafkaOppfolgingstilfellePersonRelevantNotArbeidstakerRecord)
 
                 kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
                     kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
@@ -149,13 +149,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
             }
 
             it("should update existing PersonOversiktStatus with OPPFOLGINGSPLANLPS_BISTAND_MOTTATT, with data from KafkaOppfolgingstilfellePerson") {
-                every { mockKafkaConsumerOppfolgingstilfellePerson.poll(any<Duration>()) } returns ConsumerRecords(
-                    mapOf(
-                        oppfolgingstilfellePersonTopicPartition to listOf(
-                            kafkaOppfolgingstilfellePersonServiceRecordRelevant,
-                        )
-                    )
-                )
+                mockConsumer(kafkaOppfolgingstilfellePersonServiceRecordRelevant)
 
                 val oversiktHendelseOPLPSBistandMottatt = KPersonoppgavehendelse(
                     personIdentDefault.value,
@@ -217,14 +211,11 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonServiceRelevantNewest,
                 )
 
-                every { mockKafkaConsumerOppfolgingstilfellePerson.poll(any<Duration>()) } returns ConsumerRecords(
-                    mapOf(
-                        oppfolgingstilfellePersonTopicPartition to listOf(
-                            kafkaOppfolgingstilfellePersonServiceRecordRelevantNewest,
-                            kafkaOppfolgingstilfellePersonServiceRecordRelevantFirst,
-                        )
-                    )
+                mockConsumer(
+                    kafkaOppfolgingstilfellePersonServiceRecordRelevantNewest,
+                    kafkaOppfolgingstilfellePersonServiceRecordRelevantFirst,
                 )
+
                 kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
                     kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                 )
@@ -283,14 +274,11 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonServiceRelevantNewest,
                 )
 
-                every { mockKafkaConsumerOppfolgingstilfellePerson.poll(any<Duration>()) } returns ConsumerRecords(
-                    mapOf(
-                        oppfolgingstilfellePersonTopicPartition to listOf(
-                            kafkaOppfolgingstilfellePersonServiceRecordRelevantNewest,
-                            kafkaOppfolgingstilfellePersonServiceRecordRelevantFirst,
-                        )
-                    )
+                mockConsumer(
+                    kafkaOppfolgingstilfellePersonServiceRecordRelevantNewest,
+                    kafkaOppfolgingstilfellePersonServiceRecordRelevantFirst,
                 )
+
                 kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
                     kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                 )
@@ -361,24 +349,14 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonServiceRelevantNewest,
                 )
 
-                every { mockKafkaConsumerOppfolgingstilfellePerson.poll(any<Duration>()) } returns ConsumerRecords(
-                    mapOf(
-                        oppfolgingstilfellePersonTopicPartition to listOf(
-                            kafkaOppfolgingstilfellePersonServiceRecordRelevantSecond,
-                        )
-                    )
-                )
+                mockConsumer(kafkaOppfolgingstilfellePersonServiceRecordRelevantSecond)
+
                 kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
                     kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                 )
 
-                every { mockKafkaConsumerOppfolgingstilfellePerson.poll(any<Duration>()) } returns ConsumerRecords(
-                    mapOf(
-                        oppfolgingstilfellePersonTopicPartition to listOf(
-                            kafkaOppfolgingstilfellePersonServiceRecordRelevantFirst,
-                        )
-                    )
-                )
+                mockConsumer(kafkaOppfolgingstilfellePersonServiceRecordRelevantFirst)
+
                 kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
                     kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                 )
@@ -418,13 +396,8 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     pPersonOppfolgingstilfelleVirksomhetList.first().virksomhetsnummer.value shouldBeEqualTo recordValueSecond.oppfolgingstilfelleList.first().virksomhetsnummerList.first()
                 }
 
-                every { mockKafkaConsumerOppfolgingstilfellePerson.poll(any<Duration>()) } returns ConsumerRecords(
-                    mapOf(
-                        oppfolgingstilfellePersonTopicPartition to listOf(
-                            kafkaOppfolgingstilfellePersonServiceRecordRelevantNewest,
-                        )
-                    )
-                )
+                mockConsumer(kafkaOppfolgingstilfellePersonServiceRecordRelevantNewest)
+
                 kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
                     kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                 )
@@ -491,24 +464,14 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                 val kafkaOppfolgingstilfellePersonServiceRecordRelevantSecond = oppfolgingstilfellePersonConsumerRecord(
                     kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonServiceRelevantSecond,
                 )
-                every { mockKafkaConsumerOppfolgingstilfellePerson.poll(any<Duration>()) } returns ConsumerRecords(
-                    mapOf(
-                        oppfolgingstilfellePersonTopicPartition to listOf(
-                            kafkaOppfolgingstilfellePersonServiceRecordRelevantFirst,
-                        )
-                    )
-                )
+                mockConsumer(kafkaOppfolgingstilfellePersonServiceRecordRelevantFirst)
+
                 kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
                     kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                 )
 
-                every { mockKafkaConsumerOppfolgingstilfellePerson.poll(any<Duration>()) } returns ConsumerRecords(
-                    mapOf(
-                        oppfolgingstilfellePersonTopicPartition to listOf(
-                            kafkaOppfolgingstilfellePersonServiceRecordRelevantSecond,
-                        )
-                    )
-                )
+                mockConsumer(kafkaOppfolgingstilfellePersonServiceRecordRelevantSecond)
+
                 kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
                     kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                 )
@@ -578,24 +541,14 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonServiceRelevantNewest,
                 )
 
-                every { mockKafkaConsumerOppfolgingstilfellePerson.poll(any<Duration>()) } returns ConsumerRecords(
-                    mapOf(
-                        oppfolgingstilfellePersonTopicPartition to listOf(
-                            kafkaOppfolgingstilfellePersonServiceRecordRelevantSecond,
-                        )
-                    )
-                )
+                mockConsumer(kafkaOppfolgingstilfellePersonServiceRecordRelevantSecond)
+
                 kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
                     kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                 )
 
-                every { mockKafkaConsumerOppfolgingstilfellePerson.poll(any<Duration>()) } returns ConsumerRecords(
-                    mapOf(
-                        oppfolgingstilfellePersonTopicPartition to listOf(
-                            kafkaOppfolgingstilfellePersonServiceRecordRelevantFirst,
-                        )
-                    )
-                )
+                mockConsumer(kafkaOppfolgingstilfellePersonServiceRecordRelevantFirst)
+
                 kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
                     kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                 )
@@ -635,13 +588,8 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     pPersonOppfolgingstilfelleVirksomhetList.first().virksomhetsnummer.value shouldBeEqualTo recordValueSecond.oppfolgingstilfelleList.first().virksomhetsnummerList.first()
                 }
 
-                every { mockKafkaConsumerOppfolgingstilfellePerson.poll(any<Duration>()) } returns ConsumerRecords(
-                    mapOf(
-                        oppfolgingstilfellePersonTopicPartition to listOf(
-                            kafkaOppfolgingstilfellePersonServiceRecordRelevantNewest,
-                        )
-                    )
-                )
+                mockConsumer(kafkaOppfolgingstilfellePersonServiceRecordRelevantNewest)
+
                 kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
                     kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                 )
@@ -695,13 +643,8 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonServiceRelevantFirst,
                 )
 
-                every { mockKafkaConsumerOppfolgingstilfellePerson.poll(any<Duration>()) } returns ConsumerRecords(
-                    mapOf(
-                        oppfolgingstilfellePersonTopicPartition to listOf(
-                            kafkaOppfolgingstilfellePersonServiceRecordRelevantFirst,
-                        )
-                    )
-                )
+                mockConsumer(kafkaOppfolgingstilfellePersonServiceRecordRelevantFirst)
+
                 kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
                     kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                 )
@@ -718,13 +661,8 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonServiceRelevantSecond,
                 )
 
-                every { mockKafkaConsumerOppfolgingstilfellePerson.poll(any<Duration>()) } returns ConsumerRecords(
-                    mapOf(
-                        oppfolgingstilfellePersonTopicPartition to listOf(
-                            kafkaOppfolgingstilfellePersonServiceRecordRelevantSecond,
-                        )
-                    )
-                )
+                mockConsumer(kafkaOppfolgingstilfellePersonServiceRecordRelevantSecond)
+
                 kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
                     kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                 )
@@ -774,13 +712,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                 val kafkaOppfolgingstilfellePersonRecord = oppfolgingstilfellePersonConsumerRecord(
                     kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePerson
                 )
-                every { mockKafkaConsumerOppfolgingstilfellePerson.poll(any<Duration>()) } returns ConsumerRecords(
-                    mapOf(
-                        oppfolgingstilfellePersonTopicPartition to listOf(
-                            kafkaOppfolgingstilfellePersonRecord,
-                        )
-                    )
-                )
+                mockConsumer(kafkaOppfolgingstilfellePersonRecord)
 
                 kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
                     kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
