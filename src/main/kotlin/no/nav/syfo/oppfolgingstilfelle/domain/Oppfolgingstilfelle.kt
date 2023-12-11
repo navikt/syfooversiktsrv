@@ -29,12 +29,12 @@ data class Oppfolgingstilfelle(
         } else {
             val totalVarighetDays = ChronoUnit.DAYS.between(oppfolgingstilfelleStart, oppfolgingstilfelleEnd) + 1
             val ikkeSykedager = totalVarighetDays - antallSykedager
-            if (currentVarighetDaysBrutto - ikkeSykedager < 0) {
+            if (currentVarighetDaysBrutto - ikkeSykedager < 0 && oppfolgingstilfelleStart < LocalDate.now()) {
                 log.error("Calculation of varighetUker is a negative value for tilfellebitReferanseUuid=$oppfolgingstilfelleBitReferanseUuid")
             }
-            maxOf(currentVarighetDaysBrutto - ikkeSykedager, 0)
+            currentVarighetDaysBrutto - ikkeSykedager
         }
-        return currentVarighetDays.toInt() / DAYS_IN_WEEK
+        return maxOf(currentVarighetDays.toInt() / DAYS_IN_WEEK, 0)
     }
 }
 

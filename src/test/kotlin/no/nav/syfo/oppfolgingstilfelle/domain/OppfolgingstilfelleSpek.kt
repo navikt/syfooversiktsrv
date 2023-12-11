@@ -58,5 +58,15 @@ class OppfolgingstilfelleSpek : Spek({
 
             oppfolgingstilfelle.varighetUker() shouldBeEqualTo 0
         }
+
+        it("Sets varighet to 0 when start is in the future") {
+            val oppfolgingstilfelle = generateOppfolgingstilfelle(
+                start = LocalDate.now().plusDays(9),
+                end = LocalDate.now().plusDays(20),
+                antallSykedager = null,
+            )
+
+            oppfolgingstilfelle.varighetUker() shouldBeEqualTo 0
+        }
     }
 })
