@@ -30,7 +30,7 @@ data class Oppfolgingstilfelle(
             val totalVarighetDays = ChronoUnit.DAYS.between(oppfolgingstilfelleStart, oppfolgingstilfelleEnd) + 1
             val ikkeSykedager = totalVarighetDays - antallSykedager
             if (currentVarighetDaysBrutto - ikkeSykedager < 0 && oppfolgingstilfelleStart < LocalDate.now()) {
-                log.error("Calculation of varighetUker is a negative value for tilfellebitReferanseUuid=$oppfolgingstilfelleBitReferanseUuid")
+                log.warn("Calculation of varighetUker is a negative value for tilfellebitReferanseUuid=$oppfolgingstilfelleBitReferanseUuid")
             }
             currentVarighetDaysBrutto - ikkeSykedager
         }
