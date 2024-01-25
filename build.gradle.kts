@@ -99,6 +99,12 @@ dependencies {
                 require("3.9.1")
             }
         }
+        implementation("org.apache.avro:avro") {
+            because("io.confluent:kafka-schema-registry:${Versions.confluent} -> https://www.cve.org/CVERecord?id=CVE-2023-39410")
+            version {
+                require("1.11.3")
+            }
+        }
     }
     implementation("no.nav.syfo.dialogmote.avro:isdialogmote-schema:${Versions.isdialogmoteSchema}")
     testImplementation("no.nav:kafka-embedded-env:${Versions.kafkaEmbedded}", excludeLog4j)
