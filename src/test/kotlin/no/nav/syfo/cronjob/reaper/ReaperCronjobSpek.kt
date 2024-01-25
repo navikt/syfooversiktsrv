@@ -38,12 +38,12 @@ object ReaperCronjobSpek : Spek({
                 }
 
                 it("reset tildelt veileder for personer with tilfelle that ended three months ago") {
-                    val threeMonthsAgo = LocalDate.now().minusMonths(3)
+                    val threeMonthsAgo = LocalDate.now().minusMonths(3).minusDays(1)
                     val personOversiktStatus = generatePersonOversiktStatusWithTilfelleEnd(threeMonthsAgo)
                     database.createPersonOversiktStatus(personOversiktStatus)
                     database.setSistEndret(
                         fnr = personOversiktStatus.fnr,
-                        sistEndret = Timestamp.from(OffsetDateTime.now().minusMonths(3).toInstant()),
+                        sistEndret = Timestamp.from(OffsetDateTime.now().minusMonths(3).minusDays(1).toInstant()),
                     )
 
                     runBlocking {
@@ -100,7 +100,7 @@ fun generatePersonOversiktStatusWithTilfelleEnd(tilfelleEnd: LocalDate): PersonO
         veilederIdent = "Z999999",
         oppfolgingstilfelleUpdatedAt = OffsetDateTime.now(),
         oppfolgingstilfelleGeneratedAt = OffsetDateTime.now(),
-        oppfolgingstilfelleStart = LocalDate.now(),
+        oppfolgingstilfelleStart = tilfelleEnd.minusDays(14),
         oppfolgingstilfelleEnd = tilfelleEnd,
         oppfolgingstilfelleBitReferanseInntruffet = OffsetDateTime.now(),
         oppfolgingstilfelleBitReferanseUuid = UUID.randomUUID(),

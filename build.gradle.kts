@@ -12,24 +12,24 @@ object Versions {
     const val isdialogmoteSchema = "1.0.5"
     const val jacksonDataType = "2.15.3"
     const val jedis = "5.0.1"
-    const val kafka = "3.6.0"
+    const val json = "20231013"
+    const val kafka = "3.6.1"
     const val kafkaEmbedded = "3.2.3"
     const val kluent = "1.73"
-    const val ktor = "2.3.5"
-    const val logback = "1.4.11"
+    const val ktor = "2.3.7"
+    const val logback = "1.4.14"
     const val logstashEncoder = "7.4"
     const val mockk = "1.13.8"
-    const val micrometerRegistry = "1.11.5"
-    const val nimbusjosejwt = "9.37"
+    const val micrometerRegistry = "1.12.0"
+    const val nimbusjosejwt = "9.37.2"
     val postgresEmbedded = if (Os.isFamily(Os.FAMILY_MAC)) "1.0.0" else "0.13.4"
-    const val postgres = "42.5.1"
+    const val postgres = "42.6.0"
     const val redisEmbedded = "0.7.3"
-    const val scala = "2.13.12"
     const val spek = "2.0.19"
 }
 
 plugins {
-    kotlin("jvm") version "1.9.10"
+    kotlin("jvm") version "1.9.22"
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("org.jlleitschuh.gradle.ktlint") version "11.6.0"
     id("com.github.davidmc24.gradle.plugin.avro") version "1.8.0"
@@ -67,6 +67,7 @@ dependencies {
     // Logging
     implementation("ch.qos.logback:logback-classic:${Versions.logback}")
     implementation("net.logstash.logback:logstash-logback-encoder:${Versions.logstashEncoder}")
+    implementation("org.json:json:${Versions.json}")
 
     // Metrics and Prometheus
     implementation("io.ktor:ktor-server-metrics-micrometer:${Versions.ktor}")
@@ -92,66 +93,8 @@ dependencies {
     implementation("org.apache.kafka:kafka_2.13:${Versions.kafka}", excludeLog4j)
     implementation("io.confluent:kafka-avro-serializer:${Versions.confluent}", excludeLog4j)
     implementation("io.confluent:kafka-schema-registry:${Versions.confluent}", excludeLog4j)
-    constraints {
-        implementation("org.scala-lang:scala-library") {
-            because("io.confluent:kafka-schema-registry:${Versions.confluent} -> https://www.cve.org/CVERecord?id=CVE-2022-36944")
-            version {
-                strictly(Versions.scala)
-            }
-        }
-        implementation("org.yaml:snakeyaml") {
-            because("io.confluent:kafka-schema-registry:${Versions.confluent} -> https://nvd.nist.gov/vuln/detail/CVE-2022-1471")
-            version {
-                require("2.0")
-            }
-        }
-        implementation("org.glassfish:jakarta.el") {
-            because("io.confluent:kafka-schema-registry:${Versions.confluent} -> https://advisory.checkmarx.net/advisory/vulnerability/CVE-2021-28170/")
-            version {
-                require("3.0.4")
-            }
-        }
-        implementation("com.google.protobuf:protobuf-java") {
-            because("io.confluent:kafka-schema-registry:${Versions.confluent} -> https://www.cve.org/CVERecord?id=CVE-2021-22569")
-            version {
-                require("3.21.7")
-            }
-        }
-        implementation("com.google.code.gson:gson") {
-            because("io.confluent:kafka-schema-registry:${Versions.confluent} -> https://www.cve.org/CVERecord?id=CVE-2022-25647")
-            version {
-                require("2.8.9")
-            }
-        }
-        implementation("org.json:json") {
-            because("io.confluent:kafka-schema-registry:${Versions.confluent} -> https://nvd.nist.gov/vuln/detail/CVE-2022-45688")
-            version {
-                require("20231013")
-            }
-        }
-        implementation("org.apache.zookeeper:zookeeper") {
-            because("io.confluent:kafka-schema-registry:${Versions.confluent} -> https://www.cve.org/CVERecord?id=CVE-2023-44981")
-            version {
-                require("3.9.1")
-            }
-        }
-    }
     implementation("no.nav.syfo.dialogmote.avro:isdialogmote-schema:${Versions.isdialogmoteSchema}")
     testImplementation("no.nav:kafka-embedded-env:${Versions.kafkaEmbedded}", excludeLog4j)
-    constraints {
-        implementation("org.eclipse.jetty.http2:http2-server") {
-            because("no.nav:kafka-embedded-env:${Versions.kafkaEmbedded} -> https://advisory.checkmarx.net/advisory/vulnerability/CVE-2022-2048/")
-            version {
-                require("9.4.48.v20220622")
-            }
-        }
-        implementation("com.google.protobuf:protobuf-java") {
-            because("io.confluent:kafka-schema-registry:${Versions.confluent} -> https://www.cve.org/CVERecord?id=CVE-2021-22569")
-            version {
-                require("3.21.7")
-            }
-        }
-    }
 
     testImplementation("com.nimbusds:nimbus-jose-jwt:${Versions.nimbusjosejwt}")
     testImplementation("io.ktor:ktor-server-test-host:${Versions.ktor}")
@@ -186,6 +129,7 @@ tasks {
 
     withType<KotlinCompile> {
         dependsOn(":generateAvroJava")
+        dependsOn(":generateTestAvroJava")
     }
 
     withType<Test> {
