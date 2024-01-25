@@ -92,9 +92,24 @@ dependencies {
     }
     implementation("org.apache.kafka:kafka_2.13:${Versions.kafka}", excludeLog4j)
     implementation("io.confluent:kafka-avro-serializer:${Versions.confluent}", excludeLog4j)
-    implementation("io.confluent:kafka-schema-registry:${Versions.confluent}", excludeLog4j)
+    constraints {
+        implementation("org.apache.zookeeper:zookeeper") {
+            because("io.confluent:kafka-schema-registry:${Versions.confluent} -> https://www.cve.org/CVERecord?id=CVE-2023-44981")
+            version {
+                require("3.9.1")
+            }
+        }
+    }
     implementation("no.nav.syfo.dialogmote.avro:isdialogmote-schema:${Versions.isdialogmoteSchema}")
     testImplementation("no.nav:kafka-embedded-env:${Versions.kafkaEmbedded}", excludeLog4j)
+    constraints {
+        implementation("org.eclipse.jetty.http2:http2-server") {
+            because("no.nav:kafka-embedded-env:${Versions.kafkaEmbedded} -> https://advisory.checkmarx.net/advisory/vulnerability/CVE-2022-2048/")
+            version {
+                require("9.4.48.v20220622")
+            }
+        }
+    }
 
     testImplementation("com.nimbusds:nimbus-jose-jwt:${Versions.nimbusjosejwt}")
     testImplementation("io.ktor:ktor-server-test-host:${Versions.ktor}")
