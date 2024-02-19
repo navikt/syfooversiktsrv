@@ -4,6 +4,7 @@ import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.database.database
 import no.nav.syfo.application.kafka.KafkaEnvironment
 import no.nav.syfo.application.kafka.kafkaAivenConsumerConfig
+import no.nav.syfo.cronjob.behandlendeenhet.PersonBehandlendeEnhetService
 import no.nav.syfo.trengeroppfolging.TrengerOppfolgingService
 import no.nav.syfo.kafka.launchKafkaTask
 import no.nav.syfo.util.configuredJacksonMapper
@@ -17,9 +18,11 @@ const val HUSKELAPP_TOPIC =
 fun launchTrengerOppfolgingConsumer(
     applicationState: ApplicationState,
     kafkaEnvironment: KafkaEnvironment,
+    personBehandlendeEnhetService: PersonBehandlendeEnhetService,
 ) {
     val trengerOppfolgingService = TrengerOppfolgingService(
-        database = database
+        database = database,
+        personBehandlendeEnhetService = personBehandlendeEnhetService,
     )
     val trengerOppfolgingConsumer = TrengerOppfolgingConsumer(
         trengerOppfolgingService = trengerOppfolgingService,

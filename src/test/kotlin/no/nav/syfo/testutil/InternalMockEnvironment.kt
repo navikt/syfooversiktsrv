@@ -36,7 +36,7 @@ class InternalMockEnvironment private constructor() {
         redisStore = redisStore,
     )
 
-    private val personBehandlendeEnhetService = PersonBehandlendeEnhetService(
+    internal val personBehandlendeEnhetService = PersonBehandlendeEnhetService(
         database = database,
         behandlendeEnhetClient = behandlendeEnhetClient,
     )

@@ -13,7 +13,9 @@ import no.nav.syfo.application.cache.RedisStore
 import no.nav.syfo.application.database.database
 import no.nav.syfo.application.database.databaseModule
 import no.nav.syfo.client.azuread.AzureAdClient
+import no.nav.syfo.client.behandlendeenhet.BehandlendeEnhetClient
 import no.nav.syfo.client.pdl.PdlClient
+import no.nav.syfo.cronjob.behandlendeenhet.PersonBehandlendeEnhetService
 import no.nav.syfo.cronjob.launchCronjobModule
 import no.nav.syfo.kafka.launchKafkaModule
 import no.nav.syfo.personstatus.PersonoversiktStatusService
@@ -45,7 +47,12 @@ fun main() {
         azureAdClient = azureAdClient,
         clientEnvironment = environment.clients.pdl,
     )
+    val behandlendeEnhetClient = BehandlendeEnhetClient(
+        azureAdClient = azureAdClient,
+        clientEnvironment = environment.clients.syfobehandlendeenhet,
+    )
 
+    lateinit var personBehandlendeEnhetService: PersonBehandlendeEnhetService
     lateinit var personoversiktStatusService: PersonoversiktStatusService
 
     val applicationEngineEnvironment = applicationEngineEnvironment {
@@ -63,6 +70,10 @@ fun main() {
             personoversiktStatusService = PersonoversiktStatusService(
                 database = database,
                 pdlClient = pdlClient,
+            )
+            personBehandlendeEnhetService = PersonBehandlendeEnhetService(
+                database = database,
+                behandlendeEnhetClient = behandlendeEnhetClient,
             )
             apiModule(
                 applicationState = applicationState,
@@ -92,6 +103,7 @@ fun main() {
             environment = environment,
             azureAdClient = azureAdClient,
             personoversiktStatusService = personoversiktStatusService,
+            personBehandlendeEnhetService = personBehandlendeEnhetService,
         )
         launchCronjobModule(
             applicationState = applicationState,
@@ -99,6 +111,7 @@ fun main() {
             environment = environment,
             redisStore = redisStore,
             azureAdClient = azureAdClient,
+            personBehandlendeEnhetService = personBehandlendeEnhetService,
         )
     }
 
