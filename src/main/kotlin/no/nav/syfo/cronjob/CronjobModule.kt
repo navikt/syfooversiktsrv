@@ -6,7 +6,6 @@ import no.nav.syfo.application.backgroundtask.launchBackgroundTask
 import no.nav.syfo.application.cache.RedisStore
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.client.azuread.AzureAdClient
-import no.nav.syfo.client.behandlendeenhet.BehandlendeEnhetClient
 import no.nav.syfo.client.ereg.EregClient
 import no.nav.syfo.client.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.cronjob.behandlendeenhet.PersonBehandlendeEnhetCronjob
@@ -24,6 +23,7 @@ fun launchCronjobModule(
     environment: Environment,
     redisStore: RedisStore,
     azureAdClient: AzureAdClient,
+    personBehandlendeEnhetService: PersonBehandlendeEnhetService,
 ) {
     val eregClient = EregClient(
         clientEnvironment = environment.clients.ereg,
@@ -37,14 +37,6 @@ fun launchCronjobModule(
         personOppfolgingstilfelleVirksomhetsnavnService = personOppfolgingstilfelleVirksomhetsnavnService,
     )
 
-    val behandlendeEnhetClient = BehandlendeEnhetClient(
-        azureAdClient = azureAdClient,
-        clientEnvironment = environment.clients.syfobehandlendeenhet,
-    )
-    val personBehandlendeEnhetService = PersonBehandlendeEnhetService(
-        database = database,
-        behandlendeEnhetClient = behandlendeEnhetClient,
-    )
     val personBehandlendeEnhetCronjob = PersonBehandlendeEnhetCronjob(
         personBehandlendeEnhetService = personBehandlendeEnhetService,
         intervalDelayMinutes = environment.cronjobBehandlendeEnhetIntervalDelayMinutes,

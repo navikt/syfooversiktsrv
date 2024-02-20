@@ -4,6 +4,7 @@ import no.nav.syfo.aktivitetskravvurdering.kafka.launchKafkaTaskAktivitetskravVu
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.Environment
 import no.nav.syfo.client.azuread.AzureAdClient
+import no.nav.syfo.cronjob.behandlendeenhet.PersonBehandlendeEnhetService
 import no.nav.syfo.dialogmotekandidat.kafka.launchKafkaTaskDialogmotekandidatEndring
 import no.nav.syfo.dialogmotestatusendring.kafka.launchKafkaTaskDialogmoteStatusendring
 import no.nav.syfo.trengeroppfolging.kafka.launchTrengerOppfolgingConsumer
@@ -18,6 +19,7 @@ fun launchKafkaModule(
     environment: Environment,
     azureAdClient: AzureAdClient,
     personoversiktStatusService: PersonoversiktStatusService,
+    personBehandlendeEnhetService: PersonBehandlendeEnhetService,
 ) {
     launchKafkaTaskPersonoppgavehendelse(
         applicationState = applicationState,
@@ -56,5 +58,6 @@ fun launchKafkaModule(
     launchTrengerOppfolgingConsumer(
         applicationState = applicationState,
         kafkaEnvironment = environment.kafka,
+        personBehandlendeEnhetService = personBehandlendeEnhetService,
     )
 }
