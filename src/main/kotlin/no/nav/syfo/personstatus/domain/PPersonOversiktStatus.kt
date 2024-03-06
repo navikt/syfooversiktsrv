@@ -40,6 +40,7 @@ data class PPersonOversiktStatus(
     val trengerOppfolgingFrist: LocalDate?,
     val behandlerBerOmBistandUbehandlet: Boolean,
     val antallSykedager: Int?,
+    val arbeidsuforhetVurderAvslagUbehandlet: Boolean,
 )
 
 fun PPersonOversiktStatus.toPersonOversiktStatus(
@@ -70,6 +71,7 @@ fun PPersonOversiktStatus.toPersonOversiktStatus(
     trengerOppfolging = trengerOppfolging,
     trengerOppfolgingFrist = trengerOppfolgingFrist,
     behandlerBerOmBistandUbehandlet = behandlerBerOmBistandUbehandlet,
+    arbeidsuforhetVurderAvslagUbehandlet = arbeidsuforhetVurderAvslagUbehandlet,
 )
 
 fun PPersonOversiktStatus.toPersonOppfolgingstilfelle(

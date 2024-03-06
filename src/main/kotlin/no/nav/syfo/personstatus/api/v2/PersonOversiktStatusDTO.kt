@@ -24,6 +24,7 @@ data class PersonOversiktStatusDTO(
     val trengerOppfolging: Boolean,
     val trengerOppfolgingFrist: LocalDate?,
     val behandlerBerOmBistandUbehandlet: Boolean,
+    val arbeidsuforhetVurderAvslagUbehandlet: Boolean,
 )
 
 data class PersonOppfolgingstilfelleDTO(

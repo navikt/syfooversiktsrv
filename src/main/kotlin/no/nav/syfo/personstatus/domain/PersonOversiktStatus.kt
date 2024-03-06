@@ -35,13 +35,14 @@ data class PersonOversiktStatus(
     val trengerOppfolging: Boolean = false,
     val trengerOppfolgingFrist: LocalDate? = null,
     val behandlerBerOmBistandUbehandlet: Boolean = false,
+    val arbeidsuforhetVurderAvslagUbehandlet: Boolean = false,
 ) {
     constructor(fnr: String) : this(
         null, fnr = fnr, null, null, null,
         null, false, null, null, null,
         null, null, null, null, null, null,
         false, false, false, false, false,
-        null, false,
+        null, false, false,
     )
 }
 
@@ -72,7 +73,7 @@ fun PersonOversiktStatus.hasActiveOppgave(arenaCutoff: LocalDate): Boolean {
         this.isActiveAktivitetskrav(arenaCutoff = arenaCutoff) ||
         hasActiveBehandlerdialogOppgave() ||
         this.aktivitetskravVurderStansUbehandlet ||
-        this.trengerOppfolging || this.behandlerBerOmBistandUbehandlet
+        this.trengerOppfolging || this.behandlerBerOmBistandUbehandlet || this.arbeidsuforhetVurderAvslagUbehandlet
 }
 
 fun List<PersonOversiktStatus>.addPersonName(
@@ -115,6 +116,7 @@ fun PersonOversiktStatus.toPersonOversiktStatusDTO(arenaCutoff: LocalDate) =
         trengerOppfolging = trengerOppfolging,
         trengerOppfolgingFrist = trengerOppfolgingFrist,
         behandlerBerOmBistandUbehandlet = behandlerBerOmBistandUbehandlet,
+        arbeidsuforhetVurderAvslagUbehandlet = arbeidsuforhetVurderAvslagUbehandlet,
     )
 
 fun PersonOversiktStatus.hasActiveBehandlerdialogOppgave(): Boolean {
@@ -188,5 +190,11 @@ fun PersonOversiktStatus.applyHendelse(
         )
         OversikthendelseType.BEHANDLER_BER_OM_BISTAND_BEHANDLET -> this.copy(
             behandlerBerOmBistandUbehandlet = false
+        )
+        OversikthendelseType.ARBEIDSUFORHET_VURDER_AVSLAG_MOTTATT -> this.copy(
+            arbeidsuforhetVurderAvslagUbehandlet = true,
+        )
+        OversikthendelseType.ARBEIDSUFORHET_VURDER_AVSLAG_BEHANDLET -> this.copy(
+            arbeidsuforhetVurderAvslagUbehandlet = false,
         )
     }
