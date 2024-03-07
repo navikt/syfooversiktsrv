@@ -47,8 +47,9 @@ const val queryCreatePersonOversiktStatus =
         trenger_oppfolging,
         trenger_oppfolging_frist,
         behandler_bistand_ubehandlet,
+        arbeidsuforhet_vurder_avslag_ubehandlet,
         antall_sykedager
-    ) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     RETURNING id
     """
 
@@ -113,9 +114,10 @@ fun Connection.createPersonOversiktStatus(
         it.setBoolean(31, personOversiktStatus.trengerOppfolging)
         it.setObject(32, personOversiktStatus.trengerOppfolgingFrist)
         it.setBoolean(33, personOversiktStatus.behandlerBerOmBistandUbehandlet)
+        it.setBoolean(34, personOversiktStatus.arbeidsuforhetVurderAvslagUbehandlet)
         if (personOversiktStatus.latestOppfolgingstilfelle?.antallSykedager != null) {
-            it.setInt(34, personOversiktStatus.latestOppfolgingstilfelle.antallSykedager)
-        } else it.setNull(34, Types.INTEGER)
+            it.setInt(35, personOversiktStatus.latestOppfolgingstilfelle.antallSykedager)
+        } else it.setNull(35, Types.INTEGER)
         it.executeQuery().toList { getInt("id") }.firstOrNull()
     } ?: throw SQLException("Creating PersonOversikStatus failed, no rows affected.")
 

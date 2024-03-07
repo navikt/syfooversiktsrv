@@ -42,6 +42,7 @@ const val queryPersonOppfolgingstilfelleVirksomhetNoVirksomhetsnavnList =
         OR aktivitetskrav_vurder_stans_ubehandlet = 't'
         OR trenger_oppfolging = 't'
         OR behandler_bistand_ubehandlet = 't'
+        OR arbeidsuforhet_vurder_avslag_ubehandlet = 't'
         )
     ORDER BY PERSON_OPPFOLGINGSTILFELLE_VIRKSOMHET.created_at ASC
     LIMIT 1000

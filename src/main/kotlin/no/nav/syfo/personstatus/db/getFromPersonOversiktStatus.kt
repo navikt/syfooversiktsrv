@@ -53,6 +53,7 @@ const val queryHentUbehandledePersonerTilknyttetEnhet = """
                             OR aktivitetskrav_vurder_stans_ubehandlet = 't'
                             OR trenger_oppfolging = 't'
                             OR behandler_bistand_ubehandlet = 't'
+                            OR arbeidsuforhet_vurder_avslag_ubehandlet = 't'
                             )
                         );
                 """
@@ -113,14 +114,15 @@ fun ResultSet.toPPersonOversiktStatus(): PPersonOversiktStatus =
         aktivitetskravStoppunkt = getObject("aktivitetskrav_stoppunkt", LocalDate::class.java),
         aktivitetskravUpdatedAt = getObject("aktivitetskrav_sist_vurdert", OffsetDateTime::class.java),
         aktivitetskravVurderingFrist = getObject("aktivitetskrav_vurdering_frist", LocalDate::class.java),
-        behandlerdialogSvarUbehandlet = getObject("behandlerdialog_svar_ubehandlet") as Boolean,
-        behandlerdialogUbesvartUbehandlet = getObject("behandlerdialog_ubesvart_ubehandlet") as Boolean,
-        behandlerdialogAvvistUbehandlet = getObject("behandlerdialog_avvist_ubehandlet") as Boolean,
-        aktivitetskravVurderStansUbehandlet = getObject("aktivitetskrav_vurder_stans_ubehandlet") as Boolean,
-        trengerOppfolging = getObject("trenger_oppfolging") as Boolean,
+        behandlerdialogSvarUbehandlet = getBoolean("behandlerdialog_svar_ubehandlet"),
+        behandlerdialogUbesvartUbehandlet = getBoolean("behandlerdialog_ubesvart_ubehandlet"),
+        behandlerdialogAvvistUbehandlet = getBoolean("behandlerdialog_avvist_ubehandlet"),
+        aktivitetskravVurderStansUbehandlet = getBoolean("aktivitetskrav_vurder_stans_ubehandlet"),
+        trengerOppfolging = getBoolean("trenger_oppfolging") as Boolean,
         trengerOppfolgingFrist = getObject("trenger_oppfolging_frist", LocalDate::class.java),
-        behandlerBerOmBistandUbehandlet = getObject("behandler_bistand_ubehandlet") as Boolean,
+        behandlerBerOmBistandUbehandlet = getBoolean("behandler_bistand_ubehandlet"),
         antallSykedager = getObject("antall_sykedager") as Int?,
+        arbeidsuforhetVurderAvslagUbehandlet = getBoolean("arbeidsuforhet_vurder_avslag_ubehandlet")
     )
 
 fun ResultSet.toVeilederBrukerKnytning(): VeilederBrukerKnytning =
