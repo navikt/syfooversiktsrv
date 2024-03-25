@@ -76,7 +76,7 @@ class EregClient(
     }
 
     companion object {
-        const val EREG_PATH = "/ereg/api/v1/organisasjon"
+        const val EREG_PATH = "ereg/api/v1/organisasjon"
 
         const val CACHE_EREG_VIRKSOMHETSNAVN_KEY_PREFIX = "ereg-virksomhetsnavn-"
         const val CACHE_EREG_VIRKSOMHETSNAVN_TIME_TO_LIVE_SECONDS = 24 * 60 * 60L
