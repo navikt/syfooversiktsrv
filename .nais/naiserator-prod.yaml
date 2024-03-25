@@ -72,6 +72,10 @@ spec:
         diskAutoresize: true
   kafka:
     pool: nav-prod
+  observability:
+    autoInstrumentation:
+      enabled: true
+      runtime: java
   envFrom:
     - secret: syfooversiktsrv-redis-password
   env:
