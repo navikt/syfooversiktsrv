@@ -36,6 +36,7 @@ data class PersonOversiktStatus(
     val trengerOppfolgingFrist: LocalDate? = null,
     val behandlerBerOmBistandUbehandlet: Boolean = false,
     val arbeidsuforhetVurderAvslagUbehandlet: Boolean = false,
+    val friskmeldingtilarbeidsformidlingFom: LocalDate? = null,
 ) {
     constructor(fnr: String) : this(
         null, fnr = fnr, null, null, null,
@@ -117,6 +118,7 @@ fun PersonOversiktStatus.toPersonOversiktStatusDTO(arenaCutoff: LocalDate) =
         trengerOppfolgingFrist = trengerOppfolgingFrist,
         behandlerBerOmBistandUbehandlet = behandlerBerOmBistandUbehandlet,
         arbeidsuforhetVurderAvslagUbehandlet = arbeidsuforhetVurderAvslagUbehandlet,
+        friskmeldingtilarbeidsformidlingFom = friskmeldingtilarbeidsformidlingFom,
     )
 
 fun PersonOversiktStatus.hasActiveBehandlerdialogOppgave(): Boolean {

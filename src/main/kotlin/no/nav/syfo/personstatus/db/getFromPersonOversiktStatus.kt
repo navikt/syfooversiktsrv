@@ -54,6 +54,7 @@ const val queryHentUbehandledePersonerTilknyttetEnhet = """
                             OR trenger_oppfolging = 't'
                             OR behandler_bistand_ubehandlet = 't'
                             OR arbeidsuforhet_vurder_avslag_ubehandlet = 't'
+                            OR (friskmelding_til_arbeidsformidling_fom IS NOT NULL AND friskmelding_til_arbeidsformidling_fom >= CURRENT_DATE)
                             )
                         );
                 """
@@ -122,7 +123,8 @@ fun ResultSet.toPPersonOversiktStatus(): PPersonOversiktStatus =
         trengerOppfolgingFrist = getObject("trenger_oppfolging_frist", LocalDate::class.java),
         behandlerBerOmBistandUbehandlet = getBoolean("behandler_bistand_ubehandlet"),
         antallSykedager = getObject("antall_sykedager") as Int?,
-        arbeidsuforhetVurderAvslagUbehandlet = getBoolean("arbeidsuforhet_vurder_avslag_ubehandlet")
+        arbeidsuforhetVurderAvslagUbehandlet = getBoolean("arbeidsuforhet_vurder_avslag_ubehandlet"),
+        friskmeldingtilarbeidsformidlingFom = getDate("friskmelding_til_arbeidsformidling_fom")?.toLocalDate(),
     )
 
 fun ResultSet.toVeilederBrukerKnytning(): VeilederBrukerKnytning =
