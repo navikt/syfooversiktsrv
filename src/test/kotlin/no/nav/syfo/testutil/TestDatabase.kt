@@ -8,6 +8,7 @@ import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import org.flywaydb.core.Flyway
 import java.sql.Connection
 import java.sql.Timestamp
+import java.time.LocalDate
 import java.time.OffsetDateTime
 
 class TestDatabase : DatabaseInterface {
@@ -105,7 +106,28 @@ fun DatabaseInterface.setTildeltEnhet(
         connection.prepareStatement(querySetTildeltEnhet).use {
             it.setString(1, enhet)
             it.setString(2, ident.value)
-            it.execute()
+            if (it.executeUpdate() != 1) throw RuntimeException("No row updated")
+        }
+        connection.commit()
+    }
+}
+
+const val queryFriskmeldingtilarbeidsformidlingFom =
+    """
+    UPDATE PERSON_OVERSIKT_STATUS
+    SET friskmelding_til_arbeidsformidling_fom = ?
+    WHERE fnr = ?
+    """
+
+fun DatabaseInterface.setFriskmeldingtilarbeidsformidlingFom(
+    ident: PersonIdent,
+    fom: LocalDate,
+) {
+    this.connection.use { connection ->
+        connection.prepareStatement(queryFriskmeldingtilarbeidsformidlingFom).use {
+            it.setObject(1, fom)
+            it.setString(2, ident.value)
+            if (it.executeUpdate() != 1) throw RuntimeException("No row updated")
         }
         connection.commit()
     }
