@@ -23,7 +23,6 @@ class PersonoversiktStatusService(
         val personListe = database.hentUbehandledePersonerTilknyttetEnhet(
             enhet = enhet,
         )
-        val today = LocalDate.now()
         return personListe.map { pPersonOversikStatus ->
             val personOppfolgingstilfelleVirksomhetList = getPersonOppfolgingstilfelleVirksomhetList(
                 pPersonOversikStatusId = pPersonOversikStatus.id,
@@ -32,7 +31,7 @@ class PersonoversiktStatusService(
                 personOppfolgingstilfelleVirksomhetList = personOppfolgingstilfelleVirksomhetList,
             )
         }.filter { personOversiktStatus ->
-            personOversiktStatus.hasActiveOppgave(arenaCutoff = arenaCutoff, today = today)
+            personOversiktStatus.hasActiveOppgave(arenaCutoff = arenaCutoff)
         }
     }
 

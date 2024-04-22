@@ -36,7 +36,7 @@ data class PersonOversiktStatus(
     val trengerOppfolgingFrist: LocalDate? = null,
     val behandlerBerOmBistandUbehandlet: Boolean = false,
     val arbeidsuforhetVurderAvslagUbehandlet: Boolean = false,
-    val friskmeldingtilarbeidsformidlingFom: LocalDate? = null,
+    val friskmeldingTilArbeidsformidlingFom: LocalDate? = null,
 ) {
     constructor(fnr: String) : this(
         null, fnr = fnr, null, null, null,
@@ -66,14 +66,14 @@ fun PersonOversiktStatus.isActiveAktivitetskrav(arenaCutoff: LocalDate) =
     (aktivitetskrav == AktivitetskravStatus.NY || aktivitetskrav == AktivitetskravStatus.AVVENT) &&
         aktivitetskravStoppunkt?.isAfter(arenaCutoff) ?: false
 
-fun PersonOversiktStatus.hasActiveOppgave(arenaCutoff: LocalDate, today: LocalDate): Boolean {
+fun PersonOversiktStatus.hasActiveOppgave(arenaCutoff: LocalDate): Boolean {
     return this.oppfolgingsplanLPSBistandUbehandlet == true ||
         this.dialogmotesvarUbehandlet ||
         this.isDialogmotekandidat() ||
         (this.motebehovUbehandlet == true && this.latestOppfolgingstilfelle != null) ||
         this.isActiveAktivitetskrav(arenaCutoff = arenaCutoff) ||
         this.hasActiveBehandlerdialogOppgave() ||
-        this.hasFriskmeldingTilArbeidsformidling(today) ||
+        this.hasFriskmeldingTilArbeidsformidling() ||
         this.aktivitetskravVurderStansUbehandlet ||
         this.trengerOppfolging || this.behandlerBerOmBistandUbehandlet || this.arbeidsuforhetVurderAvslagUbehandlet
 }
@@ -119,7 +119,7 @@ fun PersonOversiktStatus.toPersonOversiktStatusDTO(arenaCutoff: LocalDate) =
         trengerOppfolgingFrist = trengerOppfolgingFrist,
         behandlerBerOmBistandUbehandlet = behandlerBerOmBistandUbehandlet,
         arbeidsuforhetVurderAvslagUbehandlet = arbeidsuforhetVurderAvslagUbehandlet,
-        friskmeldingtilarbeidsformidlingFom = friskmeldingtilarbeidsformidlingFom,
+        friskmeldingTilArbeidsformidlingFom = friskmeldingTilArbeidsformidlingFom,
     )
 
 fun PersonOversiktStatus.hasActiveBehandlerdialogOppgave(): Boolean {
@@ -128,8 +128,8 @@ fun PersonOversiktStatus.hasActiveBehandlerdialogOppgave(): Boolean {
         this.behandlerdialogAvvistUbehandlet
 }
 
-private fun PersonOversiktStatus.hasFriskmeldingTilArbeidsformidling(today: LocalDate): Boolean =
-    this.friskmeldingtilarbeidsformidlingFom != null && today.isBeforeOrEqual(this.friskmeldingtilarbeidsformidlingFom)
+private fun PersonOversiktStatus.hasFriskmeldingTilArbeidsformidling(): Boolean =
+    this.friskmeldingTilArbeidsformidlingFom != null && LocalDate.now().isBeforeOrEqual(this.friskmeldingTilArbeidsformidlingFom)
 
 fun PersonOversiktStatus.applyHendelse(
     oversikthendelseType: OversikthendelseType,

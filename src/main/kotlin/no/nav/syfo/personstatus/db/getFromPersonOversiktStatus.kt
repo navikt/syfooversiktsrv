@@ -124,7 +124,7 @@ fun ResultSet.toPPersonOversiktStatus(): PPersonOversiktStatus =
         behandlerBerOmBistandUbehandlet = getBoolean("behandler_bistand_ubehandlet"),
         antallSykedager = getObject("antall_sykedager") as Int?,
         arbeidsuforhetVurderAvslagUbehandlet = getBoolean("arbeidsuforhet_vurder_avslag_ubehandlet"),
-        friskmeldingtilarbeidsformidlingFom = getDate("friskmelding_til_arbeidsformidling_fom")?.toLocalDate(),
+        friskmeldingTilArbeidsformidlingFom = getDate("friskmelding_til_arbeidsformidling_fom")?.toLocalDate(),
     )
 
 fun ResultSet.toVeilederBrukerKnytning(): VeilederBrukerKnytning =

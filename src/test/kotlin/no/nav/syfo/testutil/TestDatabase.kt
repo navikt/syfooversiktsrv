@@ -119,7 +119,7 @@ const val queryFriskmeldingtilarbeidsformidlingFom =
     WHERE fnr = ?
     """
 
-fun DatabaseInterface.setFriskmeldingtilarbeidsformidlingFom(
+fun DatabaseInterface.setFriskmeldingTilArbeidsformidlingFom(
     ident: PersonIdent,
     fom: LocalDate,
 ) {

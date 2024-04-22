@@ -35,11 +35,10 @@ class PreloadCacheCronjob(
         database.getEnheter()
             .forEach { enhetNr ->
                 try {
-                    val now = LocalDate.now()
                     val personer = database.hentUbehandledePersonerTilknyttetEnhet(enhetNr).map { pPersonOversiktStatus ->
                         pPersonOversiktStatus.toPersonOversiktStatus(emptyList())
                     }.filter { personOversiktStatus ->
-                        personOversiktStatus.hasActiveOppgave(arenaCutoff, now)
+                        personOversiktStatus.hasActiveOppgave(arenaCutoff)
                     }
 
                     log.info("Caching ${personer.size} for enhet $enhetNr")

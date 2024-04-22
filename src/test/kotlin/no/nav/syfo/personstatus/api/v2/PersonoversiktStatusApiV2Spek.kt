@@ -592,7 +592,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     with(database) {
                         createPersonOversiktStatus(PersonOversiktStatus(personident.value))
                         setTildeltEnhet(personident, NAV_ENHET)
-                        setFriskmeldingtilarbeidsformidlingFom(personident, LocalDate.now().plusDays(1))
+                        setFriskmeldingTilArbeidsformidlingFom(personident, LocalDate.now().plusDays(1))
                     }
 
                     with(
@@ -606,7 +606,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                             objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
                         personOversiktStatus.fnr shouldBeEqualTo personident.value
                         personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
-                        personOversiktStatus.friskmeldingtilarbeidsformidlingFom!! shouldBeAfter LocalDate.now()
+                        personOversiktStatus.friskmeldingTilArbeidsformidlingFom!! shouldBeAfter LocalDate.now()
                     }
                 }
                 it("return person with friskmelding til arbeidsformidling starting today") {
@@ -614,7 +614,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     with(database) {
                         createPersonOversiktStatus(PersonOversiktStatus(personident.value))
                         setTildeltEnhet(personident, NAV_ENHET)
-                        setFriskmeldingtilarbeidsformidlingFom(personident, LocalDate.now())
+                        setFriskmeldingTilArbeidsformidlingFom(personident, LocalDate.now())
                     }
 
                     with(
@@ -628,7 +628,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                             objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
                         personOversiktStatus.fnr shouldBeEqualTo personident.value
                         personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
-                        personOversiktStatus.friskmeldingtilarbeidsformidlingFom!! shouldBeEqualTo LocalDate.now()
+                        personOversiktStatus.friskmeldingTilArbeidsformidlingFom!! shouldBeEqualTo LocalDate.now()
                     }
                 }
                 it("does not return person with friskmelding til arbeidsformidling starting yesterday") {
@@ -636,7 +636,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     with(database) {
                         createPersonOversiktStatus(PersonOversiktStatus(personident.value))
                         setTildeltEnhet(personident, NAV_ENHET)
-                        setFriskmeldingtilarbeidsformidlingFom(personident, LocalDate.now().minusDays(1))
+                        setFriskmeldingTilArbeidsformidlingFom(personident, LocalDate.now().minusDays(1))
                     }
                     with(
                         handleRequest(HttpMethod.Get, url) {
