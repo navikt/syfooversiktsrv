@@ -18,7 +18,7 @@ fun generateKafkaFriskTilArbeidVedtak(
     uuid = UUID.randomUUID(),
     createdAt = createdAt,
     veilederident = UserConstants.VEILEDER_ID,
-    personident = personIdent,
+    personident = personIdent.value,
     begrunnelse = "",
     fom = fom,
     tom = fom.plusDays(90),
