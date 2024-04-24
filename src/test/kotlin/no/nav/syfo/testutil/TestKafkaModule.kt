@@ -5,6 +5,8 @@ import no.nav.syfo.dialogmote.avro.KDialogmoteStatusEndring
 import no.nav.syfo.dialogmotekandidat.kafka.KafkaDialogmotekandidatEndring
 import no.nav.syfo.dialogmotekandidat.kafka.KafkaDialogmotekandidatEndringService
 import no.nav.syfo.dialogmotestatusendring.kafka.KafkaDialogmoteStatusendringService
+import no.nav.syfo.frisktilarbeid.kafka.KafkaFriskTilArbeidService
+import no.nav.syfo.frisktilarbeid.kafka.VedtakFattetRecord
 import no.nav.syfo.oppfolgingstilfelle.kafka.KafkaOppfolgingstilfellePerson
 import no.nav.syfo.oppfolgingstilfelle.kafka.KafkaOppfolgingstilfellePersonService
 import no.nav.syfo.personoppgavehendelse.kafka.KPersonoppgavehendelse
@@ -30,4 +32,9 @@ object TestKafkaModule {
         database = database
     )
     val kafkaConsumerDialogmoteStatusendring = mockk<KafkaConsumer<String, KDialogmoteStatusEndring>>()
+
+    val kafkaFriskTilArbeidService = KafkaFriskTilArbeidService(
+        database = database,
+    )
+    val kafkaConsumerFriskTilArbeid = mockk<KafkaConsumer<String, VedtakFattetRecord>>()
 }

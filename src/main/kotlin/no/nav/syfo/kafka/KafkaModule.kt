@@ -7,6 +7,7 @@ import no.nav.syfo.client.azuread.AzureAdClient
 import no.nav.syfo.cronjob.behandlendeenhet.PersonBehandlendeEnhetService
 import no.nav.syfo.dialogmotekandidat.kafka.launchKafkaTaskDialogmotekandidatEndring
 import no.nav.syfo.dialogmotestatusendring.kafka.launchKafkaTaskDialogmoteStatusendring
+import no.nav.syfo.frisktilarbeid.kafka.launchKafkaTaskFriskTilArbeidVedtak
 import no.nav.syfo.trengeroppfolging.kafka.launchTrengerOppfolgingConsumer
 import no.nav.syfo.identhendelse.kafka.launchKafkaTaskIdenthendelse
 import no.nav.syfo.oppfolgingstilfelle.kafka.launchKafkaTaskOppfolgingstilfellePerson
@@ -59,5 +60,9 @@ fun launchKafkaModule(
         applicationState = applicationState,
         kafkaEnvironment = environment.kafka,
         personBehandlendeEnhetService = personBehandlendeEnhetService,
+    )
+    launchKafkaTaskFriskTilArbeidVedtak(
+        applicationState = applicationState,
+        kafkaEnvironment = environment.kafka,
     )
 }

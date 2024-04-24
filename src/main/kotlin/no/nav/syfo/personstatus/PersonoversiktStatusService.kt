@@ -7,10 +7,8 @@ import no.nav.syfo.oppfolgingstilfelle.domain.PersonOppfolgingstilfelleVirksomhe
 import no.nav.syfo.personoppgavehendelse.kafka.*
 import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.*
-import org.slf4j.LoggerFactory
 import java.sql.Connection
 import java.time.LocalDate
-import java.util.UUID
 
 class PersonoversiktStatusService(
     private val database: DatabaseInterface,
@@ -71,7 +69,6 @@ class PersonoversiktStatusService(
     ) {
         database.connection.use { connection ->
             personoppgavehendelser.forEach { personoppgavehendelse ->
-                val callId = UUID.randomUUID().toString()
                 val personident = PersonIdent(personoppgavehendelse.personident)
                 val hendelsetype = personoppgavehendelse.hendelsetype
 
@@ -79,10 +76,7 @@ class PersonoversiktStatusService(
                     connection = connection,
                     personident = personident,
                     oversikthendelseType = hendelsetype,
-                    callId = callId,
                 )
-
-                log.info("Finished processing record with callId: $callId")
                 COUNT_KAFKA_CONSUMER_PERSONOPPGAVEHENDELSE_READ.increment()
             }
             connection.commit()
@@ -93,7 +87,6 @@ class PersonoversiktStatusService(
         connection: Connection,
         personident: PersonIdent,
         oversikthendelseType: OversikthendelseType,
-        callId: String,
     ) {
         val existingPersonOversiktStatus = connection.getPersonOversiktStatusList(
             fnr = personident.value,
@@ -103,14 +96,12 @@ class PersonoversiktStatusService(
             val personOversiktStatus = PersonOversiktStatus(fnr = personident.value)
             val personOversiktStatusWithHendelseType = personOversiktStatus.applyHendelse(oversikthendelseType)
 
-            log.info("TRACE: No existing status for person, callId: $callId")
             connection.createPersonOversiktStatus(
                 commit = false,
                 personOversiktStatus = personOversiktStatusWithHendelseType,
             )
             COUNT_KAFKA_CONSUMER_PERSONOPPGAVEHENDELSE_CREATED_PERSONOVERSIKT_STATUS.increment()
         } else {
-            log.info("TRACE: Found existing PersonOversiktStatus, oversikthendelseType: $oversikthendelseType callId: $callId")
             when (oversikthendelseType) {
                 OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT ->
                     connection.updatePersonOversiktStatusLPS(isUbehandlet, personident)
@@ -150,9 +141,5 @@ class PersonoversiktStatusService(
 
             COUNT_KAFKA_CONSUMER_PERSONOPPGAVEHENDELSE_UPDATED_PERSONOVERSIKT_STATUS.increment()
         }
-    }
-
-    companion object {
-        private val log = LoggerFactory.getLogger(PersonoversiktStatusService::class.java)
     }
 }
