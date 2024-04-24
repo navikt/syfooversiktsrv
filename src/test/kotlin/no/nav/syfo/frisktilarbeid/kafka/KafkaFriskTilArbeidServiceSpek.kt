@@ -67,7 +67,7 @@ class KafkaFriskTilArbeidServiceSpek : Spek({
 
                 val pPersonOversiktStatus = pPersonOversiktStatusList.first()
 
-                pPersonOversiktStatus.fnr shouldBeEqualTo vedtak.personident.value
+                pPersonOversiktStatus.fnr shouldBeEqualTo vedtak.personident
                 pPersonOversiktStatus.friskmeldingTilArbeidsformidlingFom shouldBeEqualTo vedtak.fom
 
                 pPersonOversiktStatus.enhet.shouldBeNull()
@@ -101,7 +101,7 @@ class KafkaFriskTilArbeidServiceSpek : Spek({
 
                 pPersonOversiktStatusList.size shouldBeEqualTo 1
                 val pPersonOversiktStatus = pPersonOversiktStatusList.first()
-                pPersonOversiktStatus.fnr shouldBeEqualTo vedtak.personident.value
+                pPersonOversiktStatus.fnr shouldBeEqualTo vedtak.personident
                 pPersonOversiktStatus.friskmeldingTilArbeidsformidlingFom shouldBeEqualTo vedtak.fom
             }
         }

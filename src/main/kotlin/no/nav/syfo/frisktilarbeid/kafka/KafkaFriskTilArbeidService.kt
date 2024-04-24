@@ -55,7 +55,7 @@ class KafkaFriskTilArbeidService(
         vedtakFattetRecord: VedtakFattetRecord,
     ) {
         val existingPersonOversiktStatus = connection.getPersonOversiktStatusList(
-            fnr = vedtakFattetRecord.personident.value,
+            fnr = vedtakFattetRecord.personident,
         ).firstOrNull()
 
         if (existingPersonOversiktStatus == null) {

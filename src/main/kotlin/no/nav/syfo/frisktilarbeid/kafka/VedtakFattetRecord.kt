@@ -1,6 +1,5 @@
 package no.nav.syfo.frisktilarbeid.kafka
 
-import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import java.time.LocalDate
 import java.time.OffsetDateTime
@@ -8,7 +7,7 @@ import java.util.*
 
 data class VedtakFattetRecord(
     val uuid: UUID,
-    val personident: PersonIdent,
+    val personident: String,
     val veilederident: String,
     val createdAt: OffsetDateTime,
     val begrunnelse: String,
@@ -18,7 +17,7 @@ data class VedtakFattetRecord(
 
 fun VedtakFattetRecord.toPersonOversiktStatus() = PersonOversiktStatus(
     veilederIdent = null,
-    fnr = this.personident.value,
+    fnr = this.personident,
     navn = null,
     enhet = null,
     motebehovUbehandlet = null,
