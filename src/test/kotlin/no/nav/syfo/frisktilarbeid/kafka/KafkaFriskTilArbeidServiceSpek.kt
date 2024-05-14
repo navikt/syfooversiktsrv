@@ -86,18 +86,6 @@ class KafkaFriskTilArbeidServiceSpek : Spek({
                     )
                 )
 
-                kafkaFriskTilArbeidService.pollAndProcessRecords(
-                    kafkaConsumer = kafkaConsumerFriskTilArbeid,
-                )
-
-                every { kafkaConsumerFriskTilArbeid.poll(any<Duration>()) } returns ConsumerRecords(
-                    mapOf(
-                        topicPartition to listOf(
-                            kafkaFriskTilArbeidConsumerRecord,
-                        )
-                    )
-                )
-
                 val kafkaOppfolgingstilfellePerson = generateKafkaOppfolgingstilfellePerson()
                 val kafkaOppfolgingstilfelle = kafkaOppfolgingstilfellePerson.oppfolgingstilfelleList.first()
                 database.createPersonOversiktStatus(
@@ -128,6 +116,12 @@ class KafkaFriskTilArbeidServiceSpek : Spek({
                         )
                     )
                 )
+                kafkaFriskTilArbeidService.pollAndProcessRecords(
+                    kafkaConsumer = kafkaConsumerFriskTilArbeid,
+                )
+                clearMocks(kafkaConsumerFriskTilArbeid)
+                every { kafkaConsumerFriskTilArbeid.commitSync() } returns Unit
+
                 val pPersonOversiktStatusListBefore =
                     database.connection.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
 
