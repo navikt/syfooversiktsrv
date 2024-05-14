@@ -150,7 +150,7 @@ const val queryUpdatePersonOversiktStatusKandidat =
 
 fun Connection.updatePersonOversiktStatusFriskmeldtTilArbeid(
     pPersonOversiktStatus: PPersonOversiktStatus,
-    friskTilArbeidFom: LocalDate,
+    friskTilArbeidFom: LocalDate?,
 ) {
     this.prepareStatement(queryUpdatePersonOversiktStatusFriskmeldtTilArbeid).use {
         it.setObject(1, friskTilArbeidFom)
