@@ -5,17 +5,23 @@ import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.*
 
-data class VedtakFattetRecord(
+data class VedtakStatusRecord(
     val uuid: UUID,
     val personident: String,
-    val veilederident: String,
-    val createdAt: OffsetDateTime,
     val begrunnelse: String,
     val fom: LocalDate,
     val tom: LocalDate,
+    val status: Status,
+    val statusAt: OffsetDateTime,
+    val statusBy: String,
 )
 
-fun VedtakFattetRecord.toPersonOversiktStatus() = PersonOversiktStatus(
+enum class Status {
+    FATTET,
+    FERDIG_BEHANDLET,
+}
+
+fun VedtakStatusRecord.toPersonOversiktStatus() = PersonOversiktStatus(
     veilederIdent = null,
     fnr = this.personident,
     navn = null,
@@ -35,5 +41,5 @@ fun VedtakFattetRecord.toPersonOversiktStatus() = PersonOversiktStatus(
     behandlerdialogSvarUbehandlet = false,
     behandlerdialogUbesvartUbehandlet = false,
     behandlerdialogAvvistUbehandlet = false,
-    friskmeldingTilArbeidsformidlingFom = this.fom,
+    friskmeldingTilArbeidsformidlingFom = if (this.status == Status.FATTET) this.fom else null,
 )

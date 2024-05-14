@@ -13,11 +13,11 @@ import java.time.Duration
 
 class KafkaFriskTilArbeidService(
     private val database: DatabaseInterface,
-) : KafkaConsumerService<VedtakFattetRecord> {
+) : KafkaConsumerService<VedtakStatusRecord> {
 
     override val pollDurationInMillis: Long = 1000
 
-    override fun pollAndProcessRecords(kafkaConsumer: KafkaConsumer<String, VedtakFattetRecord>) {
+    override fun pollAndProcessRecords(kafkaConsumer: KafkaConsumer<String, VedtakStatusRecord>) {
         val records = kafkaConsumer.poll(Duration.ofMillis(pollDurationInMillis))
         if (records.count() > 0) {
             processRecords(records)
@@ -26,7 +26,7 @@ class KafkaFriskTilArbeidService(
     }
 
     private fun processRecords(
-        consumerRecords: ConsumerRecords<String, VedtakFattetRecord>,
+        consumerRecords: ConsumerRecords<String, VedtakStatusRecord>,
     ) {
         val (tombstoneRecords, validRecords) = consumerRecords.partition { it.value() == null }
 
@@ -38,11 +38,11 @@ class KafkaFriskTilArbeidService(
 
         database.connection.use { connection ->
             validRecords.forEach { record ->
-                log.info("Received ${VedtakFattetRecord::class.java.simpleName} with key=${record.key()}, ready to process.")
+                log.info("Received ${VedtakStatusRecord::class.java.simpleName} with key=${record.key()}, ready to process.")
                 val vedtak = record.value()
                 receiveKafkaFriskTilArbeidVedtak(
                     connection = connection,
-                    vedtakFattetRecord = vedtak,
+                    vedtakStatusRecord = vedtak,
                 )
                 COUNT_KAFKA_CONSUMER_FRISKTILARBEID_READ.increment()
             }
@@ -52,14 +52,14 @@ class KafkaFriskTilArbeidService(
 
     private fun receiveKafkaFriskTilArbeidVedtak(
         connection: Connection,
-        vedtakFattetRecord: VedtakFattetRecord,
+        vedtakStatusRecord: VedtakStatusRecord,
     ) {
         val existingPersonOversiktStatus = connection.getPersonOversiktStatusList(
-            fnr = vedtakFattetRecord.personident,
+            fnr = vedtakStatusRecord.personident,
         ).firstOrNull()
 
         if (existingPersonOversiktStatus == null) {
-            val personOversiktStatus = vedtakFattetRecord.toPersonOversiktStatus()
+            val personOversiktStatus = vedtakStatusRecord.toPersonOversiktStatus()
             connection.createPersonOversiktStatus(
                 commit = false,
                 personOversiktStatus = personOversiktStatus,
@@ -68,7 +68,9 @@ class KafkaFriskTilArbeidService(
         } else {
             connection.updatePersonOversiktStatusFriskmeldtTilArbeid(
                 pPersonOversiktStatus = existingPersonOversiktStatus,
-                friskTilArbeidFom = vedtakFattetRecord.fom,
+                friskTilArbeidFom = if (vedtakStatusRecord.status == Status.FATTET)
+                    vedtakStatusRecord.fom
+                else null
             )
             COUNT_KAFKA_CONSUMER_FRISKTILARBEID_UPDATED_PERSONOVERSIKT_STATUS.increment()
         }

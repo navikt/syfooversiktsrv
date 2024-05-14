@@ -2,8 +2,10 @@ package no.nav.syfo.testutil.generator
 
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.frisktilarbeid.kafka.FRISK_TIL_ARBEID_VEDTAK_TOPIC
-import no.nav.syfo.frisktilarbeid.kafka.VedtakFattetRecord
+import no.nav.syfo.frisktilarbeid.kafka.Status
+import no.nav.syfo.frisktilarbeid.kafka.VedtakStatusRecord
 import no.nav.syfo.testutil.UserConstants
+import no.nav.syfo.util.nowUTC
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.TopicPartition
 import java.time.LocalDate
@@ -14,14 +16,15 @@ fun generateKafkaFriskTilArbeidVedtak(
     personIdent: PersonIdent,
     createdAt: OffsetDateTime,
     fom: LocalDate,
-) = VedtakFattetRecord(
+) = VedtakStatusRecord(
     uuid = UUID.randomUUID(),
-    createdAt = createdAt,
-    veilederident = UserConstants.VEILEDER_ID,
     personident = personIdent.value,
     begrunnelse = "",
     fom = fom,
     tom = fom.plusDays(90),
+    status = Status.FATTET,
+    statusAt = nowUTC(),
+    statusBy = UserConstants.VEILEDER_ID,
 )
 
 fun friskTilArbeidTopicPartition() = TopicPartition(
@@ -30,11 +33,11 @@ fun friskTilArbeidTopicPartition() = TopicPartition(
 )
 
 fun friskTilArbeidConsumerRecord(
-    vedtakFattetRecord: VedtakFattetRecord
+    vedtakStatusRecord: VedtakStatusRecord
 ) = ConsumerRecord(
     FRISK_TIL_ARBEID_VEDTAK_TOPIC,
     0,
     1,
     "key1",
-    vedtakFattetRecord,
+    vedtakStatusRecord,
 )

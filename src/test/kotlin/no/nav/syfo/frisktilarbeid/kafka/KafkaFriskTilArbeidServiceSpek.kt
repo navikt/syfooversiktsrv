@@ -32,7 +32,11 @@ class KafkaFriskTilArbeidServiceSpek : Spek({
             fom = LocalDate.now().plusDays(1),
         )
         val kafkaFriskTilArbeidConsumerRecord = friskTilArbeidConsumerRecord(
-            vedtakFattetRecord = vedtak,
+            vedtakStatusRecord = vedtak,
+        )
+
+        val kafkaFriskTilArbeidFerdigConsumerRecord = friskTilArbeidConsumerRecord(
+            vedtakStatusRecord = vedtak.copy(status = Status.FERDIG_BEHANDLET),
         )
 
         beforeEachTest {
@@ -82,6 +86,18 @@ class KafkaFriskTilArbeidServiceSpek : Spek({
                     )
                 )
 
+                kafkaFriskTilArbeidService.pollAndProcessRecords(
+                    kafkaConsumer = kafkaConsumerFriskTilArbeid,
+                )
+
+                every { kafkaConsumerFriskTilArbeid.poll(any<Duration>()) } returns ConsumerRecords(
+                    mapOf(
+                        topicPartition to listOf(
+                            kafkaFriskTilArbeidConsumerRecord,
+                        )
+                    )
+                )
+
                 val kafkaOppfolgingstilfellePerson = generateKafkaOppfolgingstilfellePerson()
                 val kafkaOppfolgingstilfelle = kafkaOppfolgingstilfellePerson.oppfolgingstilfelleList.first()
                 database.createPersonOversiktStatus(
@@ -103,6 +119,48 @@ class KafkaFriskTilArbeidServiceSpek : Spek({
                 val pPersonOversiktStatus = pPersonOversiktStatusList.first()
                 pPersonOversiktStatus.fnr shouldBeEqualTo vedtak.personident
                 pPersonOversiktStatus.friskmeldingTilArbeidsformidlingFom shouldBeEqualTo vedtak.fom
+            }
+            it("updates existing PersonOversikStatus when FERDIGSTILT") {
+                every { kafkaConsumerFriskTilArbeid.poll(any<Duration>()) } returns ConsumerRecords(
+                    mapOf(
+                        topicPartition to listOf(
+                            kafkaFriskTilArbeidConsumerRecord,
+                        )
+                    )
+                )
+                val pPersonOversiktStatusListBefore =
+                    database.connection.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
+
+                pPersonOversiktStatusListBefore.size shouldBeEqualTo 1
+
+                val pPersonOversiktStatusBefore = pPersonOversiktStatusListBefore.first()
+
+                pPersonOversiktStatusBefore.fnr shouldBeEqualTo vedtak.personident
+                pPersonOversiktStatusBefore.friskmeldingTilArbeidsformidlingFom shouldBeEqualTo vedtak.fom
+
+                every { kafkaConsumerFriskTilArbeid.poll(any<Duration>()) } returns ConsumerRecords(
+                    mapOf(
+                        topicPartition to listOf(
+                            kafkaFriskTilArbeidFerdigConsumerRecord,
+                        )
+                    )
+                )
+
+                kafkaFriskTilArbeidService.pollAndProcessRecords(
+                    kafkaConsumer = kafkaConsumerFriskTilArbeid,
+                )
+
+                verify(exactly = 1) {
+                    kafkaConsumerFriskTilArbeid.commitSync()
+                }
+
+                val pPersonOversiktStatusList =
+                    database.connection.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
+
+                pPersonOversiktStatusList.size shouldBeEqualTo 1
+                val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+                pPersonOversiktStatus.fnr shouldBeEqualTo vedtak.personident
+                pPersonOversiktStatus.friskmeldingTilArbeidsformidlingFom shouldBe null
             }
         }
     }
