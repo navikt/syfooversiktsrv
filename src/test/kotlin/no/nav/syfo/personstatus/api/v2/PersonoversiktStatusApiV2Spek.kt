@@ -589,10 +589,11 @@ object PersonoversiktStatusApiV2Spek : Spek({
                 }
                 it("return person with friskmelding til arbeidsformidling starting tomorrow") {
                     val personident = PersonIdent(ARBEIDSTAKER_FNR)
+                    val tomorrow = LocalDate.now().plusDays(1)
                     with(database) {
                         createPersonOversiktStatus(PersonOversiktStatus(personident.value))
                         setTildeltEnhet(personident, NAV_ENHET)
-                        setFriskmeldingTilArbeidsformidlingFom(personident, LocalDate.now().plusDays(1))
+                        setFriskmeldingTilArbeidsformidlingFom(personident, tomorrow)
                     }
 
                     with(
@@ -606,15 +607,16 @@ object PersonoversiktStatusApiV2Spek : Spek({
                             objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
                         personOversiktStatus.fnr shouldBeEqualTo personident.value
                         personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
-                        personOversiktStatus.friskmeldingTilArbeidsformidlingFom!! shouldBeAfter LocalDate.now()
+                        personOversiktStatus.friskmeldingTilArbeidsformidlingFom!! shouldBeEqualTo tomorrow
                     }
                 }
                 it("return person with friskmelding til arbeidsformidling starting today") {
                     val personident = PersonIdent(ARBEIDSTAKER_FNR)
+                    val today = LocalDate.now()
                     with(database) {
                         createPersonOversiktStatus(PersonOversiktStatus(personident.value))
                         setTildeltEnhet(personident, NAV_ENHET)
-                        setFriskmeldingTilArbeidsformidlingFom(personident, LocalDate.now())
+                        setFriskmeldingTilArbeidsformidlingFom(personident, today)
                     }
 
                     with(
@@ -628,22 +630,27 @@ object PersonoversiktStatusApiV2Spek : Spek({
                             objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
                         personOversiktStatus.fnr shouldBeEqualTo personident.value
                         personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
-                        personOversiktStatus.friskmeldingTilArbeidsformidlingFom!! shouldBeEqualTo LocalDate.now()
+                        personOversiktStatus.friskmeldingTilArbeidsformidlingFom!! shouldBeEqualTo today
                     }
                 }
-                it("does not return person with friskmelding til arbeidsformidling starting yesterday") {
+                it("return person with friskmelding til arbeidsformidling starting yesterday") {
                     val personident = PersonIdent(ARBEIDSTAKER_FNR)
+                    val yesterday = LocalDate.now().minusDays(1)
                     with(database) {
                         createPersonOversiktStatus(PersonOversiktStatus(personident.value))
                         setTildeltEnhet(personident, NAV_ENHET)
-                        setFriskmeldingTilArbeidsformidlingFom(personident, LocalDate.now().minusDays(1))
+                        setFriskmeldingTilArbeidsformidlingFom(personident, yesterday)
                     }
                     with(
                         handleRequest(HttpMethod.Get, url) {
                             addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
                         }
                     ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.NoContent
+                        val personOversiktStatus =
+                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
+                        personOversiktStatus.fnr shouldBeEqualTo personident.value
+                        personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
+                        personOversiktStatus.friskmeldingTilArbeidsformidlingFom!! shouldBeEqualTo yesterday
                     }
                 }
 
