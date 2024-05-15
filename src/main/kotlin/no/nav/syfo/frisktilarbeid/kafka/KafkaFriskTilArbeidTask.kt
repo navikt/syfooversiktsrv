@@ -10,7 +10,7 @@ import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.Deserializer
 import java.util.*
 
-const val FRISK_TIL_ARBEID_VEDTAK_TOPIC = "teamsykefravr.isfrisktilarbeid-vedtak-fattet"
+const val FRISK_TIL_ARBEID_VEDTAK_TOPIC = "teamsykefravr.isfrisktilarbeid-vedtak-status"
 
 fun launchKafkaTaskFriskTilArbeidVedtak(
     applicationState: ApplicationState,
@@ -33,8 +33,8 @@ fun launchKafkaTaskFriskTilArbeidVedtak(
     )
 }
 
-class VedtakFattetRecordDeserializer : Deserializer<VedtakFattetRecord> {
+class VedtakFattetRecordDeserializer : Deserializer<VedtakStatusRecord> {
     private val mapper = configuredJacksonMapper()
-    override fun deserialize(topic: String, data: ByteArray): VedtakFattetRecord =
-        mapper.readValue(data, VedtakFattetRecord::class.java)
+    override fun deserialize(topic: String, data: ByteArray): VedtakStatusRecord =
+        mapper.readValue(data, VedtakStatusRecord::class.java)
 }
