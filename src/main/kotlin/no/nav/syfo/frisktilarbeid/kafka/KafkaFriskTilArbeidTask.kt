@@ -1,0 +1,40 @@
+package no.nav.syfo.frisktilarbeid.kafka
+
+import no.nav.syfo.application.ApplicationState
+import no.nav.syfo.application.database.database
+import no.nav.syfo.application.kafka.KafkaEnvironment
+import no.nav.syfo.application.kafka.kafkaAivenConsumerConfig
+import no.nav.syfo.kafka.launchKafkaTask
+import no.nav.syfo.util.configuredJacksonMapper
+import org.apache.kafka.clients.consumer.ConsumerConfig
+import org.apache.kafka.common.serialization.Deserializer
+import java.util.*
+
+const val FRISK_TIL_ARBEID_VEDTAK_TOPIC = "teamsykefravr.isfrisktilarbeid-vedtak-status"
+
+fun launchKafkaTaskFriskTilArbeidVedtak(
+    applicationState: ApplicationState,
+    kafkaEnvironment: KafkaEnvironment,
+) {
+    val kafkaFriskTilArbeidService = KafkaFriskTilArbeidService(
+        database = database,
+    )
+    val consumerProperties = Properties().apply {
+        putAll(kafkaAivenConsumerConfig(kafkaEnvironment = kafkaEnvironment))
+        this[ConsumerConfig.MAX_POLL_RECORDS_CONFIG] = "10"
+        this[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = VedtakFattetRecordDeserializer::class.java
+    }
+
+    launchKafkaTask(
+        applicationState = applicationState,
+        topic = FRISK_TIL_ARBEID_VEDTAK_TOPIC,
+        consumerProperties = consumerProperties,
+        kafkaConsumerService = kafkaFriskTilArbeidService,
+    )
+}
+
+class VedtakFattetRecordDeserializer : Deserializer<VedtakStatusRecord> {
+    private val mapper = configuredJacksonMapper()
+    override fun deserialize(topic: String, data: ByteArray): VedtakStatusRecord =
+        mapper.readValue(data, VedtakStatusRecord::class.java)
+}

@@ -587,6 +587,65 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo true
                     }
                 }
+                it("return person with friskmelding til arbeidsformidling starting tomorrow") {
+                    val personident = PersonIdent(ARBEIDSTAKER_FNR)
+                    with(database) {
+                        createPersonOversiktStatus(PersonOversiktStatus(personident.value))
+                        setTildeltEnhet(personident, NAV_ENHET)
+                        setFriskmeldingTilArbeidsformidlingFom(personident, LocalDate.now().plusDays(1))
+                    }
+
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        }
+                    ) {
+                        response.status() shouldBeEqualTo HttpStatusCode.OK
+
+                        val personOversiktStatus =
+                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
+                        personOversiktStatus.fnr shouldBeEqualTo personident.value
+                        personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
+                        personOversiktStatus.friskmeldingTilArbeidsformidlingFom!! shouldBeAfter LocalDate.now()
+                    }
+                }
+                it("return person with friskmelding til arbeidsformidling starting today") {
+                    val personident = PersonIdent(ARBEIDSTAKER_FNR)
+                    with(database) {
+                        createPersonOversiktStatus(PersonOversiktStatus(personident.value))
+                        setTildeltEnhet(personident, NAV_ENHET)
+                        setFriskmeldingTilArbeidsformidlingFom(personident, LocalDate.now())
+                    }
+
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        }
+                    ) {
+                        response.status() shouldBeEqualTo HttpStatusCode.OK
+
+                        val personOversiktStatus =
+                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
+                        personOversiktStatus.fnr shouldBeEqualTo personident.value
+                        personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
+                        personOversiktStatus.friskmeldingTilArbeidsformidlingFom!! shouldBeEqualTo LocalDate.now()
+                    }
+                }
+                it("does not return person with friskmelding til arbeidsformidling starting yesterday") {
+                    val personident = PersonIdent(ARBEIDSTAKER_FNR)
+                    with(database) {
+                        createPersonOversiktStatus(PersonOversiktStatus(personident.value))
+                        setTildeltEnhet(personident, NAV_ENHET)
+                        setFriskmeldingTilArbeidsformidlingFom(personident, LocalDate.now().minusDays(1))
+                    }
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        }
+                    ) {
+                        response.status() shouldBeEqualTo HttpStatusCode.NoContent
+                    }
+                }
 
                 it("Should update name in database") {
                     val personIdent = PersonIdent(ARBEIDSTAKER_FNR)

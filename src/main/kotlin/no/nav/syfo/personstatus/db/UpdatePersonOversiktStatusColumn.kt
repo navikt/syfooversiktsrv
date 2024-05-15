@@ -8,6 +8,7 @@ import no.nav.syfo.trengeroppfolging.domain.TrengerOppfolging
 import java.sql.Connection
 import java.sql.Timestamp
 import java.time.Instant
+import java.time.LocalDate
 import java.time.OffsetDateTime
 
 const val queryUpdatePersonOversiktStatusLPS =
@@ -143,6 +144,26 @@ const val queryUpdatePersonOversiktStatusKandidat =
         UPDATE PERSON_OVERSIKT_STATUS
         SET dialogmotekandidat = ?,
         dialogmotekandidat_generated_at = ?,
+        sist_endret = ?
+        WHERE fnr = ?
+    """
+
+fun Connection.updatePersonOversiktStatusFriskmeldtTilArbeid(
+    pPersonOversiktStatus: PPersonOversiktStatus,
+    friskTilArbeidFom: LocalDate?,
+) {
+    this.prepareStatement(queryUpdatePersonOversiktStatusFriskmeldtTilArbeid).use {
+        it.setObject(1, friskTilArbeidFom)
+        it.setObject(2, Timestamp.from(Instant.now()))
+        it.setString(3, pPersonOversiktStatus.fnr)
+        it.execute()
+    }
+}
+
+const val queryUpdatePersonOversiktStatusFriskmeldtTilArbeid =
+    """
+        UPDATE PERSON_OVERSIKT_STATUS
+        SET friskmelding_til_arbeidsformidling_fom = ?,
         sist_endret = ?
         WHERE fnr = ?
     """

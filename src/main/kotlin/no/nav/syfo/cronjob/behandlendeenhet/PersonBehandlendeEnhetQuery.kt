@@ -70,6 +70,7 @@ const val queryGetPersonerWithOppgaveAndOldEnhet =
         OR trenger_oppfolging = 't'
         OR behandler_bistand_ubehandlet = 't'
         OR arbeidsuforhet_vurder_avslag_ubehandlet = 't'
+        OR (friskmelding_til_arbeidsformidling_fom IS NOT NULL AND friskmelding_til_arbeidsformidling_fom >= CURRENT_DATE) 
         )
     AND (tildelt_enhet_updated_at IS NULL OR tildelt_enhet_updated_at <= NOW() - INTERVAL '24 HOURS')
     ORDER BY tildelt_enhet_updated_at ASC

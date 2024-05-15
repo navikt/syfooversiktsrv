@@ -48,8 +48,9 @@ const val queryCreatePersonOversiktStatus =
         trenger_oppfolging_frist,
         behandler_bistand_ubehandlet,
         arbeidsuforhet_vurder_avslag_ubehandlet,
-        antall_sykedager
-    ) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        antall_sykedager,
+        friskmelding_til_arbeidsformidling_fom
+    ) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     RETURNING id
     """
 
@@ -118,6 +119,7 @@ fun Connection.createPersonOversiktStatus(
         if (personOversiktStatus.latestOppfolgingstilfelle?.antallSykedager != null) {
             it.setInt(35, personOversiktStatus.latestOppfolgingstilfelle.antallSykedager)
         } else it.setNull(35, Types.INTEGER)
+        it.setObject(36, personOversiktStatus.friskmeldingTilArbeidsformidlingFom)
         it.executeQuery().toList { getInt("id") }.firstOrNull()
     } ?: throw SQLException("Creating PersonOversikStatus failed, no rows affected.")
 
