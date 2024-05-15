@@ -105,38 +105,61 @@ class PersonoversiktStatusService(
             when (oversikthendelseType) {
                 OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT ->
                     connection.updatePersonOversiktStatusLPS(isUbehandlet, personident)
+
                 OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_BEHANDLET ->
                     connection.updatePersonOversiktStatusLPS(isBehandlet, personident)
+
                 OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT ->
                     connection.updatePersonOversiktMotebehov(isUbehandlet, personident)
+
                 OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET ->
                     connection.updatePersonOversiktMotebehov(isBehandlet, personident)
+
                 OversikthendelseType.DIALOGMOTESVAR_MOTTATT ->
                     connection.updatePersonOversiktStatusDialogmotesvar(isUbehandlet, personident)
+
                 OversikthendelseType.DIALOGMOTESVAR_BEHANDLET ->
                     connection.updatePersonOversiktStatusDialogmotesvar(isBehandlet, personident)
+
                 OversikthendelseType.BEHANDLERDIALOG_SVAR_MOTTATT ->
                     connection.updatePersonOversiktStatusBehandlerdialogSvar(isUbehandlet, personident)
+
                 OversikthendelseType.BEHANDLERDIALOG_SVAR_BEHANDLET ->
                     connection.updatePersonOversiktStatusBehandlerdialogSvar(isBehandlet, personident)
+
                 OversikthendelseType.BEHANDLERDIALOG_MELDING_UBESVART_MOTTATT ->
                     connection.updatePersonOversiktStatusBehandlerdialogUbesvart(isUbehandlet, personident)
+
                 OversikthendelseType.BEHANDLERDIALOG_MELDING_UBESVART_BEHANDLET ->
                     connection.updatePersonOversiktStatusBehandlerdialogUbesvart(isBehandlet, personident)
+
                 OversikthendelseType.BEHANDLERDIALOG_MELDING_AVVIST_MOTTATT ->
                     connection.updatePersonOversiktStatusBehandlerdialogAvvist(isUbehandlet, personident)
+
                 OversikthendelseType.BEHANDLERDIALOG_MELDING_AVVIST_BEHANDLET ->
                     connection.updatePersonOversiktStatusBehandlerdialogAvvist(isBehandlet, personident)
+
                 OversikthendelseType.AKTIVITETSKRAV_VURDER_STANS_MOTTATT ->
                     connection.updateAktivitetskravVurderStans(isUbehandlet, personident)
+
                 OversikthendelseType.AKTIVITETSKRAV_VURDER_STANS_BEHANDLET ->
                     connection.updateAktivitetskravVurderStans(isBehandlet, personident)
+
                 OversikthendelseType.BEHANDLER_BER_OM_BISTAND_MOTTATT ->
                     connection.updateBehandlerBerOmBistand(isUbehandlet, personident)
+
                 OversikthendelseType.BEHANDLER_BER_OM_BISTAND_BEHANDLET ->
                     connection.updateBehandlerBerOmBistand(isBehandlet, personident)
-                OversikthendelseType.ARBEIDSUFORHET_VURDER_AVSLAG_MOTTATT -> connection.updateArbeidsuforhetVurderAvslag(isUbehandlet, personident)
-                OversikthendelseType.ARBEIDSUFORHET_VURDER_AVSLAG_BEHANDLET -> connection.updateArbeidsuforhetVurderAvslag(isBehandlet, personident)
+
+                OversikthendelseType.ARBEIDSUFORHET_VURDER_AVSLAG_MOTTATT -> connection.updateArbeidsuforhetVurderAvslag(
+                    isUbehandlet,
+                    personident
+                )
+
+                OversikthendelseType.ARBEIDSUFORHET_VURDER_AVSLAG_BEHANDLET -> connection.updateArbeidsuforhetVurderAvslag(
+                    isBehandlet,
+                    personident
+                )
             }
 
             COUNT_KAFKA_CONSUMER_PERSONOPPGAVEHENDELSE_UPDATED_PERSONOVERSIKT_STATUS.increment()
