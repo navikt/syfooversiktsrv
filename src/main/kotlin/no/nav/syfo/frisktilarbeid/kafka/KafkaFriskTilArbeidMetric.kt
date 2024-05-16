@@ -12,17 +12,17 @@ const val KAFKA_CONSUMER_FRISKTILARBEID_UPDATE = "${KAFKA_CONSUMER_FRISKTILARBEI
 
 val COUNT_KAFKA_CONSUMER_FRISKTILARBEID_READ: Counter =
     Counter.builder(KAFKA_CONSUMER_FRISKTILARBEID_READ)
-        .description("Counts the number of reads from topic - isfrisktilarbeid-vedtak-fattet")
+        .description("Counts the number of reads from topic - isfrisktilarbeid-vedtak-status")
         .register(METRICS_REGISTRY)
 val COUNT_KAFKA_CONSUMER_FRISKTILARBEID_TOMBSTONE: Counter =
     Counter.builder(KAFKA_CONSUMER_FRISKTILARBEID_TOMBSTONE)
-        .description("Counts the number of tombstones received from topic - isfrisktilarbeid-vedtak-fattet")
+        .description("Counts the number of tombstones received from topic - isfrisktilarbeid-vedtak-status")
         .register(METRICS_REGISTRY)
 val COUNT_KAFKA_CONSUMER_FRISKTILARBEID_CREATED_PERSONOVERSIKT_STATUS: Counter =
     Counter.builder(KAFKA_CONSUMER_FRISKTILARBEID_CREATE)
-        .description("Counts the number of personoversikt-status created from reading topic - isfrisktilarbeid-vedtak-fattet")
+        .description("Counts the number of personoversikt-status created from reading topic - isfrisktilarbeid-vedtak-status")
         .register(METRICS_REGISTRY)
 val COUNT_KAFKA_CONSUMER_FRISKTILARBEID_UPDATED_PERSONOVERSIKT_STATUS: Counter =
     Counter.builder(KAFKA_CONSUMER_FRISKTILARBEID_UPDATE)
-        .description("Counts the number of personoversikt-status updated from reading topic - isfrisktilarbeid-vedtak-fattet")
+        .description("Counts the number of personoversikt-status updated from reading topic - isfrisktilarbeid-vedtak-status")
         .register(METRICS_REGISTRY)

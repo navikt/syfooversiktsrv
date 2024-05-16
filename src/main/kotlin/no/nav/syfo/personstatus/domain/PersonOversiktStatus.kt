@@ -73,7 +73,7 @@ fun PersonOversiktStatus.hasActiveOppgave(arenaCutoff: LocalDate): Boolean {
         (this.motebehovUbehandlet == true && this.latestOppfolgingstilfelle != null) ||
         this.isActiveAktivitetskrav(arenaCutoff = arenaCutoff) ||
         this.hasActiveBehandlerdialogOppgave() ||
-        this.hasFriskmeldingTilArbeidsformidling() ||
+        this.friskmeldingTilArbeidsformidlingFom != null ||
         this.aktivitetskravVurderStansUbehandlet ||
         this.trengerOppfolging || this.behandlerBerOmBistandUbehandlet || this.arbeidsuforhetVurderAvslagUbehandlet
 }
@@ -127,9 +127,6 @@ fun PersonOversiktStatus.hasActiveBehandlerdialogOppgave(): Boolean {
         this.behandlerdialogUbesvartUbehandlet ||
         this.behandlerdialogAvvistUbehandlet
 }
-
-private fun PersonOversiktStatus.hasFriskmeldingTilArbeidsformidling(): Boolean =
-    this.friskmeldingTilArbeidsformidlingFom != null && LocalDate.now().isBeforeOrEqual(this.friskmeldingTilArbeidsformidlingFom)
 
 fun PersonOversiktStatus.applyHendelse(
     oversikthendelseType: OversikthendelseType,

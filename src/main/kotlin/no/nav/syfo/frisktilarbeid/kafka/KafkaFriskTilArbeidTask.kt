@@ -22,7 +22,7 @@ fun launchKafkaTaskFriskTilArbeidVedtak(
     val consumerProperties = Properties().apply {
         putAll(kafkaAivenConsumerConfig(kafkaEnvironment = kafkaEnvironment))
         this[ConsumerConfig.MAX_POLL_RECORDS_CONFIG] = "10"
-        this[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = VedtakFattetRecordDeserializer::class.java
+        this[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = VedtakStatusRecordDeserializer::class.java
     }
 
     launchKafkaTask(
@@ -33,7 +33,7 @@ fun launchKafkaTaskFriskTilArbeidVedtak(
     )
 }
 
-class VedtakFattetRecordDeserializer : Deserializer<VedtakStatusRecord> {
+class VedtakStatusRecordDeserializer : Deserializer<VedtakStatusRecord> {
     private val mapper = configuredJacksonMapper()
     override fun deserialize(topic: String, data: ByteArray): VedtakStatusRecord =
         mapper.readValue(data, VedtakStatusRecord::class.java)
