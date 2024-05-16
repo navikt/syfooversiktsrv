@@ -3,6 +3,7 @@ package no.nav.syfo.personstatus.infrastructure.kafka
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.kafka.KafkaEnvironment
 import no.nav.syfo.application.kafka.kafkaAivenConsumerConfig
+import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.kafka.KafkaConsumerService
 import no.nav.syfo.kafka.launchKafkaTask
 import no.nav.syfo.personstatus.PersonoversiktStatusService
@@ -25,7 +26,7 @@ class ArbeidsuforhetVurderingConsumer(
     override fun pollAndProcessRecords(kafkaConsumer: KafkaConsumer<String, ArbeidsuforhetVurderingRecord>) {
         val records = kafkaConsumer.poll(Duration.ofMillis(pollDurationInMillis))
         if (records.count() > 0) {
-            log.info("ArbeidsuforhetVurderingConsumer trace: Received ${records.count()} records")
+            LOGGER.info("ArbeidsuforhetVurderingConsumer trace: Received ${records.count()} records")
             processRecords(records = records)
             kafkaConsumer.commitSync()
         }
@@ -35,11 +36,10 @@ class ArbeidsuforhetVurderingConsumer(
         val validRecords = records.requireNoNulls()
         validRecords.map { record ->
             val recordValue = record.value()
-            log.info("ArbeidsuforhetVurderingConsumer record value:\n$recordValue")
-            // personoversiktStatusService.updateArbeidsuforhetVurderingStatus(
-            //  personident = PersonIdent(recordValue.personident),
-            // isFinalVurdering = recordValue.isFinalVurdering,
-            // )
+            personoversiktStatusService.updateArbeidsuforhetVurderingStatus(
+                personident = PersonIdent(recordValue.personident),
+                isAktivVurdering = !recordValue.isFinalVurdering,
+            )
         }
     }
 
@@ -58,8 +58,8 @@ class ArbeidsuforhetVurderingConsumer(
     }
 
     companion object {
-        const val ARBEIDSUFORHET_VURDERING_TOPIC = "teamsykefravr.arbeidsuforhet-vurdering"
-        val log: Logger = LoggerFactory.getLogger(this::class.java)
+        private const val ARBEIDSUFORHET_VURDERING_TOPIC = "teamsykefravr.arbeidsuforhet-vurdering"
+        private val LOGGER: Logger = LoggerFactory.getLogger(this::class.java)
     }
 }
 

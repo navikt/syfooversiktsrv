@@ -19,6 +19,7 @@ import no.nav.syfo.cronjob.behandlendeenhet.PersonBehandlendeEnhetService
 import no.nav.syfo.cronjob.launchCronjobModule
 import no.nav.syfo.kafka.launchKafkaModule
 import no.nav.syfo.personstatus.PersonoversiktStatusService
+import no.nav.syfo.personstatus.infrastructure.database.PersonOversiktStatusRepository
 import org.slf4j.LoggerFactory
 import java.util.concurrent.TimeUnit
 
@@ -67,9 +68,11 @@ fun main() {
             databaseModule(
                 databaseEnvironment = environment.database,
             )
+            val personoversiktStatusRepository = PersonOversiktStatusRepository(database = database)
             personoversiktStatusService = PersonoversiktStatusService(
                 database = database,
                 pdlClient = pdlClient,
+                personoversiktStatusRepository = personoversiktStatusRepository,
             )
             personBehandlendeEnhetService = PersonBehandlendeEnhetService(
                 database = database,

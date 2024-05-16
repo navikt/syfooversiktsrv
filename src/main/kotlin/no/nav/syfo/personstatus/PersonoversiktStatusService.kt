@@ -5,6 +5,7 @@ import no.nav.syfo.client.pdl.PdlClient
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.oppfolgingstilfelle.domain.PersonOppfolgingstilfelleVirksomhet
 import no.nav.syfo.personoppgavehendelse.kafka.*
+import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
 import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.*
 import java.sql.Connection
@@ -13,6 +14,7 @@ import java.time.LocalDate
 class PersonoversiktStatusService(
     private val database: DatabaseInterface,
     private val pdlClient: PdlClient,
+    private val personoversiktStatusRepository: IPersonOversiktStatusRepository,
 ) {
     private val isUbehandlet = true
     private val isBehandlet = false
@@ -83,6 +85,10 @@ class PersonoversiktStatusService(
         }
     }
 
+    fun updateArbeidsuforhetVurderingStatus(personident: PersonIdent, isAktivVurdering: Boolean) {
+        personoversiktStatusRepository.updateArbeidsuforhetVurderingStatus(personident, isAktivVurdering)
+    }
+
     private fun createOrUpdatePersonOversiktStatus(
         connection: Connection,
         personident: PersonIdent,
@@ -105,57 +111,40 @@ class PersonoversiktStatusService(
             when (oversikthendelseType) {
                 OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT ->
                     connection.updatePersonOversiktStatusLPS(isUbehandlet, personident)
-
                 OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_BEHANDLET ->
                     connection.updatePersonOversiktStatusLPS(isBehandlet, personident)
-
                 OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT ->
                     connection.updatePersonOversiktMotebehov(isUbehandlet, personident)
-
                 OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET ->
                     connection.updatePersonOversiktMotebehov(isBehandlet, personident)
-
                 OversikthendelseType.DIALOGMOTESVAR_MOTTATT ->
                     connection.updatePersonOversiktStatusDialogmotesvar(isUbehandlet, personident)
-
                 OversikthendelseType.DIALOGMOTESVAR_BEHANDLET ->
                     connection.updatePersonOversiktStatusDialogmotesvar(isBehandlet, personident)
-
                 OversikthendelseType.BEHANDLERDIALOG_SVAR_MOTTATT ->
                     connection.updatePersonOversiktStatusBehandlerdialogSvar(isUbehandlet, personident)
-
                 OversikthendelseType.BEHANDLERDIALOG_SVAR_BEHANDLET ->
                     connection.updatePersonOversiktStatusBehandlerdialogSvar(isBehandlet, personident)
-
                 OversikthendelseType.BEHANDLERDIALOG_MELDING_UBESVART_MOTTATT ->
                     connection.updatePersonOversiktStatusBehandlerdialogUbesvart(isUbehandlet, personident)
-
                 OversikthendelseType.BEHANDLERDIALOG_MELDING_UBESVART_BEHANDLET ->
                     connection.updatePersonOversiktStatusBehandlerdialogUbesvart(isBehandlet, personident)
-
                 OversikthendelseType.BEHANDLERDIALOG_MELDING_AVVIST_MOTTATT ->
                     connection.updatePersonOversiktStatusBehandlerdialogAvvist(isUbehandlet, personident)
-
                 OversikthendelseType.BEHANDLERDIALOG_MELDING_AVVIST_BEHANDLET ->
                     connection.updatePersonOversiktStatusBehandlerdialogAvvist(isBehandlet, personident)
-
                 OversikthendelseType.AKTIVITETSKRAV_VURDER_STANS_MOTTATT ->
                     connection.updateAktivitetskravVurderStans(isUbehandlet, personident)
-
                 OversikthendelseType.AKTIVITETSKRAV_VURDER_STANS_BEHANDLET ->
                     connection.updateAktivitetskravVurderStans(isBehandlet, personident)
-
                 OversikthendelseType.BEHANDLER_BER_OM_BISTAND_MOTTATT ->
                     connection.updateBehandlerBerOmBistand(isUbehandlet, personident)
-
                 OversikthendelseType.BEHANDLER_BER_OM_BISTAND_BEHANDLET ->
                     connection.updateBehandlerBerOmBistand(isBehandlet, personident)
-
                 OversikthendelseType.ARBEIDSUFORHET_VURDER_AVSLAG_MOTTATT -> connection.updateArbeidsuforhetVurderAvslag(
                     isUbehandlet,
                     personident
                 )
-
                 OversikthendelseType.ARBEIDSUFORHET_VURDER_AVSLAG_BEHANDLET -> connection.updateArbeidsuforhetVurderAvslag(
                     isBehandlet,
                     personident

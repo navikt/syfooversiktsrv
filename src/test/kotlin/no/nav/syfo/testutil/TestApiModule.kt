@@ -6,6 +6,7 @@ import no.nav.syfo.application.cache.RedisStore
 import no.nav.syfo.client.azuread.AzureAdClient
 import no.nav.syfo.client.pdl.PdlClient
 import no.nav.syfo.personstatus.PersonoversiktStatusService
+import no.nav.syfo.personstatus.infrastructure.database.PersonOversiktStatusRepository
 
 fun Application.testApiModule(
     externalMockEnvironment: ExternalMockEnvironment
@@ -20,10 +21,11 @@ fun Application.testApiModule(
         azureAdClient = azureAdClient,
         clientEnvironment = externalMockEnvironment.environment.clients.pdl,
     )
-
+    val personoversiktRepository = PersonOversiktStatusRepository(database = externalMockEnvironment.database)
     val personoversiktStatusService = PersonoversiktStatusService(
         database = externalMockEnvironment.database,
         pdlClient = pdlClient,
+        personoversiktStatusRepository = personoversiktRepository
     )
 
     this.apiModule(
