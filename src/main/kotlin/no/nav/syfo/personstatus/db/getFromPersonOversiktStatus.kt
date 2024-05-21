@@ -54,6 +54,7 @@ const val queryHentUbehandledePersonerTilknyttetEnhet = """
                             OR trenger_oppfolging = 't'
                             OR behandler_bistand_ubehandlet = 't'
                             OR arbeidsuforhet_vurder_avslag_ubehandlet = 't'
+                            OR arbeidsuforhet_aktiv_vurdering = 't'
                             OR friskmelding_til_arbeidsformidling_fom IS NOT NULL
                             )
                         );

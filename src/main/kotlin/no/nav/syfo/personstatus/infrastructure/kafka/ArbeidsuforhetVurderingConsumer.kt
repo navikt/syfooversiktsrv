@@ -26,7 +26,7 @@ class ArbeidsuforhetVurderingConsumer(
     override fun pollAndProcessRecords(kafkaConsumer: KafkaConsumer<String, ArbeidsuforhetVurderingRecord>) {
         val records = kafkaConsumer.poll(Duration.ofMillis(pollDurationInMillis))
         if (records.count() > 0) {
-            LOGGER.info("ArbeidsuforhetVurderingConsumer trace: Received ${records.count()} records")
+            log.info("ArbeidsuforhetVurderingConsumer trace: Received ${records.count()} records")
             processRecords(records = records)
             kafkaConsumer.commitSync()
         }
@@ -59,7 +59,7 @@ class ArbeidsuforhetVurderingConsumer(
 
     companion object {
         private const val ARBEIDSUFORHET_VURDERING_TOPIC = "teamsykefravr.arbeidsuforhet-vurdering"
-        private val LOGGER: Logger = LoggerFactory.getLogger(this::class.java)
+        private val log: Logger = LoggerFactory.getLogger(this::class.java)
     }
 }
 

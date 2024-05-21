@@ -44,6 +44,7 @@ const val queryPersonOppfolgingstilfelleVirksomhetNoVirksomhetsnavnList =
         OR behandler_bistand_ubehandlet = 't'
         OR arbeidsuforhet_vurder_avslag_ubehandlet = 't'
         OR friskmelding_til_arbeidsformidling_fom IS NOT NULL
+        OR arbeidsuforhet_aktiv_vurdering = 't'
         )
     ORDER BY PERSON_OPPFOLGINGSTILFELLE_VIRKSOMHET.created_at ASC
     LIMIT 1000
