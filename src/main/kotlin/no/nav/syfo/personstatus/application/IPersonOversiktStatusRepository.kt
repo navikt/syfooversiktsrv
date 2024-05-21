@@ -4,5 +4,5 @@ import no.nav.syfo.domain.PersonIdent
 
 interface IPersonOversiktStatusRepository {
 
-    fun updateArbeidsuforhetVurderingStatus(personIdent: PersonIdent, isAktivVurdering: Boolean)
+    fun updateArbeidsuforhetVurderingStatus(personIdent: PersonIdent, isAktivVurdering: Boolean): Int
 }

@@ -8,6 +8,7 @@ import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.personstatus.infrastructure.database.PersonOversiktStatusRepository
 import no.nav.syfo.testutil.ExternalMockEnvironment
 import no.nav.syfo.testutil.UserConstants
+import no.nav.syfo.testutil.dropData
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldNotBe
 import org.spekframework.spek2.Spek
@@ -23,11 +24,10 @@ class PersonOversiktStatusRepositorySpek : Spek({
             val personOversiktStatusRepository = PersonOversiktStatusRepository(database = database)
 
             afterEachTest {
-                // drop data
+                database.connection.dropData()
             }
 
             describe("Successfully updates arbeidsuforhet vurdering status") {
-                // Store person_oversikt_status to be changed
                 val newPersonOversiktStatus = PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR)
                 database.connection.use { connection ->
                     connection.createPersonOversiktStatus(
@@ -36,16 +36,15 @@ class PersonOversiktStatusRepositorySpek : Spek({
                     )
                 }
 
-                personOversiktStatusRepository.updateArbeidsuforhetVurderingStatus(
+                val rowsUpdated = personOversiktStatusRepository.updateArbeidsuforhetVurderingStatus(
                     personIdent = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),
                     isAktivVurdering = true
                 )
 
-                // Retrieve and see the difference
+                rowsUpdated shouldBe 1
                 val personOversiktStatus = database.getPersonOversiktStatusList(fnr = UserConstants.ARBEIDSTAKER_FNR).first()
-
                 newPersonOversiktStatus.isAktivArbeidsuforhetVurdering shouldNotBe personOversiktStatus.isAktivArbeidsuforhetVurdering
-                newPersonOversiktStatus.isAktivArbeidsuforhetVurdering shouldBe true
+                personOversiktStatus.isAktivArbeidsuforhetVurdering shouldBe true
             }
         }
     }
