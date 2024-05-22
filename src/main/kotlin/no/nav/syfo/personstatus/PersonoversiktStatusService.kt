@@ -6,6 +6,7 @@ import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.oppfolgingstilfelle.domain.PersonOppfolgingstilfelleVirksomhet
 import no.nav.syfo.personoppgavehendelse.kafka.*
 import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
+import no.nav.syfo.personstatus.application.arbeidsuforhet.IArbeidsuforhetvurderingClient
 import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.*
 import java.sql.Connection
@@ -14,15 +15,25 @@ import java.time.LocalDate
 class PersonoversiktStatusService(
     private val database: DatabaseInterface,
     private val pdlClient: PdlClient,
+    private val arbeidsuforhetVurderingClient: IArbeidsuforhetvurderingClient,
     private val personoversiktStatusRepository: IPersonOversiktStatusRepository,
 ) {
     private val isUbehandlet = true
     private val isBehandlet = false
 
-    fun hentPersonoversiktStatusTilknyttetEnhet(enhet: String, arenaCutoff: LocalDate): List<PersonOversiktStatus> {
+    fun hentPersonoversiktStatusTilknyttetEnhet(
+        callId: String,
+        enhet: String,
+        arenaCutoff: LocalDate
+    ): List<PersonOversiktStatus> {
         val personListe = database.hentUbehandledePersonerTilknyttetEnhet(
             enhet = enhet,
         )
+        personListe.map {
+            if (it.isAktivArbeidsuforhetVurdering) {
+                arbeidsuforhetVurderingClient.getVurdering(callId = callId, personIdent = PersonIdent(it.fnr), token = ""
+            }
+        }
         return personListe.map { pPersonOversikStatus ->
             val personOppfolgingstilfelleVirksomhetList = getPersonOppfolgingstilfelleVirksomhetList(
                 pPersonOversikStatusId = pPersonOversikStatus.id,

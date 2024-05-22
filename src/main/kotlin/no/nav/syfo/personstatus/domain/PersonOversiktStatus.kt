@@ -121,6 +121,7 @@ fun PersonOversiktStatus.toPersonOversiktStatusDTO(arenaCutoff: LocalDate) =
         behandlerBerOmBistandUbehandlet = behandlerBerOmBistandUbehandlet,
         arbeidsuforhetVurderAvslagUbehandlet = arbeidsuforhetVurderAvslagUbehandlet,
         friskmeldingTilArbeidsformidlingFom = friskmeldingTilArbeidsformidlingFom,
+        arbeidsuforhetvurdering = null,
     )
 
 fun PersonOversiktStatus.hasActiveBehandlerdialogOppgave(): Boolean {

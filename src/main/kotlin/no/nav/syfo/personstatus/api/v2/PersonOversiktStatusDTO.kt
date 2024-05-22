@@ -1,5 +1,6 @@
 package no.nav.syfo.personstatus.api.v2
 
+import no.nav.syfo.personstatus.application.arbeidsuforhet.ArbeidsuforhetvurderingDTO
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -26,6 +27,7 @@ data class PersonOversiktStatusDTO(
     val behandlerBerOmBistandUbehandlet: Boolean,
     val arbeidsuforhetVurderAvslagUbehandlet: Boolean,
     val friskmeldingTilArbeidsformidlingFom: LocalDate?,
+    val arbeidsuforhetvurdering: ArbeidsuforhetvurderingDTO?,
 )
 
 data class PersonOppfolgingstilfelleDTO(

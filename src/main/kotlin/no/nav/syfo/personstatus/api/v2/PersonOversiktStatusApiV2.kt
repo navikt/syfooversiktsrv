@@ -38,7 +38,7 @@ fun Route.registerPersonoversiktApiV2(
                     true -> {
                         val requestTimer: Timer.Sample = Timer.start()
                         val personOversiktStatusList: List<PersonOversiktStatus> = personoversiktStatusService
-                            .hentPersonoversiktStatusTilknyttetEnhet(enhet = enhet, arenaCutoff = arenaCutoff)
+                            .hentPersonoversiktStatusTilknyttetEnhet(callId = callId, enhet = enhet, arenaCutoff = arenaCutoff)
 
                         val personFnrListWithVeilederAccess: List<String> =
                             veilederTilgangskontrollClient.veilederPersonAccessListMedOBO(
@@ -54,7 +54,7 @@ fun Route.registerPersonoversiktApiV2(
                             val personerWithName = personoversiktStatusService.getPersonOversiktStatusListWithName(
                                 callId = callId,
                                 personOversiktStatusList = personer
-                            ).map { it.toPersonOversiktStatusDTO(arenaCutoff = arenaCutoff) }
+                            ).map { it.toPersonOversiktStatusDTO(arenaCutoff = arenaCutoff, arbeidsuforhetvurdering = ) }
 
                             call.respond(personerWithName)
                         } else {
