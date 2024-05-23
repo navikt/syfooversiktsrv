@@ -38,7 +38,7 @@ class KafkaAktivitetskravVurderingConsumerSpek : Spek({
         )
 
         beforeEachTest {
-            database.connection.dropData()
+            database.dropData()
 
             clearMocks(kafkaConsumerMock)
             every { kafkaConsumerMock.commitSync() } returns Unit

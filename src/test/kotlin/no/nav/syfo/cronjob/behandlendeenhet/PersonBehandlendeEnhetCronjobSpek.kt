@@ -65,7 +65,7 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
             AktivitetskravGenerator(arenaCutoff = externalMockEnvironment.environment.arenaCutoff)
 
         beforeEachTest {
-            database.connection.dropData()
+            database.dropData()
 
             clearMocks(mockKafkaConsumerOppfolgingstilfellePerson)
             clearMocks(mockKafkaConsumerDialogmotekandidatEndring)
@@ -157,7 +157,7 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
 
                     oversikthendelseList.forEachIndexed { index, oversikthendelse ->
 
-                        database.connection.dropData()
+                        database.dropData()
 
                         val personoversiktStatus = PersonOversiktStatus(
                             fnr = oversikthendelse.personident
@@ -259,7 +259,7 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                             )
                         )
                     )
-                    database.connection.dropData()
+                    database.dropData()
 
                     kafkaDialogmotekandidatEndringService.pollAndProcessRecords(
                         kafkaConsumer = mockKafkaConsumerDialogmotekandidatEndring,
@@ -542,7 +542,7 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
 
                     val firstEnhet = NAV_ENHET_2
 
-                    database.connection.dropData()
+                    database.dropData()
 
                     val personoversiktStatus = PersonOversiktStatus(
                         fnr = oversikthendelse.personident

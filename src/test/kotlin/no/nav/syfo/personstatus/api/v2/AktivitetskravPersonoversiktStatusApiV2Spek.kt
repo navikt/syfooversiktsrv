@@ -38,7 +38,7 @@ object AktivitetskravPersonoversiktStatusApiV2Spek : Spek({
             )
 
             beforeEachTest {
-                database.connection.dropData()
+                database.dropData()
             }
 
             describe("Hent personoversikt for enhet") {
