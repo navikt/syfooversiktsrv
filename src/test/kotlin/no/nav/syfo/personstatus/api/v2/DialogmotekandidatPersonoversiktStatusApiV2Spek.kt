@@ -33,7 +33,7 @@ object DialogmotekandidatPersonoversiktStatusApiV2Spek : Spek({
                 navIdent = UserConstants.VEILEDER_ID,
             )
             beforeEachTest {
-                database.connection.dropData()
+                database.dropData()
             }
 
             describe("Get dm2-kandidater for enhet") {

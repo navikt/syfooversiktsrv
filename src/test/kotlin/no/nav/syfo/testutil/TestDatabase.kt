@@ -43,7 +43,7 @@ class TestDatabaseNotResponding : DatabaseInterface {
     }
 }
 
-fun Connection.dropData() {
+fun DatabaseInterface.dropData() {
     val queryList = listOf(
         """
         DELETE FROM PERSON_OVERSIKT_STATUS
@@ -55,7 +55,7 @@ fun Connection.dropData() {
         DELETE FROM PERSON_OPPFOLGINGSTILFELLE_VIRKSOMHET
         """.trimIndent(),
     )
-    use { connection ->
+    this.connection.use { connection ->
         queryList.forEach { query ->
             connection.prepareStatement(query).execute()
         }

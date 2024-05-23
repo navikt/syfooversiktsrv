@@ -37,7 +37,7 @@ object BehandlerdialogPersonoversiktStatusApiV2Spek : Spek({
             val url = "$personOversiktApiV2Path/enhet/$NAV_ENHET"
 
             beforeEachTest {
-                database.connection.dropData()
+                database.dropData()
             }
 
             it("return person with behandlerdialog_ubehandlet true when svar mottatt") {

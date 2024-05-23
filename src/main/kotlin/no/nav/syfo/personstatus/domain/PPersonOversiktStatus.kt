@@ -42,11 +42,11 @@ data class PPersonOversiktStatus(
     val antallSykedager: Int?,
     val arbeidsuforhetVurderAvslagUbehandlet: Boolean,
     val friskmeldingTilArbeidsformidlingFom: LocalDate?,
-    val isAktivArbeidsuforhetVurdering: Boolean,
+    val isAktivArbeidsuforhetvurdering: Boolean,
 )
 
 fun PPersonOversiktStatus.toPersonOversiktStatus(
-    personOppfolgingstilfelleVirksomhetList: List<PersonOppfolgingstilfelleVirksomhet>,
+    personOppfolgingstilfelleVirksomhetList: List<PersonOppfolgingstilfelleVirksomhet> = emptyList()
 ) = PersonOversiktStatus(
     fnr = fnr,
     navn = navn,
