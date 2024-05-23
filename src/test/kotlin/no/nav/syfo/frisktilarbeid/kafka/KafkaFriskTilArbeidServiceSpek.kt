@@ -40,7 +40,7 @@ class KafkaFriskTilArbeidServiceSpek : Spek({
         )
 
         beforeEachTest {
-            database.connection.dropData()
+            database.dropData()
 
             clearMocks(kafkaConsumerFriskTilArbeid)
             every { kafkaConsumerFriskTilArbeid.commitSync() } returns Unit

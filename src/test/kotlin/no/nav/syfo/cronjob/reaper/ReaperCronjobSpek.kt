@@ -34,7 +34,7 @@ object ReaperCronjobSpek : Spek({
         describe(ReaperCronjobSpek::class.java.simpleName) {
             describe("Successful processing") {
                 afterEachTest {
-                    database.connection.dropData()
+                    database.dropData()
                 }
 
                 it("reset tildelt veileder for personer with tilfelle that ended three months ago") {

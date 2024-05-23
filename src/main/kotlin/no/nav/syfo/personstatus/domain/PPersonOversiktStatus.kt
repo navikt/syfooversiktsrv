@@ -46,7 +46,7 @@ data class PPersonOversiktStatus(
 )
 
 fun PPersonOversiktStatus.toPersonOversiktStatus(
-    personOppfolgingstilfelleVirksomhetList: List<PersonOppfolgingstilfelleVirksomhet>,
+    personOppfolgingstilfelleVirksomhetList: List<PersonOppfolgingstilfelleVirksomhet> = emptyList()
 ) = PersonOversiktStatus(
     fnr = fnr,
     navn = navn,

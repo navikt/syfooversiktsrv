@@ -9,8 +9,12 @@ data class ArbeidsuforhetVurderingRecord(
     val createdAt: OffsetDateTime,
     val personident: String,
     val veilederident: String,
-    val type: String,
+    val type: VurderingType,
     val begrunnelse: String,
     val gjelderFom: LocalDate?,
     val isFinalVurdering: Boolean,
 )
+
+enum class VurderingType {
+    FORHANDSVARSEL, OPPFYLT, AVSLAG
+}

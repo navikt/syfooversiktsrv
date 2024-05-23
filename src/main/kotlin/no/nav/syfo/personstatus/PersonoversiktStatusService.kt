@@ -85,8 +85,11 @@ class PersonoversiktStatusService(
         }
     }
 
-    fun updateArbeidsuforhetVurderingStatus(personident: PersonIdent, isAktivVurdering: Boolean) {
-        personoversiktStatusRepository.updateArbeidsuforhetVurderingStatus(personident, isAktivVurdering)
+    fun updateArbeidsuforhetVurderingStatus(personident: PersonIdent, isAktivVurdering: Boolean): Result<Int> {
+        return personoversiktStatusRepository.updateArbeidsuforhetVurderingStatus(
+            personident = personident,
+            isAktivVurdering = isAktivVurdering
+        )
     }
 
     private fun createOrUpdatePersonOversiktStatus(
