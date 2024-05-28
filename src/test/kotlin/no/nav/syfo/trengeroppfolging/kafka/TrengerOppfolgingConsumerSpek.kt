@@ -38,7 +38,7 @@ class TrengerOppfolgingConsumerSpek : Spek({
         val frist = LocalDate.now().plusWeeks(1)
 
         beforeEachTest {
-            database.connection.dropData()
+            database.dropData()
 
             clearMocks(kafkaConsumerMock)
             every { kafkaConsumerMock.commitSync() } returns Unit

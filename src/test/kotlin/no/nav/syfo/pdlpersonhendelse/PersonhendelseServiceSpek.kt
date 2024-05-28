@@ -28,7 +28,7 @@ object PersonhendelseServiceSpek : Spek({
             )
 
             beforeEachTest {
-                database.connection.dropData()
+                database.dropData()
             }
 
             describe("Happy path") {

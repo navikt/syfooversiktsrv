@@ -44,7 +44,7 @@ class KafkaDialogmoteStatusendringServiceSpek : Spek({
         )
 
         beforeEachTest {
-            database.connection.dropData()
+            database.dropData()
 
             clearMocks(mockKafkaConsumerDialogmoteStatusendring)
             every { mockKafkaConsumerDialogmoteStatusendring.commitSync() } returns Unit

@@ -35,7 +35,7 @@ object PersontildelingApiV2Spek : Spek({
             val baseUrl = personTildelingApiV2Path
 
             beforeEachTest {
-                database.connection.dropData()
+                database.dropData()
             }
 
             val validToken = generateJWT(

@@ -37,7 +37,7 @@ object PreloadCacheCronjobSpek : Spek({
         describe(PreloadCacheCronjobSpek::class.java.simpleName) {
             describe("Successful processing") {
                 afterEachTest {
-                    database.connection.dropData()
+                    database.dropData()
                 }
 
                 it("Initial run when restart before 6") {

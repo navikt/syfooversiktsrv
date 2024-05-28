@@ -36,7 +36,7 @@ object PersonoppgavehendelseServiceSpek : Spek({
             every { mockPersonoppgavehendelseConsumer.commitSync() } returns Unit
         }
         afterEachTest {
-            database.connection.dropData()
+            database.dropData()
         }
 
         it("Create personoversiktstatus on read from topic personoppgavehendelser") {
@@ -242,7 +242,8 @@ object PersonoppgavehendelseServiceSpek : Spek({
         }
 
         it("Update personoversiktstatus from behandler_ber_om_bistand_mottatt-hendelse") {
-            val behandlerBistandHendelseMottatt = generateKPersonoppgavehendelse(OversikthendelseType.BEHANDLER_BER_OM_BISTAND_MOTTATT)
+            val behandlerBistandHendelseMottatt =
+                generateKPersonoppgavehendelse(OversikthendelseType.BEHANDLER_BER_OM_BISTAND_MOTTATT)
             mockReceiveHendelse(behandlerBistandHendelseMottatt, mockPersonoppgavehendelseConsumer)
 
             personoppgavehendelseConsumer.pollAndProcessRecords(kafkaConsumer = mockPersonoppgavehendelseConsumer)
@@ -253,7 +254,8 @@ object PersonoppgavehendelseServiceSpek : Spek({
         }
 
         it("Update personoversiktstatus from behandler_ber_om_bistand_behandlet-hendelse") {
-            val behandlerBistandHendelseBehandlet = generateKPersonoppgavehendelse(OversikthendelseType.BEHANDLER_BER_OM_BISTAND_BEHANDLET)
+            val behandlerBistandHendelseBehandlet =
+                generateKPersonoppgavehendelse(OversikthendelseType.BEHANDLER_BER_OM_BISTAND_BEHANDLET)
             mockReceiveHendelse(behandlerBistandHendelseBehandlet, mockPersonoppgavehendelseConsumer)
             val personOversiktStatus = PersonOversiktStatus(UserConstants.ARBEIDSTAKER_FNR)
                 .applyHendelse(OversikthendelseType.BEHANDLER_BER_OM_BISTAND_MOTTATT)
@@ -268,7 +270,10 @@ object PersonoppgavehendelseServiceSpek : Spek({
     }
 })
 
-fun mockReceiveHendelse(hendelse: KPersonoppgavehendelse, mockKafkaPersonoppgavehendelse: KafkaConsumer<String, KPersonoppgavehendelse>) {
+fun mockReceiveHendelse(
+    hendelse: KPersonoppgavehendelse,
+    mockKafkaPersonoppgavehendelse: KafkaConsumer<String, KPersonoppgavehendelse>
+) {
     every { mockKafkaPersonoppgavehendelse.poll(any<Duration>()) } returns ConsumerRecords(
         mapOf(
             personoppgavehendelseTopicPartition() to listOf(

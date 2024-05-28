@@ -32,9 +32,9 @@ class ArbeidsuforhetVurderingConsumer(
         }
     }
 
-    private fun processRecords(records: ConsumerRecords<String, ArbeidsuforhetVurderingRecord>) {
+    private fun processRecords(records: ConsumerRecords<String, ArbeidsuforhetVurderingRecord>): List<Result<Int>> {
         val validRecords = records.requireNoNulls()
-        validRecords.map { record ->
+        return validRecords.map { record ->
             val recordValue = record.value()
             personoversiktStatusService.updateArbeidsuforhetVurderingStatus(
                 personident = PersonIdent(recordValue.personident),
