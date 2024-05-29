@@ -31,8 +31,8 @@ class ArbeidsuforhetvurderingClient(
 
     override suspend fun getVurdering(
         callId: String,
+        token: String,
         personIdent: PersonIdent,
-        token: String
     ): ArbeidsuforhetvurderingDTO {
         val oboToken = azureAdClient.getSystemToken(
             scopeClientId = clientEnvironment.clientId,
@@ -83,6 +83,5 @@ class ArbeidsuforhetvurderingClient(
             .builder(CALL_ISARBEIDSUFORHET_FAIL)
             .description("Counts the number of failed calls to isarbeidsuforhet")
             .register(METRICS_REGISTRY)
-
     }
 }

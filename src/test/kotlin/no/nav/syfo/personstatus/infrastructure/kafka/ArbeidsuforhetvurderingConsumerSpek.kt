@@ -6,6 +6,7 @@ import io.mockk.every
 import io.mockk.mockk
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.personstatus.PersonoversiktStatusService
+import no.nav.syfo.personstatus.application.arbeidsuforhet.IArbeidsuforhetvurderingClient
 import no.nav.syfo.personstatus.db.createPersonOversiktStatus
 import no.nav.syfo.personstatus.db.getPersonOversiktStatusList
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
@@ -21,21 +22,23 @@ import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.UUID
 
-class ArbeidsuforhetVurderingConsumerSpek : Spek({
+class ArbeidsuforhetvurderingConsumerSpek : Spek({
     val externalMockEnvironment = ExternalMockEnvironment.instance
     val database = externalMockEnvironment.database
-    val kafkaConsumer = mockk<KafkaConsumer<String, ArbeidsuforhetVurderingRecord>>()
+    val kafkaConsumer = mockk<KafkaConsumer<String, ArbeidsuforhetvurderingRecord>>()
     val personOppgaveRepository = PersonOversiktStatusRepository(database = database)
+    val arbeidsuforhervurderingClient = mockk<IArbeidsuforhetvurderingClient>()
     val personoversiktStatusService = PersonoversiktStatusService(
         database = database,
         pdlClient = externalMockEnvironment.pdlClient,
+        arbeidsuforhetvurderingClient = arbeidsuforhervurderingClient,
         personoversiktStatusRepository = personOppgaveRepository
     )
 
-    val arbeidsuforhetVurderingConsumer = ArbeidsuforhetVurderingConsumer(
+    val arbeidsuforhetvurderingConsumer = ArbeidsuforhetvurderingConsumer(
         personoversiktStatusService = personoversiktStatusService,
     )
-    val arbeidsuforhetVurderingRecord = generateArbeidsvurderingRecord(
+    val arbeidsuforhetvurderingRecord = generateArbeidsvurderingRecord(
         personIdent = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),
         createdAt = OffsetDateTime.now(),
     )
@@ -60,17 +63,17 @@ class ArbeidsuforhetVurderingConsumerSpek : Spek({
             }
 
             kafkaConsumer.mockPollConsumerRecords(
-                recordValue = arbeidsuforhetVurderingRecord,
+                recordValue = arbeidsuforhetvurderingRecord,
                 topic = "teamsykefravr.arbeidsuforhet-vurdering",
             )
 
-            arbeidsuforhetVurderingConsumer.pollAndProcessRecords(kafkaConsumer = kafkaConsumer)
+            arbeidsuforhetvurderingConsumer.pollAndProcessRecords(kafkaConsumer = kafkaConsumer)
 
             verify(exactly = 1) {
                 kafkaConsumer.commitSync()
             }
             val personStatus = database.getPersonOversiktStatusList(fnr = UserConstants.ARBEIDSTAKER_FNR).single()
-            personStatus.fnr shouldBeEqualTo arbeidsuforhetVurderingRecord.personident
+            personStatus.fnr shouldBeEqualTo arbeidsuforhetvurderingRecord.personident
         }
     }
 })
@@ -81,8 +84,8 @@ private fun generateArbeidsvurderingRecord(
     type: VurderingType = VurderingType.OPPFYLT,
     begrunnelse: String = "En kjempegod begrunnelse",
     gjelderFom: LocalDate? = LocalDate.now().plusDays(1),
-    isFinalVurdering: Boolean = true,
-): ArbeidsuforhetVurderingRecord = ArbeidsuforhetVurderingRecord(
+    isFinal: Boolean = true,
+): ArbeidsuforhetvurderingRecord = ArbeidsuforhetvurderingRecord(
     uuid = UUID.randomUUID(),
     createdAt = createdAt,
     personident = personIdent.value,
@@ -90,5 +93,5 @@ private fun generateArbeidsvurderingRecord(
     type = type,
     begrunnelse = begrunnelse,
     gjelderFom = gjelderFom,
-    isFinalVurdering = isFinalVurdering,
+    isFinal = isFinal,
 )

@@ -16,7 +16,7 @@ import java.util.*
 
 class PersonOversiktStatusRepository(private val database: DatabaseInterface) : IPersonOversiktStatusRepository {
 
-    override fun updateArbeidsuforhetVurderingStatus(
+    override fun updateArbeidsuforhetvurderingStatus(
         personIdent: PersonIdent,
         isAktivVurdering: Boolean
     ): Result<Int> {
@@ -123,6 +123,6 @@ private fun ResultSet.toPPersonOversiktStatus(): PPersonOversiktStatus =
         behandlerBerOmBistandUbehandlet = getBoolean("behandler_bistand_ubehandlet"),
         antallSykedager = getObject("antall_sykedager") as Int?,
         arbeidsuforhetVurderAvslagUbehandlet = getBoolean("arbeidsuforhet_vurder_avslag_ubehandlet"),
-        isAktivArbeidsuforhetVurdering = getBoolean("arbeidsuforhet_aktiv_vurdering"),
+        isAktivArbeidsuforhetvurdering = getBoolean("arbeidsuforhet_aktiv_vurdering"),
         friskmeldingTilArbeidsformidlingFom = getObject("friskmelding_til_arbeidsformidling_fom", LocalDate::class.java),
     )

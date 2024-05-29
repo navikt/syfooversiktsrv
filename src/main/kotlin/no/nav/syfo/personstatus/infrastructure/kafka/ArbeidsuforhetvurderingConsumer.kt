@@ -17,13 +17,13 @@ import org.slf4j.LoggerFactory
 import java.time.Duration
 import java.util.*
 
-class ArbeidsuforhetVurderingConsumer(
+class ArbeidsuforhetvurderingConsumer(
     private val personoversiktStatusService: PersonoversiktStatusService,
-) : KafkaConsumerService<ArbeidsuforhetVurderingRecord> {
+) : KafkaConsumerService<ArbeidsuforhetvurderingRecord> {
 
     override val pollDurationInMillis: Long = 1000
 
-    override fun pollAndProcessRecords(kafkaConsumer: KafkaConsumer<String, ArbeidsuforhetVurderingRecord>) {
+    override fun pollAndProcessRecords(kafkaConsumer: KafkaConsumer<String, ArbeidsuforhetvurderingRecord>) {
         val records = kafkaConsumer.poll(Duration.ofMillis(pollDurationInMillis))
         if (records.count() > 0) {
             log.info("ArbeidsuforhetVurderingConsumer trace: Received ${records.count()} records")
@@ -32,13 +32,13 @@ class ArbeidsuforhetVurderingConsumer(
         }
     }
 
-    private fun processRecords(records: ConsumerRecords<String, ArbeidsuforhetVurderingRecord>): List<Result<Int>> {
+    private fun processRecords(records: ConsumerRecords<String, ArbeidsuforhetvurderingRecord>): List<Result<Int>> {
         val validRecords = records.requireNoNulls()
         return validRecords.map { record ->
             val recordValue = record.value()
-            personoversiktStatusService.updateArbeidsuforhetVurderingStatus(
+            personoversiktStatusService.updateArbeidsuforhetvurderingStatus(
                 personident = PersonIdent(recordValue.personident),
-                isAktivVurdering = !recordValue.isFinalVurdering,
+                isAktivVurdering = !recordValue.isFinal,
             )
         }
     }
@@ -47,7 +47,7 @@ class ArbeidsuforhetVurderingConsumer(
         val consumerProperties = Properties().apply {
             putAll(kafkaAivenConsumerConfig(kafkaEnvironment = kafkaEnvironment))
             this[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] =
-                ArbeidsuforhetVurderingRecordDeserializer::class.java.canonicalName
+                ArbeidsuforhetvurderingRecordDeserializer::class.java.canonicalName
         }
         launchKafkaTask(
             applicationState = applicationState,
@@ -63,8 +63,8 @@ class ArbeidsuforhetVurderingConsumer(
     }
 }
 
-class ArbeidsuforhetVurderingRecordDeserializer : Deserializer<ArbeidsuforhetVurderingRecord> {
+class ArbeidsuforhetvurderingRecordDeserializer : Deserializer<ArbeidsuforhetvurderingRecord> {
     private val mapper = configuredJacksonMapper()
-    override fun deserialize(topic: String, data: ByteArray): ArbeidsuforhetVurderingRecord =
-        mapper.readValue(data, ArbeidsuforhetVurderingRecord::class.java)
+    override fun deserialize(topic: String, data: ByteArray): ArbeidsuforhetvurderingRecord =
+        mapper.readValue(data, ArbeidsuforhetvurderingRecord::class.java)
 }

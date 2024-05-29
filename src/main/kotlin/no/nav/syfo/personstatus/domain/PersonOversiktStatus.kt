@@ -5,6 +5,7 @@ import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendringType
 import no.nav.syfo.oppfolgingstilfelle.domain.Oppfolgingstilfelle
 import no.nav.syfo.oppfolgingstilfelle.domain.toPersonOppfolgingstilfelleDTO
 import no.nav.syfo.personstatus.api.v2.PersonOversiktStatusDTO
+import no.nav.syfo.personstatus.application.arbeidsuforhet.ArbeidsuforhetvurderingDTO
 import no.nav.syfo.util.isBeforeOrEqual
 import no.nav.syfo.util.toLocalDateOslo
 import no.nav.syfo.util.toLocalDateTimeOslo
@@ -37,7 +38,7 @@ data class PersonOversiktStatus(
     val behandlerBerOmBistandUbehandlet: Boolean = false,
     val arbeidsuforhetVurderAvslagUbehandlet: Boolean = false,
     val friskmeldingTilArbeidsformidlingFom: LocalDate? = null,
-    val isAktivArbeidsuforhetVurdering: Boolean = false,
+    val isAktivArbeidsuforhetvurdering: Boolean = false,
 ) {
     constructor(fnr: String) : this(
         null, fnr = fnr, null, null, null,
@@ -97,7 +98,10 @@ fun List<PersonOversiktStatus>.addPersonName(
     }
 }
 
-fun PersonOversiktStatus.toPersonOversiktStatusDTO(arenaCutoff: LocalDate) =
+fun PersonOversiktStatus.toPersonOversiktStatusDTO(
+    arenaCutoff: LocalDate,
+    arbeidsuforhetvurdering: ArbeidsuforhetvurderingDTO?
+) =
     PersonOversiktStatusDTO(
         veilederIdent = veilederIdent,
         fnr = fnr,
@@ -121,7 +125,7 @@ fun PersonOversiktStatus.toPersonOversiktStatusDTO(arenaCutoff: LocalDate) =
         behandlerBerOmBistandUbehandlet = behandlerBerOmBistandUbehandlet,
         arbeidsuforhetVurderAvslagUbehandlet = arbeidsuforhetVurderAvslagUbehandlet,
         friskmeldingTilArbeidsformidlingFom = friskmeldingTilArbeidsformidlingFom,
-        arbeidsuforhetvurdering = null,
+        arbeidsuforhetvurdering = arbeidsuforhetvurdering,
     )
 
 fun PersonOversiktStatus.hasActiveBehandlerdialogOppgave(): Boolean {

@@ -53,7 +53,7 @@ fun main() {
         azureAdClient = azureAdClient,
         clientEnvironment = environment.clients.syfobehandlendeenhet,
     )
-    val arbeidsuforhetVurderingClient = ArbeidsuforhetvurderingClient(
+    val arbeidsuforhetvurderingClient = ArbeidsuforhetvurderingClient(
         azureAdClient = azureAdClient,
         clientEnvironment = environment.clients.arbeidsuforhetvurdering,
     )
@@ -77,7 +77,7 @@ fun main() {
             personoversiktStatusService = PersonoversiktStatusService(
                 database = database,
                 pdlClient = pdlClient,
-                arbeidsuforhetVurderingClient = arbeidsuforhetVurderingClient,
+                arbeidsuforhetvurderingClient = arbeidsuforhetvurderingClient,
                 personoversiktStatusRepository = personoversiktStatusRepository,
             )
             personBehandlendeEnhetService = PersonBehandlendeEnhetService(

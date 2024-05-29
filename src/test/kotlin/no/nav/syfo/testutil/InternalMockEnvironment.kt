@@ -10,6 +10,7 @@ import no.nav.syfo.cronjob.behandlendeenhet.PersonBehandlendeEnhetService
 import no.nav.syfo.cronjob.virksomhetsnavn.PersonOppfolgingstilfelleVirksomhetnavnCronjob
 import no.nav.syfo.cronjob.virksomhetsnavn.PersonOppfolgingstilfelleVirksomhetsnavnService
 import no.nav.syfo.personstatus.PersonoversiktStatusService
+import no.nav.syfo.personstatus.infrastructure.ArbeidsuforhetvurderingClient
 import no.nav.syfo.personstatus.infrastructure.database.PersonOversiktStatusRepository
 
 class InternalMockEnvironment private constructor() {
@@ -31,6 +32,10 @@ class InternalMockEnvironment private constructor() {
     private val behandlendeEnhetClient = BehandlendeEnhetClient(
         azureAdClient = azureAdClient,
         clientEnvironment = environment.clients.syfobehandlendeenhet,
+    )
+    private val arbeidsuforhetvurderingClient = ArbeidsuforhetvurderingClient(
+        azureAdClient = azureAdClient,
+        clientEnvironment = environment.clients.arbeidsuforhetvurdering,
     )
     private val eregClient = EregClient(
         clientEnvironment = environment.clients.ereg,
@@ -57,6 +62,7 @@ class InternalMockEnvironment private constructor() {
     val personoversiktStatusService = PersonoversiktStatusService(
         database = database,
         pdlClient = pdlClient,
+        arbeidsuforhetvurderingClient = arbeidsuforhetvurderingClient,
         personoversiktStatusRepository = personoversiktRepository,
     )
 

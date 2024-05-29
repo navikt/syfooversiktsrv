@@ -6,7 +6,7 @@ interface IArbeidsuforhetvurderingClient {
 
     suspend fun getVurdering(
         callId: String,
+        token: String,
         personIdent: PersonIdent,
-        token: String
     ): ArbeidsuforhetvurderingDTO
 }

@@ -28,7 +28,7 @@ class PersonOversiktStatusRepositorySpek : Spek({
             beforeEachTest { database.dropData() }
             afterEachGroup { database.dropData() }
 
-            describe("updateArbeidsuforhetVurderingStatus") {
+            describe("updateArbeidsuforhetvurderingStatus") {
                 it("Successfully updates arbeidsuforhet vurdering status to active") {
                     val newPersonOversiktStatus = PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR)
                     database.connection.use { connection ->
@@ -38,20 +38,20 @@ class PersonOversiktStatusRepositorySpek : Spek({
                         )
                     }
 
-                    val result = personOversiktStatusRepository.updateArbeidsuforhetVurderingStatus(
+                    val result = personOversiktStatusRepository.updateArbeidsuforhetvurderingStatus(
                         personIdent = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),
                         isAktivVurdering = true
                     )
 
                     result.isSuccess shouldBe true
                     val personOversiktStatus = database.getPersonOversiktStatusList(fnr = UserConstants.ARBEIDSTAKER_FNR).first()
-                    newPersonOversiktStatus.isAktivArbeidsuforhetVurdering shouldNotBe personOversiktStatus.isAktivArbeidsuforhetVurdering
-                    personOversiktStatus.isAktivArbeidsuforhetVurdering shouldBe true
+                    newPersonOversiktStatus.isAktivArbeidsuforhetvurdering shouldNotBe personOversiktStatus.isAktivArbeidsuforhetvurdering
+                    personOversiktStatus.isAktivArbeidsuforhetvurdering shouldBe true
                 }
 
                 it("Successfully updates arbeidsuforhet vurdering status from active to not active") {
                     val newPersonOversiktStatus = PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR)
-                        .copy(isAktivArbeidsuforhetVurdering = true)
+                        .copy(isAktivArbeidsuforhetvurdering = true)
                     database.connection.use { connection ->
                         connection.createPersonOversiktStatus(
                             commit = true,
@@ -59,19 +59,19 @@ class PersonOversiktStatusRepositorySpek : Spek({
                         )
                     }
 
-                    val result = personOversiktStatusRepository.updateArbeidsuforhetVurderingStatus(
+                    val result = personOversiktStatusRepository.updateArbeidsuforhetvurderingStatus(
                         personIdent = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),
                         isAktivVurdering = false
                     )
 
                     result.isSuccess shouldBe true
                     val personOversiktStatus = database.getPersonOversiktStatusList(fnr = UserConstants.ARBEIDSTAKER_FNR).first()
-                    newPersonOversiktStatus.isAktivArbeidsuforhetVurdering shouldNotBe personOversiktStatus.isAktivArbeidsuforhetVurdering
-                    personOversiktStatus.isAktivArbeidsuforhetVurdering shouldBe false
+                    newPersonOversiktStatus.isAktivArbeidsuforhetvurdering shouldNotBe personOversiktStatus.isAktivArbeidsuforhetvurdering
+                    personOversiktStatus.isAktivArbeidsuforhetvurdering shouldBe false
                 }
 
                 it("Creates new person when none exist when updating arbeidsuforhet vurdering status") {
-                    val result = personOversiktStatusRepository.updateArbeidsuforhetVurderingStatus(
+                    val result = personOversiktStatusRepository.updateArbeidsuforhetvurderingStatus(
                         personIdent = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),
                         isAktivVurdering = false
                     )

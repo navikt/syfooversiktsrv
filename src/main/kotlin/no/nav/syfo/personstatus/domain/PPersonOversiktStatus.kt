@@ -42,7 +42,7 @@ data class PPersonOversiktStatus(
     val antallSykedager: Int?,
     val arbeidsuforhetVurderAvslagUbehandlet: Boolean,
     val friskmeldingTilArbeidsformidlingFom: LocalDate?,
-    val isAktivArbeidsuforhetVurdering: Boolean,
+    val isAktivArbeidsuforhetvurdering: Boolean,
 )
 
 fun PPersonOversiktStatus.toPersonOversiktStatus(

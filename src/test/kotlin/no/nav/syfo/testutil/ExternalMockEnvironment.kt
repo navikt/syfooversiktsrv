@@ -15,6 +15,7 @@ class ExternalMockEnvironment private constructor() {
     val eregMock = EregMock()
     val pdlMock = PdlMock()
     val syfobehandlendeenhetMock = SyfobehandlendeenhetMock()
+    val arbeidsuforhetvurderingMock = ArbeidsuforhetvurderingMock()
     val tilgangskontrollMock = VeilederTilgangskontrollMock()
 
     val externalApplicationMockMap = hashMapOf(
@@ -22,6 +23,7 @@ class ExternalMockEnvironment private constructor() {
         eregMock.name to eregMock.server,
         pdlMock.name to pdlMock.server,
         syfobehandlendeenhetMock.name to syfobehandlendeenhetMock.server,
+        arbeidsuforhetvurderingMock.name to arbeidsuforhetvurderingMock.server,
         tilgangskontrollMock.name to tilgangskontrollMock.server,
     )
 
@@ -30,6 +32,7 @@ class ExternalMockEnvironment private constructor() {
         eregUrl = eregMock.url,
         pdlUrl = pdlMock.url,
         syfobehandlendeenhetUrl = syfobehandlendeenhetMock.url,
+        arbeidsuforhetvurderingUrl = arbeidsuforhetvurderingMock.url,
         istilgangskontrollUrl = tilgangskontrollMock.url,
         kafkaBootstrapServers = embeddedEnvironment.brokersURL
     )

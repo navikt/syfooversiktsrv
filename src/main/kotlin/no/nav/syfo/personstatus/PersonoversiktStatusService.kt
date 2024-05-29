@@ -5,6 +5,7 @@ import no.nav.syfo.client.pdl.PdlClient
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.oppfolgingstilfelle.domain.PersonOppfolgingstilfelleVirksomhet
 import no.nav.syfo.personoppgavehendelse.kafka.*
+import no.nav.syfo.personstatus.api.v2.PersonOversiktStatusDTO
 import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
 import no.nav.syfo.personstatus.application.arbeidsuforhet.IArbeidsuforhetvurderingClient
 import no.nav.syfo.personstatus.db.*
@@ -15,25 +16,19 @@ import java.time.LocalDate
 class PersonoversiktStatusService(
     private val database: DatabaseInterface,
     private val pdlClient: PdlClient,
-    private val arbeidsuforhetVurderingClient: IArbeidsuforhetvurderingClient,
+    private val arbeidsuforhetvurderingClient: IArbeidsuforhetvurderingClient,
     private val personoversiktStatusRepository: IPersonOversiktStatusRepository,
 ) {
     private val isUbehandlet = true
     private val isBehandlet = false
 
     fun hentPersonoversiktStatusTilknyttetEnhet(
-        callId: String,
         enhet: String,
         arenaCutoff: LocalDate
     ): List<PersonOversiktStatus> {
         val personListe = database.hentUbehandledePersonerTilknyttetEnhet(
             enhet = enhet,
         )
-        personListe.map {
-            if (it.isAktivArbeidsuforhetVurdering) {
-                arbeidsuforhetVurderingClient.getVurdering(callId = callId, personIdent = PersonIdent(it.fnr), token = ""
-            }
-        }
         return personListe.map { pPersonOversikStatus ->
             val personOppfolgingstilfelleVirksomhetList = getPersonOppfolgingstilfelleVirksomhetList(
                 pPersonOversikStatusId = pPersonOversikStatus.id,
@@ -45,6 +40,27 @@ class PersonoversiktStatusService(
             personOversiktStatus.hasActiveOppgave(arenaCutoff = arenaCutoff)
         }
     }
+
+    suspend fun getAktiveVurderinger(
+        callId: String,
+        token: String,
+        arenaCutoff: LocalDate,
+        personStatusOversikt: List<PersonOversiktStatus>
+    ): List<PersonOversiktStatusDTO> =
+        personStatusOversikt.map { personStatus ->
+            val arbeidsuforhetvurdering =
+                if (personStatus.isAktivArbeidsuforhetvurdering) {
+                    arbeidsuforhetvurderingClient.getVurdering(
+                        callId = callId,
+                        token = token,
+                        personIdent = PersonIdent(personStatus.fnr)
+                    )
+                } else {
+                    null
+                }
+
+            personStatus.toPersonOversiktStatusDTO(arenaCutoff = arenaCutoff, arbeidsuforhetvurdering = arbeidsuforhetvurdering)
+        }
 
     private fun getPersonOppfolgingstilfelleVirksomhetList(
         pPersonOversikStatusId: Int,
@@ -96,8 +112,8 @@ class PersonoversiktStatusService(
         }
     }
 
-    fun updateArbeidsuforhetVurderingStatus(personident: PersonIdent, isAktivVurdering: Boolean): Result<Int> {
-        return personoversiktStatusRepository.updateArbeidsuforhetVurderingStatus(
+    fun updateArbeidsuforhetvurderingStatus(personident: PersonIdent, isAktivVurdering: Boolean): Result<Int> {
+        return personoversiktStatusRepository.updateArbeidsuforhetvurderingStatus(
             personident = personident,
             isAktivVurdering = isAktivVurdering
         )
