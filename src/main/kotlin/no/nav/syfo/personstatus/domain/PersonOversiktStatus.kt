@@ -37,13 +37,14 @@ data class PersonOversiktStatus(
     val behandlerBerOmBistandUbehandlet: Boolean = false,
     val arbeidsuforhetVurderAvslagUbehandlet: Boolean = false,
     val friskmeldingTilArbeidsformidlingFom: LocalDate? = null,
+    val isAktivArbeidsuforhetvurdering: Boolean = false,
 ) {
-    constructor(fnr: String) : this(
+    constructor(fnr: String, isAktivArbeidsuforhetvurdering: Boolean = false) : this(
         null, fnr = fnr, null, null, null,
         null, false, null, null, null,
         null, null, null, null, null, null,
         false, false, false, false, false,
-        null, false, false,
+        null, false, false, null, isAktivArbeidsuforhetvurdering = isAktivArbeidsuforhetvurdering
     )
 }
 
@@ -135,59 +136,45 @@ fun PersonOversiktStatus.applyHendelse(
         OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT -> this.copy(
             motebehovUbehandlet = true,
         )
-
         OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET -> this.copy(
             motebehovUbehandlet = false,
         )
-
         OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT -> this.copy(
             oppfolgingsplanLPSBistandUbehandlet = true,
         )
-
         OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_BEHANDLET -> this.copy(
             oppfolgingsplanLPSBistandUbehandlet = false,
         )
-
         OversikthendelseType.DIALOGMOTESVAR_MOTTATT -> this.copy(
             dialogmotesvarUbehandlet = true,
         )
-
         OversikthendelseType.DIALOGMOTESVAR_BEHANDLET -> this.copy(
             dialogmotesvarUbehandlet = false,
         )
-
         OversikthendelseType.BEHANDLERDIALOG_SVAR_MOTTATT -> this.copy(
             behandlerdialogSvarUbehandlet = true,
         )
-
         OversikthendelseType.BEHANDLERDIALOG_SVAR_BEHANDLET -> this.copy(
             behandlerdialogSvarUbehandlet = false,
         )
-
         OversikthendelseType.BEHANDLERDIALOG_MELDING_UBESVART_MOTTATT -> this.copy(
             behandlerdialogUbesvartUbehandlet = true,
         )
-
         OversikthendelseType.BEHANDLERDIALOG_MELDING_UBESVART_BEHANDLET -> this.copy(
             behandlerdialogUbesvartUbehandlet = false,
         )
-
         OversikthendelseType.BEHANDLERDIALOG_MELDING_AVVIST_MOTTATT -> this.copy(
             behandlerdialogAvvistUbehandlet = true,
         )
-
         OversikthendelseType.BEHANDLERDIALOG_MELDING_AVVIST_BEHANDLET -> this.copy(
             behandlerdialogAvvistUbehandlet = false,
         )
-
         OversikthendelseType.AKTIVITETSKRAV_VURDER_STANS_MOTTATT -> this.copy(
             aktivitetskravVurderStansUbehandlet = true,
         )
-
         OversikthendelseType.AKTIVITETSKRAV_VURDER_STANS_BEHANDLET -> this.copy(
             aktivitetskravVurderStansUbehandlet = false,
         )
-
         OversikthendelseType.BEHANDLER_BER_OM_BISTAND_MOTTATT -> this.copy(
             behandlerBerOmBistandUbehandlet = true
         )

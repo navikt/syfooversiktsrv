@@ -1,6 +1,9 @@
 package no.nav.syfo.testutil
 
 import no.nav.syfo.application.ApplicationState
+import no.nav.syfo.application.cache.RedisStore
+import no.nav.syfo.client.azuread.AzureAdClient
+import no.nav.syfo.client.pdl.PdlClient
 import no.nav.syfo.testutil.mock.*
 
 class ExternalMockEnvironment private constructor() {
@@ -35,6 +38,14 @@ class ExternalMockEnvironment private constructor() {
     )
 
     val wellKnownVeilederV2 = wellKnownVeilederV2Mock()
+
+    val pdlClient = PdlClient(
+        azureAdClient = AzureAdClient(
+            azureEnvironment = environment.azure,
+            redisStore = RedisStore(environment.redis),
+        ),
+        clientEnvironment = environment.clients.pdl,
+    )
 
     companion object {
         val instance: ExternalMockEnvironment by lazy {

@@ -40,7 +40,7 @@ class KafkaDialogmotekandidatEndringServiceSpek : Spek({
         )
 
         beforeEachTest {
-            database.connection.dropData()
+            database.dropData()
 
             clearMocks(mockKafkaConsumerDialogmotekandidatEndring)
             every { mockKafkaConsumerDialogmotekandidatEndring.commitSync() } returns Unit

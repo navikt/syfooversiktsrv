@@ -8,12 +8,13 @@ import no.nav.syfo.cronjob.behandlendeenhet.PersonBehandlendeEnhetService
 import no.nav.syfo.dialogmotekandidat.kafka.launchKafkaTaskDialogmotekandidatEndring
 import no.nav.syfo.dialogmotestatusendring.kafka.launchKafkaTaskDialogmoteStatusendring
 import no.nav.syfo.frisktilarbeid.kafka.launchKafkaTaskFriskTilArbeidVedtak
-import no.nav.syfo.trengeroppfolging.kafka.launchTrengerOppfolgingConsumer
 import no.nav.syfo.identhendelse.kafka.launchKafkaTaskIdenthendelse
 import no.nav.syfo.oppfolgingstilfelle.kafka.launchKafkaTaskOppfolgingstilfellePerson
 import no.nav.syfo.pdlpersonhendelse.kafka.launchKafkaTaskPersonhendelse
 import no.nav.syfo.personoppgavehendelse.kafka.launchKafkaTaskPersonoppgavehendelse
 import no.nav.syfo.personstatus.PersonoversiktStatusService
+import no.nav.syfo.personstatus.infrastructure.kafka.ArbeidsuforhetvurderingConsumer
+import no.nav.syfo.trengeroppfolging.kafka.launchTrengerOppfolgingConsumer
 
 fun launchKafkaModule(
     applicationState: ApplicationState,
@@ -65,4 +66,6 @@ fun launchKafkaModule(
         applicationState = applicationState,
         kafkaEnvironment = environment.kafka,
     )
+    ArbeidsuforhetvurderingConsumer(personoversiktStatusService = personoversiktStatusService)
+        .start(applicationState = applicationState, kafkaEnvironment = environment.kafka)
 }

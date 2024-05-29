@@ -65,7 +65,7 @@ object PersonOppfolgingstilfelleVirksomhetsnavnCronjobSpek : Spek({
             AktivitetskravGenerator(arenaCutoff = externalMockEnvironment.environment.arenaCutoff)
 
         beforeEachTest {
-            database.connection.dropData()
+            database.dropData()
 
             clearMocks(mockKafkaConsumerOppfolgingstilfellePerson)
             clearMocks(mockKafkaConsumerDialogmotekandidatEndring)
@@ -151,7 +151,7 @@ object PersonOppfolgingstilfelleVirksomhetsnavnCronjobSpek : Spek({
                         oversiktHendelseMotebehovSvarMottatt,
                     )
                     oversikthendelseList.forEach { oversikthendelse ->
-                        database.connection.dropData()
+                        database.dropData()
 
                         val personoversiktStatus = PersonOversiktStatus(
                             fnr = oversikthendelse.personident

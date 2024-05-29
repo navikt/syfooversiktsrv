@@ -32,7 +32,7 @@ object PreloadCacheCronjobWithMockSpek : Spek({
         describe(PreloadCacheCronjobSpek::class.java.simpleName) {
             describe("Successful processing") {
                 afterEachTest {
-                    database.connection.dropData()
+                    database.dropData()
                 }
                 it("should cache persons in enhetens oversikt") {
                     database.createPersonOversiktStatus(generatePersonOversiktStatus())

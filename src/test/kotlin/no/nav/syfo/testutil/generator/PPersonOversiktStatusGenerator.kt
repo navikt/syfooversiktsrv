@@ -39,4 +39,5 @@ fun generatePPersonOversiktStatus(fnr: String = UserConstants.ARBEIDSTAKER_FNR) 
     antallSykedager = null,
     arbeidsuforhetVurderAvslagUbehandlet = false,
     friskmeldingTilArbeidsformidlingFom = null,
+    isAktivArbeidsuforhetvurdering = false,
 )

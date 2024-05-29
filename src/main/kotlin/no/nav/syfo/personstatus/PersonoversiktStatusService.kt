@@ -5,6 +5,7 @@ import no.nav.syfo.client.pdl.PdlClient
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.oppfolgingstilfelle.domain.PersonOppfolgingstilfelleVirksomhet
 import no.nav.syfo.personoppgavehendelse.kafka.*
+import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
 import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.*
 import java.sql.Connection
@@ -13,6 +14,7 @@ import java.time.LocalDate
 class PersonoversiktStatusService(
     private val database: DatabaseInterface,
     private val pdlClient: PdlClient,
+    private val personoversiktStatusRepository: IPersonOversiktStatusRepository,
 ) {
     private val isUbehandlet = true
     private val isBehandlet = false
@@ -83,6 +85,13 @@ class PersonoversiktStatusService(
         }
     }
 
+    fun updateArbeidsuforhetvurderingStatus(personident: PersonIdent, isAktivVurdering: Boolean): Result<Int> {
+        return personoversiktStatusRepository.updateArbeidsuforhetvurderingStatus(
+            personident = personident,
+            isAktivVurdering = isAktivVurdering
+        )
+    }
+
     private fun createOrUpdatePersonOversiktStatus(
         connection: Connection,
         personident: PersonIdent,
@@ -135,8 +144,14 @@ class PersonoversiktStatusService(
                     connection.updateBehandlerBerOmBistand(isUbehandlet, personident)
                 OversikthendelseType.BEHANDLER_BER_OM_BISTAND_BEHANDLET ->
                     connection.updateBehandlerBerOmBistand(isBehandlet, personident)
-                OversikthendelseType.ARBEIDSUFORHET_VURDER_AVSLAG_MOTTATT -> connection.updateArbeidsuforhetVurderAvslag(isUbehandlet, personident)
-                OversikthendelseType.ARBEIDSUFORHET_VURDER_AVSLAG_BEHANDLET -> connection.updateArbeidsuforhetVurderAvslag(isBehandlet, personident)
+                OversikthendelseType.ARBEIDSUFORHET_VURDER_AVSLAG_MOTTATT -> connection.updateArbeidsuforhetVurderAvslag(
+                    isUbehandlet,
+                    personident
+                )
+                OversikthendelseType.ARBEIDSUFORHET_VURDER_AVSLAG_BEHANDLET -> connection.updateArbeidsuforhetVurderAvslag(
+                    isBehandlet,
+                    personident
+                )
             }
 
             COUNT_KAFKA_CONSUMER_PERSONOPPGAVEHENDELSE_UPDATED_PERSONOVERSIKT_STATUS.increment()

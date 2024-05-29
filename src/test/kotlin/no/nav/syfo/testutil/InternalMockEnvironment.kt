@@ -10,6 +10,7 @@ import no.nav.syfo.cronjob.behandlendeenhet.PersonBehandlendeEnhetService
 import no.nav.syfo.cronjob.virksomhetsnavn.PersonOppfolgingstilfelleVirksomhetnavnCronjob
 import no.nav.syfo.cronjob.virksomhetsnavn.PersonOppfolgingstilfelleVirksomhetsnavnService
 import no.nav.syfo.personstatus.PersonoversiktStatusService
+import no.nav.syfo.personstatus.infrastructure.database.PersonOversiktStatusRepository
 
 class InternalMockEnvironment private constructor() {
     private val externalMockEnvironment: ExternalMockEnvironment = ExternalMockEnvironment.instance
@@ -52,9 +53,11 @@ class InternalMockEnvironment private constructor() {
     val personOppfolgingstilfelleVirksomhetnavnCronjob = PersonOppfolgingstilfelleVirksomhetnavnCronjob(
         personOppfolgingstilfelleVirksomhetsnavnService = personOppfolgingstilfelleVirksomhetsnavnService,
     )
+    val personoversiktRepository = PersonOversiktStatusRepository(database = database)
     val personoversiktStatusService = PersonoversiktStatusService(
         database = database,
         pdlClient = pdlClient,
+        personoversiktStatusRepository = personoversiktRepository,
     )
 
     companion object {

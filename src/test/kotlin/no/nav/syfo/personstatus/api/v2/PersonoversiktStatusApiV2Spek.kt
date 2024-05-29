@@ -95,7 +95,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
             )
 
             beforeEachTest {
-                database.connection.dropData()
+                database.dropData()
 
                 clearMocks(mockKafkaConsumerOppfolgingstilfellePerson)
                 every { mockKafkaConsumerOppfolgingstilfellePerson.commitSync() } returns Unit

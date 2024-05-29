@@ -126,6 +126,7 @@ fun ResultSet.toPPersonOversiktStatus(): PPersonOversiktStatus =
         antallSykedager = getObject("antall_sykedager") as Int?,
         arbeidsuforhetVurderAvslagUbehandlet = getBoolean("arbeidsuforhet_vurder_avslag_ubehandlet"),
         friskmeldingTilArbeidsformidlingFom = getObject("friskmelding_til_arbeidsformidling_fom", LocalDate::class.java),
+        isAktivArbeidsuforhetvurdering = getBoolean("arbeidsuforhet_aktiv_vurdering")
     )
 
 fun ResultSet.toVeilederBrukerKnytning(): VeilederBrukerKnytning =
