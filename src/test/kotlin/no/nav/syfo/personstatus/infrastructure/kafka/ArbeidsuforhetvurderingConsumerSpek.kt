@@ -14,7 +14,9 @@ import no.nav.syfo.personstatus.infrastructure.database.PersonOversiktStatusRepo
 import no.nav.syfo.testutil.ExternalMockEnvironment
 import no.nav.syfo.testutil.UserConstants
 import no.nav.syfo.testutil.dropData
+import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldNotBeEqualTo
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
@@ -54,11 +56,12 @@ class ArbeidsuforhetvurderingConsumerSpek : Spek({
 
     describe("pollAndProcessRecords") {
         it("consumes arbeidsuforhet vurdering and updates personoversikt status") {
-            val newPersonOversiktStatus = PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR)
+            val personoversiktStatus =
+                PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR, isAktivArbeidsuforhetvurdering = true)
             database.connection.use { connection ->
                 connection.createPersonOversiktStatus(
                     commit = true,
-                    personOversiktStatus = newPersonOversiktStatus,
+                    personOversiktStatus = personoversiktStatus,
                 )
             }
 
@@ -72,8 +75,11 @@ class ArbeidsuforhetvurderingConsumerSpek : Spek({
             verify(exactly = 1) {
                 kafkaConsumer.commitSync()
             }
-            val personStatus = database.getPersonOversiktStatusList(fnr = UserConstants.ARBEIDSTAKER_FNR).single()
-            personStatus.fnr shouldBeEqualTo arbeidsuforhetvurderingRecord.personident
+            val updatedPersonstatus = database.getPersonOversiktStatusList(fnr = UserConstants.ARBEIDSTAKER_FNR).single()
+            updatedPersonstatus.fnr shouldBeEqualTo arbeidsuforhetvurderingRecord.personident
+
+            personoversiktStatus.isAktivArbeidsuforhetvurdering shouldNotBeEqualTo updatedPersonstatus.isAktivArbeidsuforhetvurdering
+            updatedPersonstatus.isAktivArbeidsuforhetvurdering shouldBe false
         }
     }
 })

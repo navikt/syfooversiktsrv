@@ -40,12 +40,12 @@ data class PersonOversiktStatus(
     val friskmeldingTilArbeidsformidlingFom: LocalDate? = null,
     val isAktivArbeidsuforhetvurdering: Boolean = false,
 ) {
-    constructor(fnr: String) : this(
+    constructor(fnr: String, isAktivArbeidsuforhetvurdering: Boolean = false) : this(
         null, fnr = fnr, null, null, null,
         null, false, null, null, null,
         null, null, null, null, null, null,
         false, false, false, false, false,
-        null, false, false,
+        null, false, false, null, isAktivArbeidsuforhetvurdering = isAktivArbeidsuforhetvurdering
     )
 }
 

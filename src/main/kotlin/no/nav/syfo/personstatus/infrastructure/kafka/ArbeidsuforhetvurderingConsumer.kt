@@ -26,7 +26,7 @@ class ArbeidsuforhetvurderingConsumer(
     override fun pollAndProcessRecords(kafkaConsumer: KafkaConsumer<String, ArbeidsuforhetvurderingRecord>) {
         val records = kafkaConsumer.poll(Duration.ofMillis(pollDurationInMillis))
         if (records.count() > 0) {
-            log.info("ArbeidsuforhetVurderingConsumer trace: Received ${records.count()} records")
+            log.info("ArbeidsuforhetvurderingConsumer trace: Received ${records.count()} records")
             processRecords(records = records)
             kafkaConsumer.commitSync()
         }
