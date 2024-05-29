@@ -8,5 +8,5 @@ interface IArbeidsuforhetvurderingClient {
         callId: String,
         token: String,
         personIdent: PersonIdent,
-    ): ArbeidsuforhetvurderingDTO
+    ): ArbeidsuforhetvurderingDTO?
 }

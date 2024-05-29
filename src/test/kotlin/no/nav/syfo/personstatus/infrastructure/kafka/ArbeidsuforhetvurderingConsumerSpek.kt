@@ -65,6 +65,11 @@ class ArbeidsuforhetvurderingConsumerSpek : Spek({
                 )
             }
 
+            val arbeidsuforhetvurderingRecord = generateArbeidsvurderingRecord(
+                personIdent = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),
+                createdAt = OffsetDateTime.now(),
+                isFinal = true,
+            )
             kafkaConsumer.mockPollConsumerRecords(
                 recordValue = arbeidsuforhetvurderingRecord,
                 topic = "teamsykefravr.arbeidsuforhet-vurdering",

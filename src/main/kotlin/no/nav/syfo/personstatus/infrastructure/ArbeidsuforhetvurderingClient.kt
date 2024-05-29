@@ -33,10 +33,11 @@ class ArbeidsuforhetvurderingClient(
         callId: String,
         token: String,
         personIdent: PersonIdent,
-    ): ArbeidsuforhetvurderingDTO {
-        val oboToken = azureAdClient.getSystemToken(
+    ): ArbeidsuforhetvurderingDTO? {
+        val oboToken = azureAdClient.getOnBehalfOfToken(
             scopeClientId = clientEnvironment.clientId,
-        )?.accessToken ?: throw RuntimeException("Failed to request access to Enhet: Failed to get OBO token")
+            token,
+        )?.accessToken ?: throw RuntimeException("Failed to get OBO-token for arbeidsbeidsuforhet vurdering")
         return try {
             val response = httpClient.get(isarbeidsuforhetUrl) {
                 header(HttpHeaders.Authorization, bearerHeader(oboToken))
@@ -44,8 +45,22 @@ class ArbeidsuforhetvurderingClient(
                 header(NAV_PERSONIDENT_HEADER, personIdent.value)
                 accept(ContentType.Application.Json)
             }
-            COUNT_CALL_ISARBEIDSUFORHET_SUCCESS.increment()
-            response.body()
+            when (response.status) {
+                HttpStatusCode.OK -> {
+                    COUNT_CALL_ISARBEIDSUFORHET_SUCCESS.increment()
+                    response.body<ArbeidsuforhetvurderingDTO>()
+                }
+                HttpStatusCode.NotFound -> {
+                    log.error("Resource not found")
+                    COUNT_CALL_ISARBEIDSUFORHET_FAIL.increment()
+                    null
+                }
+                else -> {
+                    log.error("Unhandled status code: ${response.status}")
+                    COUNT_CALL_ISARBEIDSUFORHET_FAIL.increment()
+                    null
+                }
+            }
         } catch (e: ClientRequestException) {
             handleUnexpectedResponseException(e.response, callId)
             throw e
