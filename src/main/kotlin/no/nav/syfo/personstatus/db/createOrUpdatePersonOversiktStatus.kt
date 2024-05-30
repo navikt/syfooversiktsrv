@@ -48,9 +48,10 @@ const val queryCreatePersonOversiktStatus =
         trenger_oppfolging_frist,
         behandler_bistand_ubehandlet,
         arbeidsuforhet_vurder_avslag_ubehandlet,
+        arbeidsuforhet_aktiv_vurdering,
         antall_sykedager,
         friskmelding_til_arbeidsformidling_fom
-    ) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     RETURNING id
     """
 
@@ -116,10 +117,11 @@ fun Connection.createPersonOversiktStatus(
         it.setObject(32, personOversiktStatus.trengerOppfolgingFrist)
         it.setBoolean(33, personOversiktStatus.behandlerBerOmBistandUbehandlet)
         it.setBoolean(34, personOversiktStatus.arbeidsuforhetVurderAvslagUbehandlet)
+        it.setBoolean(35, personOversiktStatus.isAktivArbeidsuforhetvurdering)
         if (personOversiktStatus.latestOppfolgingstilfelle?.antallSykedager != null) {
-            it.setInt(35, personOversiktStatus.latestOppfolgingstilfelle.antallSykedager)
-        } else it.setNull(35, Types.INTEGER)
-        it.setObject(36, personOversiktStatus.friskmeldingTilArbeidsformidlingFom)
+            it.setInt(36, personOversiktStatus.latestOppfolgingstilfelle.antallSykedager)
+        } else it.setNull(36, Types.INTEGER)
+        it.setObject(37, personOversiktStatus.friskmeldingTilArbeidsformidlingFom)
         it.executeQuery().toList { getInt("id") }.firstOrNull()
     } ?: throw SQLException("Creating PersonOversikStatus failed, no rows affected.")
 
@@ -196,8 +198,6 @@ fun DatabaseInterface.lagreVeilederForBruker(veilederBrukerKnytning: VeilederBru
         val personOversiktStatus = PersonOversiktStatus(
             veilederIdent = veilederBrukerKnytning.veilederIdent,
             fnr = veilederBrukerKnytning.fnr,
-            navn = null,
-            enhet = null,
         )
         this.connection.use { connection ->
             connection.createPersonOversiktStatus(

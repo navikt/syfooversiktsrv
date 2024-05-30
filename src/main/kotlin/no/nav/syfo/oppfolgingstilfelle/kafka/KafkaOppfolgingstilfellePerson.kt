@@ -30,27 +30,10 @@ data class KafkaOppfolgingstilfelle(
 fun KafkaOppfolgingstilfellePerson.toPersonOversiktStatus(
     latestKafkaOppfolgingstilfelle: KafkaOppfolgingstilfelle,
 ) = PersonOversiktStatus(
-    veilederIdent = null,
     fnr = this.personIdentNumber,
-    navn = null,
-    enhet = null,
-    motebehovUbehandlet = null,
-    oppfolgingsplanLPSBistandUbehandlet = null,
-    dialogmotesvarUbehandlet = false,
-    dialogmotekandidat = null,
-    dialogmotekandidatGeneratedAt = null,
-    motestatus = null,
-    motestatusGeneratedAt = null,
     latestOppfolgingstilfelle = this.toPersonOppfolgingstilfelle(
         latestKafkaOppfolgingstilfelle = latestKafkaOppfolgingstilfelle,
     ),
-    aktivitetskrav = null,
-    aktivitetskravStoppunkt = null,
-    aktivitetskravSistVurdert = null,
-    aktivitetskravVurderingFrist = null,
-    behandlerdialogSvarUbehandlet = false,
-    behandlerdialogUbesvartUbehandlet = false,
-    behandlerdialogAvvistUbehandlet = false,
 )
 
 // TODO: Hent latest oppfolgingstilfelle fra this

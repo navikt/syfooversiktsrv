@@ -29,7 +29,7 @@ class ArbeidsuforhetvurderingClient(
     private val httpClient = httpClientDefault()
     private val isarbeidsuforhetUrl = "${clientEnvironment.baseUrl}$ARBEIDSUFORHET_API_PATH"
 
-    override suspend fun getVurdering(
+    override suspend fun getLatestVurdering(
         callId: String,
         token: String,
         personIdent: PersonIdent,
@@ -48,7 +48,7 @@ class ArbeidsuforhetvurderingClient(
             when (response.status) {
                 HttpStatusCode.OK -> {
                     COUNT_CALL_ISARBEIDSUFORHET_SUCCESS.increment()
-                    response.body<ArbeidsuforhetvurderingDTO>()
+                    response.body<List<ArbeidsuforhetvurderingDTO>>().latest()
                 }
                 HttpStatusCode.NotFound -> {
                     log.error("Resource not found")
@@ -100,3 +100,6 @@ class ArbeidsuforhetvurderingClient(
             .register(METRICS_REGISTRY)
     }
 }
+
+private fun List<ArbeidsuforhetvurderingDTO>.latest() =
+    this.maxByOrNull { it.createdAt }

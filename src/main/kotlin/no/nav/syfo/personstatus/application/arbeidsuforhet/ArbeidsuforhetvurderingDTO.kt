@@ -5,15 +5,12 @@ import java.time.LocalDateTime
 import java.util.*
 
 data class ArbeidsuforhetvurderingDTO(
-    val uuid: UUID,
-    val personident: String,
+    val createdAt: LocalDateTime,
     val type: VurderingType,
     val varsel: VarselDTO?,
 )
 
 data class VarselDTO(
-    val uuid: UUID,
-    val createdAt: LocalDateTime,
     val svarfrist: LocalDate,
 )
 

@@ -4,7 +4,7 @@ import no.nav.syfo.domain.PersonIdent
 
 interface IArbeidsuforhetvurderingClient {
 
-    suspend fun getVurdering(
+    suspend fun getLatestVurdering(
         callId: String,
         token: String,
         personIdent: PersonIdent,

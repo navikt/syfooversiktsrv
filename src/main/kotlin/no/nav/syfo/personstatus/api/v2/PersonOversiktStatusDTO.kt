@@ -26,8 +26,8 @@ data class PersonOversiktStatusDTO(
     val trengerOppfolgingFrist: LocalDate?,
     val behandlerBerOmBistandUbehandlet: Boolean,
     val arbeidsuforhetVurderAvslagUbehandlet: Boolean,
-    val friskmeldingTilArbeidsformidlingFom: LocalDate?,
     val arbeidsuforhetvurdering: ArbeidsuforhetvurderingDTO?,
+    val friskmeldingTilArbeidsformidlingFom: LocalDate?,
 )
 
 data class PersonOppfolgingstilfelleDTO(

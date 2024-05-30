@@ -53,6 +53,7 @@ spec:
       rules:
         - application: syfobehandlendeenhet
         - application: syfooversiktsrv-redis
+        - application: isarbeidsuforhet
         - application: istilgangskontroll
   azure:
     application:

@@ -22,24 +22,6 @@ enum class Status {
 }
 
 fun VedtakStatusRecord.toPersonOversiktStatus() = PersonOversiktStatus(
-    veilederIdent = null,
     fnr = this.personident,
-    navn = null,
-    enhet = null,
-    motebehovUbehandlet = null,
-    oppfolgingsplanLPSBistandUbehandlet = null,
-    dialogmotesvarUbehandlet = false,
-    dialogmotekandidat = false,
-    dialogmotekandidatGeneratedAt = null,
-    motestatus = null,
-    motestatusGeneratedAt = null,
-    latestOppfolgingstilfelle = null,
-    aktivitetskrav = null,
-    aktivitetskravStoppunkt = null,
-    aktivitetskravSistVurdert = null,
-    aktivitetskravVurderingFrist = null,
-    behandlerdialogSvarUbehandlet = false,
-    behandlerdialogUbesvartUbehandlet = false,
-    behandlerdialogAvvistUbehandlet = false,
     friskmeldingTilArbeidsformidlingFom = if (this.status == Status.FATTET) this.fom else null,
 )

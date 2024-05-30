@@ -1,5 +1,9 @@
 package no.nav.syfo.personstatus
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.client.pdl.PdlClient
 import no.nav.syfo.domain.PersonIdent
@@ -7,6 +11,7 @@ import no.nav.syfo.oppfolgingstilfelle.domain.PersonOppfolgingstilfelleVirksomhe
 import no.nav.syfo.personoppgavehendelse.kafka.*
 import no.nav.syfo.personstatus.api.v2.PersonOversiktStatusDTO
 import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
+import no.nav.syfo.personstatus.application.arbeidsuforhet.ArbeidsuforhetvurderingDTO
 import no.nav.syfo.personstatus.application.arbeidsuforhet.IArbeidsuforhetvurderingClient
 import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.*
@@ -47,19 +52,31 @@ class PersonoversiktStatusService(
         arenaCutoff: LocalDate,
         personStatusOversikt: List<PersonOversiktStatus>
     ): List<PersonOversiktStatusDTO> =
-        personStatusOversikt.map { personStatus ->
-            val arbeidsuforhetvurdering =
-                if (personStatus.isAktivArbeidsuforhetvurdering) {
-                    arbeidsuforhetvurderingClient.getVurdering(
-                        callId = callId,
-                        token = token,
-                        personIdent = PersonIdent(personStatus.fnr)
-                    )
-                } else {
-                    null
-                }
+        personStatusOversikt.map { personstatus ->
+            Pair(personstatus, getArbeidsuforhetvurdering(callId, token, personstatus))
+        }
+            .map { (personStatus, arbeidsuforhetvurdering) ->
+                personStatus.toPersonOversiktStatusDTO(
+                    arenaCutoff = arenaCutoff,
+                    arbeidsuforhetvurdering = arbeidsuforhetvurdering.await()
+                )
+            }
 
-            personStatus.toPersonOversiktStatusDTO(arenaCutoff = arenaCutoff, arbeidsuforhetvurdering = arbeidsuforhetvurdering)
+    private suspend fun getArbeidsuforhetvurdering(
+        callId: String,
+        token: String,
+        personStatus: PersonOversiktStatus,
+    ): Deferred<ArbeidsuforhetvurderingDTO?> =
+        CoroutineScope(Dispatchers.IO).async {
+            if (personStatus.isAktivArbeidsuforhetvurdering) {
+                arbeidsuforhetvurderingClient.getLatestVurdering(
+                    callId = callId,
+                    token = token,
+                    personIdent = PersonIdent(personStatus.fnr)
+                )
+            } else {
+                null
+            }
         }
 
     private fun getPersonOppfolgingstilfelleVirksomhetList(

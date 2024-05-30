@@ -32,24 +32,8 @@ data class DialogmoteStatusendring private constructor(
     }
 
     fun toPersonOversiktStatus(): PersonOversiktStatus = PersonOversiktStatus(
-        veilederIdent = null,
         fnr = this.personIdent.value,
-        navn = null,
-        enhet = null,
-        motebehovUbehandlet = null,
-        oppfolgingsplanLPSBistandUbehandlet = null,
-        dialogmotesvarUbehandlet = false,
-        dialogmotekandidat = null,
-        dialogmotekandidatGeneratedAt = null,
         motestatus = type.name,
         motestatusGeneratedAt = endringTidspunkt,
-        latestOppfolgingstilfelle = null,
-        aktivitetskrav = null,
-        aktivitetskravStoppunkt = null,
-        aktivitetskravSistVurdert = null,
-        aktivitetskravVurderingFrist = null,
-        behandlerdialogSvarUbehandlet = false,
-        behandlerdialogUbesvartUbehandlet = false,
-        behandlerdialogAvvistUbehandlet = false,
     )
 }

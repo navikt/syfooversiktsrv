@@ -75,6 +75,7 @@ fun PPersonOversiktStatus.toPersonOversiktStatus(
     behandlerBerOmBistandUbehandlet = behandlerBerOmBistandUbehandlet,
     arbeidsuforhetVurderAvslagUbehandlet = arbeidsuforhetVurderAvslagUbehandlet,
     friskmeldingTilArbeidsformidlingFom = friskmeldingTilArbeidsformidlingFom,
+    isAktivArbeidsuforhetvurdering = isAktivArbeidsuforhetvurdering,
 )
 
 fun PPersonOversiktStatus.toPersonOppfolgingstilfelle(

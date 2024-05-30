@@ -62,5 +62,5 @@ class ExternalMockEnvironment private constructor() {
 private fun ExternalMockEnvironment.startExternalMocks() {
     this.embeddedEnvironment.start()
     this.externalApplicationMockMap.forEach { (_, externalMock) -> externalMock.start() }
-    // this.redisServer.start()
+    this.redisServer.start()
 }
