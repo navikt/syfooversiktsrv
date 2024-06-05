@@ -101,11 +101,8 @@ private fun ResultSet.toPPersonOversiktStatus(): PPersonOversiktStatus =
         oppfolgingstilfelleGeneratedAt = getObject("oppfolgingstilfelle_generated_at", OffsetDateTime::class.java),
         oppfolgingstilfelleStart = getObject("oppfolgingstilfelle_start", LocalDate::class.java),
         oppfolgingstilfelleEnd = getObject("oppfolgingstilfelle_end", LocalDate::class.java),
-        oppfolgingstilfelleBitReferanseUuid = getString("oppfolgingstilfelle_bit_referanse_uuid")?.let {
-            UUID.fromString(
-                it
-            )
-        },
+        oppfolgingstilfelleBitReferanseUuid = getString("oppfolgingstilfelle_bit_referanse_uuid")
+            ?.let { UUID.fromString(it) },
         oppfolgingstilfelleBitReferanseInntruffet = getObject(
             "oppfolgingstilfelle_bit_referanse_inntruffet",
             OffsetDateTime::class.java
@@ -118,7 +115,7 @@ private fun ResultSet.toPPersonOversiktStatus(): PPersonOversiktStatus =
         behandlerdialogUbesvartUbehandlet = getBoolean("behandlerdialog_ubesvart_ubehandlet"),
         behandlerdialogAvvistUbehandlet = getBoolean("behandlerdialog_avvist_ubehandlet"),
         aktivitetskravVurderStansUbehandlet = getBoolean("aktivitetskrav_vurder_stans_ubehandlet"),
-        trengerOppfolging = getBoolean("trenger_oppfolging") as Boolean,
+        trengerOppfolging = getBoolean("trenger_oppfolging"),
         trengerOppfolgingFrist = getObject("trenger_oppfolging_frist", LocalDate::class.java),
         behandlerBerOmBistandUbehandlet = getBoolean("behandler_bistand_ubehandlet"),
         antallSykedager = getObject("antall_sykedager") as Int?,

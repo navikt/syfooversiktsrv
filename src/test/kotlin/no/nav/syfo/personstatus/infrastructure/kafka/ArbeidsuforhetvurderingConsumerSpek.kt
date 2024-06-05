@@ -40,10 +40,6 @@ class ArbeidsuforhetvurderingConsumerSpek : Spek({
     val arbeidsuforhetvurderingConsumer = ArbeidsuforhetvurderingConsumer(
         personoversiktStatusService = personoversiktStatusService,
     )
-    val arbeidsuforhetvurderingRecord = generateArbeidsvurderingRecord(
-        personIdent = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),
-        createdAt = OffsetDateTime.now(),
-    )
     beforeEachGroup { database.dropData() }
     beforeEachTest {
         every { kafkaConsumer.commitSync() } returns Unit
