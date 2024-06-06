@@ -1,12 +1,12 @@
 package no.nav.syfo.identhendelse.kafka
 
-import no.nav.syfo.application.ApplicationState
-import no.nav.syfo.application.Environment
-import no.nav.syfo.application.database.database
-import no.nav.syfo.client.azuread.AzureAdClient
+import no.nav.syfo.ApplicationState
+import no.nav.syfo.Environment
+import no.nav.syfo.personstatus.infrastructure.database.database
+import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
 import no.nav.syfo.client.pdl.PdlClient
 import no.nav.syfo.identhendelse.IdenthendelseService
-import no.nav.syfo.kafka.launchKafkaTask
+import no.nav.syfo.personstatus.infrastructure.kafka.launchKafkaTask
 
 const val PDL_AKTOR_TOPIC = "pdl.aktor-v2"
 

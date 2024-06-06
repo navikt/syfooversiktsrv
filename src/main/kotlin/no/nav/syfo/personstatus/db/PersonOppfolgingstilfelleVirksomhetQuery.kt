@@ -1,6 +1,6 @@
 package no.nav.syfo.personstatus.db
 
-import no.nav.syfo.application.database.toList
+import no.nav.syfo.personstatus.infrastructure.database.toList
 import no.nav.syfo.domain.Virksomhetsnummer
 import no.nav.syfo.oppfolgingstilfelle.domain.PersonOppfolgingstilfelleVirksomhet
 import no.nav.syfo.personstatus.domain.PPersonOppfolgingstilfelleVirksomhet

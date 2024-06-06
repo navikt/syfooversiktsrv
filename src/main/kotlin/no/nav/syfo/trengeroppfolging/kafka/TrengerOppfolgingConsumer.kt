@@ -1,7 +1,7 @@
 package no.nav.syfo.trengeroppfolging.kafka
 
 import no.nav.syfo.trengeroppfolging.TrengerOppfolgingService
-import no.nav.syfo.kafka.KafkaConsumerService
+import no.nav.syfo.personstatus.infrastructure.kafka.KafkaConsumerService
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import java.time.Duration

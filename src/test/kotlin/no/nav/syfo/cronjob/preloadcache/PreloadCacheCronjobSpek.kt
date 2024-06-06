@@ -3,8 +3,8 @@ package no.nav.syfo.cronjob.preloadcache
 import io.ktor.server.testing.*
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.application.cache.RedisStore
-import no.nav.syfo.client.azuread.AzureAdClient
 import no.nav.syfo.client.veiledertilgang.VeilederTilgangskontrollClient
+import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.generator.generatePersonOversiktStatus
 import org.amshove.kluent.shouldBeEqualTo

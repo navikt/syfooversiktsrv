@@ -1,7 +1,6 @@
 package no.nav.syfo.testutil
 
 import no.nav.syfo.application.cache.RedisStore
-import no.nav.syfo.client.azuread.AzureAdClient
 import no.nav.syfo.client.behandlendeenhet.BehandlendeEnhetClient
 import no.nav.syfo.client.ereg.EregClient
 import no.nav.syfo.client.pdl.PdlClient
@@ -11,7 +10,8 @@ import no.nav.syfo.cronjob.virksomhetsnavn.PersonOppfolgingstilfelleVirksomhetna
 import no.nav.syfo.cronjob.virksomhetsnavn.PersonOppfolgingstilfelleVirksomhetsnavnService
 import no.nav.syfo.personstatus.PersonoversiktStatusService
 import no.nav.syfo.personstatus.infrastructure.ArbeidsuforhetvurderingClient
-import no.nav.syfo.personstatus.infrastructure.database.PersonOversiktStatusRepository
+import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
+import no.nav.syfo.personstatus.infrastructure.database.repository.PersonOversiktStatusRepository
 
 class InternalMockEnvironment private constructor() {
     private val externalMockEnvironment: ExternalMockEnvironment = ExternalMockEnvironment.instance

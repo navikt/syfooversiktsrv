@@ -1,13 +1,13 @@
 package no.nav.syfo.testutil
 
-import no.nav.syfo.application.ApplicationState
-import no.nav.syfo.application.Environment
+import no.nav.syfo.ApplicationState
+import no.nav.syfo.Environment
 import no.nav.syfo.application.cache.RedisEnvironment
-import no.nav.syfo.application.database.DatabaseEnvironment
-import no.nav.syfo.application.kafka.KafkaEnvironment
-import no.nav.syfo.client.ClientEnvironment
-import no.nav.syfo.client.ClientsEnvironment
-import no.nav.syfo.client.azuread.AzureEnvironment
+import no.nav.syfo.personstatus.infrastructure.clients.ClientEnvironment
+import no.nav.syfo.personstatus.infrastructure.clients.ClientsEnvironment
+import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureEnvironment
+import no.nav.syfo.personstatus.infrastructure.database.DatabaseEnvironment
+import no.nav.syfo.personstatus.infrastructure.kafka.KafkaEnvironment
 import java.net.ServerSocket
 import java.time.LocalDate
 import java.time.Month

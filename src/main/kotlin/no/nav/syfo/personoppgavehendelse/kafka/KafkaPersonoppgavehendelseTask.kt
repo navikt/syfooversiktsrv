@@ -1,9 +1,9 @@
 package no.nav.syfo.personoppgavehendelse.kafka
 
-import no.nav.syfo.application.kafka.KafkaEnvironment
-import no.nav.syfo.application.ApplicationState
-import no.nav.syfo.application.kafka.kafkaAivenConsumerConfig
-import no.nav.syfo.kafka.launchKafkaTask
+import no.nav.syfo.personstatus.infrastructure.kafka.KafkaEnvironment
+import no.nav.syfo.ApplicationState
+import no.nav.syfo.personstatus.infrastructure.kafka.kafkaAivenConsumerConfig
+import no.nav.syfo.personstatus.infrastructure.kafka.launchKafkaTask
 import no.nav.syfo.personstatus.PersonoversiktStatusService
 import no.nav.syfo.util.configuredJacksonMapper
 import org.apache.kafka.clients.consumer.ConsumerConfig

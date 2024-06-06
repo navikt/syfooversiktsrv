@@ -1,7 +1,7 @@
 package no.nav.syfo.personstatus.db
 
-import no.nav.syfo.application.database.DatabaseInterface
-import no.nav.syfo.application.database.toList
+import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
+import no.nav.syfo.personstatus.infrastructure.database.toList
 import no.nav.syfo.oppfolgingstilfelle.domain.Oppfolgingstilfelle
 import no.nav.syfo.personstatus.domain.*
 import no.nav.syfo.util.nowUTC

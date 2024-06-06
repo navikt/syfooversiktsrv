@@ -6,7 +6,7 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.response.respond
 import io.ktor.server.routing.*
-import no.nav.syfo.application.api.authentication.installContentNegotiation
+import no.nav.syfo.personstatus.api.v2.auth.installContentNegotiation
 import no.nav.syfo.personstatus.application.arbeidsuforhet.ArbeidsuforhetvurderingDTO
 import no.nav.syfo.personstatus.application.arbeidsuforhet.VarselDTO
 import no.nav.syfo.personstatus.application.arbeidsuforhet.VurderingType

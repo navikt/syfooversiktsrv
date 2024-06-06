@@ -3,7 +3,7 @@ package no.nav.syfo.identhendelse.kafka
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.identhendelse.IdenthendelseService
-import no.nav.syfo.kafka.KafkaConsumerService
+import no.nav.syfo.personstatus.infrastructure.kafka.KafkaConsumerService
 import no.nav.syfo.metric.COUNT_KAFKA_CONSUMER_PDL_AKTOR_TOMBSTONE
 import org.apache.avro.generic.GenericData
 import org.apache.avro.generic.GenericRecord

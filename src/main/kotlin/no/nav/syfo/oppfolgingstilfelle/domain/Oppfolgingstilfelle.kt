@@ -1,8 +1,8 @@
 package no.nav.syfo.oppfolgingstilfelle.domain
 
 import no.nav.syfo.domain.Virksomhetsnummer
-import no.nav.syfo.personstatus.api.v2.PersonOppfolgingstilfelleDTO
-import no.nav.syfo.personstatus.api.v2.PersonOppfolgingstilfelleVirksomhetDTO
+import no.nav.syfo.personstatus.api.v2.model.PersonOppfolgingstilfelleDTO
+import no.nav.syfo.personstatus.api.v2.model.PersonOppfolgingstilfelleVirksomhetDTO
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
 import java.time.OffsetDateTime
@@ -23,7 +23,8 @@ data class Oppfolgingstilfelle(
     val virksomhetList: List<PersonOppfolgingstilfelleVirksomhet>,
 ) {
     fun varighetUker(): Int {
-        val currentVarighetDaysBrutto = ChronoUnit.DAYS.between(oppfolgingstilfelleStart, minOf(LocalDate.now(), oppfolgingstilfelleEnd)) + 1
+        val currentVarighetDaysBrutto =
+            ChronoUnit.DAYS.between(oppfolgingstilfelleStart, minOf(LocalDate.now(), oppfolgingstilfelleEnd)) + 1
         val currentVarighetDays = if (antallSykedager == null) {
             currentVarighetDaysBrutto
         } else {

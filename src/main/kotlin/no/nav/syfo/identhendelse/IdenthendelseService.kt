@@ -1,7 +1,7 @@
 package no.nav.syfo.identhendelse
 
 import kotlinx.coroutines.runBlocking
-import no.nav.syfo.application.database.DatabaseInterface
+import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import no.nav.syfo.client.pdl.PdlClient
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.identhendelse.database.queryDeletePersonOversiktStatusFnr
@@ -32,7 +32,8 @@ class IdenthendelseService(
 
                 if (personOversiktStatusWithOldIdent.isNotEmpty()) {
                     checkThatPdlIsUpdated(activeIdent)
-                    val numberOfUpdatedIdenter = updateOrOverrideAndDeletePersonOversiktStatus(activeIdent, personOversiktStatusWithOldIdent)
+                    val numberOfUpdatedIdenter =
+                        updateOrOverrideAndDeletePersonOversiktStatus(activeIdent, personOversiktStatusWithOldIdent)
                     if (numberOfUpdatedIdenter > 0) {
                         log.info("Identhendelse: Updated $numberOfUpdatedIdenter personoversiktstatus based on Identhendelse from PDL")
                         COUNT_KAFKA_CONSUMER_PDL_AKTOR_UPDATES.increment(numberOfUpdatedIdenter.toDouble())

@@ -8,8 +8,8 @@ import io.ktor.server.netty.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import no.nav.syfo.application.api.authentication.installContentNegotiation
-import no.nav.syfo.client.pdl.domain.*
+import no.nav.syfo.personstatus.api.v2.auth.installContentNegotiation
+import no.nav.syfo.personstatus.infrastructure.clients.pdl.model.*
 import no.nav.syfo.testutil.UserConstants
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_NO_NAME_FNR

@@ -1,11 +1,7 @@
 package no.nav.syfo.personstatus.infrastructure.kafka
 
-import no.nav.syfo.application.ApplicationState
-import no.nav.syfo.application.kafka.KafkaEnvironment
-import no.nav.syfo.application.kafka.kafkaAivenConsumerConfig
+import no.nav.syfo.ApplicationState
 import no.nav.syfo.domain.PersonIdent
-import no.nav.syfo.kafka.KafkaConsumerService
-import no.nav.syfo.kafka.launchKafkaTask
 import no.nav.syfo.personstatus.PersonoversiktStatusService
 import no.nav.syfo.util.configuredJacksonMapper
 import org.apache.kafka.clients.consumer.ConsumerConfig
