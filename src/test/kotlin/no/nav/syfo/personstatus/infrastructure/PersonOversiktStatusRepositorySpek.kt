@@ -28,7 +28,7 @@ class PersonOversiktStatusRepositorySpek : Spek({
             beforeEachTest { database.dropData() }
             afterEachGroup { database.dropData() }
 
-            describe("updateArbeidsuforhetVurderingStatus") {
+            describe("updateArbeidsuforhetvurderingStatus") {
                 it("Successfully updates arbeidsuforhet vurdering status to active") {
                     val newPersonOversiktStatus = PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR)
                     database.connection.use { connection ->

@@ -5,6 +5,7 @@ import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendringType
 import no.nav.syfo.oppfolgingstilfelle.domain.Oppfolgingstilfelle
 import no.nav.syfo.oppfolgingstilfelle.domain.toPersonOppfolgingstilfelleDTO
 import no.nav.syfo.personstatus.api.v2.PersonOversiktStatusDTO
+import no.nav.syfo.personstatus.application.arbeidsuforhet.ArbeidsuforhetvurderingDTO
 import no.nav.syfo.util.isBeforeOrEqual
 import no.nav.syfo.util.toLocalDateOslo
 import no.nav.syfo.util.toLocalDateTimeOslo
@@ -12,14 +13,14 @@ import java.time.LocalDate
 import java.time.OffsetDateTime
 
 data class PersonOversiktStatus(
-    val veilederIdent: String?,
+    val veilederIdent: String? = null,
     val fnr: String,
-    val navn: String?,
-    val enhet: String?,
+    val navn: String? = null,
+    val enhet: String? = null,
     val motebehovUbehandlet: Boolean? = null,
     val oppfolgingsplanLPSBistandUbehandlet: Boolean? = null,
     val dialogmotesvarUbehandlet: Boolean = false,
-    val dialogmotekandidat: Boolean? = false,
+    val dialogmotekandidat: Boolean? = null,
     val dialogmotekandidatGeneratedAt: OffsetDateTime? = null,
     val motestatus: String? = null,
     val motestatusGeneratedAt: OffsetDateTime? = null,
@@ -36,17 +37,9 @@ data class PersonOversiktStatus(
     val trengerOppfolgingFrist: LocalDate? = null,
     val behandlerBerOmBistandUbehandlet: Boolean = false,
     val arbeidsuforhetVurderAvslagUbehandlet: Boolean = false,
-    val friskmeldingTilArbeidsformidlingFom: LocalDate? = null,
     val isAktivArbeidsuforhetvurdering: Boolean = false,
-) {
-    constructor(fnr: String, isAktivArbeidsuforhetvurdering: Boolean = false) : this(
-        null, fnr = fnr, null, null, null,
-        null, false, null, null, null,
-        null, null, null, null, null, null,
-        false, false, false, false, false,
-        null, false, false, null, isAktivArbeidsuforhetvurdering = isAktivArbeidsuforhetvurdering
-    )
-}
+    val friskmeldingTilArbeidsformidlingFom: LocalDate? = null,
+)
 
 fun PersonOversiktStatus.isDialogmotekandidat() =
     dialogmotekandidat == true &&
@@ -76,7 +69,8 @@ fun PersonOversiktStatus.hasActiveOppgave(arenaCutoff: LocalDate): Boolean {
         this.hasActiveBehandlerdialogOppgave() ||
         this.friskmeldingTilArbeidsformidlingFom != null ||
         this.aktivitetskravVurderStansUbehandlet ||
-        this.trengerOppfolging || this.behandlerBerOmBistandUbehandlet || this.arbeidsuforhetVurderAvslagUbehandlet
+        this.trengerOppfolging ||
+        this.behandlerBerOmBistandUbehandlet || this.arbeidsuforhetVurderAvslagUbehandlet || this.isAktivArbeidsuforhetvurdering
 }
 
 fun List<PersonOversiktStatus>.addPersonName(
@@ -97,7 +91,10 @@ fun List<PersonOversiktStatus>.addPersonName(
     }
 }
 
-fun PersonOversiktStatus.toPersonOversiktStatusDTO(arenaCutoff: LocalDate) =
+fun PersonOversiktStatus.toPersonOversiktStatusDTO(
+    arenaCutoff: LocalDate,
+    arbeidsuforhetvurdering: ArbeidsuforhetvurderingDTO?
+) =
     PersonOversiktStatusDTO(
         veilederIdent = veilederIdent,
         fnr = fnr,
@@ -120,6 +117,7 @@ fun PersonOversiktStatus.toPersonOversiktStatusDTO(arenaCutoff: LocalDate) =
         trengerOppfolgingFrist = trengerOppfolgingFrist,
         behandlerBerOmBistandUbehandlet = behandlerBerOmBistandUbehandlet,
         arbeidsuforhetVurderAvslagUbehandlet = arbeidsuforhetVurderAvslagUbehandlet,
+        arbeidsuforhetvurdering = arbeidsuforhetvurdering,
         friskmeldingTilArbeidsformidlingFom = friskmeldingTilArbeidsformidlingFom,
     )
 

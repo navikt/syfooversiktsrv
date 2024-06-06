@@ -1,7 +1,7 @@
 package no.nav.syfo.personstatus.api.v2
 
-import io.ktor.server.application.*
 import io.ktor.http.*
+import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.micrometer.core.instrument.Timer
@@ -38,7 +38,10 @@ fun Route.registerPersonoversiktApiV2(
                     true -> {
                         val requestTimer: Timer.Sample = Timer.start()
                         val personOversiktStatusList: List<PersonOversiktStatus> = personoversiktStatusService
-                            .hentPersonoversiktStatusTilknyttetEnhet(enhet = enhet, arenaCutoff = arenaCutoff)
+                            .hentPersonoversiktStatusTilknyttetEnhet(
+                                enhet = enhet,
+                                arenaCutoff = arenaCutoff
+                            )
 
                         val personFnrListWithVeilederAccess: List<String> =
                             veilederTilgangskontrollClient.veilederPersonAccessListMedOBO(
@@ -54,9 +57,14 @@ fun Route.registerPersonoversiktApiV2(
                             val personerWithName = personoversiktStatusService.getPersonOversiktStatusListWithName(
                                 callId = callId,
                                 personOversiktStatusList = personer
-                            ).map { it.toPersonOversiktStatusDTO(arenaCutoff = arenaCutoff) }
-
-                            call.respond(personerWithName)
+                            )
+                            val personOversiktStatusDTO = personoversiktStatusService.getAktiveVurderinger(
+                                callId = callId,
+                                token = token,
+                                arenaCutoff = arenaCutoff,
+                                personStatusOversikt = personerWithName
+                            )
+                            call.respond(personOversiktStatusDTO)
                         } else {
                             call.respond(HttpStatusCode.NoContent)
                         }

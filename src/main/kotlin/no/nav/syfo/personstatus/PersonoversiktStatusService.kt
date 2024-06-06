@@ -1,11 +1,18 @@
 package no.nav.syfo.personstatus
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.client.pdl.PdlClient
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.oppfolgingstilfelle.domain.PersonOppfolgingstilfelleVirksomhet
 import no.nav.syfo.personoppgavehendelse.kafka.*
+import no.nav.syfo.personstatus.api.v2.PersonOversiktStatusDTO
 import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
+import no.nav.syfo.personstatus.application.arbeidsuforhet.ArbeidsuforhetvurderingDTO
+import no.nav.syfo.personstatus.application.arbeidsuforhet.IArbeidsuforhetvurderingClient
 import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.*
 import java.sql.Connection
@@ -14,12 +21,16 @@ import java.time.LocalDate
 class PersonoversiktStatusService(
     private val database: DatabaseInterface,
     private val pdlClient: PdlClient,
+    private val arbeidsuforhetvurderingClient: IArbeidsuforhetvurderingClient,
     private val personoversiktStatusRepository: IPersonOversiktStatusRepository,
 ) {
     private val isUbehandlet = true
     private val isBehandlet = false
 
-    fun hentPersonoversiktStatusTilknyttetEnhet(enhet: String, arenaCutoff: LocalDate): List<PersonOversiktStatus> {
+    fun hentPersonoversiktStatusTilknyttetEnhet(
+        enhet: String,
+        arenaCutoff: LocalDate
+    ): List<PersonOversiktStatus> {
         val personListe = database.hentUbehandledePersonerTilknyttetEnhet(
             enhet = enhet,
         )
@@ -34,6 +45,39 @@ class PersonoversiktStatusService(
             personOversiktStatus.hasActiveOppgave(arenaCutoff = arenaCutoff)
         }
     }
+
+    suspend fun getAktiveVurderinger(
+        callId: String,
+        token: String,
+        arenaCutoff: LocalDate,
+        personStatusOversikt: List<PersonOversiktStatus>
+    ): List<PersonOversiktStatusDTO> =
+        personStatusOversikt.map { personstatus ->
+            Pair(personstatus, getArbeidsuforhetvurdering(callId, token, personstatus))
+        }
+            .map { (personStatus, arbeidsuforhetvurdering) ->
+                personStatus.toPersonOversiktStatusDTO(
+                    arenaCutoff = arenaCutoff,
+                    arbeidsuforhetvurdering = arbeidsuforhetvurdering.await()
+                )
+            }
+
+    private suspend fun getArbeidsuforhetvurdering(
+        callId: String,
+        token: String,
+        personStatus: PersonOversiktStatus,
+    ): Deferred<ArbeidsuforhetvurderingDTO?> =
+        CoroutineScope(Dispatchers.IO).async {
+            if (personStatus.isAktivArbeidsuforhetvurdering) {
+                arbeidsuforhetvurderingClient.getLatestVurdering(
+                    callId = callId,
+                    token = token,
+                    personIdent = PersonIdent(personStatus.fnr)
+                )
+            } else {
+                null
+            }
+        }
 
     private fun getPersonOppfolgingstilfelleVirksomhetList(
         pPersonOversikStatusId: Int,

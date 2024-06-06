@@ -12,6 +12,7 @@ import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendringType
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.domain.Virksomhetsnummer
 import no.nav.syfo.personoppgavehendelse.kafka.KPersonoppgavehendelse
+import no.nav.syfo.personstatus.db.createPersonOversiktStatus
 import no.nav.syfo.personstatus.db.getPersonOversiktStatusList
 import no.nav.syfo.personstatus.db.lagreVeilederForBruker
 import no.nav.syfo.personstatus.domain.*
@@ -24,6 +25,7 @@ import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER_2
 import no.nav.syfo.testutil.assertion.checkPersonOppfolgingstilfelleDTO
 import no.nav.syfo.testutil.generator.*
 import no.nav.syfo.testutil.mock.behandlendeEnhetDTO
+import no.nav.syfo.testutil.mock.latestVurdering
 import no.nav.syfo.util.*
 import org.amshove.kluent.*
 import org.apache.kafka.clients.consumer.ConsumerRecords
@@ -591,7 +593,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     val personident = PersonIdent(ARBEIDSTAKER_FNR)
                     val tomorrow = LocalDate.now().plusDays(1)
                     with(database) {
-                        createPersonOversiktStatus(PersonOversiktStatus(personident.value))
+                        createPersonOversiktStatus(PersonOversiktStatus(fnr = personident.value))
                         setTildeltEnhet(personident, NAV_ENHET)
                         setFriskmeldingTilArbeidsformidlingFom(personident, tomorrow)
                     }
@@ -614,7 +616,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     val personident = PersonIdent(ARBEIDSTAKER_FNR)
                     val today = LocalDate.now()
                     with(database) {
-                        createPersonOversiktStatus(PersonOversiktStatus(personident.value))
+                        createPersonOversiktStatus(PersonOversiktStatus(fnr = personident.value))
                         setTildeltEnhet(personident, NAV_ENHET)
                         setFriskmeldingTilArbeidsformidlingFom(personident, today)
                     }
@@ -637,7 +639,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     val personident = PersonIdent(ARBEIDSTAKER_FNR)
                     val yesterday = LocalDate.now().minusDays(1)
                     with(database) {
-                        createPersonOversiktStatus(PersonOversiktStatus(personident.value))
+                        createPersonOversiktStatus(PersonOversiktStatus(fnr = personident.value))
                         setTildeltEnhet(personident, NAV_ENHET)
                         setFriskmeldingTilArbeidsformidlingFom(personident, yesterday)
                     }
@@ -930,6 +932,33 @@ object PersonoversiktStatusApiV2Spek : Spek({
                             objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
                         personOversiktStatus.fnr shouldBeEqualTo ARBEIDSTAKER_FNR
                         personOversiktStatus.latestOppfolgingstilfelle?.varighetUker shouldBeEqualTo 2
+                    }
+                }
+
+                describe("arbeidsuforhetvurdering") {
+                    it("returns person with active arbeidsuforhetvurdering") {
+                        val newPersonOversiktStatus = PersonOversiktStatus(fnr = ARBEIDSTAKER_FNR)
+                            .copy(isAktivArbeidsuforhetvurdering = true)
+                        database.connection.use { connection ->
+                            connection.createPersonOversiktStatus(commit = true, personOversiktStatus = newPersonOversiktStatus)
+                        }
+                        database.setTildeltEnhet(
+                            ident = PersonIdent(ARBEIDSTAKER_FNR),
+                            enhet = NAV_ENHET,
+                        )
+
+                        with(
+                            handleRequest(HttpMethod.Get, url) { addHeader(HttpHeaders.Authorization, bearerHeader(validToken)) }
+                        ) {
+                            response.status() shouldBeEqualTo HttpStatusCode.OK
+
+                            val personOversiktStatus =
+                                objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
+                            personOversiktStatus.fnr shouldBeEqualTo ARBEIDSTAKER_FNR
+                            personOversiktStatus.arbeidsuforhetvurdering shouldNotBe null
+                            personOversiktStatus.arbeidsuforhetvurdering?.varsel shouldNotBe null
+                            personOversiktStatus.arbeidsuforhetvurdering?.createdAt shouldBeEqualTo latestVurdering
+                        }
                     }
                 }
             }

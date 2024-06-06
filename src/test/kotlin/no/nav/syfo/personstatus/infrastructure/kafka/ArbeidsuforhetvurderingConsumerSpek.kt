@@ -6,6 +6,7 @@ import io.mockk.every
 import io.mockk.mockk
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.personstatus.PersonoversiktStatusService
+import no.nav.syfo.personstatus.application.arbeidsuforhet.IArbeidsuforhetvurderingClient
 import no.nav.syfo.personstatus.db.createPersonOversiktStatus
 import no.nav.syfo.personstatus.db.getPersonOversiktStatusList
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
@@ -28,16 +29,17 @@ class ArbeidsuforhetvurderingConsumerSpek : Spek({
     val database = externalMockEnvironment.database
     val kafkaConsumer = mockk<KafkaConsumer<String, ArbeidsuforhetvurderingRecord>>()
     val personOppgaveRepository = PersonOversiktStatusRepository(database = database)
+    val arbeidsuforhervurderingClient = mockk<IArbeidsuforhetvurderingClient>()
     val personoversiktStatusService = PersonoversiktStatusService(
         database = database,
         pdlClient = externalMockEnvironment.pdlClient,
+        arbeidsuforhetvurderingClient = arbeidsuforhervurderingClient,
         personoversiktStatusRepository = personOppgaveRepository
     )
 
-    val arbeidsuforhetVurderingConsumer = ArbeidsuforhetvurderingConsumer(
+    val arbeidsuforhetvurderingConsumer = ArbeidsuforhetvurderingConsumer(
         personoversiktStatusService = personoversiktStatusService,
     )
-
     beforeEachGroup { database.dropData() }
     beforeEachTest {
         every { kafkaConsumer.commitSync() } returns Unit
@@ -69,7 +71,7 @@ class ArbeidsuforhetvurderingConsumerSpek : Spek({
                 topic = "teamsykefravr.arbeidsuforhet-vurdering",
             )
 
-            arbeidsuforhetVurderingConsumer.pollAndProcessRecords(kafkaConsumer = kafkaConsumer)
+            arbeidsuforhetvurderingConsumer.pollAndProcessRecords(kafkaConsumer = kafkaConsumer)
 
             verify(exactly = 1) {
                 kafkaConsumer.commitSync()

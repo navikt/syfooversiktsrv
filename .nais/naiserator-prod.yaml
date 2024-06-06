@@ -54,6 +54,7 @@ spec:
       rules:
         - application: syfobehandlendeenhet
         - application: syfooversiktsrv-redis
+        - application: isarbeidsuforhet
         - application: istilgangskontroll
   azure:
     application:
@@ -93,6 +94,10 @@ spec:
       value: "prod-gcp.teamsykefravr.syfobehandlendeenhet"
     - name: SYFOBEHANDLENDEENHET_URL
       value: "http://syfobehandlendeenhet"
+    - name: ARBEIDSUFORHETVURDERING_CLIENT_ID
+      value: "prod-gcp.teamsykefravr.isarbeidsuforhet"
+    - name: ARBEIDSUFORHETVURDERING_URL
+      value: "http://isarbeidsuforhet"
     - name: ISTILGANGSKONTROLL_CLIENT_ID
       value: "prod-gcp.teamsykefravr.istilgangskontroll"
     - name: ISTILGANGSKONTROLL_HOST

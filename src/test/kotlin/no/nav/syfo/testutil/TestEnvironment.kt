@@ -18,6 +18,7 @@ fun testEnvironment(
     eregUrl: String = "ereg",
     pdlUrl: String,
     syfobehandlendeenhetUrl: String = "syfobehandlendeenhet",
+    arbeidsuforhetvurderingUrl: String = "arbeidsuforhetvurdering",
     istilgangskontrollUrl: String = "istilgangskontroll",
 ) = Environment(
     applicationName = "syfooversiktsrv",
@@ -58,6 +59,10 @@ fun testEnvironment(
         syfobehandlendeenhet = ClientEnvironment(
             baseUrl = syfobehandlendeenhetUrl,
             clientId = "dev-gcp.teamsykefravr.syfobehandlendeenhet",
+        ),
+        arbeidsuforhetvurdering = ClientEnvironment(
+            baseUrl = arbeidsuforhetvurderingUrl,
+            clientId = "dev.gcp.teamsykefravr.arbeidsuforhetvurdering",
         ),
         istilgangskontroll = ClientEnvironment(
             baseUrl = istilgangskontrollUrl,

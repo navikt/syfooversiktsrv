@@ -52,7 +52,7 @@ object PersonoppgavehendelseServiceSpek : Spek({
 
         it("Update personoversiktstatus on read from topic personoppgavehendelser") {
             mockReceiveHendelse(lpsbistandBehandlet, mockPersonoppgavehendelseConsumer)
-            val personOversiktStatus = PersonOversiktStatus(UserConstants.ARBEIDSTAKER_FNR)
+            val personOversiktStatus = PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR)
                 .applyHendelse(OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT)
             database.createPersonOversiktStatus(personOversiktStatus)
 
@@ -70,7 +70,7 @@ object PersonoppgavehendelseServiceSpek : Spek({
                 hendelsetype = OversikthendelseType.DIALOGMOTESVAR_BEHANDLET,
             )
             mockReceiveHendelse(dialogmotesvarBehandlet, mockPersonoppgavehendelseConsumer)
-            val personOversiktStatus = PersonOversiktStatus(UserConstants.ARBEIDSTAKER_FNR)
+            val personOversiktStatus = PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR)
                 .applyHendelse(OversikthendelseType.DIALOGMOTESVAR_MOTTATT)
             database.createPersonOversiktStatus(personOversiktStatus)
 
@@ -103,7 +103,7 @@ object PersonoppgavehendelseServiceSpek : Spek({
                 hendelsetype = OversikthendelseType.BEHANDLERDIALOG_SVAR_BEHANDLET,
             )
             mockReceiveHendelse(behandlerdialogSvarBehandlet, mockPersonoppgavehendelseConsumer)
-            val personOversiktStatus = PersonOversiktStatus(UserConstants.ARBEIDSTAKER_FNR)
+            val personOversiktStatus = PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR)
                 .applyHendelse(OversikthendelseType.BEHANDLERDIALOG_SVAR_MOTTATT)
             database.createPersonOversiktStatus(personOversiktStatus)
 
@@ -136,7 +136,7 @@ object PersonoppgavehendelseServiceSpek : Spek({
                 hendelsetype = OversikthendelseType.BEHANDLERDIALOG_MELDING_UBESVART_BEHANDLET,
             )
             mockReceiveHendelse(behandlerdialogUbesvartBehandlet, mockPersonoppgavehendelseConsumer)
-            val personOversiktStatus = PersonOversiktStatus(UserConstants.ARBEIDSTAKER_FNR)
+            val personOversiktStatus = PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR)
                 .applyHendelse(OversikthendelseType.BEHANDLERDIALOG_MELDING_UBESVART_MOTTATT)
             database.createPersonOversiktStatus(personOversiktStatus)
 
@@ -168,7 +168,7 @@ object PersonoppgavehendelseServiceSpek : Spek({
                 hendelsetype = OversikthendelseType.BEHANDLERDIALOG_MELDING_AVVIST_BEHANDLET,
             )
             mockReceiveHendelse(behandlerdialogAvvistBehandlet, mockPersonoppgavehendelseConsumer)
-            val personOversiktStatus = PersonOversiktStatus(UserConstants.ARBEIDSTAKER_FNR)
+            val personOversiktStatus = PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR)
                 .applyHendelse(OversikthendelseType.BEHANDLERDIALOG_MELDING_AVVIST_MOTTATT)
             database.createPersonOversiktStatus(personOversiktStatus)
 
@@ -199,7 +199,7 @@ object PersonoppgavehendelseServiceSpek : Spek({
                 hendelsetype = OversikthendelseType.AKTIVITETSKRAV_VURDER_STANS_BEHANDLET,
             )
             mockReceiveHendelse(aktivitetskravVarselHendelseBehandlet, mockPersonoppgavehendelseConsumer)
-            val personOversiktStatus = PersonOversiktStatus(UserConstants.ARBEIDSTAKER_FNR)
+            val personOversiktStatus = PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR)
                 .applyHendelse(OversikthendelseType.AKTIVITETSKRAV_VURDER_STANS_MOTTATT)
             database.createPersonOversiktStatus(personOversiktStatus)
 
@@ -230,7 +230,7 @@ object PersonoppgavehendelseServiceSpek : Spek({
                 hendelsetype = OversikthendelseType.ARBEIDSUFORHET_VURDER_AVSLAG_BEHANDLET,
             )
             mockReceiveHendelse(arbeidsuforhetVurderAvslagBehandlet, mockPersonoppgavehendelseConsumer)
-            val personOversiktStatus = PersonOversiktStatus(UserConstants.ARBEIDSTAKER_FNR)
+            val personOversiktStatus = PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR)
                 .applyHendelse(OversikthendelseType.ARBEIDSUFORHET_VURDER_AVSLAG_MOTTATT)
             database.createPersonOversiktStatus(personOversiktStatus)
 
@@ -257,7 +257,7 @@ object PersonoppgavehendelseServiceSpek : Spek({
             val behandlerBistandHendelseBehandlet =
                 generateKPersonoppgavehendelse(OversikthendelseType.BEHANDLER_BER_OM_BISTAND_BEHANDLET)
             mockReceiveHendelse(behandlerBistandHendelseBehandlet, mockPersonoppgavehendelseConsumer)
-            val personOversiktStatus = PersonOversiktStatus(UserConstants.ARBEIDSTAKER_FNR)
+            val personOversiktStatus = PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR)
                 .applyHendelse(OversikthendelseType.BEHANDLER_BER_OM_BISTAND_MOTTATT)
             database.createPersonOversiktStatus(personOversiktStatus)
 

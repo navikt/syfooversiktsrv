@@ -28,23 +28,9 @@ enum class AktivitetskravStatus {
 }
 
 fun Aktivitetskrav.toPersonOversiktStatus() = PersonOversiktStatus(
-    veilederIdent = null,
     fnr = this.personIdent.value,
-    navn = null,
-    enhet = null,
-    motebehovUbehandlet = null,
-    oppfolgingsplanLPSBistandUbehandlet = null,
-    dialogmotesvarUbehandlet = false,
-    dialogmotekandidat = null,
-    dialogmotekandidatGeneratedAt = null,
-    motestatus = null,
-    motestatusGeneratedAt = null,
-    latestOppfolgingstilfelle = null,
     aktivitetskrav = this.status,
     aktivitetskravStoppunkt = this.stoppunkt,
     aktivitetskravSistVurdert = this.sistVurdert,
     aktivitetskravVurderingFrist = this.vurderingFrist,
-    behandlerdialogSvarUbehandlet = false,
-    behandlerdialogUbesvartUbehandlet = false,
-    behandlerdialogAvvistUbehandlet = false,
 )
