@@ -2,7 +2,7 @@ package no.nav.syfo.identhendelse
 
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
-import no.nav.syfo.client.pdl.PdlClient
+import no.nav.syfo.personstatus.infrastructure.clients.pdl.PdlClient
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.identhendelse.database.queryDeletePersonOversiktStatusFnr
 import no.nav.syfo.identhendelse.database.updatePersonOversiktStatusFnr

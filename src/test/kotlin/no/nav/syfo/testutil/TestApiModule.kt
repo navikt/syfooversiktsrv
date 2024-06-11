@@ -2,7 +2,7 @@ package no.nav.syfo.testutil
 
 import io.ktor.server.application.*
 import no.nav.syfo.application.cache.RedisStore
-import no.nav.syfo.client.pdl.PdlClient
+import no.nav.syfo.personstatus.infrastructure.clients.pdl.PdlClient
 import no.nav.syfo.personstatus.PersonoversiktStatusService
 import no.nav.syfo.personstatus.api.v2.apiModule
 import no.nav.syfo.personstatus.infrastructure.ArbeidsuforhetvurderingClient

@@ -48,14 +48,14 @@ fun Route.registerPersonoversiktApiV2(
                         val personOversiktStatusList: List<PersonOversiktStatus> = personoversiktStatusService
                             .hentPersonoversiktStatusTilknyttetEnhet(
                                 enhet = enhet,
-                                arenaCutoff = arenaCutoff
+                                arenaCutoff = arenaCutoff,
                             )
 
                         val personFnrListWithVeilederAccess: List<String> =
                             veilederTilgangskontrollClient.veilederPersonAccessListMedOBO(
-                                personOversiktStatusList.map { it.fnr },
-                                token,
-                                callId
+                                personIdentNumberList = personOversiktStatusList.map { it.fnr },
+                                token = token,
+                                callId = callId,
                             ) ?: emptyList()
 
                         val personer = personOversiktStatusList
@@ -64,13 +64,13 @@ fun Route.registerPersonoversiktApiV2(
                         if (personer.isNotEmpty()) {
                             val personerWithName = personoversiktStatusService.getPersonOversiktStatusListWithName(
                                 callId = callId,
-                                personOversiktStatusList = personer
+                                personOversiktStatusList = personer,
                             )
                             val personOversiktStatusDTO = personoversiktStatusService.getAktiveVurderinger(
                                 callId = callId,
                                 token = token,
                                 arenaCutoff = arenaCutoff,
-                                personStatusOversikt = personerWithName
+                                personStatusOversikt = personerWithName,
                             )
                             call.respond(personOversiktStatusDTO)
                         } else {

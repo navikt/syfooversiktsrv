@@ -76,17 +76,17 @@ fun PersonOversiktStatus.hasActiveOppgave(arenaCutoff: LocalDate): Boolean {
 fun List<PersonOversiktStatus>.addPersonName(
     personIdentNameMap: Map<String, String>,
 ): List<PersonOversiktStatus> {
-    if (personIdentNameMap.isEmpty()) {
-        return this
-    }
-    return this.map { personOversiktStatus ->
-        val personIdent = personOversiktStatus.fnr
-        if (personOversiktStatus.navn.isNullOrEmpty()) {
-            personOversiktStatus.copy(
-                navn = personIdentNameMap[personIdent]
-            )
-        } else {
-            personOversiktStatus
+    return if (personIdentNameMap.isEmpty()) {
+        this
+    } else {
+        this.map { personOversiktStatus ->
+            if (personOversiktStatus.navn.isNullOrEmpty()) {
+                personOversiktStatus.copy(
+                    navn = personIdentNameMap[personOversiktStatus.fnr]
+                )
+            } else {
+                personOversiktStatus
+            }
         }
     }
 }

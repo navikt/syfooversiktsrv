@@ -75,21 +75,13 @@ class AzureAdClient(
                 setBody(FormDataContent(formParameters))
             }
             response.body<AzureAdTokenResponse>()
-        } catch (e: ClientRequestException) {
-            handleUnexpectedResponseException(e)
-        } catch (e: ServerResponseException) {
-            handleUnexpectedResponseException(e)
+        } catch (e: ResponseException) {
+            log.error(
+                "Error while requesting AzureAdAccessToken with statusCode=${e.response.status.value}",
+                e
+            )
+            null
         }
-
-    private fun handleUnexpectedResponseException(
-        responseException: ResponseException
-    ): AzureAdTokenResponse? {
-        log.error(
-            "Error while requesting AzureAdAccessToken with statusCode=${responseException.response.status.value}",
-            responseException
-        )
-        return null
-    }
 
     companion object {
         const val CACHE_AZUREAD_TOKEN_SYSTEM_KEY_PREFIX = "azuread-token-system-"

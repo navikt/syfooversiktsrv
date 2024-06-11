@@ -1,4 +1,4 @@
-package no.nav.syfo.client.pdl
+package no.nav.syfo.personstatus.infrastructure.clients.pdl
 
 import io.ktor.client.call.*
 import io.ktor.client.request.*
@@ -9,8 +9,6 @@ import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdToken
 import no.nav.syfo.personstatus.infrastructure.clients.httpClientDefault
 import no.nav.syfo.domain.PersonIdent
-import no.nav.syfo.personstatus.infrastructure.clients.pdl.COUNT_CALL_PDL_PERSONBOLK_FAIL
-import no.nav.syfo.personstatus.infrastructure.clients.pdl.COUNT_CALL_PDL_PERSONBOLK_SUCCESS
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.model.PdlHentPersonBolkData
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.model.PdlIdentRequest
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.model.PdlIdentResponse
@@ -79,14 +77,16 @@ class PdlClient(
         val token = azureAdClient.getSystemToken(clientEnvironment.clientId)
             ?: throw RuntimeException("Failed to send request to PDL: No token was found")
 
-        val pdlPersonIdentNameMap = personList(
+        return personList(
             callId = callId,
             personIdentList = personIdentList,
             token = token,
-        )?.hentPersonBolk?.associate { (ident, person) ->
-            ident to (person?.fullName() ?: "")
-        }
-        return pdlPersonIdentNameMap ?: emptyMap()
+        )
+            ?.hentPersonBolk
+            ?.associate { (ident, person) ->
+                ident to (person?.fullName() ?: "")
+            }
+            ?: emptyMap()
     }
 
     private suspend fun personList(
