@@ -1,7 +1,7 @@
 package no.nav.syfo.dialogmotekandidat.kafka
 
-import no.nav.syfo.application.database.DatabaseInterface
-import no.nav.syfo.kafka.KafkaConsumerService
+import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
+import no.nav.syfo.personstatus.infrastructure.kafka.KafkaConsumerService
 import no.nav.syfo.personstatus.db.*
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.consumer.KafkaConsumer

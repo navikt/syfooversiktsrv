@@ -5,6 +5,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import io.ktor.util.*
+import no.nav.syfo.personstatus.api.v2.endpoints.personTildelingApiV2Path
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
 import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.testutil.*

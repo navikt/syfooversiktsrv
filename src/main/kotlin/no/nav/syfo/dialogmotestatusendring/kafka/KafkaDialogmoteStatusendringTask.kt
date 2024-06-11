@@ -1,9 +1,9 @@
 package no.nav.syfo.dialogmotestatusendring.kafka
 
-import no.nav.syfo.application.ApplicationState
-import no.nav.syfo.application.database.database
-import no.nav.syfo.application.kafka.KafkaEnvironment
-import no.nav.syfo.kafka.launchKafkaTask
+import no.nav.syfo.ApplicationState
+import no.nav.syfo.personstatus.infrastructure.database.database
+import no.nav.syfo.personstatus.infrastructure.kafka.KafkaEnvironment
+import no.nav.syfo.personstatus.infrastructure.kafka.launchKafkaTask
 
 const val DIALOGMOTE_STATUSENDRING_TOPIC = "teamsykefravr.isdialogmote-dialogmote-statusendring"
 

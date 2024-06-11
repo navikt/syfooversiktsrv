@@ -7,9 +7,9 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.micrometer.core.instrument.Counter
 import net.logstash.logback.argument.StructuredArguments
-import no.nav.syfo.client.ClientEnvironment
-import no.nav.syfo.client.azuread.AzureAdClient
-import no.nav.syfo.client.httpClientDefault
+import no.nav.syfo.personstatus.infrastructure.clients.ClientEnvironment
+import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
+import no.nav.syfo.personstatus.infrastructure.clients.httpClientDefault
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.metric.METRICS_NS
 import no.nav.syfo.metric.METRICS_REGISTRY

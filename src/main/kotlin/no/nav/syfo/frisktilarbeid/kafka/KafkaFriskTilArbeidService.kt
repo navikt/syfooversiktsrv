@@ -1,7 +1,7 @@
 package no.nav.syfo.frisktilarbeid.kafka
 
-import no.nav.syfo.application.database.DatabaseInterface
-import no.nav.syfo.kafka.KafkaConsumerService
+import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
+import no.nav.syfo.personstatus.infrastructure.kafka.KafkaConsumerService
 import no.nav.syfo.personstatus.db.createPersonOversiktStatus
 import no.nav.syfo.personstatus.db.getPersonOversiktStatusList
 import no.nav.syfo.personstatus.db.updatePersonOversiktStatusFriskmeldtTilArbeid

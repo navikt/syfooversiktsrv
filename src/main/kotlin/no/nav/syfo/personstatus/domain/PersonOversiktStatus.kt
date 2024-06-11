@@ -4,7 +4,7 @@ import no.nav.syfo.aktivitetskravvurdering.domain.AktivitetskravStatus
 import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendringType
 import no.nav.syfo.oppfolgingstilfelle.domain.Oppfolgingstilfelle
 import no.nav.syfo.oppfolgingstilfelle.domain.toPersonOppfolgingstilfelleDTO
-import no.nav.syfo.personstatus.api.v2.PersonOversiktStatusDTO
+import no.nav.syfo.personstatus.api.v2.model.PersonOversiktStatusDTO
 import no.nav.syfo.personstatus.application.arbeidsuforhet.ArbeidsuforhetvurderingDTO
 import no.nav.syfo.util.isBeforeOrEqual
 import no.nav.syfo.util.toLocalDateOslo

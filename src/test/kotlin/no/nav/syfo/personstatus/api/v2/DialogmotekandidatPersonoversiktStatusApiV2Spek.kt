@@ -6,6 +6,8 @@ import io.ktor.http.*
 import io.ktor.server.testing.*
 import io.ktor.util.*
 import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendringType
+import no.nav.syfo.personstatus.api.v2.endpoints.personOversiktApiV2Path
+import no.nav.syfo.personstatus.api.v2.model.PersonOversiktStatusDTO
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testutil.database.*

@@ -10,7 +10,7 @@ import no.nav.syfo.personstatus.application.arbeidsuforhet.IArbeidsuforhetvurder
 import no.nav.syfo.personstatus.db.createPersonOversiktStatus
 import no.nav.syfo.personstatus.db.getPersonOversiktStatusList
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
-import no.nav.syfo.personstatus.infrastructure.database.PersonOversiktStatusRepository
+import no.nav.syfo.personstatus.infrastructure.database.repository.PersonOversiktStatusRepository
 import no.nav.syfo.testutil.ExternalMockEnvironment
 import no.nav.syfo.testutil.UserConstants
 import no.nav.syfo.testutil.dropData

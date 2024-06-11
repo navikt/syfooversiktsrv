@@ -3,7 +3,7 @@ package no.nav.syfo.trengeroppfolging
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import no.nav.syfo.application.database.DatabaseInterface
+import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import no.nav.syfo.cronjob.behandlendeenhet.PersonBehandlendeEnhetService
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.trengeroppfolging.domain.TrengerOppfolging
@@ -67,7 +67,10 @@ class TrengerOppfolgingService(
                 }
             }
         } catch (ex: Exception) {
-            log.error("Exception caught while attempting to update Behandlende Enhet of person after received active oppfolgingsoppgave", ex)
+            log.error(
+                "Exception caught while attempting to update Behandlende Enhet of person after received active oppfolgingsoppgave",
+                ex
+            )
         }
     }
 

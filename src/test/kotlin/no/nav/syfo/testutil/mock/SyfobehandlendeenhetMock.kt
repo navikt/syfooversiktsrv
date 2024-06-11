@@ -1,15 +1,15 @@
 package no.nav.syfo.testutil.mock
 
-import io.ktor.server.application.*
 import io.ktor.http.*
+import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.util.pipeline.*
-import no.nav.syfo.application.api.authentication.installContentNegotiation
 import no.nav.syfo.client.behandlendeenhet.BehandlendeEnhetClient.Companion.BEHANDLENDEENHET_PATH
 import no.nav.syfo.client.behandlendeenhet.BehandlendeEnhetDTO
+import no.nav.syfo.personstatus.api.v2.auth.installContentNegotiation
 import no.nav.syfo.testutil.UserConstants
 import no.nav.syfo.testutil.getRandomPort
 import no.nav.syfo.util.NAV_PERSONIDENT_HEADER

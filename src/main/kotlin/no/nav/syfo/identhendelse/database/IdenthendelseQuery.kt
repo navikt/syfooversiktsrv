@@ -1,6 +1,6 @@
 package no.nav.syfo.identhendelse.database
 
-import no.nav.syfo.application.database.DatabaseInterface
+import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import no.nav.syfo.domain.PersonIdent
 import java.sql.Timestamp
 import java.time.Instant
