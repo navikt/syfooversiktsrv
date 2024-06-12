@@ -1,4 +1,4 @@
-package no.nav.syfo.client.behandlendeenhet
+package no.nav.syfo.personstatus.infrastructure.clients.behandlendeenhet
 
 import io.ktor.client.call.*
 import io.ktor.client.plugins.*

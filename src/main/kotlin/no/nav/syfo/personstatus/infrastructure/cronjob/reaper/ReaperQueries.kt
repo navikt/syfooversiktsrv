@@ -1,4 +1,4 @@
-package no.nav.syfo.cronjob.reaper
+package no.nav.syfo.personstatus.infrastructure.cronjob.reaper
 
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import no.nav.syfo.personstatus.infrastructure.database.toList

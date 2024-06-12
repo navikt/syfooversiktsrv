@@ -1,7 +1,7 @@
-package no.nav.syfo.cronjob.virksomhetsnavn
+package no.nav.syfo.personstatus.infrastructure.cronjob.virksomhetsnavn
 
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
-import no.nav.syfo.client.ereg.EregClient
+import no.nav.syfo.personstatus.infrastructure.clients.ereg.EregClient
 import no.nav.syfo.domain.Virksomhetsnummer
 import java.util.*
 

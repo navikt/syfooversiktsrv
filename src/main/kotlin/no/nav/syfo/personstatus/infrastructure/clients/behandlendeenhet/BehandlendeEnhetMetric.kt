@@ -1,4 +1,4 @@
-package no.nav.syfo.client.behandlendeenhet
+package no.nav.syfo.personstatus.infrastructure.clients.behandlendeenhet
 
 import io.micrometer.core.instrument.Counter
 import no.nav.syfo.metric.METRICS_NS

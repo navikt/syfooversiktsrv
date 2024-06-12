@@ -7,8 +7,8 @@ import io.ktor.server.netty.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.util.pipeline.*
-import no.nav.syfo.client.behandlendeenhet.BehandlendeEnhetClient.Companion.BEHANDLENDEENHET_PATH
-import no.nav.syfo.client.behandlendeenhet.BehandlendeEnhetDTO
+import no.nav.syfo.personstatus.infrastructure.clients.behandlendeenhet.BehandlendeEnhetClient.Companion.BEHANDLENDEENHET_PATH
+import no.nav.syfo.personstatus.infrastructure.clients.behandlendeenhet.BehandlendeEnhetDTO
 import no.nav.syfo.personstatus.api.v2.auth.installContentNegotiation
 import no.nav.syfo.testutil.UserConstants
 import no.nav.syfo.testutil.getRandomPort
