@@ -11,7 +11,7 @@ import no.nav.syfo.application.cache.RedisStore
 import no.nav.syfo.personstatus.infrastructure.database.database
 import no.nav.syfo.personstatus.infrastructure.database.databaseModule
 import no.nav.syfo.client.behandlendeenhet.BehandlendeEnhetClient
-import no.nav.syfo.client.pdl.PdlClient
+import no.nav.syfo.personstatus.infrastructure.clients.pdl.PdlClient
 import no.nav.syfo.cronjob.behandlendeenhet.PersonBehandlendeEnhetService
 import no.nav.syfo.cronjob.launchCronjobModule
 import no.nav.syfo.personstatus.infrastructure.kafka.launchKafkaModule

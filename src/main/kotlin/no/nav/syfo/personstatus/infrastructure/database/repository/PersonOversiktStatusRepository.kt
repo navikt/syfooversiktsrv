@@ -20,7 +20,7 @@ import kotlin.use
 class PersonOversiktStatusRepository(private val database: DatabaseInterface) : IPersonOversiktStatusRepository {
 
     override fun updateArbeidsuforhetvurderingStatus(
-        personIdent: PersonIdent,
+        personident: PersonIdent,
         isAktivVurdering: Boolean
     ): Result<Int> {
         return try {
@@ -28,7 +28,7 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
                 val tidspunkt = Timestamp.from(Instant.now())
                 val rowsUpdated = connection.prepareStatement(UPDATE_OR_INSERT_PERSON_OVERSIKT_STATUS).use {
                     it.setString(1, UUID.randomUUID().toString())
-                    it.setString(2, personIdent.value)
+                    it.setString(2, personident.value)
                     it.setBoolean(3, isAktivVurdering)
                     it.setTimestamp(4, tidspunkt)
                     it.setTimestamp(5, tidspunkt)
@@ -40,7 +40,7 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
                     Result.success(rowsUpdated)
                 } else {
                     connection.rollback()
-                    Result.failure(RuntimeException("Failed to update arbeidsuforhet vurdering status for person with fnr: ${personIdent.value}"))
+                    Result.failure(RuntimeException("Failed to update arbeidsuforhet vurdering status for person with fnr: ${personident.value}"))
                 }
             }
         } catch (e: Exception) {
@@ -48,10 +48,10 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
         }
     }
 
-    override fun getPersonOversiktStatus(personIdent: PersonIdent): PersonOversiktStatus? {
+    override fun getPersonOversiktStatus(personident: PersonIdent): PersonOversiktStatus? {
         database.connection.use { connection ->
             val personoversiktStatus = connection.prepareStatement(GET_PERSON_OVERSIKT_STATUS).use {
-                it.setString(1, personIdent.value)
+                it.setString(1, personident.value)
                 it.executeQuery().toList { toPPersonOversiktStatus() }
             }
             return personoversiktStatus.firstOrNull()?.toPersonOversiktStatus()

@@ -2,7 +2,7 @@ package no.nav.syfo.testutil
 
 import no.nav.syfo.ApplicationState
 import no.nav.syfo.application.cache.RedisStore
-import no.nav.syfo.client.pdl.PdlClient
+import no.nav.syfo.personstatus.infrastructure.clients.pdl.PdlClient
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
 import no.nav.syfo.testutil.mock.*
 

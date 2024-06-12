@@ -39,7 +39,7 @@ class PersonOversiktStatusRepositorySpek : Spek({
                     }
 
                     val result = personOversiktStatusRepository.updateArbeidsuforhetvurderingStatus(
-                        personIdent = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),
+                        personident = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),
                         isAktivVurdering = true
                     )
 
@@ -60,7 +60,7 @@ class PersonOversiktStatusRepositorySpek : Spek({
                     }
 
                     val result = personOversiktStatusRepository.updateArbeidsuforhetvurderingStatus(
-                        personIdent = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),
+                        personident = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),
                         isAktivVurdering = false
                     )
 
@@ -72,7 +72,7 @@ class PersonOversiktStatusRepositorySpek : Spek({
 
                 it("Creates new person when none exist when updating arbeidsuforhet vurdering status") {
                     val result = personOversiktStatusRepository.updateArbeidsuforhetvurderingStatus(
-                        personIdent = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),
+                        personident = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),
                         isAktivVurdering = false
                     )
 

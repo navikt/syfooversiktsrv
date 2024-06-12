@@ -4,7 +4,7 @@ import no.nav.syfo.ApplicationState
 import no.nav.syfo.Environment
 import no.nav.syfo.personstatus.infrastructure.database.database
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
-import no.nav.syfo.client.pdl.PdlClient
+import no.nav.syfo.personstatus.infrastructure.clients.pdl.PdlClient
 import no.nav.syfo.identhendelse.IdenthendelseService
 import no.nav.syfo.personstatus.infrastructure.kafka.launchKafkaTask
 
