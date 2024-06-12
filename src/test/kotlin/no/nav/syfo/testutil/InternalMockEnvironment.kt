@@ -9,8 +9,9 @@ import no.nav.syfo.cronjob.behandlendeenhet.PersonBehandlendeEnhetService
 import no.nav.syfo.cronjob.virksomhetsnavn.PersonOppfolgingstilfelleVirksomhetnavnCronjob
 import no.nav.syfo.cronjob.virksomhetsnavn.PersonOppfolgingstilfelleVirksomhetsnavnService
 import no.nav.syfo.personstatus.PersonoversiktStatusService
-import no.nav.syfo.personstatus.infrastructure.ArbeidsuforhetvurderingClient
+import no.nav.syfo.personstatus.infrastructure.clients.arbeidsuforhet.ArbeidsuforhetvurderingClient
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
+import no.nav.syfo.personstatus.infrastructure.clients.oppfolgingsoppgave.OppfolgingsoppgaveClient
 import no.nav.syfo.personstatus.infrastructure.database.repository.PersonOversiktStatusRepository
 
 class InternalMockEnvironment private constructor() {
@@ -36,6 +37,10 @@ class InternalMockEnvironment private constructor() {
     private val arbeidsuforhetvurderingClient = ArbeidsuforhetvurderingClient(
         azureAdClient = azureAdClient,
         clientEnvironment = environment.clients.arbeidsuforhetvurdering,
+    )
+    private val oppfolgingsoppgaveClient = OppfolgingsoppgaveClient(
+        azureAdClient = azureAdClient,
+        clientEnvironment = environment.clients.ishuskelapp,
     )
     private val eregClient = EregClient(
         clientEnvironment = environment.clients.ereg,
@@ -64,6 +69,7 @@ class InternalMockEnvironment private constructor() {
         pdlClient = pdlClient,
         arbeidsuforhetvurderingClient = arbeidsuforhetvurderingClient,
         personoversiktStatusRepository = personoversiktRepository,
+        oppfolgingsoppgaveClient = oppfolgingsoppgaveClient,
     )
 
     companion object {

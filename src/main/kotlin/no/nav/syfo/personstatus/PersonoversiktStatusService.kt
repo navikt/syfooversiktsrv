@@ -13,6 +13,8 @@ import no.nav.syfo.personstatus.api.v2.model.PersonOversiktStatusDTO
 import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
 import no.nav.syfo.personstatus.application.arbeidsuforhet.ArbeidsuforhetvurderingDTO
 import no.nav.syfo.personstatus.application.arbeidsuforhet.IArbeidsuforhetvurderingClient
+import no.nav.syfo.personstatus.application.oppfolgingsoppgave.IOppfolgingsoppgaveClient
+import no.nav.syfo.personstatus.application.oppfolgingsoppgave.OppfolgingsoppgaverResponseDTO
 import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.*
 import java.sql.Connection
@@ -23,6 +25,7 @@ class PersonoversiktStatusService(
     private val pdlClient: PdlClient,
     private val arbeidsuforhetvurderingClient: IArbeidsuforhetvurderingClient,
     private val personoversiktStatusRepository: IPersonOversiktStatusRepository,
+    private val oppfolgingsoppgaveClient: IOppfolgingsoppgaveClient,
 ) {
     private val isUbehandlet = true
     private val isBehandlet = false
@@ -51,16 +54,26 @@ class PersonoversiktStatusService(
         token: String,
         arenaCutoff: LocalDate,
         personStatusOversikt: List<PersonOversiktStatus>
-    ): List<PersonOversiktStatusDTO> =
-        personStatusOversikt.map { personstatus ->
+    ): List<PersonOversiktStatusDTO> {
+        val activeOppfolgingsoppgaver = getActiveOppfolgingsoppgaver(
+            callId = callId,
+            token = token,
+            personStatuser = personStatusOversikt,
+        )
+
+        return personStatusOversikt.map { personstatus ->
             Pair(personstatus, getArbeidsuforhetvurdering(callId, token, personstatus))
         }
             .map { (personStatus, arbeidsuforhetvurdering) ->
                 personStatus.toPersonOversiktStatusDTO(
                     arenaCutoff = arenaCutoff,
-                    arbeidsuforhetvurdering = arbeidsuforhetvurdering.await()
+                    arbeidsuforhetvurdering = arbeidsuforhetvurdering.await(),
+                    oppfolgingsoppgave = activeOppfolgingsoppgaver.await()
+                        ?.oppfolgingsoppgaver
+                        ?.get(personStatus.fnr),
                 )
             }
+    }
 
     private suspend fun getArbeidsuforhetvurdering(
         callId: String,
@@ -73,6 +86,26 @@ class PersonoversiktStatusService(
                     callId = callId,
                     token = token,
                     personIdent = PersonIdent(personStatus.fnr)
+                )
+            } else {
+                null
+            }
+        }
+
+    private suspend fun getActiveOppfolgingsoppgaver(
+        callId: String,
+        token: String,
+        personStatuser: List<PersonOversiktStatus>,
+    ): Deferred<OppfolgingsoppgaverResponseDTO?> =
+        CoroutineScope(Dispatchers.IO).async {
+            val personidenterWithOppfolgingsoppgave = personStatuser
+                .filter { it.trengerOppfolging }
+                .map { PersonIdent(it.fnr) }
+            if (personidenterWithOppfolgingsoppgave.isNotEmpty()) {
+                oppfolgingsoppgaveClient.getActiveOppfolgingsoppgaver(
+                    callId = callId,
+                    token = token,
+                    personidenter = personidenterWithOppfolgingsoppgave,
                 )
             } else {
                 null

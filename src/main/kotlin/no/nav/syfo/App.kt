@@ -16,8 +16,9 @@ import no.nav.syfo.cronjob.behandlendeenhet.PersonBehandlendeEnhetService
 import no.nav.syfo.cronjob.launchCronjobModule
 import no.nav.syfo.personstatus.infrastructure.kafka.launchKafkaModule
 import no.nav.syfo.personstatus.PersonoversiktStatusService
-import no.nav.syfo.personstatus.infrastructure.ArbeidsuforhetvurderingClient
+import no.nav.syfo.personstatus.infrastructure.clients.arbeidsuforhet.ArbeidsuforhetvurderingClient
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
+import no.nav.syfo.personstatus.infrastructure.clients.oppfolgingsoppgave.OppfolgingsoppgaveClient
 import no.nav.syfo.personstatus.infrastructure.database.repository.PersonOversiktStatusRepository
 import org.slf4j.LoggerFactory
 import java.util.concurrent.TimeUnit
@@ -55,6 +56,10 @@ fun main() {
         azureAdClient = azureAdClient,
         clientEnvironment = environment.clients.arbeidsuforhetvurdering,
     )
+    val oppfolgingsoppgaveClient = OppfolgingsoppgaveClient(
+        azureAdClient = azureAdClient,
+        clientEnvironment = environment.clients.ishuskelapp,
+    )
 
     lateinit var personBehandlendeEnhetService: PersonBehandlendeEnhetService
     lateinit var personoversiktStatusService: PersonoversiktStatusService
@@ -77,6 +82,7 @@ fun main() {
                 pdlClient = pdlClient,
                 arbeidsuforhetvurderingClient = arbeidsuforhetvurderingClient,
                 personoversiktStatusRepository = personoversiktStatusRepository,
+                oppfolgingsoppgaveClient = oppfolgingsoppgaveClient,
             )
             personBehandlendeEnhetService = PersonBehandlendeEnhetService(
                 database = database,
