@@ -1,4 +1,4 @@
-package no.nav.syfo.cronjob
+package no.nav.syfo.personstatus.infrastructure.cronjob
 
 data class CronjobResult(
     var updated: Int = 0,

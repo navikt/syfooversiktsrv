@@ -1,4 +1,4 @@
-package no.nav.syfo.cronjob.virksomhetsnavn
+package no.nav.syfo.personstatus.infrastructure.cronjob.virksomhetsnavn
 
 import io.micrometer.core.instrument.Counter
 import no.nav.syfo.metric.METRICS_NS

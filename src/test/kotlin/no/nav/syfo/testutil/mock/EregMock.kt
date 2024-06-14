@@ -6,9 +6,9 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import no.nav.syfo.client.ereg.EregClient.Companion.EREG_PATH
-import no.nav.syfo.client.ereg.EregOrganisasjonNavn
-import no.nav.syfo.client.ereg.EregOrganisasjonResponse
+import no.nav.syfo.personstatus.infrastructure.clients.ereg.EregClient.Companion.EREG_PATH
+import no.nav.syfo.personstatus.infrastructure.clients.ereg.EregOrganisasjonNavn
+import no.nav.syfo.personstatus.infrastructure.clients.ereg.EregOrganisasjonResponse
 import no.nav.syfo.personstatus.api.v2.auth.installContentNegotiation
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER_2
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER_DEFAULT

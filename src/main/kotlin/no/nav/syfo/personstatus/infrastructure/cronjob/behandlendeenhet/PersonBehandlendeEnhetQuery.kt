@@ -1,4 +1,4 @@
-package no.nav.syfo.cronjob.behandlendeenhet
+package no.nav.syfo.personstatus.infrastructure.cronjob.behandlendeenhet
 
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import no.nav.syfo.personstatus.infrastructure.database.toList

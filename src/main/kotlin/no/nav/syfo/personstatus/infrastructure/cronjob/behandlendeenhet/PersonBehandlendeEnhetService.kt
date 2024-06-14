@@ -1,7 +1,7 @@
-package no.nav.syfo.cronjob.behandlendeenhet
+package no.nav.syfo.personstatus.infrastructure.cronjob.behandlendeenhet
 
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
-import no.nav.syfo.client.behandlendeenhet.BehandlendeEnhetClient
+import no.nav.syfo.personstatus.infrastructure.clients.behandlendeenhet.BehandlendeEnhetClient
 import no.nav.syfo.domain.PersonIdent
 import java.util.*
 

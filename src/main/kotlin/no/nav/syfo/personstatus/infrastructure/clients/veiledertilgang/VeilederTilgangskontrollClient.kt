@@ -1,4 +1,4 @@
-package no.nav.syfo.client.veiledertilgang
+package no.nav.syfo.personstatus.infrastructure.clients.veiledertilgang
 
 import io.ktor.client.call.*
 import io.ktor.client.plugins.*
@@ -10,7 +10,6 @@ import no.nav.syfo.personstatus.infrastructure.clients.ClientEnvironment
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
 import no.nav.syfo.personstatus.infrastructure.clients.httpClientDefault
 import no.nav.syfo.metric.*
-import no.nav.syfo.personstatus.infrastructure.clients.veiledertilgang.Tilgang
 import no.nav.syfo.util.NAV_CALL_ID_HEADER
 import no.nav.syfo.util.bearerHeader
 import org.slf4j.LoggerFactory

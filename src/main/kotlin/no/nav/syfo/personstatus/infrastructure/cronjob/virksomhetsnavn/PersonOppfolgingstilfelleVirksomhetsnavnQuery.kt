@@ -1,4 +1,4 @@
-package no.nav.syfo.cronjob.virksomhetsnavn
+package no.nav.syfo.personstatus.infrastructure.cronjob.virksomhetsnavn
 
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import no.nav.syfo.personstatus.infrastructure.database.toList

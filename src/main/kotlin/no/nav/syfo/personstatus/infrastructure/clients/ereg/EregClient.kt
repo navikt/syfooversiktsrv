@@ -1,4 +1,4 @@
-package no.nav.syfo.client.ereg
+package no.nav.syfo.personstatus.infrastructure.clients.ereg
 
 import io.ktor.client.call.*
 import io.ktor.client.plugins.*
@@ -24,7 +24,7 @@ class EregClient(
         callId: String,
         virksomhetsnummer: Virksomhetsnummer,
     ): EregVirksomhetsnavn? {
-        val cacheKey = "${CACHE_EREG_VIRKSOMHETSNAVN_KEY_PREFIX}${virksomhetsnummer.value}"
+        val cacheKey = "$CACHE_EREG_VIRKSOMHETSNAVN_KEY_PREFIX${virksomhetsnummer.value}"
         val cachedResponse: EregVirksomhetsnavn? = redisStore.getObject(key = cacheKey)
 
         if (cachedResponse != null) {

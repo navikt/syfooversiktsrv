@@ -1,9 +1,9 @@
-package no.nav.syfo.cronjob
+package no.nav.syfo.personstatus.infrastructure.cronjob
 
 import kotlinx.coroutines.*
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.ApplicationState
-import no.nav.syfo.cronjob.leaderelection.LeaderPodClient
+import no.nav.syfo.personstatus.infrastructure.cronjob.leaderelection.LeaderPodClient
 import org.slf4j.LoggerFactory
 import java.time.Duration
 

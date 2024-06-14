@@ -4,7 +4,7 @@ import no.nav.syfo.ApplicationState
 import no.nav.syfo.personstatus.infrastructure.database.database
 import no.nav.syfo.personstatus.infrastructure.kafka.KafkaEnvironment
 import no.nav.syfo.personstatus.infrastructure.kafka.kafkaAivenConsumerConfig
-import no.nav.syfo.cronjob.behandlendeenhet.PersonBehandlendeEnhetService
+import no.nav.syfo.personstatus.infrastructure.cronjob.behandlendeenhet.PersonBehandlendeEnhetService
 import no.nav.syfo.trengeroppfolging.TrengerOppfolgingService
 import no.nav.syfo.personstatus.infrastructure.kafka.launchKafkaTask
 import no.nav.syfo.util.configuredJacksonMapper

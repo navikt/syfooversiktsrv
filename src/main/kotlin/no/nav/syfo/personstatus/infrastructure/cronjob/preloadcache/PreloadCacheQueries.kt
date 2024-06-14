@@ -1,4 +1,4 @@
-package no.nav.syfo.cronjob.preloadcache
+package no.nav.syfo.personstatus.infrastructure.cronjob.preloadcache
 
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import no.nav.syfo.personstatus.infrastructure.database.toList
