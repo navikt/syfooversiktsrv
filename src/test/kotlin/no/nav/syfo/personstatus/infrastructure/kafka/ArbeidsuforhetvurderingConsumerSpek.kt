@@ -7,6 +7,7 @@ import io.mockk.mockk
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.personstatus.PersonoversiktStatusService
 import no.nav.syfo.personstatus.application.arbeidsuforhet.IArbeidsuforhetvurderingClient
+import no.nav.syfo.personstatus.application.oppfolgingsoppgave.IOppfolgingsoppgaveClient
 import no.nav.syfo.personstatus.db.createPersonOversiktStatus
 import no.nav.syfo.personstatus.db.getPersonOversiktStatusList
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
@@ -30,11 +31,13 @@ class ArbeidsuforhetvurderingConsumerSpek : Spek({
     val kafkaConsumer = mockk<KafkaConsumer<String, ArbeidsuforhetvurderingRecord>>()
     val personOppgaveRepository = PersonOversiktStatusRepository(database = database)
     val arbeidsuforhervurderingClient = mockk<IArbeidsuforhetvurderingClient>()
+    val oppfolgingsoppgaveClient = mockk<IOppfolgingsoppgaveClient>()
     val personoversiktStatusService = PersonoversiktStatusService(
         database = database,
         pdlClient = externalMockEnvironment.pdlClient,
         arbeidsuforhetvurderingClient = arbeidsuforhervurderingClient,
-        personoversiktStatusRepository = personOppgaveRepository
+        personoversiktStatusRepository = personOppgaveRepository,
+        oppfolgingsoppgaveClient = oppfolgingsoppgaveClient,
     )
 
     val arbeidsuforhetvurderingConsumer = ArbeidsuforhetvurderingConsumer(

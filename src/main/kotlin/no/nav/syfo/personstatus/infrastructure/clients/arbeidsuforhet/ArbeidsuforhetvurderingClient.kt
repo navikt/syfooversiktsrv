@@ -1,4 +1,4 @@
-package no.nav.syfo.personstatus.infrastructure
+package no.nav.syfo.personstatus.infrastructure.clients.arbeidsuforhet
 
 import io.ktor.client.call.*
 import io.ktor.client.plugins.*

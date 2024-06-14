@@ -830,6 +830,8 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
                         personOversiktStatus.trengerOppfolging shouldBeEqualTo true
                         personOversiktStatus.trengerOppfolgingFrist shouldBeEqualTo frist
+                        personOversiktStatus.oppfolgingsoppgave shouldNotBe null
+                        personOversiktStatus.oppfolgingsoppgave?.oppfolgingsgrunn shouldBeEqualTo "FOLG_OPP_ETTER_NESTE_SYKMELDING"
                     }
                 }
 

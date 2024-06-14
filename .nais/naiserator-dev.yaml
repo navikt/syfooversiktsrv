@@ -55,6 +55,7 @@ spec:
         - application: syfooversiktsrv-redis
         - application: isarbeidsuforhet
         - application: istilgangskontroll
+        - application: ishuskelapp
   azure:
     application:
       allowAllUsers: true
@@ -100,6 +101,10 @@ spec:
       value: "dev-gcp.teamsykefravr.istilgangskontroll"
     - name: ISTILGANGSKONTROLL_HOST
       value: "http://istilgangskontroll"
+    - name: ISHUSKELAPP_CLIENT_ID
+      value: "dev-gcp.teamsykefravr.ishuskelapp"
+    - name: ISHUSKELAPP_URL
+      value: "http://ishuskelapp"
     # Bruk samme dato i enhetens-oversikt-query og index
     - name: ARENA_CUTOFF
       value: "2023-03-10"
