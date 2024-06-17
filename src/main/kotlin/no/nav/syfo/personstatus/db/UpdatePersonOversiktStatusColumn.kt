@@ -246,25 +246,6 @@ fun Connection.updateAktivitetskravVurderStans(
     }
 }
 
-const val queryUpdatePersonOversiktStatusArbeidsuforhetVurderAvslag =
-    """
-        UPDATE PERSON_OVERSIKT_STATUS
-        SET arbeidsuforhet_vurder_avslag_ubehandlet = ?, sist_endret = ?
-        WHERE fnr = ?
-    """
-
-fun Connection.updateArbeidsuforhetVurderAvslag(
-    isUbehandlet: Boolean,
-    personIdent: PersonIdent,
-) {
-    this.prepareStatement(queryUpdatePersonOversiktStatusArbeidsuforhetVurderAvslag).use {
-        it.setBoolean(1, isUbehandlet)
-        it.setObject(2, Timestamp.from(Instant.now()))
-        it.setString(3, personIdent.value)
-        it.execute()
-    }
-}
-
 const val queryUpdatePersonOversiktStatusTrengerOppfolging =
     """
         UPDATE PERSON_OVERSIKT_STATUS
