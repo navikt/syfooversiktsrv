@@ -4,6 +4,7 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.util.pipeline.*
 import net.logstash.logback.argument.StructuredArguments
+import no.nav.syfo.domain.PersonIdent
 import java.util.*
 
 const val NAV_PERSONIDENT_HEADER = "nav-personident"
@@ -18,6 +19,9 @@ fun ApplicationCall.getCallId(): String {
         return it ?: createCallId()
     }
 }
+
+fun ApplicationCall.getPersonIdent(): PersonIdent? =
+    this.request.headers[NAV_PERSONIDENT_HEADER]?.let { PersonIdent(it) }
 
 fun createCallId(): String = UUID.randomUUID().toString()
 fun callIdArgument(callId: String) = StructuredArguments.keyValue("callId", callId)!!

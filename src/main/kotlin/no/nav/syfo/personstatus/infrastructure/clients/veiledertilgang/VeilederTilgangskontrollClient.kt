@@ -6,12 +6,14 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.micrometer.core.instrument.Timer
+import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.personstatus.infrastructure.clients.ClientEnvironment
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
 import no.nav.syfo.personstatus.infrastructure.clients.httpClientDefault
 import no.nav.syfo.metric.*
 import no.nav.syfo.personstatus.infrastructure.clients.veiledertilgang.Tilgang
 import no.nav.syfo.util.NAV_CALL_ID_HEADER
+import no.nav.syfo.util.NAV_PERSONIDENT_HEADER
 import no.nav.syfo.util.bearerHeader
 import org.slf4j.LoggerFactory
 import java.util.UUID
@@ -25,6 +27,40 @@ class VeilederTilgangskontrollClient(
     private val pathTilgangTilBrukereOBO = "/navident/brukere"
     private val pathPreloadCache = "/system/preloadbrukere"
     private val pathTilgangTilEnhetOBO = "/navident/enhet"
+
+    suspend fun getVeilederAccessToPerson(
+        personident: PersonIdent,
+        token: String,
+        callId: String
+    ): Tilgang? {
+        val oboToken = azureAdClient.getOnBehalfOfToken(
+            scopeClientId = istilgangskontrollEnv.clientId,
+            token = token
+        )?.accessToken ?: throw RuntimeException("Failed to request access to list of persons: Failed to get OBO token")
+        try {
+            val url = getTilgangskontrollUrl("/navident/person")
+            val response: HttpResponse = httpClient.get(url) {
+                header(HttpHeaders.Authorization, bearerHeader(oboToken))
+                header(NAV_CALL_ID_HEADER, callId)
+                header(NAV_PERSONIDENT_HEADER, personident.value)
+                accept(ContentType.Application.Json)
+                contentType(ContentType.Application.Json)
+            }
+
+            return response.body<Tilgang>()
+        } catch (e: ClientRequestException) {
+            return if (e.response.status == HttpStatusCode.Forbidden) {
+                log.warn("Forbidden to request access to person from istilgangskontroll")
+                null
+            } else {
+                log.error("Error while requesting access to person from istilgangskontroll: ${e.message}", e)
+                null
+            }
+        } catch (e: ServerResponseException) {
+            log.error("Error while requesting access to person from istilgangskontroll: ${e.message}", e)
+            return null
+        }
+    }
 
     suspend fun veilederPersonAccessListMedOBO(
         personIdentNumberList: List<String>,

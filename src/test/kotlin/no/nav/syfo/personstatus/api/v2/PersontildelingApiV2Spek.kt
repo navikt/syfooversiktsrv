@@ -6,12 +6,15 @@ import io.ktor.http.*
 import io.ktor.server.testing.*
 import io.ktor.util.*
 import no.nav.syfo.personstatus.api.v2.endpoints.personTildelingApiV2Path
+import no.nav.syfo.personstatus.api.v2.model.VeilederBrukerKnytningDTO
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
 import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.testutil.*
+import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_2_FNR
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testutil.UserConstants.NAV_ENHET
 import no.nav.syfo.testutil.UserConstants.VEILEDER_ID
+import no.nav.syfo.util.NAV_PERSONIDENT_HEADER
 import no.nav.syfo.util.bearerHeader
 import no.nav.syfo.util.configuredJacksonMapper
 import org.amshove.kluent.shouldBeEqualTo
@@ -91,6 +94,40 @@ object PersontildelingApiV2Spek : Spek({
                         }
                     ) {
                         response.status() shouldBeEqualTo HttpStatusCode.OK
+                    }
+                }
+            }
+
+            describe("/personer") {
+                it("returns person with correct values") {
+                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
+                    database.lagreVeilederForBruker(tilknytning)
+
+                    val url = "$personTildelingApiV2Path/personer/single"
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                            addHeader(NAV_PERSONIDENT_HEADER, ARBEIDSTAKER_FNR)
+                        }
+                    ) {
+                        response.status() shouldBeEqualTo HttpStatusCode.OK
+                        val personinfo = objectMapper.readValue<VeilederBrukerKnytningDTO>(response.content!!)
+                        personinfo.tildeltVeilederident shouldBeEqualTo tilknytning.veilederIdent
+                        personinfo.personident.value shouldBeEqualTo tilknytning.fnr
+                    }
+                }
+                it("returns 404 when person does not exist") {
+                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
+                    database.lagreVeilederForBruker(tilknytning)
+
+                    val url = "$personTildelingApiV2Path/personer/single"
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                            addHeader(NAV_PERSONIDENT_HEADER, ARBEIDSTAKER_2_FNR)
+                        }
+                    ) {
+                        response.status() shouldBeEqualTo HttpStatusCode.NotFound
                     }
                 }
             }
