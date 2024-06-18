@@ -221,14 +221,6 @@ class PersonoversiktStatusService(
                     connection.updateBehandlerBerOmBistand(isUbehandlet, personident)
                 OversikthendelseType.BEHANDLER_BER_OM_BISTAND_BEHANDLET ->
                     connection.updateBehandlerBerOmBistand(isBehandlet, personident)
-                OversikthendelseType.ARBEIDSUFORHET_VURDER_AVSLAG_MOTTATT -> connection.updateArbeidsuforhetVurderAvslag(
-                    isUbehandlet,
-                    personident
-                )
-                OversikthendelseType.ARBEIDSUFORHET_VURDER_AVSLAG_BEHANDLET -> connection.updateArbeidsuforhetVurderAvslag(
-                    isBehandlet,
-                    personident
-                )
             }
 
             COUNT_KAFKA_CONSUMER_PERSONOPPGAVEHENDELSE_UPDATED_PERSONOVERSIKT_STATUS.increment()

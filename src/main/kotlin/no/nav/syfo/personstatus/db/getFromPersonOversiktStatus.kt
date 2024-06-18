@@ -53,7 +53,6 @@ const val queryHentUbehandledePersonerTilknyttetEnhet = """
                             OR aktivitetskrav_vurder_stans_ubehandlet = 't'
                             OR trenger_oppfolging = 't'
                             OR behandler_bistand_ubehandlet = 't'
-                            OR arbeidsuforhet_vurder_avslag_ubehandlet = 't'
                             OR arbeidsuforhet_aktiv_vurdering = 't'
                             OR friskmelding_til_arbeidsformidling_fom IS NOT NULL
                             )
@@ -124,7 +123,6 @@ fun ResultSet.toPPersonOversiktStatus(): PPersonOversiktStatus =
         trengerOppfolgingFrist = getObject("trenger_oppfolging_frist", LocalDate::class.java),
         behandlerBerOmBistandUbehandlet = getBoolean("behandler_bistand_ubehandlet"),
         antallSykedager = getObject("antall_sykedager") as Int?,
-        arbeidsuforhetVurderAvslagUbehandlet = getBoolean("arbeidsuforhet_vurder_avslag_ubehandlet"),
         friskmeldingTilArbeidsformidlingFom = getObject("friskmelding_til_arbeidsformidling_fom", LocalDate::class.java),
         isAktivArbeidsuforhetvurdering = getBoolean("arbeidsuforhet_aktiv_vurdering")
     )
