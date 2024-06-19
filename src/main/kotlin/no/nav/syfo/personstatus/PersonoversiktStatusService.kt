@@ -17,6 +17,7 @@ import no.nav.syfo.personstatus.application.oppfolgingsoppgave.IOppfolgingsoppga
 import no.nav.syfo.personstatus.application.oppfolgingsoppgave.OppfolgingsoppgaverResponseDTO
 import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.*
+import org.slf4j.LoggerFactory
 import java.sql.Connection
 import java.time.LocalDate
 
@@ -29,6 +30,7 @@ class PersonoversiktStatusService(
 ) {
     private val isUbehandlet = true
     private val isBehandlet = false
+    private val log = LoggerFactory.getLogger(PersonoversiktStatusService::class.java)
 
     fun hentPersonoversiktStatusTilknyttetEnhet(
         enhet: String,
@@ -102,11 +104,15 @@ class PersonoversiktStatusService(
                 .filter { it.trengerOppfolging }
                 .map { PersonIdent(it.fnr) }
             if (personidenterWithOppfolgingsoppgave.isNotEmpty()) {
-                oppfolgingsoppgaveClient.getActiveOppfolgingsoppgaver(
+                val response = oppfolgingsoppgaveClient.getActiveOppfolgingsoppgaver(
                     callId = callId,
                     token = token,
                     personidenter = personidenterWithOppfolgingsoppgave,
                 )
+                if (response == null) {
+                    log.error("Oppfolgingsoppgaver was null for enhet ${personStatuser[0].enhet}")
+                }
+                response
             } else {
                 null
             }
