@@ -45,12 +45,11 @@ const val queryCreatePersonOversiktStatus =
         behandlerdialog_avvist_ubehandlet,
         aktivitetskrav_vurder_stans_ubehandlet,
         trenger_oppfolging,
-        trenger_oppfolging_frist,
         behandler_bistand_ubehandlet,
         arbeidsuforhet_aktiv_vurdering,
         antall_sykedager,
         friskmelding_til_arbeidsformidling_fom
-    ) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     RETURNING id
     """
 
@@ -113,13 +112,12 @@ fun Connection.createPersonOversiktStatus(
         it.setBoolean(29, personOversiktStatus.behandlerdialogAvvistUbehandlet)
         it.setBoolean(30, personOversiktStatus.aktivitetskravVurderStansUbehandlet)
         it.setBoolean(31, personOversiktStatus.trengerOppfolging)
-        it.setObject(32, personOversiktStatus.trengerOppfolgingFrist)
-        it.setBoolean(33, personOversiktStatus.behandlerBerOmBistandUbehandlet)
-        it.setBoolean(34, personOversiktStatus.isAktivArbeidsuforhetvurdering)
+        it.setBoolean(32, personOversiktStatus.behandlerBerOmBistandUbehandlet)
+        it.setBoolean(33, personOversiktStatus.isAktivArbeidsuforhetvurdering)
         if (personOversiktStatus.latestOppfolgingstilfelle?.antallSykedager != null) {
-            it.setInt(35, personOversiktStatus.latestOppfolgingstilfelle.antallSykedager)
-        } else it.setNull(35, Types.INTEGER)
-        it.setObject(36, personOversiktStatus.friskmeldingTilArbeidsformidlingFom)
+            it.setInt(34, personOversiktStatus.latestOppfolgingstilfelle.antallSykedager)
+        } else it.setNull(34, Types.INTEGER)
+        it.setObject(35, personOversiktStatus.friskmeldingTilArbeidsformidlingFom)
         it.executeQuery().toList { getInt("id") }.firstOrNull()
     } ?: throw SQLException("Creating PersonOversikStatus failed, no rows affected.")
 

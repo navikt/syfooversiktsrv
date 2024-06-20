@@ -119,7 +119,6 @@ private fun ResultSet.toPPersonOversiktStatus(): PPersonOversiktStatus =
         behandlerdialogAvvistUbehandlet = getBoolean("behandlerdialog_avvist_ubehandlet"),
         aktivitetskravVurderStansUbehandlet = getBoolean("aktivitetskrav_vurder_stans_ubehandlet"),
         trengerOppfolging = getBoolean("trenger_oppfolging"),
-        trengerOppfolgingFrist = getObject("trenger_oppfolging_frist", LocalDate::class.java),
         behandlerBerOmBistandUbehandlet = getBoolean("behandler_bistand_ubehandlet"),
         antallSykedager = getObject("antall_sykedager") as Int?,
         isAktivArbeidsuforhetvurdering = getBoolean("arbeidsuforhet_aktiv_vurdering"),
