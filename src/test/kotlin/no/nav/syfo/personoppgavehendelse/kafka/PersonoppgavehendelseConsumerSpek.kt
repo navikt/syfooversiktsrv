@@ -210,37 +210,6 @@ object PersonoppgavehendelseServiceSpek : Spek({
             firstStatus.aktivitetskravVurderStansUbehandlet.shouldBeFalse()
         }
 
-        it("Update personoversiktstatus from arbeidsuforhet vurder avslag mottatt hendelse") {
-            val arbeidsuforhetVurderAvslagMottatt = KPersonoppgavehendelse(
-                personident = UserConstants.ARBEIDSTAKER_FNR,
-                hendelsetype = OversikthendelseType.ARBEIDSUFORHET_VURDER_AVSLAG_MOTTATT,
-            )
-            mockReceiveHendelse(arbeidsuforhetVurderAvslagMottatt, mockPersonoppgavehendelseConsumer)
-
-            personoppgavehendelseConsumer.pollAndProcessRecords(kafkaConsumer = mockPersonoppgavehendelseConsumer)
-
-            val personoversiktStatuser = database.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
-            val firstStatus = personoversiktStatuser.first()
-            firstStatus.arbeidsuforhetVurderAvslagUbehandlet.shouldBeTrue()
-        }
-
-        it("Update personoversiktstatus from arbeidsuforhet vurder avslag behandlet hendelse") {
-            val arbeidsuforhetVurderAvslagBehandlet = KPersonoppgavehendelse(
-                personident = UserConstants.ARBEIDSTAKER_FNR,
-                hendelsetype = OversikthendelseType.ARBEIDSUFORHET_VURDER_AVSLAG_BEHANDLET,
-            )
-            mockReceiveHendelse(arbeidsuforhetVurderAvslagBehandlet, mockPersonoppgavehendelseConsumer)
-            val personOversiktStatus = PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR)
-                .applyHendelse(OversikthendelseType.ARBEIDSUFORHET_VURDER_AVSLAG_MOTTATT)
-            database.createPersonOversiktStatus(personOversiktStatus)
-
-            personoppgavehendelseConsumer.pollAndProcessRecords(kafkaConsumer = mockPersonoppgavehendelseConsumer)
-
-            val personoversiktStatuser = database.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
-            val firstStatus = personoversiktStatuser.first()
-            firstStatus.arbeidsuforhetVurderAvslagUbehandlet.shouldBeFalse()
-        }
-
         it("Update personoversiktstatus from behandler_ber_om_bistand_mottatt-hendelse") {
             val behandlerBistandHendelseMottatt =
                 generateKPersonoppgavehendelse(OversikthendelseType.BEHANDLER_BER_OM_BISTAND_MOTTATT)

@@ -11,12 +11,13 @@ class ExternalMockEnvironment private constructor() {
     val database = TestDatabase()
     val embeddedEnvironment = testKafka()
 
-    val azureAdMock = AzureAdMock()
-    val eregMock = EregMock()
-    val pdlMock = PdlMock()
-    val syfobehandlendeenhetMock = SyfobehandlendeenhetMock()
-    val arbeidsuforhetvurderingMock = ArbeidsuforhetvurderingMock()
-    val tilgangskontrollMock = VeilederTilgangskontrollMock()
+    private val azureAdMock = AzureAdMock()
+    private val eregMock = EregMock()
+    private val pdlMock = PdlMock()
+    private val syfobehandlendeenhetMock = SyfobehandlendeenhetMock()
+    private val arbeidsuforhetvurderingMock = ArbeidsuforhetvurderingMock()
+    private val tilgangskontrollMock = VeilederTilgangskontrollMock()
+    private val oppfolgingsoppgaveMock = OppfolgingsoppgaveMock()
 
     val externalApplicationMockMap = hashMapOf(
         azureAdMock.name to azureAdMock.server,
@@ -25,6 +26,7 @@ class ExternalMockEnvironment private constructor() {
         syfobehandlendeenhetMock.name to syfobehandlendeenhetMock.server,
         arbeidsuforhetvurderingMock.name to arbeidsuforhetvurderingMock.server,
         tilgangskontrollMock.name to tilgangskontrollMock.server,
+        oppfolgingsoppgaveMock.name to oppfolgingsoppgaveMock.server,
     )
 
     val environment = testEnvironment(
@@ -34,7 +36,8 @@ class ExternalMockEnvironment private constructor() {
         syfobehandlendeenhetUrl = syfobehandlendeenhetMock.url,
         arbeidsuforhetvurderingUrl = arbeidsuforhetvurderingMock.url,
         istilgangskontrollUrl = tilgangskontrollMock.url,
-        kafkaBootstrapServers = embeddedEnvironment.brokersURL
+        kafkaBootstrapServers = embeddedEnvironment.brokersURL,
+        ishuskelappUrl = oppfolgingsoppgaveMock.url,
     )
     val redisServer = testRedis(
         redisEnvironment = environment.redis,

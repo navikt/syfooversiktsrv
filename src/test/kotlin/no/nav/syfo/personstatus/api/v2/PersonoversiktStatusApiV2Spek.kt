@@ -745,64 +745,6 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     }
                 }
 
-                it("return person with arbeidsuforhet_vurder_avslag true when oppgave mottatt") {
-                    val arbeidsuforhetVurderAvslagMottatt = KPersonoppgavehendelse(
-                        personident = ARBEIDSTAKER_FNR,
-                        hendelsetype = OversikthendelseType.ARBEIDSUFORHET_VURDER_AVSLAG_MOTTATT,
-                    )
-                    val personoversiktStatus = PersonOversiktStatus(
-                        fnr = arbeidsuforhetVurderAvslagMottatt.personident
-                    ).applyHendelse(arbeidsuforhetVurderAvslagMottatt.hendelsetype)
-
-                    database.createPersonOversiktStatus(personoversiktStatus)
-
-                    database.setTildeltEnhet(
-                        ident = PersonIdent(ARBEIDSTAKER_FNR),
-                        enhet = NAV_ENHET,
-                    )
-
-                    val personOversiktStatusList = database.getPersonOversiktStatusList(ARBEIDSTAKER_FNR)
-                    println(personOversiktStatusList)
-
-                    with(
-                        handleRequest(HttpMethod.Get, url) {
-                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                        }
-                    ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.OK
-
-                        val personOversiktStatus =
-                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
-                        personOversiktStatus.fnr shouldBeEqualTo arbeidsuforhetVurderAvslagMottatt.personident
-                        personOversiktStatus.arbeidsuforhetVurderAvslagUbehandlet shouldBeEqualTo true
-                    }
-                }
-
-                it("return no person when arbeidsuforhet_vurder_avslag oppgave behandlet") {
-                    val arbeidsuforhetVurderAvslagBehandlet = KPersonoppgavehendelse(
-                        personident = ARBEIDSTAKER_FNR,
-                        hendelsetype = OversikthendelseType.ARBEIDSUFORHET_VURDER_AVSLAG_BEHANDLET,
-                    )
-                    val personoversiktStatus = PersonOversiktStatus(
-                        fnr = arbeidsuforhetVurderAvslagBehandlet.personident
-                    ).applyHendelse(arbeidsuforhetVurderAvslagBehandlet.hendelsetype)
-
-                    database.createPersonOversiktStatus(personoversiktStatus)
-
-                    database.setTildeltEnhet(
-                        ident = PersonIdent(ARBEIDSTAKER_FNR),
-                        enhet = NAV_ENHET,
-                    )
-
-                    with(
-                        handleRequest(HttpMethod.Get, url) {
-                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                        }
-                    ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.NoContent
-                    }
-                }
-
                 it("return person when trenger_oppfolging true") {
                     val personident = ARBEIDSTAKER_FNR
                     val frist = LocalDate.now().plusDays(5)
@@ -830,6 +772,8 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
                         personOversiktStatus.trengerOppfolging shouldBeEqualTo true
                         personOversiktStatus.trengerOppfolgingFrist shouldBeEqualTo frist
+                        personOversiktStatus.oppfolgingsoppgave shouldNotBe null
+                        personOversiktStatus.oppfolgingsoppgave?.oppfolgingsgrunn shouldBeEqualTo "FOLG_OPP_ETTER_NESTE_SYKMELDING"
                     }
                 }
 

@@ -1,8 +1,8 @@
-package no.nav.syfo.cronjob.reaper
+package no.nav.syfo.personstatus.infrastructure.cronjob.reaper
 
 import net.logstash.logback.argument.StructuredArguments
-import no.nav.syfo.cronjob.Cronjob
-import no.nav.syfo.cronjob.CronjobResult
+import no.nav.syfo.personstatus.infrastructure.cronjob.Cronjob
+import no.nav.syfo.personstatus.infrastructure.cronjob.CronjobResult
 import org.slf4j.LoggerFactory
 
 class ReaperCronjob(

@@ -1,4 +1,4 @@
-package no.nav.syfo.cronjob.virksomhetsnavn
+package no.nav.syfo.personstatus.infrastructure.cronjob.virksomhetsnavn
 
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import no.nav.syfo.personstatus.infrastructure.database.toList
@@ -42,7 +42,6 @@ const val queryPersonOppfolgingstilfelleVirksomhetNoVirksomhetsnavnList =
         OR aktivitetskrav_vurder_stans_ubehandlet = 't'
         OR trenger_oppfolging = 't'
         OR behandler_bistand_ubehandlet = 't'
-        OR arbeidsuforhet_vurder_avslag_ubehandlet = 't'
         OR friskmelding_til_arbeidsformidling_fom IS NOT NULL
         OR arbeidsuforhet_aktiv_vurdering = 't'
         )

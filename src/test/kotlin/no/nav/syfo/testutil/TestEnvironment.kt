@@ -20,6 +20,7 @@ fun testEnvironment(
     syfobehandlendeenhetUrl: String = "syfobehandlendeenhet",
     arbeidsuforhetvurderingUrl: String = "arbeidsuforhetvurdering",
     istilgangskontrollUrl: String = "istilgangskontroll",
+    ishuskelappUrl: String = "ishuskelapp",
 ) = Environment(
     applicationName = "syfooversiktsrv",
     azure = AzureEnvironment(
@@ -62,12 +63,16 @@ fun testEnvironment(
         ),
         arbeidsuforhetvurdering = ClientEnvironment(
             baseUrl = arbeidsuforhetvurderingUrl,
-            clientId = "dev.gcp.teamsykefravr.arbeidsuforhetvurdering",
+            clientId = "dev-gcp.teamsykefravr.arbeidsuforhetvurdering",
         ),
         istilgangskontroll = ClientEnvironment(
             baseUrl = istilgangskontrollUrl,
-            clientId = "dev.gcp.teamsykefravr.istilgangskontroll",
-        )
+            clientId = "dev-gcp.teamsykefravr.istilgangskontroll",
+        ),
+        ishuskelapp = ClientEnvironment(
+            baseUrl = ishuskelappUrl,
+            clientId = "dev-gcp.teamsykefravr.ishuskelapp",
+        ),
     ),
     redis = RedisEnvironment(
         host = "localhost",

@@ -6,6 +6,7 @@ data class ClientsEnvironment(
     val syfobehandlendeenhet: ClientEnvironment,
     val arbeidsuforhetvurdering: ClientEnvironment,
     val istilgangskontroll: ClientEnvironment,
+    val ishuskelapp: ClientEnvironment,
 )
 
 data class ClientEnvironment(

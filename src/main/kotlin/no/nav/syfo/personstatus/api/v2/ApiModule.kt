@@ -14,7 +14,7 @@ import no.nav.syfo.personstatus.api.v2.endpoints.registerPodApi
 import no.nav.syfo.personstatus.api.v2.endpoints.registerPrometheusApi
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
-import no.nav.syfo.client.veiledertilgang.VeilederTilgangskontrollClient
+import no.nav.syfo.personstatus.infrastructure.clients.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.personstatus.PersonTildelingService
 import no.nav.syfo.personstatus.PersonoversiktStatusService
 import no.nav.syfo.personstatus.api.v2.auth.JwtIssuer

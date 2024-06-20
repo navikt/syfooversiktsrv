@@ -1,11 +1,11 @@
-package no.nav.syfo.cronjob.preloadcache
+package no.nav.syfo.personstatus.infrastructure.cronjob.preloadcache
 
 import kotlinx.coroutines.runBlocking
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
-import no.nav.syfo.client.veiledertilgang.VeilederTilgangskontrollClient
-import no.nav.syfo.cronjob.Cronjob
-import no.nav.syfo.cronjob.CronjobResult
+import no.nav.syfo.personstatus.infrastructure.clients.veiledertilgang.VeilederTilgangskontrollClient
+import no.nav.syfo.personstatus.infrastructure.cronjob.Cronjob
+import no.nav.syfo.personstatus.infrastructure.cronjob.CronjobResult
 import no.nav.syfo.personstatus.db.hentUbehandledePersonerTilknyttetEnhet
 import no.nav.syfo.personstatus.domain.hasActiveOppgave
 import no.nav.syfo.personstatus.domain.toPersonOversiktStatus

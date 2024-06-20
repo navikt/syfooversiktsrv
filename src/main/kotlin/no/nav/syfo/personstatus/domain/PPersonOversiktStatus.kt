@@ -40,7 +40,6 @@ data class PPersonOversiktStatus(
     val trengerOppfolgingFrist: LocalDate?,
     val behandlerBerOmBistandUbehandlet: Boolean,
     val antallSykedager: Int?,
-    val arbeidsuforhetVurderAvslagUbehandlet: Boolean,
     val friskmeldingTilArbeidsformidlingFom: LocalDate?,
     val isAktivArbeidsuforhetvurdering: Boolean,
 )
@@ -73,7 +72,6 @@ fun PPersonOversiktStatus.toPersonOversiktStatus(
     trengerOppfolging = trengerOppfolging,
     trengerOppfolgingFrist = trengerOppfolgingFrist,
     behandlerBerOmBistandUbehandlet = behandlerBerOmBistandUbehandlet,
-    arbeidsuforhetVurderAvslagUbehandlet = arbeidsuforhetVurderAvslagUbehandlet,
     friskmeldingTilArbeidsformidlingFom = friskmeldingTilArbeidsformidlingFom,
     isAktivArbeidsuforhetvurdering = isAktivArbeidsuforhetvurdering,
 )

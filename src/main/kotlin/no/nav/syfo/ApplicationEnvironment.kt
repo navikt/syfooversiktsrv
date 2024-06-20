@@ -66,6 +66,10 @@ data class Environment(
             baseUrl = getEnvVar("ISTILGANGSKONTROLL_HOST"),
             clientId = getEnvVar("ISTILGANGSKONTROLL_CLIENT_ID"),
         ),
+        ishuskelapp = ClientEnvironment(
+            baseUrl = getEnvVar("ISHUSKELAPP_URL"),
+            clientId = getEnvVar("ISHUSKELAPP_CLIENT_ID"),
+        ),
     ),
 
     val redis: RedisEnvironment = RedisEnvironment(

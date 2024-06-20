@@ -127,7 +127,7 @@ object PersontildelingApiV2Spek : Spek({
                             addHeader(NAV_PERSONIDENT_HEADER, ARBEIDSTAKER_2_FNR)
                         }
                     ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.NotFound
+                        response.status() shouldBeEqualTo HttpStatusCode.NoContent
                     }
                 }
             }

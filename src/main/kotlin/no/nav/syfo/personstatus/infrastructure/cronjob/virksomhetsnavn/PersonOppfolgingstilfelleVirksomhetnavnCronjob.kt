@@ -1,8 +1,8 @@
-package no.nav.syfo.cronjob.virksomhetsnavn
+package no.nav.syfo.personstatus.infrastructure.cronjob.virksomhetsnavn
 
 import net.logstash.logback.argument.StructuredArguments
-import no.nav.syfo.cronjob.Cronjob
-import no.nav.syfo.cronjob.CronjobResult
+import no.nav.syfo.personstatus.infrastructure.cronjob.Cronjob
+import no.nav.syfo.personstatus.infrastructure.cronjob.CronjobResult
 import org.slf4j.LoggerFactory
 
 class PersonOppfolgingstilfelleVirksomhetnavnCronjob(

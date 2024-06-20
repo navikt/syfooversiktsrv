@@ -6,6 +6,7 @@ import no.nav.syfo.oppfolgingstilfelle.domain.Oppfolgingstilfelle
 import no.nav.syfo.oppfolgingstilfelle.domain.toPersonOppfolgingstilfelleDTO
 import no.nav.syfo.personstatus.api.v2.model.PersonOversiktStatusDTO
 import no.nav.syfo.personstatus.application.arbeidsuforhet.ArbeidsuforhetvurderingDTO
+import no.nav.syfo.personstatus.application.oppfolgingsoppgave.OppfolgingsoppgaveDTO
 import no.nav.syfo.util.isBeforeOrEqual
 import no.nav.syfo.util.toLocalDateOslo
 import no.nav.syfo.util.toLocalDateTimeOslo
@@ -36,7 +37,6 @@ data class PersonOversiktStatus(
     val trengerOppfolging: Boolean = false,
     val trengerOppfolgingFrist: LocalDate? = null,
     val behandlerBerOmBistandUbehandlet: Boolean = false,
-    val arbeidsuforhetVurderAvslagUbehandlet: Boolean = false,
     val isAktivArbeidsuforhetvurdering: Boolean = false,
     val friskmeldingTilArbeidsformidlingFom: LocalDate? = null,
 )
@@ -70,7 +70,7 @@ fun PersonOversiktStatus.hasActiveOppgave(arenaCutoff: LocalDate): Boolean {
         this.friskmeldingTilArbeidsformidlingFom != null ||
         this.aktivitetskravVurderStansUbehandlet ||
         this.trengerOppfolging ||
-        this.behandlerBerOmBistandUbehandlet || this.arbeidsuforhetVurderAvslagUbehandlet || this.isAktivArbeidsuforhetvurdering
+        this.behandlerBerOmBistandUbehandlet || this.isAktivArbeidsuforhetvurdering
 }
 
 fun List<PersonOversiktStatus>.addPersonName(
@@ -93,7 +93,8 @@ fun List<PersonOversiktStatus>.addPersonName(
 
 fun PersonOversiktStatus.toPersonOversiktStatusDTO(
     arenaCutoff: LocalDate,
-    arbeidsuforhetvurdering: ArbeidsuforhetvurderingDTO?
+    arbeidsuforhetvurdering: ArbeidsuforhetvurderingDTO?,
+    oppfolgingsoppgave: OppfolgingsoppgaveDTO?,
 ) =
     PersonOversiktStatusDTO(
         veilederIdent = veilederIdent,
@@ -116,9 +117,9 @@ fun PersonOversiktStatus.toPersonOversiktStatusDTO(
         trengerOppfolging = trengerOppfolging,
         trengerOppfolgingFrist = trengerOppfolgingFrist,
         behandlerBerOmBistandUbehandlet = behandlerBerOmBistandUbehandlet,
-        arbeidsuforhetVurderAvslagUbehandlet = arbeidsuforhetVurderAvslagUbehandlet,
         arbeidsuforhetvurdering = arbeidsuforhetvurdering,
         friskmeldingTilArbeidsformidlingFom = friskmeldingTilArbeidsformidlingFom,
+        oppfolgingsoppgave = oppfolgingsoppgave,
     )
 
 fun PersonOversiktStatus.hasActiveBehandlerdialogOppgave(): Boolean {
@@ -178,11 +179,5 @@ fun PersonOversiktStatus.applyHendelse(
         )
         OversikthendelseType.BEHANDLER_BER_OM_BISTAND_BEHANDLET -> this.copy(
             behandlerBerOmBistandUbehandlet = false
-        )
-        OversikthendelseType.ARBEIDSUFORHET_VURDER_AVSLAG_MOTTATT -> this.copy(
-            arbeidsuforhetVurderAvslagUbehandlet = true,
-        )
-        OversikthendelseType.ARBEIDSUFORHET_VURDER_AVSLAG_BEHANDLET -> this.copy(
-            arbeidsuforhetVurderAvslagUbehandlet = false,
         )
     }

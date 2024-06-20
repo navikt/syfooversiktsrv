@@ -4,7 +4,7 @@ import no.nav.syfo.aktivitetskravvurdering.kafka.launchKafkaTaskAktivitetskravVu
 import no.nav.syfo.ApplicationState
 import no.nav.syfo.Environment
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
-import no.nav.syfo.cronjob.behandlendeenhet.PersonBehandlendeEnhetService
+import no.nav.syfo.personstatus.infrastructure.cronjob.behandlendeenhet.PersonBehandlendeEnhetService
 import no.nav.syfo.dialogmotekandidat.kafka.launchKafkaTaskDialogmotekandidatEndring
 import no.nav.syfo.dialogmotestatusendring.kafka.launchKafkaTaskDialogmoteStatusendring
 import no.nav.syfo.frisktilarbeid.kafka.launchKafkaTaskFriskTilArbeidVedtak

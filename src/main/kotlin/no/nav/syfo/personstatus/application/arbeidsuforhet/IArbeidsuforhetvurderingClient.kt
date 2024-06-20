@@ -4,9 +4,9 @@ import no.nav.syfo.domain.PersonIdent
 
 interface IArbeidsuforhetvurderingClient {
 
-    suspend fun getLatestVurdering(
+    suspend fun getLatestVurderinger(
         callId: String,
         token: String,
-        personIdent: PersonIdent,
-    ): ArbeidsuforhetvurderingDTO?
+        personidenter: List<PersonIdent>,
+    ): ArbeidsuforhetvurderingerResponseDTO?
 }

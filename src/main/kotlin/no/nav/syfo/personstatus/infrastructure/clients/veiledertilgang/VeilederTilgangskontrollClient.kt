@@ -1,4 +1,4 @@
-package no.nav.syfo.client.veiledertilgang
+package no.nav.syfo.personstatus.infrastructure.clients.veiledertilgang
 
 import io.ktor.client.call.*
 import io.ktor.client.plugins.*
@@ -11,7 +11,6 @@ import no.nav.syfo.personstatus.infrastructure.clients.ClientEnvironment
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
 import no.nav.syfo.personstatus.infrastructure.clients.httpClientDefault
 import no.nav.syfo.metric.*
-import no.nav.syfo.personstatus.infrastructure.clients.veiledertilgang.Tilgang
 import no.nav.syfo.util.NAV_CALL_ID_HEADER
 import no.nav.syfo.util.NAV_PERSONIDENT_HEADER
 import no.nav.syfo.util.bearerHeader
@@ -36,7 +35,7 @@ class VeilederTilgangskontrollClient(
         val oboToken = azureAdClient.getOnBehalfOfToken(
             scopeClientId = istilgangskontrollEnv.clientId,
             token = token
-        )?.accessToken ?: throw RuntimeException("Failed to request access to list of persons: Failed to get OBO token")
+        )?.accessToken ?: throw RuntimeException("Failed to request access to person: Failed to get OBO token")
         try {
             val url = getTilgangskontrollUrl("/navident/person")
             val response: HttpResponse = httpClient.get(url) {

@@ -13,7 +13,7 @@ import no.nav.syfo.metric.COUNT_PERSONTILDELING_TILDELT
 import no.nav.syfo.personstatus.PersonTildelingService
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytningListe
-import no.nav.syfo.client.veiledertilgang.VeilederTilgangskontrollClient
+import no.nav.syfo.personstatus.infrastructure.clients.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.personstatus.PersonoversiktStatusService
 import no.nav.syfo.personstatus.api.v2.model.VeilederBrukerKnytningDTO
 import no.nav.syfo.util.*
@@ -98,7 +98,7 @@ fun Route.registerPersonTildelingApiV2(
                 val token = getBearerHeader()
                     ?: throw java.lang.IllegalArgumentException("No Authorization header supplied")
                 val personident = call.getPersonIdent()
-                    ?: throw IllegalArgumentException("Failed to get person resource: No $NAV_PERSONIDENT_HEADER supplied in request header")
+                    ?: throw IllegalArgumentException("Failed to get veileder/bruker knytning: No $NAV_PERSONIDENT_HEADER supplied in request header")
 
                 val tilgang = veilederTilgangskontrollClient.getVeilederAccessToPerson(
                     personident = personident,
@@ -108,13 +108,13 @@ fun Route.registerPersonTildelingApiV2(
                 if (tilgang?.erGodkjent == true) {
                     personoversiktStatusService.getPersonstatus(personident)?.let {
                         call.respond(VeilederBrukerKnytningDTO.fromPersonstatus(it))
-                    } ?: call.respond(HttpStatusCode.NotFound)
+                    } ?: call.respond(HttpStatusCode.NoContent)
                 } else {
                     call.respond(HttpStatusCode.Forbidden)
                 }
             } catch (e: IllegalArgumentException) {
-                log.warn("Kan ikke hente personstatus: {}, {}", e.message, callIdArgument(getCallId()))
-                call.respond(HttpStatusCode.BadRequest, e.message ?: "Kan ikke hente personstatus")
+                log.warn("Kan ikke hente veileder/bruker knytning: {}, {}", e.message, callIdArgument(getCallId()))
+                call.respond(HttpStatusCode.BadRequest, e.message ?: "Kan ikke hente veileder/bruker knytning")
             }
         }
     }

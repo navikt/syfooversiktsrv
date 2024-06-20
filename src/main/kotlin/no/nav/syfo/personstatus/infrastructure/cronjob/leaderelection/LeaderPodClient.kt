@@ -1,4 +1,4 @@
-package no.nav.syfo.cronjob.leaderelection
+package no.nav.syfo.personstatus.infrastructure.cronjob.leaderelection
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue

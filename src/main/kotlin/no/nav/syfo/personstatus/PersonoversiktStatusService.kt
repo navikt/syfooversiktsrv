@@ -11,10 +11,13 @@ import no.nav.syfo.oppfolgingstilfelle.domain.PersonOppfolgingstilfelleVirksomhe
 import no.nav.syfo.personoppgavehendelse.kafka.*
 import no.nav.syfo.personstatus.api.v2.model.PersonOversiktStatusDTO
 import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
-import no.nav.syfo.personstatus.application.arbeidsuforhet.ArbeidsuforhetvurderingDTO
+import no.nav.syfo.personstatus.application.arbeidsuforhet.ArbeidsuforhetvurderingerResponseDTO
 import no.nav.syfo.personstatus.application.arbeidsuforhet.IArbeidsuforhetvurderingClient
+import no.nav.syfo.personstatus.application.oppfolgingsoppgave.IOppfolgingsoppgaveClient
+import no.nav.syfo.personstatus.application.oppfolgingsoppgave.OppfolgingsoppgaverResponseDTO
 import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.*
+import org.slf4j.LoggerFactory
 import java.sql.Connection
 import java.time.LocalDate
 
@@ -23,9 +26,11 @@ class PersonoversiktStatusService(
     private val pdlClient: PdlClient,
     private val arbeidsuforhetvurderingClient: IArbeidsuforhetvurderingClient,
     private val personoversiktStatusRepository: IPersonOversiktStatusRepository,
+    private val oppfolgingsoppgaveClient: IOppfolgingsoppgaveClient,
 ) {
     private val isUbehandlet = true
     private val isBehandlet = false
+    private val log = LoggerFactory.getLogger(PersonoversiktStatusService::class.java)
 
     fun hentPersonoversiktStatusTilknyttetEnhet(
         enhet: String,
@@ -54,29 +59,70 @@ class PersonoversiktStatusService(
         token: String,
         arenaCutoff: LocalDate,
         personStatusOversikt: List<PersonOversiktStatus>
-    ): List<PersonOversiktStatusDTO> =
-        personStatusOversikt.map { personstatus ->
-            Pair(personstatus, getArbeidsuforhetvurdering(callId, token, personstatus))
-        }
-            .map { (personStatus, arbeidsuforhetvurdering) ->
-                personStatus.toPersonOversiktStatusDTO(
-                    arenaCutoff = arenaCutoff,
-                    arbeidsuforhetvurdering = arbeidsuforhetvurdering.await()
-                )
-            }
+    ): List<PersonOversiktStatusDTO> {
+        val activeOppfolgingsoppgaver = getActiveOppfolgingsoppgaver(
+            callId = callId,
+            token = token,
+            personStatuser = personStatusOversikt,
+        )
+        val arbeidsuforhetvurderinger = getArbeidsuforhetvurderinger(
+            callId = callId,
+            token = token,
+            personStatuser = personStatusOversikt,
+        )
 
-    private suspend fun getArbeidsuforhetvurdering(
+        return personStatusOversikt.map { personStatus ->
+            personStatus.toPersonOversiktStatusDTO(
+                arenaCutoff = arenaCutoff,
+                arbeidsuforhetvurdering = arbeidsuforhetvurderinger.await()
+                    ?.vurderinger
+                    ?.get(personStatus.fnr),
+                oppfolgingsoppgave = activeOppfolgingsoppgaver.await()
+                    ?.oppfolgingsoppgaver
+                    ?.get(personStatus.fnr),
+            )
+        }
+    }
+
+    private suspend fun getArbeidsuforhetvurderinger(
         callId: String,
         token: String,
-        personStatus: PersonOversiktStatus,
-    ): Deferred<ArbeidsuforhetvurderingDTO?> =
+        personStatuser: List<PersonOversiktStatus>,
+    ): Deferred<ArbeidsuforhetvurderingerResponseDTO?> =
         CoroutineScope(Dispatchers.IO).async {
-            if (personStatus.isAktivArbeidsuforhetvurdering) {
-                arbeidsuforhetvurderingClient.getLatestVurdering(
+            val personidenterWithArbeidsuforhetvurdering = personStatuser
+                .filter { it.isAktivArbeidsuforhetvurdering }
+                .map { PersonIdent(it.fnr) }
+            if (personidenterWithArbeidsuforhetvurdering.isNotEmpty()) {
+                arbeidsuforhetvurderingClient.getLatestVurderinger(
                     callId = callId,
                     token = token,
-                    personIdent = PersonIdent(personStatus.fnr)
+                    personidenter = personidenterWithArbeidsuforhetvurdering,
                 )
+            } else {
+                null
+            }
+        }
+
+    private suspend fun getActiveOppfolgingsoppgaver(
+        callId: String,
+        token: String,
+        personStatuser: List<PersonOversiktStatus>,
+    ): Deferred<OppfolgingsoppgaverResponseDTO?> =
+        CoroutineScope(Dispatchers.IO).async {
+            val personidenterWithOppfolgingsoppgave = personStatuser
+                .filter { it.trengerOppfolging }
+                .map { PersonIdent(it.fnr) }
+            if (personidenterWithOppfolgingsoppgave.isNotEmpty()) {
+                val response = oppfolgingsoppgaveClient.getActiveOppfolgingsoppgaver(
+                    callId = callId,
+                    token = token,
+                    personidenter = personidenterWithOppfolgingsoppgave,
+                )
+                if (response == null) {
+                    log.error("Oppfolgingsoppgaver was null for enhet ${personStatuser[0].enhet}")
+                }
+                response
             } else {
                 null
             }
@@ -191,14 +237,6 @@ class PersonoversiktStatusService(
                     connection.updateBehandlerBerOmBistand(isUbehandlet, personident)
                 OversikthendelseType.BEHANDLER_BER_OM_BISTAND_BEHANDLET ->
                     connection.updateBehandlerBerOmBistand(isBehandlet, personident)
-                OversikthendelseType.ARBEIDSUFORHET_VURDER_AVSLAG_MOTTATT -> connection.updateArbeidsuforhetVurderAvslag(
-                    isUbehandlet,
-                    personident
-                )
-                OversikthendelseType.ARBEIDSUFORHET_VURDER_AVSLAG_BEHANDLET -> connection.updateArbeidsuforhetVurderAvslag(
-                    isBehandlet,
-                    personident
-                )
             }
 
             COUNT_KAFKA_CONSUMER_PERSONOPPGAVEHENDELSE_UPDATED_PERSONOVERSIKT_STATUS.increment()

@@ -1,4 +1,4 @@
-package no.nav.syfo.client.ereg
+package no.nav.syfo.personstatus.infrastructure.clients.ereg
 
 import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.Counter.builder
