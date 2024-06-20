@@ -22,5 +22,5 @@ data class VarselDTO(
 )
 
 enum class VurderingType {
-    FORHANDSVARSEL, OPPFYLT, AVSLAG
+    FORHANDSVARSEL, OPPFYLT, AVSLAG, IKKE_AKTUELL
 }
