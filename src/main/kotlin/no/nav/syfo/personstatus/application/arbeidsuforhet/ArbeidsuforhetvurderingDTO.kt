@@ -2,7 +2,14 @@ package no.nav.syfo.personstatus.application.arbeidsuforhet
 
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.*
+
+data class ArbeidsuforhetvurderingerRequestDTO(
+    val personidenter: List<String>
+)
+
+data class ArbeidsuforhetvurderingerResponseDTO(
+    val vurderinger: Map<String, ArbeidsuforhetvurderingDTO>
+)
 
 data class ArbeidsuforhetvurderingDTO(
     val createdAt: LocalDateTime,
