@@ -27,7 +27,6 @@ fun generatePPersonOversiktStatus(fnr: String = UserConstants.ARBEIDSTAKER_FNR) 
     oppfolgingstilfelleBitReferanseInntruffet = null,
     aktivitetskrav = null,
     aktivitetskravStoppunkt = null,
-    aktivitetskravUpdatedAt = null,
     aktivitetskravVurderingFrist = null,
     behandlerdialogSvarUbehandlet = false,
     behandlerdialogUbesvartUbehandlet = false,

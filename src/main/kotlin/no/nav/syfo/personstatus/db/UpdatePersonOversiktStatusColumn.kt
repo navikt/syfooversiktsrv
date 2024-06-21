@@ -103,7 +103,6 @@ const val queryUpdatePersonOversiktStatusAktivitetskrav =
     """
         UPDATE PERSON_OVERSIKT_STATUS
         SET aktivitetskrav = ?,
-        aktivitetskrav_sist_vurdert = ?,
         aktivitetskrav_stoppunkt = ?,
         aktivitetskrav_vurdering_frist = ?,
         sist_endret = ?
@@ -116,11 +115,10 @@ fun Connection.updatePersonOversiktStatusAktivitetskrav(
 ) {
     this.prepareStatement(queryUpdatePersonOversiktStatusAktivitetskrav).use {
         it.setString(1, aktivitetskrav.status.name)
-        it.setObject(2, aktivitetskrav.sistVurdert)
-        it.setObject(3, aktivitetskrav.stoppunkt)
-        it.setObject(4, aktivitetskrav.vurderingFrist)
-        it.setObject(5, Timestamp.from(Instant.now()))
-        it.setString(6, pPersonOversiktStatus.fnr)
+        it.setObject(2, aktivitetskrav.stoppunkt)
+        it.setObject(3, aktivitetskrav.vurderingFrist)
+        it.setObject(4, Timestamp.from(Instant.now()))
+        it.setString(5, pPersonOversiktStatus.fnr)
         it.execute()
     }
 }

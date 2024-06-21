@@ -12,7 +12,6 @@ class AktivitetskravGenerator(
         personIdent: PersonIdent,
         status: AktivitetskravStatus,
         stoppunktAfterCutoff: Boolean,
-        sistVurdert: OffsetDateTime? = null,
         vurderingFrist: LocalDate? = null,
     ): Aktivitetskrav {
         val stoppunkt =
@@ -22,7 +21,6 @@ class AktivitetskravGenerator(
         return Aktivitetskrav(
             personIdent = personIdent,
             status = status,
-            sistVurdert = sistVurdert,
             stoppunkt = stoppunkt,
             vurderingFrist = vurderingFrist,
         )

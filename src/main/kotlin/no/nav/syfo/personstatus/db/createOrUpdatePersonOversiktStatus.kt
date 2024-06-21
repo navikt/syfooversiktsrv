@@ -38,7 +38,6 @@ const val queryCreatePersonOversiktStatus =
         motestatus_generated_at,
         aktivitetskrav,
         aktivitetskrav_stoppunkt,
-        aktivitetskrav_sist_vurdert,
         aktivitetskrav_vurdering_frist,
         behandlerdialog_svar_ubehandlet,
         behandlerdialog_ubesvart_ubehandlet,
@@ -49,7 +48,7 @@ const val queryCreatePersonOversiktStatus =
         arbeidsuforhet_aktiv_vurdering,
         antall_sykedager,
         friskmelding_til_arbeidsformidling_fom
-    ) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     RETURNING id
     """
 
@@ -105,19 +104,18 @@ fun Connection.createPersonOversiktStatus(
         it.setObject(22, personOversiktStatus.motestatusGeneratedAt)
         it.setString(23, personOversiktStatus.aktivitetskrav?.name)
         it.setObject(24, personOversiktStatus.aktivitetskravStoppunkt)
-        it.setObject(25, personOversiktStatus.aktivitetskravSistVurdert)
-        it.setObject(26, personOversiktStatus.aktivitetskravVurderingFrist)
-        it.setBoolean(27, personOversiktStatus.behandlerdialogSvarUbehandlet)
-        it.setBoolean(28, personOversiktStatus.behandlerdialogUbesvartUbehandlet)
-        it.setBoolean(29, personOversiktStatus.behandlerdialogAvvistUbehandlet)
-        it.setBoolean(30, personOversiktStatus.aktivitetskravVurderStansUbehandlet)
-        it.setBoolean(31, personOversiktStatus.trengerOppfolging)
-        it.setBoolean(32, personOversiktStatus.behandlerBerOmBistandUbehandlet)
-        it.setBoolean(33, personOversiktStatus.isAktivArbeidsuforhetvurdering)
+        it.setObject(25, personOversiktStatus.aktivitetskravVurderingFrist)
+        it.setBoolean(26, personOversiktStatus.behandlerdialogSvarUbehandlet)
+        it.setBoolean(27, personOversiktStatus.behandlerdialogUbesvartUbehandlet)
+        it.setBoolean(28, personOversiktStatus.behandlerdialogAvvistUbehandlet)
+        it.setBoolean(29, personOversiktStatus.aktivitetskravVurderStansUbehandlet)
+        it.setBoolean(30, personOversiktStatus.trengerOppfolging)
+        it.setBoolean(31, personOversiktStatus.behandlerBerOmBistandUbehandlet)
+        it.setBoolean(32, personOversiktStatus.isAktivArbeidsuforhetvurdering)
         if (personOversiktStatus.latestOppfolgingstilfelle?.antallSykedager != null) {
-            it.setInt(34, personOversiktStatus.latestOppfolgingstilfelle.antallSykedager)
-        } else it.setNull(34, Types.INTEGER)
-        it.setObject(35, personOversiktStatus.friskmeldingTilArbeidsformidlingFom)
+            it.setInt(33, personOversiktStatus.latestOppfolgingstilfelle.antallSykedager)
+        } else it.setNull(33, Types.INTEGER)
+        it.setObject(34, personOversiktStatus.friskmeldingTilArbeidsformidlingFom)
         it.executeQuery().toList { getInt("id") }.firstOrNull()
     } ?: throw SQLException("Creating PersonOversikStatus failed, no rows affected.")
 
