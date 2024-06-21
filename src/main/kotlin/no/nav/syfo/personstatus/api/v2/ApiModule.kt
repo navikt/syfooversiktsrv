@@ -67,7 +67,7 @@ fun Application.apiModule(
                 personoversiktStatusService = personoversiktStatusService,
                 arenaCutoff = environment.arenaCutoff
             )
-            registerPersonTildelingApiV2(tilgangskontrollConsumer, personTildelingService)
+            registerPersonTildelingApiV2(tilgangskontrollConsumer, personTildelingService, personoversiktStatusService)
         }
     }
 }

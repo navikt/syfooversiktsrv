@@ -16,7 +16,7 @@ class VeilederTilgangskontrollMock {
     private val port = getRandomPort()
     val url = "http://localhost:$port"
 
-    val responseAccessEnhet = Tilgang(erGodkjent = true)
+    val responseAccess = Tilgang(erGodkjent = true)
     val responseAccessPersons = listOf(
         UserConstants.ARBEIDSTAKER_FNR,
         UserConstants.ARBEIDSTAKER_2_FNR,
@@ -31,10 +31,13 @@ class VeilederTilgangskontrollMock {
         installContentNegotiation()
         routing {
             get("/api/tilgang/navident/enhet/${UserConstants.NAV_ENHET}") {
-                call.respond(responseAccessEnhet)
+                call.respond(responseAccess)
             }
             post("/api/tilgang/navident/brukere") {
                 call.respond(responseAccessPersons)
+            }
+            get("/api/tilgang/navident/person") {
+                call.respond(responseAccess)
             }
             post("/api/tilgang/system/preloadbrukere") {
                 val identer = call.receive<List<String>>()

@@ -51,6 +51,9 @@ class PersonoversiktStatusService(
         }
     }
 
+    fun getPersonstatus(personident: PersonIdent): PersonOversiktStatus? =
+        personoversiktStatusRepository.getPersonOversiktStatus(personident)
+
     suspend fun getAktiveVurderinger(
         callId: String,
         token: String,

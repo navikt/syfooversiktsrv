@@ -44,8 +44,7 @@ spec:
     inbound:
       rules:
         - application: syfooversikt
-          namespace: teamsykefravr
-          cluster: dev-gcp
+        - application: syfomodiaperson
     outbound:
       external:
         - host: "ereg-services-q1.dev-fss-pub.nais.io"
