@@ -249,7 +249,7 @@ fun Connection.updateAktivitetskravVurderStans(
 const val queryUpdatePersonOversiktStatusTrengerOppfolging =
     """
         UPDATE PERSON_OVERSIKT_STATUS
-        SET trenger_oppfolging = ?, trenger_oppfolging_frist = ?, sist_endret = ?
+        SET trenger_oppfolging = ?, sist_endret = ?
         WHERE fnr = ?
     """
 
@@ -258,9 +258,8 @@ fun Connection.updateTrengerOppfolging(
 ) {
     this.prepareStatement(queryUpdatePersonOversiktStatusTrengerOppfolging).use {
         it.setBoolean(1, trengerOppfolging.isActive)
-        it.setObject(2, trengerOppfolging.frist)
-        it.setObject(3, Timestamp.from(Instant.now()))
-        it.setString(4, trengerOppfolging.personIdent.value)
+        it.setObject(2, Timestamp.from(Instant.now()))
+        it.setString(3, trengerOppfolging.personIdent.value)
         it.execute()
     }
 }

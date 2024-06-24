@@ -24,6 +24,5 @@ data class TrengerOppfolging private constructor(
         fnr = personIdent.value,
     ).copy(
         trengerOppfolging = isActive,
-        trengerOppfolgingFrist = frist,
     )
 }

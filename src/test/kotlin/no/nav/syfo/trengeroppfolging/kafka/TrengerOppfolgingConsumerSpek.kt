@@ -67,7 +67,6 @@ class TrengerOppfolgingConsumerSpek : Spek({
                     val pPersonOversiktStatus = pPersonOversiktStatusList.first()
                     pPersonOversiktStatus.fnr shouldBeEqualTo activeHuskelappWithFrist.personIdent
                     pPersonOversiktStatus.trengerOppfolging.shouldBeTrue()
-                    pPersonOversiktStatus.trengerOppfolgingFrist shouldBeEqualTo frist
                 }
                 it("creates new PersonOversiktStatus for personident from kafka record with active huskelapp no frist") {
                     val activeHuskelappNoFrist = generateKafkaHuskelapp(isActive = true, frist = null)
@@ -90,7 +89,6 @@ class TrengerOppfolgingConsumerSpek : Spek({
                     val pPersonOversiktStatus = pPersonOversiktStatusList.first()
                     pPersonOversiktStatus.fnr shouldBeEqualTo activeHuskelappNoFrist.personIdent
                     pPersonOversiktStatus.trengerOppfolging.shouldBeTrue()
-                    pPersonOversiktStatus.trengerOppfolgingFrist.shouldBeNull()
                 }
                 it("updates PersonOversiktStatus tildeltEnhet for personident from kafka record with active huskelapp") {
                     val activeHuskelappNoFrist = generateKafkaHuskelapp(isActive = true, frist = null)
@@ -158,7 +156,7 @@ class TrengerOppfolgingConsumerSpek : Spek({
                 }
             }
             describe("existing PersonOversikStatus for personident") {
-                it("updates trenger_oppfolging and trenger_oppfolging_frist from kafka record with active huskelapp and frist") {
+                it("updates trenger_oppfolging from kafka record with active huskelapp and frist") {
                     val activeHuskelappWithFrist = generateKafkaHuskelapp(isActive = true, frist = frist)
                     val personident = UserConstants.ARBEIDSTAKER_FNR
                     database.createPersonOversiktStatus(
@@ -182,9 +180,8 @@ class TrengerOppfolgingConsumerSpek : Spek({
                     val pPersonOversiktStatus = pPersonOversiktStatusList.first()
                     pPersonOversiktStatus.fnr shouldBeEqualTo activeHuskelappWithFrist.personIdent
                     pPersonOversiktStatus.trengerOppfolging.shouldBeTrue()
-                    pPersonOversiktStatus.trengerOppfolgingFrist shouldBeEqualTo frist
                 }
-                it("updates to trenger_oppfolging false and trenger_oppfolging_frist null from kafka record with inactive huskelapp and frist") {
+                it("updates to trenger_oppfolging false from kafka record with inactive huskelapp and frist") {
                     val inactiveHuskelappWithFrist = generateKafkaHuskelapp(isActive = false, frist = frist)
                     val personident = UserConstants.ARBEIDSTAKER_FNR
                     database.createPersonOversiktStatus(
@@ -212,9 +209,8 @@ class TrengerOppfolgingConsumerSpek : Spek({
                     val pPersonOversiktStatus = pPersonOversiktStatusList.first()
                     pPersonOversiktStatus.fnr shouldBeEqualTo inactiveHuskelappWithFrist.personIdent
                     pPersonOversiktStatus.trengerOppfolging.shouldBeFalse()
-                    pPersonOversiktStatus.trengerOppfolgingFrist.shouldBeNull()
                 }
-                it("updates to trenger_oppfolging false and trenger_oppfolging_frist null from kafka record with inactive huskelapp and no frist") {
+                it("updates to trenger_oppfolging false from kafka record with inactive huskelapp and no frist") {
                     val inactiveHuskelappNoFrist = generateKafkaHuskelapp(isActive = false, frist = null)
                     val personident = UserConstants.ARBEIDSTAKER_FNR
                     database.createPersonOversiktStatus(
@@ -242,7 +238,6 @@ class TrengerOppfolgingConsumerSpek : Spek({
                     val pPersonOversiktStatus = pPersonOversiktStatusList.first()
                     pPersonOversiktStatus.fnr shouldBeEqualTo inactiveHuskelappNoFrist.personIdent
                     pPersonOversiktStatus.trengerOppfolging.shouldBeFalse()
-                    pPersonOversiktStatus.trengerOppfolgingFrist.shouldBeNull()
                 }
             }
         }
