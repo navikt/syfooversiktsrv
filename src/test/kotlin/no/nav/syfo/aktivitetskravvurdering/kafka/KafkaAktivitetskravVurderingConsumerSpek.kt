@@ -7,8 +7,6 @@ import no.nav.syfo.oppfolgingstilfelle.kafka.toPersonOversiktStatus
 import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.generator.*
-import no.nav.syfo.util.millisekundOpplosning
-import no.nav.syfo.util.toLocalDateTimeOslo
 import org.amshove.kluent.*
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.consumer.KafkaConsumer
@@ -74,7 +72,6 @@ class KafkaAktivitetskravVurderingConsumerSpek : Spek({
                 pPersonOversiktStatus.fnr shouldBeEqualTo kafkaAktivitetskravVurderingNy.personIdent
                 pPersonOversiktStatus.aktivitetskrav shouldBeEqualTo kafkaAktivitetskravVurderingNy.status
                 pPersonOversiktStatus.aktivitetskravStoppunkt shouldBeEqualTo kafkaAktivitetskravVurderingNy.stoppunktAt
-                pPersonOversiktStatus.aktivitetskravUpdatedAt.shouldBeNull()
                 pPersonOversiktStatus.aktivitetskravVurderingFrist.shouldBeNull()
 
                 pPersonOversiktStatus.enhet.shouldBeNull()
@@ -119,9 +116,6 @@ class KafkaAktivitetskravVurderingConsumerSpek : Spek({
 
                 pPersonOversiktStatus.aktivitetskrav shouldBeEqualTo kafkaAktivitetskravVurderingAvventer.status
                 pPersonOversiktStatus.aktivitetskravStoppunkt shouldBeEqualTo kafkaAktivitetskravVurderingAvventer.stoppunktAt
-                pPersonOversiktStatus.aktivitetskravUpdatedAt?.millisekundOpplosning()
-                    ?.toLocalDateTimeOslo() shouldBeEqualTo kafkaAktivitetskravVurderingAvventer.sistVurdert?.millisekundOpplosning()
-                    ?.toLocalDateTimeOslo()
                 pPersonOversiktStatus.aktivitetskravVurderingFrist shouldBeEqualTo kafkaAktivitetskravVurderingAvventer.frist
             }
         }

@@ -18,8 +18,6 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import java.time.LocalDate
-import java.time.OffsetDateTime
-import java.time.temporal.ChronoUnit
 
 @InternalAPI
 object AktivitetskravPersonoversiktStatusApiV2Spek : Spek({
@@ -71,21 +69,17 @@ object AktivitetskravPersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.fnr shouldBeEqualTo personIdent.value
                         personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
                         personOversiktStatus.aktivitetskrav shouldBeEqualTo AktivitetskravStatus.NY.name
-                        personOversiktStatus.aktivitetskravSistVurdert shouldBeEqualTo null
-                        personOversiktStatus.aktivitetskravStoppunkt shouldBeEqualTo aktivitetskrav.stoppunkt
                         personOversiktStatus.aktivitetskravActive shouldBeEqualTo true
                     }
                 }
 
                 it("returns person with aktivitetskrav status AVVENT and stoppunkt after cutoff") {
                     val personIdent = PersonIdent(UserConstants.ARBEIDSTAKER_FNR)
-                    val sistVurdert = OffsetDateTime.now().truncatedTo(ChronoUnit.MILLIS)
                     val frist = LocalDate.now().plusWeeks(1)
                     val aktivitetskrav = aktivitetskravGenerator.generateAktivitetskrav(
                         personIdent = personIdent,
                         status = AktivitetskravStatus.AVVENT,
                         stoppunktAfterCutoff = true,
-                        sistVurdert = sistVurdert,
                         vurderingFrist = frist,
                     )
                     persistAktivitetskravAndTildelEnhet(
@@ -106,8 +100,6 @@ object AktivitetskravPersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.fnr shouldBeEqualTo personIdent.value
                         personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
                         personOversiktStatus.aktivitetskrav shouldBeEqualTo AktivitetskravStatus.AVVENT.name
-                        personOversiktStatus.aktivitetskravSistVurdert shouldBeEqualTo sistVurdert.toLocalDateTimeOslo()
-                        personOversiktStatus.aktivitetskravStoppunkt shouldBeEqualTo aktivitetskrav.stoppunkt
                         personOversiktStatus.aktivitetskravActive shouldBeEqualTo true
                         personOversiktStatus.aktivitetskravVurderingFrist shouldBeEqualTo frist
                     }

@@ -9,7 +9,6 @@ import no.nav.syfo.personstatus.application.arbeidsuforhet.Arbeidsuforhetvurderi
 import no.nav.syfo.personstatus.application.oppfolgingsoppgave.OppfolgingsoppgaveDTO
 import no.nav.syfo.util.isBeforeOrEqual
 import no.nav.syfo.util.toLocalDateOslo
-import no.nav.syfo.util.toLocalDateTimeOslo
 import java.time.LocalDate
 import java.time.OffsetDateTime
 
@@ -28,7 +27,6 @@ data class PersonOversiktStatus(
     val latestOppfolgingstilfelle: Oppfolgingstilfelle? = null,
     val aktivitetskrav: AktivitetskravStatus? = null,
     val aktivitetskravStoppunkt: LocalDate? = null,
-    val aktivitetskravSistVurdert: OffsetDateTime? = null,
     val aktivitetskravVurderingFrist: LocalDate? = null,
     val behandlerdialogSvarUbehandlet: Boolean = false,
     val behandlerdialogUbesvartUbehandlet: Boolean = false,
@@ -107,8 +105,6 @@ fun PersonOversiktStatus.toPersonOversiktStatusDTO(
         motestatus = motestatus,
         latestOppfolgingstilfelle = latestOppfolgingstilfelle?.toPersonOppfolgingstilfelleDTO(),
         aktivitetskrav = aktivitetskrav?.name,
-        aktivitetskravStoppunkt = aktivitetskravStoppunkt,
-        aktivitetskravSistVurdert = aktivitetskravSistVurdert?.toLocalDateTimeOslo(),
         aktivitetskravActive = isActiveAktivitetskrav(arenaCutoff = arenaCutoff),
         aktivitetskravVurderingFrist = aktivitetskravVurderingFrist,
         behandlerdialogUbehandlet = hasActiveBehandlerdialogOppgave(),
