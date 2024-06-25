@@ -5,28 +5,25 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 group = "no.nav.syfo"
 version = "1.0-SNAPSHOT"
 
-object Versions {
-    const val confluent = "7.5.1"
-    const val flyway = "9.22.3"
-    const val hikari = "5.1.0"
-    const val isdialogmoteSchema = "1.0.5"
-    const val jacksonDataType = "2.15.3"
-    const val jedis = "5.0.1"
-    const val json = "20231013"
-    const val kafka = "3.7.0"
-    const val kafkaEmbedded = "3.2.8"
-    const val kluent = "1.73"
-    const val ktor = "2.3.8"
-    const val logback = "1.4.14"
-    const val logstashEncoder = "7.4"
-    const val mockk = "1.13.8"
-    const val micrometerRegistry = "1.12.2"
-    const val nimbusjosejwt = "9.37.2"
-    val postgresEmbedded = if (Os.isFamily(Os.FAMILY_MAC)) "1.0.0" else "0.13.4"
-    const val postgres = "42.7.2"
-    const val redisEmbedded = "0.7.3"
-    const val spek = "2.0.19"
-}
+val confluent = "7.5.1"
+val flyway = "9.22.3"
+val hikari = "5.1.0"
+val isdialogmoteSchema = "1.0.5"
+val jacksonDataType = "2.15.3"
+val jedis = "5.0.1"
+val json = "20231013"
+val kafka = "3.7.0"
+val kluent = "1.73"
+val ktor = "2.3.8"
+val logback = "1.4.14"
+val logstashEncoder = "7.4"
+val mockk = "1.13.8"
+val micrometerRegistry = "1.12.2"
+val nimbusjosejwt = "9.37.2"
+val postgresEmbedded = if (Os.isFamily(Os.FAMILY_MAC)) "1.0.0" else "0.13.4"
+val postgres = "42.7.2"
+val redisEmbedded = "0.7.3"
+val spek = "2.0.19"
 
 plugins {
     kotlin("jvm") version "1.9.22"
@@ -54,53 +51,53 @@ dependencies {
     implementation(kotlin("stdlib"))
     implementation(kotlin("reflect"))
 
-    implementation("io.ktor:ktor-server-auth-jwt:${Versions.ktor}")
-    implementation("io.ktor:ktor-client-apache:${Versions.ktor}")
-    implementation("io.ktor:ktor-client-cio:${Versions.ktor}")
-    implementation("io.ktor:ktor-client-content-negotiation:${Versions.ktor}")
-    implementation("io.ktor:ktor-serialization-jackson:${Versions.ktor}")
-    implementation("io.ktor:ktor-server-call-id:${Versions.ktor}")
-    implementation("io.ktor:ktor-server-content-negotiation:${Versions.ktor}")
-    implementation("io.ktor:ktor-server-netty:${Versions.ktor}")
-    implementation("io.ktor:ktor-server-status-pages:${Versions.ktor}")
+    implementation("io.ktor:ktor-server-auth-jwt:$ktor")
+    implementation("io.ktor:ktor-client-apache:$ktor")
+    implementation("io.ktor:ktor-client-cio:$ktor")
+    implementation("io.ktor:ktor-client-content-negotiation:$ktor")
+    implementation("io.ktor:ktor-serialization-jackson:$ktor")
+    implementation("io.ktor:ktor-server-call-id:$ktor")
+    implementation("io.ktor:ktor-server-content-negotiation:$ktor")
+    implementation("io.ktor:ktor-server-netty:$ktor")
+    implementation("io.ktor:ktor-server-status-pages:$ktor")
 
     // Logging
-    implementation("ch.qos.logback:logback-classic:${Versions.logback}")
-    implementation("net.logstash.logback:logstash-logback-encoder:${Versions.logstashEncoder}")
-    implementation("org.json:json:${Versions.json}")
+    implementation("ch.qos.logback:logback-classic:$logback")
+    implementation("net.logstash.logback:logstash-logback-encoder:$logstashEncoder")
+    implementation("org.json:json:$json")
 
     // Metrics and Prometheus
-    implementation("io.ktor:ktor-server-metrics-micrometer:${Versions.ktor}")
-    implementation("io.micrometer:micrometer-registry-prometheus:${Versions.micrometerRegistry}")
+    implementation("io.ktor:ktor-server-metrics-micrometer:$ktor")
+    implementation("io.micrometer:micrometer-registry-prometheus:$micrometerRegistry")
 
     // Cache
-    implementation("redis.clients:jedis:${Versions.jedis}")
-    testImplementation("it.ozimov:embedded-redis:${Versions.redisEmbedded}")
+    implementation("redis.clients:jedis:$jedis")
+    testImplementation("it.ozimov:embedded-redis:$redisEmbedded")
 
     // (De-)serialization
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${Versions.jacksonDataType}")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonDataType")
 
     // Database
-    implementation("org.postgresql:postgresql:${Versions.postgres}")
-    implementation("com.zaxxer:HikariCP:${Versions.hikari}")
-    implementation("org.flywaydb:flyway-core:${Versions.flyway}")
-    testImplementation("com.opentable.components:otj-pg-embedded:${Versions.postgresEmbedded}")
+    implementation("org.postgresql:postgresql:$postgres")
+    implementation("com.zaxxer:HikariCP:$hikari")
+    implementation("org.flywaydb:flyway-core:$flyway")
+    testImplementation("com.opentable.components:otj-pg-embedded:$postgresEmbedded")
 
     // Kafka
     val excludeLog4j = fun ExternalModuleDependency.() {
         exclude(group = "log4j")
     }
-    implementation("org.apache.kafka:kafka_2.13:${Versions.kafka}", excludeLog4j)
-    implementation("io.confluent:kafka-avro-serializer:${Versions.confluent}", excludeLog4j)
+    implementation("org.apache.kafka:kafka_2.13:$kafka", excludeLog4j)
+    implementation("io.confluent:kafka-avro-serializer:$confluent", excludeLog4j)
     constraints {
         implementation("org.apache.zookeeper:zookeeper") {
-            because("io.confluent:kafka-schema-registry:${Versions.confluent} -> https://www.cve.org/CVERecord?id=CVE-2023-44981")
+            because("io.confluent:kafka-schema-registry:$confluent -> https://www.cve.org/CVERecord?id=CVE-2023-44981")
             version {
                 require("3.9.1")
             }
         }
         implementation("org.apache.avro:avro") {
-            because("io.confluent:kafka-schema-registry:${Versions.confluent} -> https://www.cve.org/CVERecord?id=CVE-2023-39410")
+            because("io.confluent:kafka-schema-registry:$confluent -> https://www.cve.org/CVERecord?id=CVE-2023-39410")
             version {
                 require("1.11.3")
             }
@@ -112,25 +109,16 @@ dependencies {
             }
         }
     }
-    implementation("no.nav.syfo.dialogmote.avro:isdialogmote-schema:${Versions.isdialogmoteSchema}")
-    testImplementation("no.nav:kafka-embedded-env:${Versions.kafkaEmbedded}", excludeLog4j)
-    constraints {
-        implementation("org.eclipse.jetty.http2:http2-server") {
-            because("no.nav:kafka-embedded-env:${Versions.kafkaEmbedded} -> https://advisory.checkmarx.net/advisory/vulnerability/CVE-2022-2048/")
-            version {
-                require("9.4.54.v20240208")
-            }
-        }
-    }
+    implementation("no.nav.syfo.dialogmote.avro:isdialogmote-schema:$isdialogmoteSchema")
 
-    testImplementation("com.nimbusds:nimbus-jose-jwt:${Versions.nimbusjosejwt}")
-    testImplementation("io.ktor:ktor-server-test-host:${Versions.ktor}")
-    testImplementation("io.mockk:mockk:${Versions.mockk}")
-    testImplementation("org.amshove.kluent:kluent:${Versions.kluent}")
-    testImplementation("org.spekframework.spek2:spek-dsl-jvm:${Versions.spek}") {
+    testImplementation("com.nimbusds:nimbus-jose-jwt:$nimbusjosejwt")
+    testImplementation("io.ktor:ktor-server-test-host:$ktor")
+    testImplementation("io.mockk:mockk:$mockk")
+    testImplementation("org.amshove.kluent:kluent:$kluent")
+    testImplementation("org.spekframework.spek2:spek-dsl-jvm:$spek") {
         exclude(group = "org.jetbrains.kotlin")
     }
-    testRuntimeOnly("org.spekframework.spek2:spek-runner-junit5:${Versions.spek}") {
+    testRuntimeOnly("org.spekframework.spek2:spek-runner-junit5:$spek") {
         exclude(group = "org.jetbrains.kotlin")
     }
 }
