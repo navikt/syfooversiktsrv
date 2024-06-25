@@ -9,7 +9,6 @@ import no.nav.syfo.testutil.mock.*
 class ExternalMockEnvironment private constructor() {
     val applicationState: ApplicationState = testAppState()
     val database = TestDatabase()
-    val embeddedEnvironment = testKafka()
 
     private val azureAdMock = AzureAdMock()
     private val eregMock = EregMock()
@@ -36,7 +35,6 @@ class ExternalMockEnvironment private constructor() {
         syfobehandlendeenhetUrl = syfobehandlendeenhetMock.url,
         arbeidsuforhetvurderingUrl = arbeidsuforhetvurderingMock.url,
         istilgangskontrollUrl = tilgangskontrollMock.url,
-        kafkaBootstrapServers = embeddedEnvironment.brokersURL,
         ishuskelappUrl = oppfolgingsoppgaveMock.url,
     )
     val redisServer = testRedis(
@@ -63,7 +61,6 @@ class ExternalMockEnvironment private constructor() {
 }
 
 private fun ExternalMockEnvironment.startExternalMocks() {
-    this.embeddedEnvironment.start()
     this.externalApplicationMockMap.forEach { (_, externalMock) -> externalMock.start() }
     this.redisServer.start()
 }

@@ -14,7 +14,6 @@ object Versions {
     const val jedis = "5.0.1"
     const val json = "20231013"
     const val kafka = "3.7.0"
-    const val kafkaEmbedded = "3.2.8"
     const val kluent = "1.73"
     const val ktor = "2.3.8"
     const val logback = "1.4.14"
@@ -113,15 +112,6 @@ dependencies {
         }
     }
     implementation("no.nav.syfo.dialogmote.avro:isdialogmote-schema:${Versions.isdialogmoteSchema}")
-    testImplementation("no.nav:kafka-embedded-env:${Versions.kafkaEmbedded}", excludeLog4j)
-    constraints {
-        implementation("org.eclipse.jetty.http2:http2-server") {
-            because("no.nav:kafka-embedded-env:${Versions.kafkaEmbedded} -> https://advisory.checkmarx.net/advisory/vulnerability/CVE-2022-2048/")
-            version {
-                require("9.4.54.v20240208")
-            }
-        }
-    }
 
     testImplementation("com.nimbusds:nimbus-jose-jwt:${Versions.nimbusjosejwt}")
     testImplementation("io.ktor:ktor-server-test-host:${Versions.ktor}")
