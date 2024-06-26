@@ -34,20 +34,19 @@ class PersonoversiktStatusService(
 
     fun hentPersonoversiktStatusTilknyttetEnhet(
         enhet: String,
-        arenaCutoff: LocalDate
+        arenaCutoff: LocalDate,
     ): List<PersonOversiktStatus> {
-        val personListe = database.hentUbehandledePersonerTilknyttetEnhet(
-            enhet = enhet,
+        val pPersonOversiktStatuser = database.hentUbehandledePersonerTilknyttetEnhet(enhet)
+        val personOppfolgingstilfelleVirksomhetMap = getPersonOppfolgingstilfelleVirksomhetMap(
+            pPersonOversikStatusIds = pPersonOversiktStatuser.map { it.id }
         )
-        return personListe.map { pPersonOversikStatus ->
-            val personOppfolgingstilfelleVirksomhetList = getPersonOppfolgingstilfelleVirksomhetList(
-                pPersonOversikStatusId = pPersonOversikStatus.id,
-            )
-            pPersonOversikStatus.toPersonOversiktStatus(
-                personOppfolgingstilfelleVirksomhetList = personOppfolgingstilfelleVirksomhetList,
-            )
+
+        return pPersonOversiktStatuser.map {
+            val personOppfolgingstilfelleVirksomhetList = personOppfolgingstilfelleVirksomhetMap[it.id]
+                ?: emptyList()
+            it.toPersonOversiktStatus(personOppfolgingstilfelleVirksomhetList)
         }.filter { personOversiktStatus ->
-            personOversiktStatus.hasActiveOppgave(arenaCutoff = arenaCutoff)
+            personOversiktStatus.hasActiveOppgave(arenaCutoff = arenaCutoff) // TODO: Trenger vi denne når db-spørringen henter ut bare aktive personer?
         }
     }
 
@@ -128,13 +127,13 @@ class PersonoversiktStatusService(
             }
         }
 
-    private fun getPersonOppfolgingstilfelleVirksomhetList(
-        pPersonOversikStatusId: Int,
-    ): List<PersonOppfolgingstilfelleVirksomhet> =
+    private fun getPersonOppfolgingstilfelleVirksomhetMap(
+        pPersonOversikStatusIds: List<Int>,
+    ): Map<Int, List<PersonOppfolgingstilfelleVirksomhet>> =
         database.connection.use { connection ->
-            connection.getPersonOppfolgingstilfelleVirksomhetList(
-                pPersonOversikStatusId = pPersonOversikStatusId,
-            ).toPersonOppfolgingstilfelleVirksomhet()
+            connection.getPersonOppfolgingstilfelleVirksomhetMap(
+                pPersonOversikStatusIds = pPersonOversikStatusIds,
+            ).mapValues { it.value.toPersonOppfolgingstilfelleVirksomhet() }
         }
 
     suspend fun getPersonOversiktStatusListWithName(

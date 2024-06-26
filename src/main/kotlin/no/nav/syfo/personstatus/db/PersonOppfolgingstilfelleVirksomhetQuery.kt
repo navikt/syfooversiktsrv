@@ -118,11 +118,29 @@ fun Connection.getPersonOppfolgingstilfelleVirksomhetList(
     }
 }
 
+const val queryHentOppfolgingstilfelleForIds =
+    """
+    SELECT *
+    FROM PERSON_OPPFOLGINGSTILFELLE_VIRKSOMHET
+    WHERE person_oversikt_status_id = ANY(?)
+    """
+
+fun Connection.getPersonOppfolgingstilfelleVirksomhetMap(
+    pPersonOversikStatusIds: List<Int>,
+): Map<Int, List<PPersonOppfolgingstilfelleVirksomhet>> {
+    return this.prepareStatement(queryHentOppfolgingstilfelleForIds).use { preparedStatement ->
+        preparedStatement.setArray(1, createArrayOf("INTEGER", pPersonOversikStatusIds.toTypedArray()))
+        preparedStatement.executeQuery().toList { toPPersonOppfolgingstilfelleVirksomhet() }
+            .groupBy { it.personOversiktStatusId }
+    }
+}
+
 fun ResultSet.toPPersonOppfolgingstilfelleVirksomhet(): PPersonOppfolgingstilfelleVirksomhet =
     PPersonOppfolgingstilfelleVirksomhet(
         id = getInt("id"),
         uuid = UUID.fromString(getString("uuid")),
         createdAt = getObject("created_at", OffsetDateTime::class.java),
         virksomhetsnummer = Virksomhetsnummer(getString("virksomhetsnummer")),
-        virksomhetsnavn = getString("virksomhetsnavn")
+        virksomhetsnavn = getString("virksomhetsnavn"),
+        personOversiktStatusId = getInt("person_oversikt_status_id")
     )

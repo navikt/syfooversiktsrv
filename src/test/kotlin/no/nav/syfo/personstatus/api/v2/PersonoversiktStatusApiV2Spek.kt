@@ -11,6 +11,7 @@ import kotlinx.coroutines.runBlocking
 import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendringType
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.domain.Virksomhetsnummer
+import no.nav.syfo.oppfolgingstilfelle.domain.PersonOppfolgingstilfelleVirksomhet
 import no.nav.syfo.personoppgavehendelse.kafka.KPersonoppgavehendelse
 import no.nav.syfo.personstatus.api.v2.endpoints.personOversiktApiV2Path
 import no.nav.syfo.personstatus.api.v2.model.PersonOversiktStatusDTO
@@ -34,6 +35,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import java.time.*
+import java.util.*
 
 @InternalAPI
 object PersonoversiktStatusApiV2Spek : Spek({
@@ -875,6 +877,55 @@ object PersonoversiktStatusApiV2Spek : Spek({
                             objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
                         personOversiktStatus.fnr shouldBeEqualTo ARBEIDSTAKER_FNR
                         personOversiktStatus.latestOppfolgingstilfelle?.varighetUker shouldBeEqualTo 2
+                    }
+                }
+
+                it("return person with correct virksomhetslist") {
+                    val virksomhetList = listOf(
+                        PersonOppfolgingstilfelleVirksomhet(
+                            uuid = UUID.randomUUID(),
+                            createdAt = OffsetDateTime.now(),
+                            virksomhetsnummer = Virksomhetsnummer("123456789"),
+                            virksomhetsnavn = "Virksomhet AS",
+                        ),
+                        PersonOppfolgingstilfelleVirksomhet(
+                            uuid = UUID.randomUUID(),
+                            createdAt = OffsetDateTime.now(),
+                            virksomhetsnummer = Virksomhetsnummer("123456000"),
+                            virksomhetsnavn = null,
+                        )
+                    )
+                    val oppfolgingstilfelle = generateOppfolgingstilfelle(
+                        start = LocalDate.now().minusDays(30),
+                        end = LocalDate.now().minusDays(1),
+                        antallSykedager = 14,
+                        virksomhetList = virksomhetList,
+                    )
+                    val personoversiktStatus = PersonOversiktStatus(
+                        fnr = ARBEIDSTAKER_FNR
+                    ).copy(
+                        latestOppfolgingstilfelle = oppfolgingstilfelle,
+                        motebehovUbehandlet = true,
+                    )
+
+                    database.createPersonOversiktStatus(personoversiktStatus)
+                    database.setTildeltEnhet(
+                        ident = PersonIdent(ARBEIDSTAKER_FNR),
+                        enhet = NAV_ENHET,
+                    )
+
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        }
+                    ) {
+                        response.status() shouldBeEqualTo HttpStatusCode.OK
+
+                        val personOversiktStatus =
+                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
+                        personOversiktStatus.fnr shouldBeEqualTo ARBEIDSTAKER_FNR
+                        personOversiktStatus.latestOppfolgingstilfelle?.virksomhetList?.get(0)?.virksomhetsnavn shouldBeEqualTo "Virksomhet AS"
+                        personOversiktStatus.latestOppfolgingstilfelle?.virksomhetList?.get(1)?.virksomhetsnavn shouldBeEqualTo null
                     }
                 }
 
