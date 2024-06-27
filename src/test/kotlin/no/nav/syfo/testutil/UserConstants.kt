@@ -18,6 +18,7 @@ object UserConstants {
     const val NAV_ENHET = "0330"
     const val NAV_ENHET_2 = "0331"
     const val VEILEDER_ID = "Z999999"
+    const val VEILEDER_IDENT_NO_AZURE_AD_TOKEN = "Z00000_no_azure_ad_token"
     const val VIRKSOMHETSNUMMER = "123456789"
     const val VIRKSOMHETSNUMMER_2 = "123456781"
 
