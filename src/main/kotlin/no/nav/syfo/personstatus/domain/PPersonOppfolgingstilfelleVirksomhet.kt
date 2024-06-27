@@ -11,6 +11,7 @@ data class PPersonOppfolgingstilfelleVirksomhet(
     val createdAt: OffsetDateTime,
     val virksomhetsnummer: Virksomhetsnummer,
     val virksomhetsnavn: String?,
+    val personOversiktStatusId: Int,
 )
 
 fun List<PPersonOppfolgingstilfelleVirksomhet>.toPersonOppfolgingstilfelleVirksomhet() =
