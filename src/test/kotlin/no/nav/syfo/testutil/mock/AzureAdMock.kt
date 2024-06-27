@@ -1,13 +1,17 @@
 package no.nav.syfo.testutil.mock
 
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.syfo.personstatus.api.v2.auth.WellKnown
+import no.nav.syfo.personstatus.api.v2.auth.getNAVIdentFromToken
 import no.nav.syfo.personstatus.api.v2.auth.installContentNegotiation
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdTokenResponse
+import no.nav.syfo.testutil.UserConstants.VEILEDER_IDENT_NO_AZURE_AD_TOKEN
 import no.nav.syfo.testutil.getRandomPort
 import java.nio.file.Paths
 
@@ -40,7 +44,13 @@ class AzureAdMock {
         installContentNegotiation()
         routing {
             post {
-                call.respond(azureAdTokenResponse)
+                val parameters = call.receive<Parameters>()
+                val token = parameters["assertion"]?.takeIf { it.isNotEmpty() }
+                val veilederIdent = token?.let { getNAVIdentFromToken(it) }
+                when (veilederIdent) {
+                    VEILEDER_IDENT_NO_AZURE_AD_TOKEN -> call.respond(HttpStatusCode.NotFound)
+                    else -> call.respond(azureAdTokenResponse)
+                }
             }
         }
     }
