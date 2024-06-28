@@ -184,6 +184,13 @@ class PersonoversiktStatusService(
         )
     }
 
+    fun upsertSenOppfolgingKandidat(personident: PersonIdent, isAktivKandidat: Boolean): Result<Int> {
+        return personoversiktStatusRepository.upsertSenOppfolgingKandidat(
+            personident = personident,
+            isAktivKandidat = isAktivKandidat,
+        )
+    }
+
     private fun createOrUpdatePersonOversiktStatus(
         connection: Connection,
         personident: PersonIdent,
