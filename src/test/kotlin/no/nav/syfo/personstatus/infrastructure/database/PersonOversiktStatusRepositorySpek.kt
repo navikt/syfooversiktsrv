@@ -1,4 +1,4 @@
-package no.nav.syfo.personstatus.infrastructure
+package no.nav.syfo.personstatus.infrastructure.database
 
 import io.ktor.server.testing.*
 import no.nav.syfo.domain.PersonIdent
@@ -9,10 +9,7 @@ import no.nav.syfo.personstatus.infrastructure.database.repository.PersonOversik
 import no.nav.syfo.testutil.ExternalMockEnvironment
 import no.nav.syfo.testutil.UserConstants
 import no.nav.syfo.testutil.dropData
-import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldNotBe
-import org.amshove.kluent.shouldNotBeEmpty
+import org.amshove.kluent.*
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 
@@ -78,6 +75,60 @@ class PersonOversiktStatusRepositorySpek : Spek({
 
                     val personOversiktStatus = database.getPersonOversiktStatusList(fnr = UserConstants.ARBEIDSTAKER_FNR)
                     personOversiktStatus.shouldNotBeEmpty()
+                    result.isSuccess shouldBe true
+                }
+            }
+
+            describe("upsertSenOppfolgingKandidatStatus") {
+                it("Successfully updates mer oppfolging kandidat status to active") {
+                    val newPersonOversiktStatus = PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR)
+                    database.connection.use { connection ->
+                        connection.createPersonOversiktStatus(
+                            commit = true,
+                            personOversiktStatus = newPersonOversiktStatus,
+                        )
+                    }
+
+                    val result = personOversiktStatusRepository.upsertSenOppfolgingKandidat(
+                        personident = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),
+                        isAktivKandidat = true,
+                    )
+
+                    result.isSuccess shouldBe true
+                    val pPersonOversiktStatus = database.getPersonOversiktStatusList(fnr = UserConstants.ARBEIDSTAKER_FNR).first()
+                    pPersonOversiktStatus.isAktivSenOppfolgingKandidat shouldNotBeEqualTo newPersonOversiktStatus.isAktivSenOppfolgingKandidat
+                    pPersonOversiktStatus.isAktivSenOppfolgingKandidat shouldBe true
+                }
+
+                it("Successfully updates mer oppfolging kandidat status from active to not active") {
+                    val newPersonOversiktStatus = PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR)
+                        .copy(isAktivSenOppfolgingKandidat = true)
+                    database.connection.use { connection ->
+                        connection.createPersonOversiktStatus(
+                            commit = true,
+                            personOversiktStatus = newPersonOversiktStatus,
+                        )
+                    }
+
+                    val result = personOversiktStatusRepository.upsertSenOppfolgingKandidat(
+                        personident = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),
+                        isAktivKandidat = false,
+                    )
+
+                    result.isSuccess shouldBe true
+                    val pPersonOversiktStatus = database.getPersonOversiktStatusList(fnr = UserConstants.ARBEIDSTAKER_FNR).first()
+                    pPersonOversiktStatus.isAktivSenOppfolgingKandidat shouldNotBeEqualTo newPersonOversiktStatus.isAktivSenOppfolgingKandidat
+                    pPersonOversiktStatus.isAktivSenOppfolgingKandidat shouldBe false
+                }
+
+                it("Creates new person when none exist when upserting mer oppfolging kandidat status") {
+                    val result = personOversiktStatusRepository.upsertSenOppfolgingKandidat(
+                        personident = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),
+                        isAktivKandidat = true,
+                    )
+
+                    val pPersonOversiktStatus = database.getPersonOversiktStatusList(fnr = UserConstants.ARBEIDSTAKER_FNR)
+                    pPersonOversiktStatus.shouldNotBeEmpty()
                     result.isSuccess shouldBe true
                 }
             }
