@@ -16,7 +16,7 @@ fun launchKafkaTaskFriskTilArbeidVedtak(
     applicationState: ApplicationState,
     kafkaEnvironment: KafkaEnvironment,
 ) {
-    val kafkaFriskTilArbeidService = KafkaFriskTilArbeidService(
+    val friskTilArbeidVedtakConsumer = FriskTilArbeidVedtakConsumer(
         database = database,
     )
     val consumerProperties = Properties().apply {
@@ -29,7 +29,7 @@ fun launchKafkaTaskFriskTilArbeidVedtak(
         applicationState = applicationState,
         topic = FRISK_TIL_ARBEID_VEDTAK_TOPIC,
         consumerProperties = consumerProperties,
-        kafkaConsumerService = kafkaFriskTilArbeidService,
+        kafkaConsumerService = friskTilArbeidVedtakConsumer,
     )
 }
 
