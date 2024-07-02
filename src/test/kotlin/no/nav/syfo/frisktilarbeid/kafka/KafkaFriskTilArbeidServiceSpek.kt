@@ -23,7 +23,7 @@ class KafkaFriskTilArbeidServiceSpek : Spek({
         val externalMockEnvironment = ExternalMockEnvironment.instance
         val database = externalMockEnvironment.database
 
-        val kafkaFriskTilArbeidService = TestKafkaModule.kafkaFriskTilArbeidService
+        val kafkaFriskTilArbeidService = TestKafkaModule.friskTilArbeidVedtakConsumer
 
         val topicPartition = friskTilArbeidTopicPartition()
         val vedtak = generateKafkaFriskTilArbeidVedtak(
@@ -46,7 +46,7 @@ class KafkaFriskTilArbeidServiceSpek : Spek({
             every { kafkaConsumerFriskTilArbeid.commitSync() } returns Unit
         }
 
-        describe("${KafkaFriskTilArbeidService::class.java.simpleName}: pollAndProcessRecords") {
+        describe("${FriskTilArbeidVedtakConsumer::class.java.simpleName}: pollAndProcessRecords") {
             it("creates new PersonOversiktStatus if no PersonOversiktStatus exists for personident") {
                 every { kafkaConsumerFriskTilArbeid.poll(any<Duration>()) } returns ConsumerRecords(
                     mapOf(

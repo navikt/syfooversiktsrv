@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory
 import java.sql.Connection
 import java.time.Duration
 
-class KafkaFriskTilArbeidService(
+class FriskTilArbeidVedtakConsumer(
     private val database: DatabaseInterface,
 ) : KafkaConsumerService<VedtakStatusRecord> {
 
@@ -77,6 +77,6 @@ class KafkaFriskTilArbeidService(
     }
 
     companion object {
-        private val log = LoggerFactory.getLogger(KafkaFriskTilArbeidService::class.java)
+        private val log = LoggerFactory.getLogger(FriskTilArbeidVedtakConsumer::class.java)
     }
 }
