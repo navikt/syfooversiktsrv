@@ -929,6 +929,53 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     }
                 }
 
+                it("return person when isAktivSenOppfolgingKandidat true") {
+                    val personident = ARBEIDSTAKER_FNR
+                    val personoversiktStatus = PersonOversiktStatus(
+                        fnr = personident,
+                    ).copy(isAktivSenOppfolgingKandidat = true)
+
+                    database.createPersonOversiktStatus(personoversiktStatus)
+
+                    database.setTildeltEnhet(
+                        ident = PersonIdent(ARBEIDSTAKER_FNR),
+                        enhet = NAV_ENHET,
+                    )
+
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        }
+                    ) {
+                        response.status() shouldBeEqualTo HttpStatusCode.OK
+
+                        val personOversiktStatus =
+                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
+                        personOversiktStatus.fnr shouldBeEqualTo personident
+                        personOversiktStatus.enhet shouldBeEqualTo NAV_ENHET
+                        personOversiktStatus.isAktivSenOppfolgingKandidat shouldBeEqualTo true
+                    }
+                }
+
+                it("return no person when isAktivSenOppfolgingKandidat false") {
+                    val personident = ARBEIDSTAKER_FNR
+                    val personoversiktStatus = PersonOversiktStatus(fnr = personident)
+
+                    database.createPersonOversiktStatus(personoversiktStatus)
+                    database.setTildeltEnhet(
+                        ident = PersonIdent(ARBEIDSTAKER_FNR),
+                        enhet = NAV_ENHET,
+                    )
+
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        }
+                    ) {
+                        response.status() shouldBeEqualTo HttpStatusCode.NoContent
+                    }
+                }
+
                 describe("arbeidsuforhetvurdering") {
                     it("returns person with active arbeidsuforhetvurdering") {
                         val newPersonOversiktStatus = PersonOversiktStatus(fnr = ARBEIDSTAKER_FNR)
