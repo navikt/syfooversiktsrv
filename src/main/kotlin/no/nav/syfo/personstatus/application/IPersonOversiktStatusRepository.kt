@@ -7,5 +7,7 @@ interface IPersonOversiktStatusRepository {
 
     fun updateArbeidsuforhetvurderingStatus(personident: PersonIdent, isAktivVurdering: Boolean): Result<Int>
 
+    fun upsertSenOppfolgingKandidat(personident: PersonIdent, isAktivKandidat: Boolean): Result<Int>
+
     fun getPersonOversiktStatus(personident: PersonIdent): PersonOversiktStatus?
 }

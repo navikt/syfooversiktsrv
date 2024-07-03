@@ -26,8 +26,9 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
         return try {
             database.connection.use { connection ->
                 val tidspunkt = Timestamp.from(Instant.now())
-                val rowsUpdated = connection.prepareStatement(UPDATE_OR_INSERT_PERSON_OVERSIKT_STATUS).use {
-                    it.setString(1, UUID.randomUUID().toString())
+                val uuid = UUID.randomUUID().toString()
+                val rowsUpdated = connection.prepareStatement(UPSERT_PERSON_OVERSIKT_STATUS_ARBEIDSUFORHET).use {
+                    it.setString(1, uuid)
                     it.setString(2, personident.value)
                     it.setBoolean(3, isAktivVurdering)
                     it.setTimestamp(4, tidspunkt)
@@ -40,7 +41,34 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
                     Result.success(rowsUpdated)
                 } else {
                     connection.rollback()
-                    Result.failure(RuntimeException("Failed to update arbeidsuforhet vurdering status for person with fnr: ${personident.value}"))
+                    Result.failure(RuntimeException("Failed to update arbeidsuforhet vurdering status for personstatus: $uuid"))
+                }
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override fun upsertSenOppfolgingKandidat(personident: PersonIdent, isAktivKandidat: Boolean): Result<Int> {
+        return try {
+            database.connection.use { connection ->
+                val now = Timestamp.from(Instant.now())
+                val uuid = UUID.randomUUID().toString()
+                val rowsUpdated = connection.prepareStatement(UPSERT_PERSON_OVERSIKT_STATUS_SEN_OPPFOLGING).use {
+                    it.setString(1, uuid)
+                    it.setString(2, personident.value)
+                    it.setBoolean(3, isAktivKandidat)
+                    it.setTimestamp(4, now)
+                    it.setTimestamp(5, now)
+                    it.executeUpdate()
+                }
+                val isSuccess = rowsUpdated == 1
+                if (isSuccess) {
+                    connection.commit()
+                    Result.success(rowsUpdated)
+                } else {
+                    connection.rollback()
+                    Result.failure(RuntimeException("Failed to update sen oppfolging kandidat status for personstatus: $uuid"))
                 }
             }
         } catch (e: Exception) {
@@ -66,7 +94,7 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
             WHERE fnr = ?
             """
 
-        private const val UPDATE_OR_INSERT_PERSON_OVERSIKT_STATUS =
+        private const val UPSERT_PERSON_OVERSIKT_STATUS_ARBEIDSUFORHET =
             """
             INSERT INTO person_oversikt_status (
                 id,
@@ -79,6 +107,22 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
             ON CONFLICT (fnr)
             DO UPDATE SET
                 arbeidsuforhet_aktiv_vurdering = EXCLUDED.arbeidsuforhet_aktiv_vurdering,
+                sist_endret = EXCLUDED.sist_endret
+            """
+
+        private const val UPSERT_PERSON_OVERSIKT_STATUS_SEN_OPPFOLGING =
+            """
+            INSERT INTO person_oversikt_status (
+                id,
+                uuid,
+                fnr,
+                is_aktiv_sen_oppfolging_kandidat,
+                opprettet,
+                sist_endret
+            ) VALUES (DEFAULT, ?, ?, ?, ?, ?)
+            ON CONFLICT (fnr)
+            DO UPDATE SET
+                is_aktiv_sen_oppfolging_kandidat = EXCLUDED.is_aktiv_sen_oppfolging_kandidat,
                 sist_endret = EXCLUDED.sist_endret
             """
     }
@@ -122,4 +166,5 @@ private fun ResultSet.toPPersonOversiktStatus(): PPersonOversiktStatus =
         antallSykedager = getObject("antall_sykedager") as Int?,
         isAktivArbeidsuforhetvurdering = getBoolean("arbeidsuforhet_aktiv_vurdering"),
         friskmeldingTilArbeidsformidlingFom = getObject("friskmelding_til_arbeidsformidling_fom", LocalDate::class.java),
+        isAktivSenOppfolgingKandidat = getBoolean("is_aktiv_sen_oppfolging_kandidat"),
     )
