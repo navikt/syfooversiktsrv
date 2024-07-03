@@ -44,7 +44,7 @@ const val queryHentUbehandledePersonerTilknyttetEnhet = """
                                 AND dialogmotekandidat_generated_at + INTERVAL '7 DAY' < now()
                                 )
                             OR (
-                                (aktivitetskrav = 'NY' OR aktivitetskrav = 'AVVENT')
+                                (aktivitetskrav = 'NY' OR aktivitetskrav = 'AVVENT' OR aktivitetskrav = 'NY_VURDERING')
                                 AND aktivitetskrav_stoppunkt > '2023-03-10'
                                 )
                             OR behandlerdialog_svar_ubehandlet = 't'

@@ -156,5 +156,15 @@ class PersonOversiktStatusSpek : Spek({
 
             person.isActiveAktivitetskrav(arenaCutoff) shouldBeEqualTo false
         }
+
+        it("return true if AktivitetskravStatus is NY_VURDERING") {
+            val person = aktivitetskravGenerator.generateAktivitetskrav(
+                personIdent = defaultPersonident,
+                status = AktivitetskravStatus.NY_VURDERING,
+                stoppunktAfterCutoff = true,
+            ).toPersonOversiktStatus()
+
+            person.isActiveAktivitetskrav(arenaCutoff) shouldBeEqualTo true
+        }
     }
 })
