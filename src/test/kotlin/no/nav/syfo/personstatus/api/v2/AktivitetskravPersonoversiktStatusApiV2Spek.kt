@@ -105,6 +105,35 @@ object AktivitetskravPersonoversiktStatusApiV2Spek : Spek({
                     }
                 }
 
+                it("returns person with aktivitetskrav status NY_VURDERING") {
+                    val personIdent = PersonIdent(UserConstants.ARBEIDSTAKER_FNR)
+                    val aktivitetskrav = aktivitetskravGenerator.generateAktivitetskrav(
+                        personIdent = personIdent,
+                        status = AktivitetskravStatus.NY_VURDERING,
+                        stoppunktAfterCutoff = true,
+                    )
+                    persistAktivitetskravAndTildelEnhet(
+                        database = database,
+                        personIdent = personIdent,
+                        aktivitetskrav = aktivitetskrav,
+                    )
+
+                    with(
+                        handleRequest(HttpMethod.Get, url) {
+                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        }
+                    ) {
+                        response.status() shouldBeEqualTo HttpStatusCode.OK
+
+                        val personOversiktStatus =
+                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
+                        personOversiktStatus.fnr shouldBeEqualTo personIdent.value
+                        personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
+                        personOversiktStatus.aktivitetskrav shouldBeEqualTo AktivitetskravStatus.NY_VURDERING.name
+                        personOversiktStatus.aktivitetskravActive shouldBeEqualTo true
+                    }
+                }
+
                 it("returns no content when aktivitetskrav has status LUKKET") {
                     val personIdent = PersonIdent(UserConstants.ARBEIDSTAKER_FNR)
                     val nyttAtivitetskrav = aktivitetskravGenerator.generateAktivitetskrav(

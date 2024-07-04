@@ -55,7 +55,7 @@ fun PersonOversiktStatus.hasOpenDialogmoteInvitation() =
 fun PersonOversiktStatus.noOpenDialogmoteInvitation() = !hasOpenDialogmoteInvitation()
 
 fun PersonOversiktStatus.isActiveAktivitetskrav(arenaCutoff: LocalDate) =
-    (aktivitetskrav == AktivitetskravStatus.NY || aktivitetskrav == AktivitetskravStatus.AVVENT) &&
+    (aktivitetskrav == AktivitetskravStatus.NY || aktivitetskrav == AktivitetskravStatus.AVVENT || aktivitetskrav == AktivitetskravStatus.NY_VURDERING) &&
         aktivitetskravStoppunkt?.isAfter(arenaCutoff) ?: false
 
 fun PersonOversiktStatus.hasActiveOppgave(arenaCutoff: LocalDate): Boolean {
