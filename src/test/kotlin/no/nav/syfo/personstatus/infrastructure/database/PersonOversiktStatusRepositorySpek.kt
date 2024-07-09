@@ -155,6 +155,60 @@ class PersonOversiktStatusRepositorySpek : Spek({
                     personStatus shouldBe null
                 }
             }
+
+            describe("Update aktivitetskrav aktiv vurdering") {
+                it("Successfully updates aktiv aktivitetskrav status to active") {
+                    val newPersonOversiktStatus = PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR)
+                    database.connection.use { connection ->
+                        connection.createPersonOversiktStatus(
+                            commit = true,
+                            personOversiktStatus = newPersonOversiktStatus,
+                        )
+                    }
+
+                    val result = personOversiktStatusRepository.upsertAktivitetskravAktivStatus(
+                        personident = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),
+                        isAktivVurdering = true,
+                    )
+
+                    result.isSuccess shouldBe true
+                    val pPersonOversiktStatus = database.getPersonOversiktStatusList(fnr = UserConstants.ARBEIDSTAKER_FNR).first()
+                    pPersonOversiktStatus.isAktivAktivitetskravvurdering shouldNotBeEqualTo newPersonOversiktStatus.isAktivAktivitetskravvurdering
+                    pPersonOversiktStatus.isAktivAktivitetskravvurdering shouldBe true
+                }
+
+                it("Successfully updates aktivitetskrav aktiv status from active to not active") {
+                    val newPersonOversiktStatus = PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR)
+                        .copy(isAktivAktivitetskravvurdering = true)
+                    database.connection.use { connection ->
+                        connection.createPersonOversiktStatus(
+                            commit = true,
+                            personOversiktStatus = newPersonOversiktStatus,
+                        )
+                    }
+
+                    val result = personOversiktStatusRepository.upsertAktivitetskravAktivStatus(
+                        personident = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),
+                        isAktivVurdering = false,
+                    )
+
+                    result.isSuccess shouldBe true
+                    val pPersonOversiktStatus = database.getPersonOversiktStatusList(fnr = UserConstants.ARBEIDSTAKER_FNR).first()
+                    pPersonOversiktStatus.isAktivAktivitetskravvurdering shouldNotBeEqualTo newPersonOversiktStatus.isAktivAktivitetskravvurdering
+                    pPersonOversiktStatus.isAktivAktivitetskravvurdering shouldBe false
+                }
+
+                it("Creates new person when none exist when upserting mer oppfolging kandidat status") {
+                    val result = personOversiktStatusRepository.upsertAktivitetskravAktivStatus(
+                        personident = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),
+                        isAktivVurdering = true,
+                    )
+
+                    val pPersonOversiktStatus = database.getPersonOversiktStatusList(fnr = UserConstants.ARBEIDSTAKER_FNR)
+                    pPersonOversiktStatus.shouldNotBeEmpty()
+                    result.isSuccess shouldBe true
+                }
+            }
         }
     }
 })

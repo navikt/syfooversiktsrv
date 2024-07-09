@@ -48,11 +48,11 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
         }
     }
 
-    override fun updateAktivitetskravvurderingStatus(personident: PersonIdent, isAktivVurdering: Boolean): Result<Int> {
+    override fun upsertAktivitetskravAktivStatus(personident: PersonIdent, isAktivVurdering: Boolean): Result<Int> {
         return try {
             database.connection.use { connection ->
                 val tidspunkt = Timestamp.from(Instant.now())
-                val rowsUpdated = connection.prepareStatement(UPDATE_OR_INSERT_AKTIVITETSKRAV_VURDERING_STATUS).use {
+                val rowsUpdated = connection.prepareStatement(UPSERT_AKTIVITETSKRAV_VURDERING_STATUS).use {
                     it.setString(1, UUID.randomUUID().toString())
                     it.setString(2, personident.value)
                     it.setBoolean(3, isAktivVurdering)
@@ -151,7 +151,7 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
                 sist_endret = EXCLUDED.sist_endret
             """
 
-        private const val UPDATE_OR_INSERT_AKTIVITETSKRAV_VURDERING_STATUS =
+        private const val UPSERT_AKTIVITETSKRAV_VURDERING_STATUS =
             """
             INSERT INTO person_oversikt_status (
                 id,
@@ -208,4 +208,5 @@ private fun ResultSet.toPPersonOversiktStatus(): PPersonOversiktStatus =
         isAktivArbeidsuforhetvurdering = getBoolean("arbeidsuforhet_aktiv_vurdering"),
         friskmeldingTilArbeidsformidlingFom = getObject("friskmelding_til_arbeidsformidling_fom", LocalDate::class.java),
         isAktivSenOppfolgingKandidat = getBoolean("is_aktiv_sen_oppfolging_kandidat"),
+        isAktivAktivitetskravvurdering = getBoolean("is_aktiv_aktivitetskrav_vurdering"),
     )

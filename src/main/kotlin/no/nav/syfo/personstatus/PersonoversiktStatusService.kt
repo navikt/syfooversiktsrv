@@ -57,7 +57,7 @@ class PersonoversiktStatusService(
         callId: String,
         token: String,
         arenaCutoff: LocalDate,
-        personStatusOversikt: List<PersonOversiktStatus>
+        personStatusOversikt: List<PersonOversiktStatus>,
     ): List<PersonOversiktStatusDTO> {
         val activeOppfolgingsoppgaver = getActiveOppfolgingsoppgaver(
             callId = callId,
@@ -192,7 +192,7 @@ class PersonoversiktStatusService(
     }
 
     fun updateAktivitetskravvurderingStatus(personident: PersonIdent, isAktivVurdering: Boolean): Result<Int> {
-        return personoversiktStatusRepository.updateAktivitetskravvurderingStatus(
+        return personoversiktStatusRepository.upsertAktivitetskravAktivStatus(
             personident = personident,
             isAktivVurdering = isAktivVurdering
         )

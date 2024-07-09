@@ -12,7 +12,9 @@ import no.nav.syfo.util.toLocalDateOslo
 import java.time.LocalDate
 import java.time.OffsetDateTime
 
-data class PersonOversiktStatus(
+data class
+
+PersonOversiktStatus(
     val veilederIdent: String? = null,
     val fnr: String,
     val navn: String? = null,
@@ -37,6 +39,7 @@ data class PersonOversiktStatus(
     val isAktivArbeidsuforhetvurdering: Boolean = false,
     val friskmeldingTilArbeidsformidlingFom: LocalDate? = null,
     val isAktivSenOppfolgingKandidat: Boolean = false,
+    val isAktivAktivitetskravvurdering: Boolean = false,
 )
 
 fun PersonOversiktStatus.isDialogmotekandidat() =

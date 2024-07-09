@@ -41,10 +41,11 @@ data class PPersonOversiktStatus(
     val friskmeldingTilArbeidsformidlingFom: LocalDate?,
     val isAktivArbeidsuforhetvurdering: Boolean,
     val isAktivSenOppfolgingKandidat: Boolean,
+    val isAktivAktivitetskravvurdering: Boolean,
 )
 
 fun PPersonOversiktStatus.toPersonOversiktStatus(
-    personOppfolgingstilfelleVirksomhetList: List<PersonOppfolgingstilfelleVirksomhet> = emptyList()
+    personOppfolgingstilfelleVirksomhetList: List<PersonOppfolgingstilfelleVirksomhet> = emptyList(),
 ) = PersonOversiktStatus(
     fnr = fnr,
     navn = navn,
@@ -72,6 +73,7 @@ fun PPersonOversiktStatus.toPersonOversiktStatus(
     friskmeldingTilArbeidsformidlingFom = friskmeldingTilArbeidsformidlingFom,
     isAktivArbeidsuforhetvurdering = isAktivArbeidsuforhetvurdering,
     isAktivSenOppfolgingKandidat = isAktivSenOppfolgingKandidat,
+    isAktivAktivitetskravvurdering = isAktivAktivitetskravvurdering,
 )
 
 fun PPersonOversiktStatus.toPersonOppfolgingstilfelle(
