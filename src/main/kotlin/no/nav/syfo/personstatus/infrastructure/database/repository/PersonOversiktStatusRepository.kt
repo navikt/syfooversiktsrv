@@ -21,14 +21,13 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
 
     override fun updateArbeidsuforhetvurderingStatus(
         personident: PersonIdent,
-        isAktivVurdering: Boolean
+        isAktivVurdering: Boolean,
     ): Result<Int> {
         return try {
             database.connection.use { connection ->
                 val tidspunkt = Timestamp.from(Instant.now())
-                val uuid = UUID.randomUUID().toString()
-                val rowsUpdated = connection.prepareStatement(UPSERT_PERSON_OVERSIKT_STATUS_ARBEIDSUFORHET).use {
-                    it.setString(1, uuid)
+                val rowsUpdated = connection.prepareStatement(UPDATE_OR_INSERT_ARBEIDSUFORHET_VURDERING_STATUS).use {
+                    it.setString(1, UUID.randomUUID().toString())
                     it.setString(2, personident.value)
                     it.setBoolean(3, isAktivVurdering)
                     it.setTimestamp(4, tidspunkt)
@@ -41,7 +40,33 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
                     Result.success(rowsUpdated)
                 } else {
                     connection.rollback()
-                    Result.failure(RuntimeException("Failed to update arbeidsuforhet vurdering status for personstatus: $uuid"))
+                    Result.failure(RuntimeException("Failed to update arbeidsuforhet vurdering status for person with fnr: ${personident.value}"))
+                }
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override fun updateAktivitetskravvurderingStatus(personident: PersonIdent, isAktivVurdering: Boolean): Result<Int> {
+        return try {
+            database.connection.use { connection ->
+                val tidspunkt = Timestamp.from(Instant.now())
+                val rowsUpdated = connection.prepareStatement(UPDATE_OR_INSERT_AKTIVITETSKRAV_VURDERING_STATUS).use {
+                    it.setString(1, UUID.randomUUID().toString())
+                    it.setString(2, personident.value)
+                    it.setBoolean(3, isAktivVurdering)
+                    it.setTimestamp(4, tidspunkt)
+                    it.setTimestamp(5, tidspunkt)
+                    it.executeUpdate()
+                }
+                val isSuccess = rowsUpdated == 1
+                if (isSuccess) {
+                    connection.commit()
+                    Result.success(rowsUpdated)
+                } else {
+                    connection.rollback()
+                    Result.failure(RuntimeException("Failed to update arbeidsuforhet vurdering status for person with fnr: ${personident.value}"))
                 }
             }
         } catch (e: Exception) {
@@ -94,7 +119,7 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
             WHERE fnr = ?
             """
 
-        private const val UPSERT_PERSON_OVERSIKT_STATUS_ARBEIDSUFORHET =
+        private const val UPDATE_OR_INSERT_ARBEIDSUFORHET_VURDERING_STATUS =
             """
             INSERT INTO person_oversikt_status (
                 id,
@@ -123,6 +148,22 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
             ON CONFLICT (fnr)
             DO UPDATE SET
                 is_aktiv_sen_oppfolging_kandidat = EXCLUDED.is_aktiv_sen_oppfolging_kandidat,
+                sist_endret = EXCLUDED.sist_endret
+            """
+
+        private const val UPDATE_OR_INSERT_AKTIVITETSKRAV_VURDERING_STATUS =
+            """
+            INSERT INTO person_oversikt_status (
+                id,
+                uuid,
+                fnr,
+                is_aktiv_aktivitetskrav_vurdering,
+                opprettet,
+                sist_endret
+            ) VALUES (DEFAULT, ?, ?, ?, ?, ?)
+            ON CONFLICT (fnr)
+            DO UPDATE SET
+                is_aktiv_aktivitetskrav_vurdering = EXCLUDED.is_aktiv_aktivitetskrav_vurdering,
                 sist_endret = EXCLUDED.sist_endret
             """
     }

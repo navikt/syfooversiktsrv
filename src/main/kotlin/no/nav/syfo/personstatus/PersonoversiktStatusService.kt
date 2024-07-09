@@ -191,6 +191,13 @@ class PersonoversiktStatusService(
         )
     }
 
+    fun updateAktivitetskravvurderingStatus(personident: PersonIdent, isAktivVurdering: Boolean): Result<Int> {
+        return personoversiktStatusRepository.updateAktivitetskravvurderingStatus(
+            personident = personident,
+            isAktivVurdering = isAktivVurdering
+        )
+    }
+
     private fun createOrUpdatePersonOversiktStatus(
         connection: Connection,
         personident: PersonIdent,
