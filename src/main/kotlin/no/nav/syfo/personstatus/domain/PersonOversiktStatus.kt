@@ -12,9 +12,7 @@ import no.nav.syfo.util.toLocalDateOslo
 import java.time.LocalDate
 import java.time.OffsetDateTime
 
-data class
-
-PersonOversiktStatus(
+data class PersonOversiktStatus(
     val veilederIdent: String? = null,
     val fnr: String,
     val navn: String? = null,

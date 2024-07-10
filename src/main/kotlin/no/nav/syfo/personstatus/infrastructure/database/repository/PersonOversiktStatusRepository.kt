@@ -26,8 +26,9 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
         return try {
             database.connection.use { connection ->
                 val tidspunkt = Timestamp.from(Instant.now())
-                val rowsUpdated = connection.prepareStatement(UPDATE_OR_INSERT_ARBEIDSUFORHET_VURDERING_STATUS).use {
-                    it.setString(1, UUID.randomUUID().toString())
+                val uuid = UUID.randomUUID().toString()
+                val rowsUpdated = connection.prepareStatement(UPSERT_ARBEIDSUFORHET_VURDERING_STATUS).use {
+                    it.setString(1, uuid)
                     it.setString(2, personident.value)
                     it.setBoolean(3, isAktivVurdering)
                     it.setTimestamp(4, tidspunkt)
@@ -40,7 +41,7 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
                     Result.success(rowsUpdated)
                 } else {
                     connection.rollback()
-                    Result.failure(RuntimeException("Failed to update arbeidsuforhet vurdering status for person with fnr: ${personident.value}"))
+                    Result.failure(RuntimeException("Failed to update arbeidsuforhet vurdering status for personstatus: $uuid"))
                 }
             }
         } catch (e: Exception) {
@@ -52,8 +53,9 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
         return try {
             database.connection.use { connection ->
                 val tidspunkt = Timestamp.from(Instant.now())
+                val uuid = UUID.randomUUID().toString()
                 val rowsUpdated = connection.prepareStatement(UPSERT_AKTIVITETSKRAV_VURDERING_STATUS).use {
-                    it.setString(1, UUID.randomUUID().toString())
+                    it.setString(1, uuid)
                     it.setString(2, personident.value)
                     it.setBoolean(3, isAktivVurdering)
                     it.setTimestamp(4, tidspunkt)
@@ -66,7 +68,7 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
                     Result.success(rowsUpdated)
                 } else {
                     connection.rollback()
-                    Result.failure(RuntimeException("Failed to update arbeidsuforhet vurdering status for person with fnr: ${personident.value}"))
+                    Result.failure(RuntimeException("Failed to update aktivitetskrav vurdering status for personstatus: $uuid"))
                 }
             }
         } catch (e: Exception) {
@@ -119,7 +121,7 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
             WHERE fnr = ?
             """
 
-        private const val UPDATE_OR_INSERT_ARBEIDSUFORHET_VURDERING_STATUS =
+        private const val UPSERT_ARBEIDSUFORHET_VURDERING_STATUS =
             """
             INSERT INTO person_oversikt_status (
                 id,

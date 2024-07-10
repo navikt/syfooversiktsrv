@@ -191,7 +191,7 @@ class PersonoversiktStatusService(
         )
     }
 
-    fun updateAktivitetskravvurderingStatus(personident: PersonIdent, isAktivVurdering: Boolean): Result<Int> {
+    fun upsertAktivitetskravvurderingStatus(personident: PersonIdent, isAktivVurdering: Boolean): Result<Int> {
         return personoversiktStatusRepository.upsertAktivitetskravAktivStatus(
             personident = personident,
             isAktivVurdering = isAktivVurdering
