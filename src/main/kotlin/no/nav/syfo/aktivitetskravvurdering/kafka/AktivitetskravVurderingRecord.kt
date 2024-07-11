@@ -6,18 +6,19 @@ import no.nav.syfo.domain.PersonIdent
 import java.time.LocalDate
 import java.time.OffsetDateTime
 
-data class KafkaAktivitetskravVurdering(
+data class AktivitetskravVurderingRecord(
     val uuid: String,
     val personIdent: String,
     val createdAt: OffsetDateTime,
     val status: String,
+    val isFinal: Boolean,
     val stoppunktAt: LocalDate,
     val beskrivelse: String?,
     val sistVurdert: OffsetDateTime?,
     val frist: LocalDate?,
 )
 
-fun KafkaAktivitetskravVurdering.toAktivitetskrav() = Aktivitetskrav(
+fun AktivitetskravVurderingRecord.toAktivitetskrav() = Aktivitetskrav(
     personIdent = PersonIdent(personIdent),
     status = AktivitetskravStatus.valueOf(this.status),
     stoppunkt = this.stoppunktAt,
