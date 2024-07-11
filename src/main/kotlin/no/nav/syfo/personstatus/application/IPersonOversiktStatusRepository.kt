@@ -9,5 +9,7 @@ interface IPersonOversiktStatusRepository {
 
     fun upsertSenOppfolgingKandidat(personident: PersonIdent, isAktivKandidat: Boolean): Result<Int>
 
+    fun upsertAktivitetskravAktivStatus(personident: PersonIdent, isAktivVurdering: Boolean): Result<Int>
+
     fun getPersonOversiktStatus(personident: PersonIdent): PersonOversiktStatus?
 }

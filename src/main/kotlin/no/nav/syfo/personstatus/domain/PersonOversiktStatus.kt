@@ -37,6 +37,7 @@ data class PersonOversiktStatus(
     val isAktivArbeidsuforhetvurdering: Boolean = false,
     val friskmeldingTilArbeidsformidlingFom: LocalDate? = null,
     val isAktivSenOppfolgingKandidat: Boolean = false,
+    val isAktivAktivitetskravvurdering: Boolean = false,
 )
 
 fun PersonOversiktStatus.isDialogmotekandidat() =

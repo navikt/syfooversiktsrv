@@ -21,13 +21,13 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
 
     override fun updateArbeidsuforhetvurderingStatus(
         personident: PersonIdent,
-        isAktivVurdering: Boolean
+        isAktivVurdering: Boolean,
     ): Result<Int> {
         return try {
             database.connection.use { connection ->
                 val tidspunkt = Timestamp.from(Instant.now())
                 val uuid = UUID.randomUUID().toString()
-                val rowsUpdated = connection.prepareStatement(UPSERT_PERSON_OVERSIKT_STATUS_ARBEIDSUFORHET).use {
+                val rowsUpdated = connection.prepareStatement(UPSERT_ARBEIDSUFORHET_VURDERING_STATUS).use {
                     it.setString(1, uuid)
                     it.setString(2, personident.value)
                     it.setBoolean(3, isAktivVurdering)
@@ -42,6 +42,33 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
                 } else {
                     connection.rollback()
                     Result.failure(RuntimeException("Failed to update arbeidsuforhet vurdering status for personstatus: $uuid"))
+                }
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override fun upsertAktivitetskravAktivStatus(personident: PersonIdent, isAktivVurdering: Boolean): Result<Int> {
+        return try {
+            database.connection.use { connection ->
+                val tidspunkt = Timestamp.from(Instant.now())
+                val uuid = UUID.randomUUID().toString()
+                val rowsUpdated = connection.prepareStatement(UPSERT_AKTIVITETSKRAV_VURDERING_STATUS).use {
+                    it.setString(1, uuid)
+                    it.setString(2, personident.value)
+                    it.setBoolean(3, isAktivVurdering)
+                    it.setTimestamp(4, tidspunkt)
+                    it.setTimestamp(5, tidspunkt)
+                    it.executeUpdate()
+                }
+                val isSuccess = rowsUpdated == 1
+                if (isSuccess) {
+                    connection.commit()
+                    Result.success(rowsUpdated)
+                } else {
+                    connection.rollback()
+                    Result.failure(RuntimeException("Failed to update aktivitetskrav vurdering status for personstatus: $uuid"))
                 }
             }
         } catch (e: Exception) {
@@ -94,7 +121,7 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
             WHERE fnr = ?
             """
 
-        private const val UPSERT_PERSON_OVERSIKT_STATUS_ARBEIDSUFORHET =
+        private const val UPSERT_ARBEIDSUFORHET_VURDERING_STATUS =
             """
             INSERT INTO person_oversikt_status (
                 id,
@@ -123,6 +150,22 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
             ON CONFLICT (fnr)
             DO UPDATE SET
                 is_aktiv_sen_oppfolging_kandidat = EXCLUDED.is_aktiv_sen_oppfolging_kandidat,
+                sist_endret = EXCLUDED.sist_endret
+            """
+
+        private const val UPSERT_AKTIVITETSKRAV_VURDERING_STATUS =
+            """
+            INSERT INTO person_oversikt_status (
+                id,
+                uuid,
+                fnr,
+                is_aktiv_aktivitetskrav_vurdering,
+                opprettet,
+                sist_endret
+            ) VALUES (DEFAULT, ?, ?, ?, ?, ?)
+            ON CONFLICT (fnr)
+            DO UPDATE SET
+                is_aktiv_aktivitetskrav_vurdering = EXCLUDED.is_aktiv_aktivitetskrav_vurdering,
                 sist_endret = EXCLUDED.sist_endret
             """
     }
@@ -167,4 +210,5 @@ private fun ResultSet.toPPersonOversiktStatus(): PPersonOversiktStatus =
         isAktivArbeidsuforhetvurdering = getBoolean("arbeidsuforhet_aktiv_vurdering"),
         friskmeldingTilArbeidsformidlingFom = getObject("friskmelding_til_arbeidsformidling_fom", LocalDate::class.java),
         isAktivSenOppfolgingKandidat = getBoolean("is_aktiv_sen_oppfolging_kandidat"),
+        isAktivAktivitetskravvurdering = getBoolean("is_aktiv_aktivitetskrav_vurdering"),
     )
