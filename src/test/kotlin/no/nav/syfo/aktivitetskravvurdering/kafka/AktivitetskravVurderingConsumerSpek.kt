@@ -5,6 +5,7 @@ import io.mockk.*
 import no.nav.syfo.aktivitetskravvurdering.domain.AktivitetskravStatus
 import no.nav.syfo.oppfolgingstilfelle.kafka.toPersonOversiktStatus
 import no.nav.syfo.personstatus.PersonoversiktStatusService
+import no.nav.syfo.personstatus.application.IAktivitetskravClient
 import no.nav.syfo.personstatus.application.arbeidsuforhet.IArbeidsuforhetvurderingClient
 import no.nav.syfo.personstatus.application.oppfolgingsoppgave.IOppfolgingsoppgaveClient
 import no.nav.syfo.personstatus.db.*
@@ -18,7 +19,7 @@ import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import java.time.*
 
-class KafkaAktivitetskravVurderingConsumerSpek : Spek({
+class AktivitetskravVurderingConsumerSpek : Spek({
     with(TestApplicationEngine()) {
         start()
 
@@ -30,9 +31,10 @@ class KafkaAktivitetskravVurderingConsumerSpek : Spek({
         val personoversiktStatusService = PersonoversiktStatusService(
             database = database,
             pdlClient = externalMockEnvironment.pdlClient,
-            arbeidsuforhetvurderingClient = mockk<IArbeidsuforhetvurderingClient>(),
             personoversiktStatusRepository = personOppgaveRepository,
+            arbeidsuforhetvurderingClient = mockk<IArbeidsuforhetvurderingClient>(),
             oppfolgingsoppgaveClient = mockk<IOppfolgingsoppgaveClient>(),
+            aktivitetskravClient = mockk<IAktivitetskravClient>(),
         )
         val aktivitetskravVurderingConsumer =
             AktivitetskravVurderingConsumer(database = database, personoversiktStatusService = personoversiktStatusService)

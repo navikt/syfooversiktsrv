@@ -5,6 +5,7 @@ import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendringType
 import no.nav.syfo.oppfolgingstilfelle.domain.Oppfolgingstilfelle
 import no.nav.syfo.oppfolgingstilfelle.domain.toPersonOppfolgingstilfelleDTO
 import no.nav.syfo.personstatus.api.v2.model.PersonOversiktStatusDTO
+import no.nav.syfo.personstatus.application.AktivitetskravDTO
 import no.nav.syfo.personstatus.application.arbeidsuforhet.ArbeidsuforhetvurderingDTO
 import no.nav.syfo.personstatus.application.oppfolgingsoppgave.OppfolgingsoppgaveDTO
 import no.nav.syfo.util.isBeforeOrEqual
@@ -96,6 +97,7 @@ fun PersonOversiktStatus.toPersonOversiktStatusDTO(
     arenaCutoff: LocalDate,
     arbeidsuforhetvurdering: ArbeidsuforhetvurderingDTO?,
     oppfolgingsoppgave: OppfolgingsoppgaveDTO?,
+    aktivitetskravvurdering: AktivitetskravDTO?,
 ) =
     PersonOversiktStatusDTO(
         veilederIdent = veilederIdent,
@@ -118,6 +120,7 @@ fun PersonOversiktStatus.toPersonOversiktStatusDTO(
         friskmeldingTilArbeidsformidlingFom = friskmeldingTilArbeidsformidlingFom,
         oppfolgingsoppgave = oppfolgingsoppgave,
         isAktivSenOppfolgingKandidat = isAktivSenOppfolgingKandidat,
+        aktivitetskravvurdering = aktivitetskravvurdering,
     )
 
 fun PersonOversiktStatus.hasActiveBehandlerdialogOppgave(): Boolean {

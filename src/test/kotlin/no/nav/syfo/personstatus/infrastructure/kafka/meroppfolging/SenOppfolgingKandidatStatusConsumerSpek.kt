@@ -5,6 +5,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.syfo.personstatus.PersonoversiktStatusService
+import no.nav.syfo.personstatus.application.IAktivitetskravClient
 import no.nav.syfo.personstatus.application.arbeidsuforhet.IArbeidsuforhetvurderingClient
 import no.nav.syfo.personstatus.application.oppfolgingsoppgave.IOppfolgingsoppgaveClient
 import no.nav.syfo.personstatus.db.createPersonOversiktStatus
@@ -32,8 +33,9 @@ class SenOppfolgingKandidatStatusConsumerSpek : Spek({
         database = database,
         pdlClient = externalMockEnvironment.pdlClient,
         arbeidsuforhetvurderingClient = mockk<IArbeidsuforhetvurderingClient>(),
-        personoversiktStatusRepository = personOppgaveRepository,
         oppfolgingsoppgaveClient = mockk<IOppfolgingsoppgaveClient>(),
+        aktivitetskravClient = mockk<IAktivitetskravClient>(),
+        personoversiktStatusRepository = personOppgaveRepository,
     )
 
     val senOppfolgingKandidatStatusConsumer = SenOppfolgingKandidatStatusConsumer(
