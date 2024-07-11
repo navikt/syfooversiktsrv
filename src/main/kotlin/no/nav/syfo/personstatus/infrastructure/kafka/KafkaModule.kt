@@ -44,6 +44,7 @@ fun launchKafkaModule(
     launchKafkaTaskAktivitetskravVurdering(
         applicationState = applicationState,
         kafkaEnvironment = environment.kafka,
+        personoversiktStatusService = personoversiktStatusService,
     )
 
     launchKafkaTaskIdenthendelse(
