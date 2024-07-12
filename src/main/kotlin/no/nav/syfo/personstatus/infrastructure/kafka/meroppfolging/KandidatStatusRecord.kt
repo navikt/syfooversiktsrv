@@ -16,5 +16,6 @@ data class StatusDTO(
 )
 
 enum class Status {
-    KANDIDAT
+    KANDIDAT,
+    FERDIGBEHANDLET
 }
