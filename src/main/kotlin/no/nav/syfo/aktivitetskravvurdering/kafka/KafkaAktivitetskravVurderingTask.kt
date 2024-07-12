@@ -1,6 +1,7 @@
 package no.nav.syfo.aktivitetskravvurdering.kafka
 
 import no.nav.syfo.ApplicationState
+import no.nav.syfo.personstatus.PersonoversiktStatusService
 import no.nav.syfo.personstatus.infrastructure.database.database
 import no.nav.syfo.personstatus.infrastructure.kafka.KafkaEnvironment
 import no.nav.syfo.personstatus.infrastructure.kafka.kafkaAivenConsumerConfig
@@ -15,9 +16,11 @@ const val AKTIVITETSKRAV_VURDERING_TOPIC = "teamsykefravr.aktivitetskrav-vurderi
 fun launchKafkaTaskAktivitetskravVurdering(
     applicationState: ApplicationState,
     kafkaEnvironment: KafkaEnvironment,
+    personoversiktStatusService: PersonoversiktStatusService,
 ) {
-    val kafkaAktivitetskravVurderingConsumer = KafkaAktivitetskravVurderingConsumer(
+    val aktivitetskravVurderingConsumer = AktivitetskravVurderingConsumer(
         database = database,
+        personoversiktStatusService = personoversiktStatusService,
     )
     val consumerProperties = Properties().apply {
         putAll(kafkaAivenConsumerConfig(kafkaEnvironment = kafkaEnvironment))
@@ -29,12 +32,12 @@ fun launchKafkaTaskAktivitetskravVurdering(
         applicationState = applicationState,
         topic = AKTIVITETSKRAV_VURDERING_TOPIC,
         consumerProperties = consumerProperties,
-        kafkaConsumerService = kafkaAktivitetskravVurderingConsumer,
+        kafkaConsumerService = aktivitetskravVurderingConsumer,
     )
 }
 
-class KafkaAktivitetskravVurderingDeserializer : Deserializer<KafkaAktivitetskravVurdering> {
+class KafkaAktivitetskravVurderingDeserializer : Deserializer<AktivitetskravVurderingRecord> {
     private val mapper = configuredJacksonMapper()
-    override fun deserialize(topic: String, data: ByteArray): KafkaAktivitetskravVurdering =
-        mapper.readValue(data, KafkaAktivitetskravVurdering::class.java)
+    override fun deserialize(topic: String, data: ByteArray): AktivitetskravVurderingRecord =
+        mapper.readValue(data, AktivitetskravVurderingRecord::class.java)
 }

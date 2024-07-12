@@ -2,7 +2,7 @@ package no.nav.syfo.testutil.generator
 
 import no.nav.syfo.aktivitetskravvurdering.domain.AktivitetskravStatus
 import no.nav.syfo.aktivitetskravvurdering.kafka.AKTIVITETSKRAV_VURDERING_TOPIC
-import no.nav.syfo.aktivitetskravvurdering.kafka.KafkaAktivitetskravVurdering
+import no.nav.syfo.aktivitetskravvurdering.kafka.AktivitetskravVurderingRecord
 import no.nav.syfo.testutil.UserConstants
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.TopicPartition
@@ -15,7 +15,8 @@ fun generateKafkaAktivitetskravVurdering(
     frist: LocalDate? = null,
     sistVurdert: OffsetDateTime? = null,
     beskrivelse: String? = null,
-) = KafkaAktivitetskravVurdering(
+    isFinal: Boolean,
+) = AktivitetskravVurderingRecord(
     uuid = UUID.randomUUID().toString(),
     personIdent = UserConstants.ARBEIDSTAKER_FNR,
     createdAt = OffsetDateTime.now(),
@@ -24,6 +25,7 @@ fun generateKafkaAktivitetskravVurdering(
     beskrivelse = beskrivelse,
     sistVurdert = sistVurdert,
     frist = frist,
+    isFinal = isFinal
 )
 
 fun aktivitetskravVurderingTopicPartition() = TopicPartition(
@@ -32,11 +34,11 @@ fun aktivitetskravVurderingTopicPartition() = TopicPartition(
 )
 
 fun aktivitetskravVurderingConsumerRecord(
-    kafkaAktivitetskravVurdering: KafkaAktivitetskravVurdering,
+    aktivitetskravVurderingRecord: AktivitetskravVurderingRecord,
 ) = ConsumerRecord(
     AKTIVITETSKRAV_VURDERING_TOPIC,
     0,
     1,
     "key1",
-    kafkaAktivitetskravVurdering
+    aktivitetskravVurderingRecord
 )
