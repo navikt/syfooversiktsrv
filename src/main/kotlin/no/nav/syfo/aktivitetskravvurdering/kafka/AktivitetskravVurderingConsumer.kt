@@ -59,8 +59,8 @@ class AktivitetskravVurderingConsumer(
             log.info("Received ${AktivitetskravVurderingRecord::class.java.simpleName} with key=${record.key()}, ready to process.")
             val vurdering = record.value()
             personoversiktStatusService.upsertAktivitetskravvurderingStatus(
-                PersonIdent(vurdering.personIdent),
-                !vurdering.isFinal
+                personident = PersonIdent(vurdering.personIdent),
+                isAktivVurdering = !vurdering.isFinal,
             )
         }
     }
