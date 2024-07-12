@@ -53,6 +53,7 @@ spec:
         - application: syfobehandlendeenhet
         - application: syfooversiktsrv-redis
         - application: isarbeidsuforhet
+        - application: isaktivitetskrav
         - application: istilgangskontroll
         - application: ishuskelapp
   azure:

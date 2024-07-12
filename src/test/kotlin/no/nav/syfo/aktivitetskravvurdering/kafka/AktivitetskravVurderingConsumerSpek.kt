@@ -79,7 +79,6 @@ class AktivitetskravVurderingConsumerSpek : Spek({
                 )
 
                 aktivitetskravVurderingConsumer.pollAndProcessRecords(kafkaConsumer = consumerMock)
-
                 verify(exactly = 1) { consumerMock.commitSync() }
 
                 val pPersonOversiktStatusList =

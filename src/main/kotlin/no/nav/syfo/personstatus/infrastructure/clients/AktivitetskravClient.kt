@@ -26,6 +26,7 @@ class AktivitetskravClient(
 ) : IAktivitetskravClient {
 
     private val httpClient = httpClientDefault()
+    private val baseUrl = "${clientEnvironment.baseUrl}$API_BASE_PATH"
 
     override suspend fun getAktivitetskravForPersons(
         callId: String,
@@ -38,7 +39,7 @@ class AktivitetskravClient(
         )?.accessToken ?: throw RuntimeException("Failed to get OBO-token for aktivitetskrav vurdering")
         val requestDTO = AktivitetskravRequestDTO(personidenter.map { it.value })
         return try {
-            val response = httpClient.post("$ISAKTIVITETSKRAV_BASE_PATH/get-vurderinger") {
+            val response = httpClient.post("$baseUrl/get-vurderinger") {
                 header(HttpHeaders.Authorization, bearerHeader(oboToken))
                 header(NAV_CALL_ID_HEADER, callId)
                 accept(ContentType.Application.Json)
@@ -79,7 +80,7 @@ class AktivitetskravClient(
     }
 
     companion object {
-        private const val ISAKTIVITETSKRAV_BASE_PATH = "/api/internad/v1/aktivitetskrav"
+        private const val API_BASE_PATH = "/api/internad/v1/aktivitetskrav"
         private val log = LoggerFactory.getLogger(AktivitetskravClient::class.java)
     }
 }
