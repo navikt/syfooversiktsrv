@@ -100,5 +100,38 @@ class SenOppfolgingKandidatStatusConsumerSpek : Spek({
             updatedPersonstatus.fnr shouldBeEqualTo kandidatStatusRecord.personident
             updatedPersonstatus.isAktivSenOppfolgingKandidat shouldBe true
         }
+
+        it("consumes sen oppfolging kandidat status FERDIGBEHANDLET and updates personoversikt status") {
+            val kandidatStatusFerdigbehandletRecord = KandidatStatusRecord(
+                uuid = UUID.randomUUID(),
+                createdAt = OffsetDateTime.now(),
+                personident = UserConstants.ARBEIDSTAKER_FNR,
+                status = StatusDTO(
+                    value = Status.FERDIGBEHANDLET,
+                    isActive = false,
+                ),
+            )
+            val personoversiktStatus = PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR)
+            database.connection.use { connection ->
+                connection.createPersonOversiktStatus(
+                    commit = true,
+                    personOversiktStatus = personoversiktStatus,
+                )
+            }
+
+            kafkaConsumer.mockPollConsumerRecords(
+                recordValue = kandidatStatusFerdigbehandletRecord,
+                topic = SenOppfolgingKandidatStatusConsumer.SEN_OPPFOLGING_KANDIDAT_STATUS_TOPIC,
+            )
+
+            senOppfolgingKandidatStatusConsumer.pollAndProcessRecords(kafkaConsumer)
+
+            verify(exactly = 1) {
+                kafkaConsumer.commitSync()
+            }
+            val updatedPersonstatus = database.getPersonOversiktStatusList(fnr = UserConstants.ARBEIDSTAKER_FNR).single()
+            updatedPersonstatus.fnr shouldBeEqualTo kandidatStatusFerdigbehandletRecord.personident
+            updatedPersonstatus.isAktivSenOppfolgingKandidat shouldBe false
+        }
     }
 })
