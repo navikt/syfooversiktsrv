@@ -27,7 +27,7 @@ data class AktivitetskravvurderingDTO(
 
 data class AktivitetskravVarselDTO(
     val createdAt: LocalDateTime,
-    val svarfrist: LocalDate,
+    val svarfrist: LocalDate?,
 )
 
 enum class AktivitetskravStatus {
