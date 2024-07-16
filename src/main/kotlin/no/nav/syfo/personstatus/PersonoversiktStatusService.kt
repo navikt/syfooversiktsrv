@@ -10,6 +10,8 @@ import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.oppfolgingstilfelle.domain.PersonOppfolgingstilfelleVirksomhet
 import no.nav.syfo.personoppgavehendelse.kafka.*
 import no.nav.syfo.personstatus.api.v2.model.PersonOversiktStatusDTO
+import no.nav.syfo.personstatus.application.GetAktivitetskravForPersonsResponseDTO
+import no.nav.syfo.personstatus.application.IAktivitetskravClient
 import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
 import no.nav.syfo.personstatus.application.arbeidsuforhet.ArbeidsuforhetvurderingerResponseDTO
 import no.nav.syfo.personstatus.application.arbeidsuforhet.IArbeidsuforhetvurderingClient
@@ -25,8 +27,9 @@ class PersonoversiktStatusService(
     private val database: DatabaseInterface,
     private val pdlClient: PdlClient,
     private val arbeidsuforhetvurderingClient: IArbeidsuforhetvurderingClient,
-    private val personoversiktStatusRepository: IPersonOversiktStatusRepository,
+    private val aktivitetskravClient: IAktivitetskravClient,
     private val oppfolgingsoppgaveClient: IOppfolgingsoppgaveClient,
+    private val personoversiktStatusRepository: IPersonOversiktStatusRepository,
 ) {
     private val isUbehandlet = true
     private val isBehandlet = false
@@ -69,6 +72,11 @@ class PersonoversiktStatusService(
             token = token,
             personStatuser = personStatusOversikt,
         )
+        val activeAktivitetskrav = getActiveAktivitetskravForPersons(
+            callId = callId,
+            token = token,
+            personStatuser = personStatusOversikt,
+        )
 
         return personStatusOversikt.map { personStatus ->
             personStatus.toPersonOversiktStatusDTO(
@@ -78,6 +86,9 @@ class PersonoversiktStatusService(
                     ?.get(personStatus.fnr),
                 oppfolgingsoppgave = activeOppfolgingsoppgaver.await()
                     ?.oppfolgingsoppgaver
+                    ?.get(personStatus.fnr),
+                aktivitetskravvurdering = activeAktivitetskrav.await()
+                    ?.aktivitetskravvurderinger
                     ?.get(personStatus.fnr),
             )
         }
@@ -122,6 +133,26 @@ class PersonoversiktStatusService(
                     log.error("Oppfolgingsoppgaver was null for enhet ${personStatuser[0].enhet}")
                 }
                 response
+            } else {
+                null
+            }
+        }
+
+    private suspend fun getActiveAktivitetskravForPersons(
+        callId: String,
+        token: String,
+        personStatuser: List<PersonOversiktStatus>,
+    ): Deferred<GetAktivitetskravForPersonsResponseDTO?> =
+        CoroutineScope(Dispatchers.IO).async {
+            val personidenterWithActiveAktivitetskrav = personStatuser
+                .filter { it.isAktivAktivitetskravvurdering }
+                .map { PersonIdent(it.fnr) }
+            if (personidenterWithActiveAktivitetskrav.isNotEmpty()) {
+                aktivitetskravClient.getAktivitetskravForPersons(
+                    callId = callId,
+                    token = token,
+                    personidenter = personidenterWithActiveAktivitetskrav,
+                )
             } else {
                 null
             }

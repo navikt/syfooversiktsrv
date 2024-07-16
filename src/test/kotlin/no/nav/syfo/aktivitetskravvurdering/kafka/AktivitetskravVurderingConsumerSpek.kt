@@ -5,6 +5,7 @@ import io.mockk.*
 import no.nav.syfo.aktivitetskravvurdering.domain.AktivitetskravStatus
 import no.nav.syfo.oppfolgingstilfelle.kafka.toPersonOversiktStatus
 import no.nav.syfo.personstatus.PersonoversiktStatusService
+import no.nav.syfo.personstatus.application.IAktivitetskravClient
 import no.nav.syfo.personstatus.application.arbeidsuforhet.IArbeidsuforhetvurderingClient
 import no.nav.syfo.personstatus.application.oppfolgingsoppgave.IOppfolgingsoppgaveClient
 import no.nav.syfo.personstatus.db.*
@@ -33,8 +34,9 @@ class AktivitetskravVurderingConsumerSpek : Spek({
             database = database,
             pdlClient = externalMockEnvironment.pdlClient,
             arbeidsuforhetvurderingClient = mockk<IArbeidsuforhetvurderingClient>(),
-            personoversiktStatusRepository = personOppgaveRepository,
             oppfolgingsoppgaveClient = mockk<IOppfolgingsoppgaveClient>(),
+            aktivitetskravClient = mockk<IAktivitetskravClient>(),
+            personoversiktStatusRepository = personOppgaveRepository,
         )
         val aktivitetskravVurderingConsumer =
             AktivitetskravVurderingConsumer(database = database, personoversiktStatusService = personoversiktStatusService)
@@ -76,13 +78,8 @@ class AktivitetskravVurderingConsumerSpek : Spek({
                     )
                 )
 
-                aktivitetskravVurderingConsumer.pollAndProcessRecords(
-                    kafkaConsumer = consumerMock,
-                )
-
-                verify(exactly = 1) {
-                    consumerMock.commitSync()
-                }
+                aktivitetskravVurderingConsumer.pollAndProcessRecords(kafkaConsumer = consumerMock)
+                verify(exactly = 1) { consumerMock.commitSync() }
 
                 val pPersonOversiktStatusList =
                     database.connection.use { it.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR) }
@@ -120,13 +117,8 @@ class AktivitetskravVurderingConsumerSpek : Spek({
                     )
                 )
 
-                aktivitetskravVurderingConsumer.pollAndProcessRecords(
-                    kafkaConsumer = consumerMock,
-                )
-
-                verify(exactly = 1) {
-                    consumerMock.commitSync()
-                }
+                aktivitetskravVurderingConsumer.pollAndProcessRecords(kafkaConsumer = consumerMock)
+                verify(exactly = 1) { consumerMock.commitSync() }
 
                 val pPersonOversiktStatusList =
                     database.connection.use { it.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR) }
