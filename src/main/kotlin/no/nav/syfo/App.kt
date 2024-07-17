@@ -5,21 +5,22 @@ import io.ktor.server.application.*
 import io.ktor.server.config.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import no.nav.syfo.application.cache.RedisStore
+import no.nav.syfo.personstatus.PersonoversiktStatusService
 import no.nav.syfo.personstatus.api.v2.apiModule
 import no.nav.syfo.personstatus.api.v2.auth.getWellKnown
-import no.nav.syfo.application.cache.RedisStore
-import no.nav.syfo.personstatus.infrastructure.database.database
-import no.nav.syfo.personstatus.infrastructure.database.databaseModule
+import no.nav.syfo.personstatus.infrastructure.clients.AktivitetskravClient
+import no.nav.syfo.personstatus.infrastructure.clients.arbeidsuforhet.ArbeidsuforhetvurderingClient
+import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
 import no.nav.syfo.personstatus.infrastructure.clients.behandlendeenhet.BehandlendeEnhetClient
+import no.nav.syfo.personstatus.infrastructure.clients.oppfolgingsoppgave.OppfolgingsoppgaveClient
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.PdlClient
 import no.nav.syfo.personstatus.infrastructure.cronjob.behandlendeenhet.PersonBehandlendeEnhetService
 import no.nav.syfo.personstatus.infrastructure.cronjob.launchCronjobModule
-import no.nav.syfo.personstatus.infrastructure.kafka.launchKafkaModule
-import no.nav.syfo.personstatus.PersonoversiktStatusService
-import no.nav.syfo.personstatus.infrastructure.clients.arbeidsuforhet.ArbeidsuforhetvurderingClient
-import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
-import no.nav.syfo.personstatus.infrastructure.clients.oppfolgingsoppgave.OppfolgingsoppgaveClient
+import no.nav.syfo.personstatus.infrastructure.database.database
+import no.nav.syfo.personstatus.infrastructure.database.databaseModule
 import no.nav.syfo.personstatus.infrastructure.database.repository.PersonOversiktStatusRepository
+import no.nav.syfo.personstatus.infrastructure.kafka.launchKafkaModule
 import org.slf4j.LoggerFactory
 import java.util.concurrent.TimeUnit
 
@@ -60,6 +61,10 @@ fun main() {
         azureAdClient = azureAdClient,
         clientEnvironment = environment.clients.ishuskelapp,
     )
+    val aktivitetskravClient = AktivitetskravClient(
+        azureAdClient = azureAdClient,
+        clientEnvironment = environment.clients.aktivitetskrav,
+    )
 
     lateinit var personBehandlendeEnhetService: PersonBehandlendeEnhetService
     lateinit var personoversiktStatusService: PersonoversiktStatusService
@@ -83,6 +88,7 @@ fun main() {
                 arbeidsuforhetvurderingClient = arbeidsuforhetvurderingClient,
                 personoversiktStatusRepository = personoversiktStatusRepository,
                 oppfolgingsoppgaveClient = oppfolgingsoppgaveClient,
+                aktivitetskravClient = aktivitetskravClient,
             )
             personBehandlendeEnhetService = PersonBehandlendeEnhetService(
                 database = database,

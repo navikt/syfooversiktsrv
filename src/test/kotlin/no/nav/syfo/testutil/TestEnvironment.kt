@@ -19,6 +19,7 @@ fun testEnvironment(
     pdlUrl: String,
     syfobehandlendeenhetUrl: String = "syfobehandlendeenhet",
     arbeidsuforhetvurderingUrl: String = "arbeidsuforhetvurdering",
+    isaktivitetskravUrl: String = "isaktivitetskrav",
     istilgangskontrollUrl: String = "istilgangskontroll",
     ishuskelappUrl: String = "ishuskelapp",
 ) = Environment(
@@ -64,6 +65,10 @@ fun testEnvironment(
         arbeidsuforhetvurdering = ClientEnvironment(
             baseUrl = arbeidsuforhetvurderingUrl,
             clientId = "dev-gcp.teamsykefravr.arbeidsuforhetvurdering",
+        ),
+        aktivitetskrav = ClientEnvironment(
+            baseUrl = isaktivitetskravUrl,
+            clientId = "dev-gcp.teamsykefravr.isaktivitetskrav",
         ),
         istilgangskontroll = ClientEnvironment(
             baseUrl = istilgangskontrollUrl,

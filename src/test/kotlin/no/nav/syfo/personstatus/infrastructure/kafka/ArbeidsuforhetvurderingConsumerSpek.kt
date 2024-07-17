@@ -6,6 +6,7 @@ import io.mockk.every
 import io.mockk.mockk
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.personstatus.PersonoversiktStatusService
+import no.nav.syfo.personstatus.application.IAktivitetskravClient
 import no.nav.syfo.personstatus.application.arbeidsuforhet.IArbeidsuforhetvurderingClient
 import no.nav.syfo.personstatus.application.oppfolgingsoppgave.IOppfolgingsoppgaveClient
 import no.nav.syfo.personstatus.db.createPersonOversiktStatus
@@ -38,6 +39,7 @@ class ArbeidsuforhetvurderingConsumerSpek : Spek({
         arbeidsuforhetvurderingClient = arbeidsuforhervurderingClient,
         personoversiktStatusRepository = personOppgaveRepository,
         oppfolgingsoppgaveClient = oppfolgingsoppgaveClient,
+        aktivitetskravClient = mockk<IAktivitetskravClient>(),
     )
 
     val arbeidsuforhetvurderingConsumer = ArbeidsuforhetvurderingConsumer(

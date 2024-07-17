@@ -70,6 +70,10 @@ data class Environment(
             baseUrl = getEnvVar("ISHUSKELAPP_URL"),
             clientId = getEnvVar("ISHUSKELAPP_CLIENT_ID"),
         ),
+        aktivitetskrav = ClientEnvironment(
+            baseUrl = getEnvVar("AKTIVITETSKRAV_URL"),
+            clientId = getEnvVar("AKTIVITETSKRAV_CLIENT_ID"),
+        ),
     ),
 
     val redis: RedisEnvironment = RedisEnvironment(
