@@ -47,9 +47,8 @@ class OppfolgingsoppgaveClient(
                 setBody(requestDTO)
             }
             when (response.status) {
-                HttpStatusCode.OK -> {
-                    response.body<OppfolgingsoppgaverResponseDTO>()
-                }
+                HttpStatusCode.OK -> response.body<OppfolgingsoppgaverResponseDTO>()
+                HttpStatusCode.NoContent -> null
                 HttpStatusCode.NotFound -> {
                     log.error("Resource not found")
                     null
