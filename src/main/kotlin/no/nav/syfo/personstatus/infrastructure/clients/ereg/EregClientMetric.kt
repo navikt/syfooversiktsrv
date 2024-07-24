@@ -2,8 +2,8 @@ package no.nav.syfo.personstatus.infrastructure.clients.ereg
 
 import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.Counter.builder
-import no.nav.syfo.metric.METRICS_NS
-import no.nav.syfo.metric.METRICS_REGISTRY
+import no.nav.syfo.personstatus.infrastructure.METRICS_NS
+import no.nav.syfo.personstatus.infrastructure.METRICS_REGISTRY
 
 const val CALL_EREG_ORGANISASJON_BASE = "${METRICS_NS}_call_ereg_organisasjon"
 const val CALL_EREG_ORGANISASJON_SUCCESS = "${CALL_EREG_ORGANISASJON_BASE}_success_count"

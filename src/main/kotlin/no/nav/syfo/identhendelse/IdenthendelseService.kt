@@ -3,12 +3,12 @@ package no.nav.syfo.identhendelse
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.PdlClient
-import no.nav.syfo.domain.PersonIdent
+import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.identhendelse.database.queryDeletePersonOversiktStatusFnr
 import no.nav.syfo.identhendelse.database.updatePersonOversiktStatusFnr
 import no.nav.syfo.identhendelse.database.updatePersonOversiktStatusVeileder
 import no.nav.syfo.identhendelse.kafka.KafkaIdenthendelseDTO
-import no.nav.syfo.metric.COUNT_KAFKA_CONSUMER_PDL_AKTOR_UPDATES
+import no.nav.syfo.personstatus.infrastructure.COUNT_KAFKA_CONSUMER_PDL_AKTOR_UPDATES
 import no.nav.syfo.personstatus.db.getPersonOversiktStatusList
 import no.nav.syfo.personstatus.domain.PPersonOversiktStatus
 import org.slf4j.Logger
@@ -57,7 +57,7 @@ class IdenthendelseService(
 
     private fun updateOrOverrideAndDeletePersonOversiktStatus(
         activeIdent: PersonIdent,
-        personOversiktStatusWithOldIdent: List<PPersonOversiktStatus>
+        personOversiktStatusWithOldIdent: List<PPersonOversiktStatus>,
     ): Int {
         var updatedRows = 0
         val personOversiktStatusActiveIdentList = database.getPersonOversiktStatusList(activeIdent.value)

@@ -1,6 +1,6 @@
 package no.nav.syfo.aktivitetskravvurdering.domain
 
-import no.nav.syfo.domain.PersonIdent
+import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import java.time.LocalDate
 

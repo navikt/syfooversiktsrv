@@ -1,8 +1,8 @@
 package no.nav.syfo.dialogmotestatusendring.kafka
 
 import io.micrometer.core.instrument.Counter
-import no.nav.syfo.metric.METRICS_NS
-import no.nav.syfo.metric.METRICS_REGISTRY
+import no.nav.syfo.personstatus.infrastructure.METRICS_NS
+import no.nav.syfo.personstatus.infrastructure.METRICS_REGISTRY
 
 const val KAFKA_CONSUMER_DIALOGMOTE_STATUSENDRING_BASE = "${METRICS_NS}_kafka_consumer_dialogmote_statusendring"
 const val KAFKA_CONSUMER_DIALOGMOTE_STATUSENDRING_READ = "${KAFKA_CONSUMER_DIALOGMOTE_STATUSENDRING_BASE}_read"

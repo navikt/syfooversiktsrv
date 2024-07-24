@@ -6,11 +6,14 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.micrometer.core.instrument.Timer
-import no.nav.syfo.domain.PersonIdent
+import no.nav.syfo.personstatus.domain.PersonIdent
+import no.nav.syfo.personstatus.infrastructure.COUNT_CALL_TILGANGSKONTROLL_PERSONS_FAIL
+import no.nav.syfo.personstatus.infrastructure.COUNT_CALL_TILGANGSKONTROLL_PERSONS_SUCCESS
+import no.nav.syfo.personstatus.infrastructure.HISTOGRAM_ISTILGANGSKONTROLL_ENHET
+import no.nav.syfo.personstatus.infrastructure.HISTOGRAM_ISTILGANGSKONTROLL_PERSONER
 import no.nav.syfo.personstatus.infrastructure.clients.ClientEnvironment
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
 import no.nav.syfo.personstatus.infrastructure.clients.httpClientDefault
-import no.nav.syfo.metric.*
 import no.nav.syfo.util.NAV_CALL_ID_HEADER
 import no.nav.syfo.util.NAV_PERSONIDENT_HEADER
 import no.nav.syfo.util.bearerHeader
@@ -19,7 +22,7 @@ import java.util.UUID
 
 class VeilederTilgangskontrollClient(
     private val azureAdClient: AzureAdClient,
-    private val istilgangskontrollEnv: ClientEnvironment
+    private val istilgangskontrollEnv: ClientEnvironment,
 ) {
     private val httpClient = httpClientDefault()
 
@@ -30,7 +33,7 @@ class VeilederTilgangskontrollClient(
     suspend fun getVeilederAccessToPerson(
         personident: PersonIdent,
         token: String,
-        callId: String
+        callId: String,
     ): Tilgang? {
         val oboToken = azureAdClient.getOnBehalfOfToken(
             scopeClientId = istilgangskontrollEnv.clientId,
@@ -64,7 +67,7 @@ class VeilederTilgangskontrollClient(
     suspend fun veilederPersonAccessListMedOBO(
         personIdentNumberList: List<String>,
         token: String,
-        callId: String
+        callId: String,
     ): List<String>? {
         val oboToken = azureAdClient.getOnBehalfOfToken(
             scopeClientId = istilgangskontrollEnv.clientId,
@@ -137,7 +140,7 @@ class VeilederTilgangskontrollClient(
     suspend fun harVeilederTilgangTilEnhetMedOBO(
         enhet: String,
         token: String,
-        callId: String
+        callId: String,
     ): Boolean {
         val oboToken = azureAdClient.getOnBehalfOfToken(
             scopeClientId = istilgangskontrollEnv.clientId,

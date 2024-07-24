@@ -8,7 +8,7 @@ import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.application.cache.RedisStore
 import no.nav.syfo.personstatus.infrastructure.clients.ClientEnvironment
 import no.nav.syfo.personstatus.infrastructure.clients.httpClientDefault
-import no.nav.syfo.domain.Virksomhetsnummer
+import no.nav.syfo.personstatus.domain.Virksomhetsnummer
 import no.nav.syfo.util.NAV_CALL_ID_HEADER
 import org.slf4j.LoggerFactory
 

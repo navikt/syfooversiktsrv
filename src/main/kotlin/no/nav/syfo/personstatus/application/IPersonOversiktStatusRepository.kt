@@ -1,6 +1,6 @@
 package no.nav.syfo.personstatus.application
 
-import no.nav.syfo.domain.PersonIdent
+import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 
 interface IPersonOversiktStatusRepository {

@@ -1,6 +1,5 @@
 package no.nav.syfo.oppfolgingstilfelle.kafka
 
-import no.nav.syfo.domain.Virksomhetsnummer
 import no.nav.syfo.oppfolgingstilfelle.domain.Oppfolgingstilfelle
 import no.nav.syfo.oppfolgingstilfelle.domain.PersonOppfolgingstilfelleVirksomhet
 import no.nav.syfo.personstatus.domain.*

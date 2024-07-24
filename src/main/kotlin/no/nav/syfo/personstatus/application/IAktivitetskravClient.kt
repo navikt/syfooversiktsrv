@@ -1,6 +1,6 @@
 package no.nav.syfo.personstatus.application
 
-import no.nav.syfo.domain.PersonIdent
+import no.nav.syfo.personstatus.domain.PersonIdent
 
 interface IAktivitetskravClient {
     suspend fun getAktivitetskravForPersons(

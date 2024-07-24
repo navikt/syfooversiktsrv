@@ -2,7 +2,7 @@ package no.nav.syfo.pdlpersonhendelse.kafka
 
 import no.nav.person.pdl.leesah.Personhendelse
 import no.nav.syfo.personstatus.infrastructure.kafka.KafkaConsumerService
-import no.nav.syfo.metric.COUNT_KAFKA_CONSUMER_PDL_PERSONHENDELSE_TOMBSTONE
+import no.nav.syfo.personstatus.infrastructure.COUNT_KAFKA_CONSUMER_PDL_PERSONHENDELSE_TOMBSTONE
 import no.nav.syfo.pdlpersonhendelse.PdlPersonhendelseService
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.consumer.KafkaConsumer

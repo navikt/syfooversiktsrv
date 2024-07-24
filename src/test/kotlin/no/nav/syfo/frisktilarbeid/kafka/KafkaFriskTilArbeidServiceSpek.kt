@@ -2,7 +2,7 @@ package no.nav.syfo.frisktilarbeid.kafka
 
 import io.ktor.server.testing.*
 import io.mockk.*
-import no.nav.syfo.domain.PersonIdent
+import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.oppfolgingstilfelle.kafka.toPersonOversiktStatus
 import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.testutil.*

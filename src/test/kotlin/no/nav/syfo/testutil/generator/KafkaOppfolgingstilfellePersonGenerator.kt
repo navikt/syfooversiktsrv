@@ -1,7 +1,7 @@
 package no.nav.syfo.testutil.generator
 
-import no.nav.syfo.domain.PersonIdent
-import no.nav.syfo.domain.Virksomhetsnummer
+import no.nav.syfo.personstatus.domain.PersonIdent
+import no.nav.syfo.personstatus.domain.Virksomhetsnummer
 import no.nav.syfo.oppfolgingstilfelle.kafka.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER
@@ -20,7 +20,7 @@ fun generateKafkaOppfolgingstilfellePerson(
     virksomhetsnummerList: List<Virksomhetsnummer> = listOf(
         Virksomhetsnummer(VIRKSOMHETSNUMMER)
     ),
-    antallSykedager: Int? = oppfolgingstilfelleDurationInDays.toInt()
+    antallSykedager: Int? = oppfolgingstilfelleDurationInDays.toInt(),
 ): KafkaOppfolgingstilfellePerson {
     val start = end.minusDays(oppfolgingstilfelleDurationInDays)
     return KafkaOppfolgingstilfellePerson(

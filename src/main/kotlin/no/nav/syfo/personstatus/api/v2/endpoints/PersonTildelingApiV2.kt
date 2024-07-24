@@ -9,7 +9,7 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import no.nav.syfo.personstatus.api.v2.auth.getNAVIdentFromToken
-import no.nav.syfo.metric.COUNT_PERSONTILDELING_TILDELT
+import no.nav.syfo.personstatus.infrastructure.COUNT_PERSONTILDELING_TILDELT
 import no.nav.syfo.personstatus.PersonTildelingService
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytningListe

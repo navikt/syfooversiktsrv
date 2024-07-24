@@ -1,4 +1,6 @@
-package no.nav.syfo.domain
+package no.nav.syfo.personstatus.domain
+
+import java.lang.IllegalArgumentException
 
 data class Virksomhetsnummer(
     val value: String,

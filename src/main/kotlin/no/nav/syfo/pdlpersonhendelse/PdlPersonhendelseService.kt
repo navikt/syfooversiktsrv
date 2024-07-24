@@ -2,9 +2,9 @@ package no.nav.syfo.pdlpersonhendelse
 
 import no.nav.person.pdl.leesah.Personhendelse
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
-import no.nav.syfo.domain.PersonIdent
-import no.nav.syfo.metric.COUNT_KAFKA_CONSUMER_PDL_PERSONHENDELSE_UPDATES
+import no.nav.syfo.personstatus.infrastructure.COUNT_KAFKA_CONSUMER_PDL_PERSONHENDELSE_UPDATES
 import no.nav.syfo.pdlpersonhendelse.db.updatePersonOversiktStatusNavnToNull
+import no.nav.syfo.personstatus.domain.PersonIdent
 import org.slf4j.LoggerFactory
 
 class PdlPersonhendelseService(

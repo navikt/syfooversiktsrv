@@ -1,7 +1,7 @@
 package no.nav.syfo.pdlpersonhendelse.db
 
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
-import no.nav.syfo.domain.PersonIdent
+import no.nav.syfo.personstatus.domain.PersonIdent
 import java.sql.Timestamp
 import java.time.Instant
 

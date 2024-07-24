@@ -1,6 +1,6 @@
 package no.nav.syfo.personstatus.api.v2.model
 
-import no.nav.syfo.domain.PersonIdent
+import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 
 data class VeilederBrukerKnytningDTO(

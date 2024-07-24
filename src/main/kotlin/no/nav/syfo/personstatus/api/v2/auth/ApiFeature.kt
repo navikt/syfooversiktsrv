@@ -18,7 +18,7 @@ import io.ktor.server.response.respond
 import io.ktor.util.cio.ChannelWriteException
 import io.micrometer.core.instrument.distribution.DistributionStatisticConfig
 import net.logstash.logback.argument.StructuredArguments
-import no.nav.syfo.metric.METRICS_REGISTRY
+import no.nav.syfo.personstatus.infrastructure.METRICS_REGISTRY
 import no.nav.syfo.util.*
 import no.nav.syfo.util.configure
 import no.nav.syfo.util.getCallId

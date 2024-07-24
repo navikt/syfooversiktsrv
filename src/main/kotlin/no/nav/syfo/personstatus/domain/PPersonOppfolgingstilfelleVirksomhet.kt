@@ -1,6 +1,5 @@
 package no.nav.syfo.personstatus.domain
 
-import no.nav.syfo.domain.Virksomhetsnummer
 import no.nav.syfo.oppfolgingstilfelle.domain.PersonOppfolgingstilfelleVirksomhet
 import java.time.OffsetDateTime
 import java.util.*

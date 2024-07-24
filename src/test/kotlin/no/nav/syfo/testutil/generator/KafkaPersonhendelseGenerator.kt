@@ -3,7 +3,7 @@ package no.nav.syfo.testutil.generator
 import no.nav.person.pdl.leesah.Endringstype
 import no.nav.person.pdl.leesah.Personhendelse
 import no.nav.person.pdl.leesah.navn.Navn
-import no.nav.syfo.domain.PersonIdent
+import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.testutil.UserConstants
 import java.time.Instant
 import java.time.LocalDate

@@ -2,8 +2,8 @@ package no.nav.syfo.personstatus.infrastructure.clients.azuread
 
 import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.Counter.builder
-import no.nav.syfo.metric.METRICS_NS
-import no.nav.syfo.metric.METRICS_REGISTRY
+import no.nav.syfo.personstatus.infrastructure.METRICS_NS
+import no.nav.syfo.personstatus.infrastructure.METRICS_REGISTRY
 
 const val CALL_AZUREAD_BASE = "${METRICS_NS}_call_azuread"
 
