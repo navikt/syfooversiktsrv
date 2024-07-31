@@ -130,7 +130,7 @@ class PersonoversiktStatusService(
                     personidenter = personidenterWithOppfolgingsoppgave,
                 )
                 if (response == null) {
-                    log.error("Oppfolgingsoppgaver was null for enhet ${personStatuser[0].enhet}")
+                    log.warn("Did not find any oppfolgingsoppgaver for enhet ${personStatuser[0].enhet}")
                 }
                 response
             } else {
