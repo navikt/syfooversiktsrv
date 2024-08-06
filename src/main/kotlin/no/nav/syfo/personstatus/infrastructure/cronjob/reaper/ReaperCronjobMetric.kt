@@ -1,8 +1,8 @@
 package no.nav.syfo.personstatus.infrastructure.cronjob.reaper
 
 import io.micrometer.core.instrument.Counter
-import no.nav.syfo.metric.METRICS_NS
-import no.nav.syfo.metric.METRICS_REGISTRY
+import no.nav.syfo.personstatus.infrastructure.METRICS_NS
+import no.nav.syfo.personstatus.infrastructure.METRICS_REGISTRY
 
 const val CRONJOB_REAPER_FAIL_BASE = "${METRICS_NS}_cronjob_reaper"
 const val CRONJOB_REAPER_UPDATE = "${CRONJOB_REAPER_FAIL_BASE}_update_count"

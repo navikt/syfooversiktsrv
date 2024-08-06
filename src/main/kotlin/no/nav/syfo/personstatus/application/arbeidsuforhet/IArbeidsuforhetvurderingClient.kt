@@ -1,6 +1,6 @@
 package no.nav.syfo.personstatus.application.arbeidsuforhet
 
-import no.nav.syfo.domain.PersonIdent
+import no.nav.syfo.personstatus.domain.PersonIdent
 
 interface IArbeidsuforhetvurderingClient {
 

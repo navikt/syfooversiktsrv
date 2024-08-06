@@ -4,7 +4,7 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.util.pipeline.*
 import net.logstash.logback.argument.StructuredArguments
-import no.nav.syfo.domain.PersonIdent
+import no.nav.syfo.personstatus.domain.PersonIdent
 import java.util.*
 
 const val NAV_PERSONIDENT_HEADER = "nav-personident"

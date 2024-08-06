@@ -3,7 +3,7 @@ package no.nav.syfo.personstatus.infrastructure.database
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import com.zaxxer.hikari.metrics.prometheus.PrometheusMetricsTrackerFactory
-import no.nav.syfo.metric.METRICS_REGISTRY
+import no.nav.syfo.personstatus.infrastructure.METRICS_REGISTRY
 import org.flywaydb.core.Flyway
 import java.sql.Connection
 import java.sql.ResultSet
@@ -18,7 +18,7 @@ data class DatabaseConfig(
 )
 
 class Database(
-    private val databaseConfig: DatabaseConfig
+    private val databaseConfig: DatabaseConfig,
 ) : DatabaseInterface {
 
     override val connection: Connection

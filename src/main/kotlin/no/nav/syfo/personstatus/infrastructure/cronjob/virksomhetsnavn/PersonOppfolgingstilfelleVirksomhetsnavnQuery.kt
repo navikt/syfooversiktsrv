@@ -2,7 +2,7 @@ package no.nav.syfo.personstatus.infrastructure.cronjob.virksomhetsnavn
 
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import no.nav.syfo.personstatus.infrastructure.database.toList
-import no.nav.syfo.domain.Virksomhetsnummer
+import no.nav.syfo.personstatus.domain.Virksomhetsnummer
 import java.sql.ResultSet
 
 const val queryUpdatePersonOppfolgingstilfelleVirksomhet =

@@ -10,7 +10,7 @@ import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.*
 import net.logstash.logback.argument.StructuredArguments
-import no.nav.syfo.domain.PersonIdent
+import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.application.AktivitetskravRequestDTO
 import no.nav.syfo.personstatus.application.GetAktivitetskravForPersonsResponseDTO
 import no.nav.syfo.personstatus.application.IAktivitetskravClient

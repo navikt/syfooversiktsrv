@@ -3,7 +3,6 @@ package no.nav.syfo.personstatus.domain
 import no.nav.syfo.aktivitetskravvurdering.domain.AktivitetskravStatus
 import no.nav.syfo.aktivitetskravvurdering.domain.toPersonOversiktStatus
 import no.nav.syfo.dialogmotekandidat.kafka.toPersonOversiktStatus
-import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.testutil.UserConstants
 import no.nav.syfo.testutil.generator.AktivitetskravGenerator
 import no.nav.syfo.testutil.generator.generateKafkaDialogmotekandidatEndringStoppunkt

@@ -3,7 +3,7 @@ package no.nav.syfo.aktivitetskravvurdering
 import io.mockk.*
 import no.nav.syfo.aktivitetskravvurdering.domain.Aktivitetskrav
 import no.nav.syfo.aktivitetskravvurdering.domain.AktivitetskravStatus
-import no.nav.syfo.domain.PersonIdent
+import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.testutil.UserConstants
@@ -58,7 +58,12 @@ class AktivitetskravServiceSpek : Spek({
             )
 
             verify(exactly = 1) { connection.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR) }
-            verify(exactly = 1) { connection.createPersonOversiktStatus(commit = false, personOversiktStatus = expectedPersonOversiktStatus) }
+            verify(exactly = 1) {
+                connection.createPersonOversiktStatus(
+                    commit = false,
+                    personOversiktStatus = expectedPersonOversiktStatus
+                )
+            }
             verify(exactly = 0) { connection.updatePersonOversiktStatusAktivitetskrav(any(), any()) }
         }
 
@@ -80,7 +85,12 @@ class AktivitetskravServiceSpek : Spek({
 
             verify(exactly = 1) { connection.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR) }
             verify(exactly = 0) { connection.createPersonOversiktStatus(any(), any()) }
-            verify(exactly = 1) { connection.updatePersonOversiktStatusAktivitetskrav(pPersonOversiktStatus = existingPPersonOversiktStatus, aktivitetskrav) }
+            verify(exactly = 1) {
+                connection.updatePersonOversiktStatusAktivitetskrav(
+                    pPersonOversiktStatus = existingPPersonOversiktStatus,
+                    aktivitetskrav
+                )
+            }
         }
     }
 })

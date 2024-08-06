@@ -2,7 +2,7 @@ package no.nav.syfo.personstatus.db
 
 import no.nav.syfo.aktivitetskravvurdering.domain.Aktivitetskrav
 import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendring
-import no.nav.syfo.domain.PersonIdent
+import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.PPersonOversiktStatus
 import no.nav.syfo.trengeroppfolging.domain.TrengerOppfolging
 import java.sql.Connection

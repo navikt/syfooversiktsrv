@@ -1,8 +1,8 @@
 package no.nav.syfo.personstatus.infrastructure.clients.behandlendeenhet
 
 import io.micrometer.core.instrument.Counter
-import no.nav.syfo.metric.METRICS_NS
-import no.nav.syfo.metric.METRICS_REGISTRY
+import no.nav.syfo.personstatus.infrastructure.METRICS_NS
+import no.nav.syfo.personstatus.infrastructure.METRICS_REGISTRY
 
 const val CALL_BEHANDLENDEENHET_BASE = "${METRICS_NS}_call_behandlendeenhet"
 const val CALL_BEHANDLENDEENHET_SUCCESS = "${CALL_BEHANDLENDEENHET_BASE}_success_count"

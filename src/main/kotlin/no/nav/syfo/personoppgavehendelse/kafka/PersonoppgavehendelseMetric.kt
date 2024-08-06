@@ -1,7 +1,8 @@
 package no.nav.syfo.personoppgavehendelse.kafka
 
 import io.micrometer.core.instrument.Counter
-import no.nav.syfo.metric.*
+import no.nav.syfo.personstatus.infrastructure.METRICS_NS
+import no.nav.syfo.personstatus.infrastructure.METRICS_REGISTRY
 
 const val KAFKA_CONSUMER_PERSONOPPGAVEHENDELSE_BASE = "${METRICS_NS}_kafka_consumer_personoppgavehendelse"
 const val KAFKA_CONSUMER_PERSONOPPGAVEHENDELSE_READ = "${KAFKA_CONSUMER_PERSONOPPGAVEHENDELSE_BASE}_read"

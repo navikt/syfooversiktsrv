@@ -1,7 +1,7 @@
 package no.nav.syfo.testutil
 
-import no.nav.syfo.domain.PersonIdent
-import no.nav.syfo.domain.Virksomhetsnummer
+import no.nav.syfo.personstatus.domain.PersonIdent
+import no.nav.syfo.personstatus.domain.Virksomhetsnummer
 import no.nav.syfo.testutil.mock.generatePdlPersonNavn
 
 object UserConstants {

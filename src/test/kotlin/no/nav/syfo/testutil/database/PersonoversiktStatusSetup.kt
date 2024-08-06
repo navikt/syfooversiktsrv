@@ -5,8 +5,8 @@ import no.nav.syfo.aktivitetskravvurdering.domain.Aktivitetskrav
 import no.nav.syfo.aktivitetskravvurdering.persistAktivitetskrav
 import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendring
 import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendringType
-import no.nav.syfo.domain.PersonIdent
-import no.nav.syfo.domain.Virksomhetsnummer
+import no.nav.syfo.personstatus.domain.PersonIdent
+import no.nav.syfo.personstatus.domain.Virksomhetsnummer
 import no.nav.syfo.oppfolgingstilfelle.kafka.toPersonOversiktStatus
 import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.testutil.*
@@ -15,7 +15,7 @@ import java.time.OffsetDateTime
 
 fun setAsKandidat(
     database: TestDatabase,
-    kandidatGeneratedAt: OffsetDateTime = OffsetDateTime.now().minusDays(10)
+    kandidatGeneratedAt: OffsetDateTime = OffsetDateTime.now().minusDays(10),
 ) {
     val ppersonOversiktStatus = generatePPersonOversiktStatus()
 
@@ -28,6 +28,7 @@ fun setAsKandidat(
         connection.commit()
     }
 }
+
 fun setTildeltEnhet(database: TestDatabase) {
     database.setTildeltEnhet(
         ident = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),
@@ -37,7 +38,7 @@ fun setTildeltEnhet(database: TestDatabase) {
 
 fun setDialogmotestatus(
     database: TestDatabase,
-    status: DialogmoteStatusendringType = DialogmoteStatusendringType.INNKALT
+    status: DialogmoteStatusendringType = DialogmoteStatusendringType.INNKALT,
 ) {
     val ppersonOversiktStatus = generatePPersonOversiktStatus()
     val statusendring = DialogmoteStatusendring.create(

@@ -9,8 +9,8 @@ import io.mockk.clearMocks
 import io.mockk.every
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendringType
-import no.nav.syfo.domain.PersonIdent
-import no.nav.syfo.domain.Virksomhetsnummer
+import no.nav.syfo.personstatus.domain.PersonIdent
+import no.nav.syfo.personstatus.domain.Virksomhetsnummer
 import no.nav.syfo.oppfolgingstilfelle.domain.PersonOppfolgingstilfelleVirksomhet
 import no.nav.syfo.personoppgavehendelse.kafka.KPersonoppgavehendelse
 import no.nav.syfo.personstatus.api.v2.endpoints.personOversiktApiV2Path

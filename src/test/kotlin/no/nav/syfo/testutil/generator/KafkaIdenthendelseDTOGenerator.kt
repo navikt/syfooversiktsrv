@@ -1,6 +1,6 @@
 package no.nav.syfo.testutil.generator
 
-import no.nav.syfo.domain.PersonIdent
+import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.identhendelse.kafka.IdentType
 import no.nav.syfo.identhendelse.kafka.Identifikator
 import no.nav.syfo.identhendelse.kafka.KafkaIdenthendelseDTO

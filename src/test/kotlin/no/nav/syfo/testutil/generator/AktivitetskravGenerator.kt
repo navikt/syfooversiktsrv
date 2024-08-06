@@ -2,7 +2,7 @@ package no.nav.syfo.testutil.generator
 
 import no.nav.syfo.aktivitetskravvurdering.domain.Aktivitetskrav
 import no.nav.syfo.aktivitetskravvurdering.domain.AktivitetskravStatus
-import no.nav.syfo.domain.PersonIdent
+import no.nav.syfo.personstatus.domain.PersonIdent
 import java.time.*
 
 class AktivitetskravGenerator(

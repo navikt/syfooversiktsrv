@@ -1,8 +1,8 @@
 package no.nav.syfo.personstatus.infrastructure.cronjob.virksomhetsnavn
 
 import io.micrometer.core.instrument.Counter
-import no.nav.syfo.metric.METRICS_NS
-import no.nav.syfo.metric.METRICS_REGISTRY
+import no.nav.syfo.personstatus.infrastructure.METRICS_NS
+import no.nav.syfo.personstatus.infrastructure.METRICS_REGISTRY
 
 const val CRONJOB_OPPFOLGINGSTILFELLE_VIRKSOMHETSNAVN_BASE = "${METRICS_NS}_cronjob_oppfolgingstilfelle_virksomhetsnavn"
 const val CRONJOB_OPPFOLGINGSTILFELLE_VIRKSOMHETSNAVN_UPDATE = "${CRONJOB_OPPFOLGINGSTILFELLE_VIRKSOMHETSNAVN_BASE}_update_count"

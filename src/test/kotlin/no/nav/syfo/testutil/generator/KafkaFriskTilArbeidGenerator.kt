@@ -1,6 +1,6 @@
 package no.nav.syfo.testutil.generator
 
-import no.nav.syfo.domain.PersonIdent
+import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.frisktilarbeid.kafka.FRISK_TIL_ARBEID_VEDTAK_TOPIC
 import no.nav.syfo.frisktilarbeid.kafka.Status
 import no.nav.syfo.frisktilarbeid.kafka.VedtakStatusRecord
@@ -33,7 +33,7 @@ fun friskTilArbeidTopicPartition() = TopicPartition(
 )
 
 fun friskTilArbeidConsumerRecord(
-    vedtakStatusRecord: VedtakStatusRecord
+    vedtakStatusRecord: VedtakStatusRecord,
 ) = ConsumerRecord(
     FRISK_TIL_ARBEID_VEDTAK_TOPIC,
     0,
