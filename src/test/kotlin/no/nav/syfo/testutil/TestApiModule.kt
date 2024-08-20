@@ -1,11 +1,11 @@
 package no.nav.syfo.testutil
 
 import io.ktor.server.application.*
+import io.mockk.mockk
 import no.nav.syfo.application.cache.RedisStore
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.PdlClient
 import no.nav.syfo.personstatus.PersonoversiktStatusService
 import no.nav.syfo.personstatus.api.v2.apiModule
-import no.nav.syfo.personstatus.infrastructure.clients.AktivitetskravClient
 import no.nav.syfo.personstatus.infrastructure.clients.arbeidsuforhet.ArbeidsuforhetvurderingClient
 import no.nav.syfo.personstatus.infrastructure.clients.oppfolgingsoppgave.OppfolgingsoppgaveClient
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
@@ -32,10 +32,6 @@ fun Application.testApiModule(
         azureAdClient = azureAdClient,
         clientEnvironment = externalMockEnvironment.environment.clients.ishuskelapp,
     )
-    val aktivitetskravClient = AktivitetskravClient(
-        azureAdClient = azureAdClient,
-        clientEnvironment = externalMockEnvironment.environment.clients.aktivitetskrav,
-    )
     val personoversiktRepository = PersonOversiktStatusRepository(database = externalMockEnvironment.database)
     val personoversiktStatusService = PersonoversiktStatusService(
         database = externalMockEnvironment.database,
@@ -43,7 +39,7 @@ fun Application.testApiModule(
         personoversiktStatusRepository = personoversiktRepository,
         arbeidsuforhetvurderingClient = arbeidsuforhetvurderingClient,
         oppfolgingsoppgaveClient = oppfolgingsoppgaveClient,
-        aktivitetskravClient = aktivitetskravClient,
+        aktivitetskravClient = mockk(relaxed = true),
     )
 
     this.apiModule(
