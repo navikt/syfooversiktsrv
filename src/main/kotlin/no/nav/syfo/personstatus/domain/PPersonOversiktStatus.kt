@@ -42,6 +42,7 @@ data class PPersonOversiktStatus(
     val isAktivArbeidsuforhetvurdering: Boolean,
     val isAktivSenOppfolgingKandidat: Boolean,
     val isAktivAktivitetskravvurdering: Boolean,
+    val isAktivManglendeMedvirkningVurdering: Boolean,
 )
 
 fun PPersonOversiktStatus.toPersonOversiktStatus(
@@ -74,6 +75,7 @@ fun PPersonOversiktStatus.toPersonOversiktStatus(
     isAktivArbeidsuforhetvurdering = isAktivArbeidsuforhetvurdering,
     isAktivSenOppfolgingKandidat = isAktivSenOppfolgingKandidat,
     isAktivAktivitetskravvurdering = isAktivAktivitetskravvurdering,
+    isAktivManglendeMedvirkningVurdering = isAktivManglendeMedvirkningVurdering,
 )
 
 fun PPersonOversiktStatus.toPersonOppfolgingstilfelle(

@@ -11,5 +11,7 @@ interface IPersonOversiktStatusRepository {
 
     fun upsertAktivitetskravAktivStatus(personident: PersonIdent, isAktivVurdering: Boolean): Result<Int>
 
+    fun upsertManglendeMedvirkningStatus(personident: PersonIdent, isAktivVurdering: Boolean): Result<Int>
+
     fun getPersonOversiktStatus(personident: PersonIdent): PersonOversiktStatus?
 }
