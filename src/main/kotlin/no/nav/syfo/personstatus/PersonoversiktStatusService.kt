@@ -76,6 +76,7 @@ class PersonoversiktStatusService(
             callId = callId,
             token = token,
             personStatuser = personStatusOversikt,
+            arenaCutoff = arenaCutoff,
         )
 
         return personStatusOversikt.map { personStatus ->
@@ -94,7 +95,7 @@ class PersonoversiktStatusService(
         }
     }
 
-    private suspend fun getArbeidsuforhetvurderinger(
+    private fun getArbeidsuforhetvurderinger(
         callId: String,
         token: String,
         personStatuser: List<PersonOversiktStatus>,
@@ -114,7 +115,7 @@ class PersonoversiktStatusService(
             }
         }
 
-    private suspend fun getActiveOppfolgingsoppgaver(
+    private fun getActiveOppfolgingsoppgaver(
         callId: String,
         token: String,
         personStatuser: List<PersonOversiktStatus>,
@@ -138,14 +139,15 @@ class PersonoversiktStatusService(
             }
         }
 
-    private suspend fun getActiveAktivitetskravForPersons(
+    private fun getActiveAktivitetskravForPersons(
         callId: String,
         token: String,
         personStatuser: List<PersonOversiktStatus>,
+        arenaCutoff: LocalDate,
     ): Deferred<GetAktivitetskravForPersonsResponseDTO?> =
         CoroutineScope(Dispatchers.IO).async {
             val personidenterWithActiveAktivitetskrav = personStatuser
-                .filter { it.isAktivAktivitetskravvurdering }
+                .filter { it.isAktivAktivitetskravvurdering || it.isActiveAktivitetskrav(arenaCutoff = arenaCutoff) }
                 .map { PersonIdent(it.fnr) }
             if (personidenterWithActiveAktivitetskrav.isNotEmpty()) {
                 aktivitetskravClient.getAktivitetskravForPersons(
