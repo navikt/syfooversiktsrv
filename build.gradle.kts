@@ -22,7 +22,6 @@ val micrometerRegistry = "1.12.8"
 val nimbusjosejwt = "9.40"
 val postgresEmbedded = if (Os.isFamily(Os.FAMILY_MAC)) "1.0.0" else "0.13.4"
 val postgres = "42.7.3"
-val redisEmbedded = "0.7.3"
 val spek = "2.0.19"
 
 plugins {
@@ -72,7 +71,6 @@ dependencies {
 
     // Cache
     implementation("redis.clients:jedis:$jedis")
-    testImplementation("it.ozimov:embedded-redis:$redisEmbedded")
 
     // (De-)serialization
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonDataType")
