@@ -37,9 +37,6 @@ class ExternalMockEnvironment private constructor() {
         istilgangskontrollUrl = tilgangskontrollMock.url,
         ishuskelappUrl = oppfolgingsoppgaveMock.url,
     )
-    val redisServer = testRedis(
-        redisEnvironment = environment.redis,
-    )
 
     val wellKnownVeilederV2 = wellKnownVeilederV2Mock()
 
@@ -62,5 +59,4 @@ class ExternalMockEnvironment private constructor() {
 
 private fun ExternalMockEnvironment.startExternalMocks() {
     this.externalApplicationMockMap.forEach { (_, externalMock) -> externalMock.start() }
-    this.redisServer.start()
 }
