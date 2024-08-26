@@ -14,7 +14,6 @@ import java.util.UUID
 
 fun generateKafkaFriskTilArbeidVedtak(
     personIdent: PersonIdent,
-    createdAt: OffsetDateTime,
     fom: LocalDate,
 ) = VedtakStatusRecord(
     uuid = UUID.randomUUID(),

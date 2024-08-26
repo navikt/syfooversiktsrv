@@ -37,7 +37,6 @@ class AktivitetskravServiceSpek : Spek({
         }
 
         it("Create new personoversiktstatus with aktivitetskravinfo if no row exist for innbygger") {
-            val updatedAt = OffsetDateTime.now()
             val stoppunkt = LocalDate.now().plusDays(7)
             val aktivitetskrav = Aktivitetskrav(
                 personIdent = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),

@@ -28,7 +28,6 @@ class KafkaFriskTilArbeidServiceSpek : Spek({
         val topicPartition = friskTilArbeidTopicPartition()
         val vedtak = generateKafkaFriskTilArbeidVedtak(
             personIdent = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),
-            createdAt = OffsetDateTime.now(),
             fom = LocalDate.now().plusDays(1),
         )
         val kafkaFriskTilArbeidConsumerRecord = friskTilArbeidConsumerRecord(
