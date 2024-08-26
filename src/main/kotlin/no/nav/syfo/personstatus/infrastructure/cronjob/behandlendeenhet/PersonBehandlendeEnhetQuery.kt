@@ -73,7 +73,7 @@ const val queryGetPersonerWithOppgaveAndOldEnhet =
         OR arbeidsuforhet_aktiv_vurdering = 't'
         OR is_aktiv_sen_oppfolging_kandidat = 't'
         OR is_aktiv_aktivitetskrav_vurdering = 't'
-        OR is_manglende_medvirkning_vurdering = 't'
+        OR is_aktiv_manglende_medvirkning_vurdering = 't'
         )
     AND (tildelt_enhet_updated_at IS NULL OR tildelt_enhet_updated_at <= NOW() - INTERVAL '24 HOURS')
     ORDER BY tildelt_enhet_updated_at ASC

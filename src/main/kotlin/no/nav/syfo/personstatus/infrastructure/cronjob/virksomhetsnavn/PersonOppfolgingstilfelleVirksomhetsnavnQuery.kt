@@ -46,7 +46,7 @@ const val queryPersonOppfolgingstilfelleVirksomhetNoVirksomhetsnavnList =
         OR arbeidsuforhet_aktiv_vurdering = 't'
         OR is_aktiv_sen_oppfolging_kandidat = 't'
         OR is_aktiv_aktivitetskrav_vurdering = 't'
-        OR is_manglende_medvirkning_vurdering = 't'
+        OR is_aktiv_manglende_medvirkning_vurdering = 't'
         )
     ORDER BY PERSON_OPPFOLGINGSTILFELLE_VIRKSOMHET.created_at ASC
     LIMIT 1000

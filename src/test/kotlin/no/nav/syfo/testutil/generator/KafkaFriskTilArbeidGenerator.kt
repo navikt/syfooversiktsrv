@@ -1,16 +1,15 @@
 package no.nav.syfo.testutil.generator
 
-import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.frisktilarbeid.kafka.FRISK_TIL_ARBEID_VEDTAK_TOPIC
 import no.nav.syfo.frisktilarbeid.kafka.Status
 import no.nav.syfo.frisktilarbeid.kafka.VedtakStatusRecord
+import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.testutil.UserConstants
 import no.nav.syfo.util.nowUTC
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.TopicPartition
 import java.time.LocalDate
-import java.time.OffsetDateTime
-import java.util.UUID
+import java.util.*
 
 fun generateKafkaFriskTilArbeidVedtak(
     personIdent: PersonIdent,
