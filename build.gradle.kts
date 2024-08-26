@@ -22,11 +22,10 @@ val micrometerRegistry = "1.12.8"
 val nimbusjosejwt = "9.40"
 val postgresEmbedded = if (Os.isFamily(Os.FAMILY_MAC)) "1.0.0" else "0.13.4"
 val postgres = "42.7.3"
-val redisEmbedded = "0.7.3"
 val spek = "2.0.19"
 
 plugins {
-    kotlin("jvm") version "1.9.22"
+    kotlin("jvm") version "2.0.10"
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("org.jlleitschuh.gradle.ktlint") version "11.6.0"
     id("com.github.davidmc24.gradle.plugin.avro") version "1.8.0"
@@ -72,7 +71,6 @@ dependencies {
 
     // Cache
     implementation("redis.clients:jedis:$jedis")
-    testImplementation("it.ozimov:embedded-redis:$redisEmbedded")
 
     // (De-)serialization
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonDataType")
@@ -124,7 +122,7 @@ dependencies {
 }
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(21)
 }
 
 tasks {

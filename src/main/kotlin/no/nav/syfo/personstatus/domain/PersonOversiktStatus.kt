@@ -58,8 +58,11 @@ fun PersonOversiktStatus.hasOpenDialogmoteInvitation() =
 fun PersonOversiktStatus.noOpenDialogmoteInvitation() = !hasOpenDialogmoteInvitation()
 
 fun PersonOversiktStatus.isActiveAktivitetskrav(arenaCutoff: LocalDate) =
-    (aktivitetskrav == AktivitetskravStatus.NY || aktivitetskrav == AktivitetskravStatus.AVVENT || aktivitetskrav == AktivitetskravStatus.NY_VURDERING) &&
-        aktivitetskravStoppunkt?.isAfter(arenaCutoff) ?: false
+    (
+        aktivitetskrav == AktivitetskravStatus.NY ||
+            aktivitetskrav == AktivitetskravStatus.AVVENT ||
+            aktivitetskrav == AktivitetskravStatus.NY_VURDERING || aktivitetskrav == AktivitetskravStatus.FORHANDSVARSEL
+        ) && aktivitetskravStoppunkt?.isAfter(arenaCutoff) == true
 
 fun PersonOversiktStatus.hasActiveOppgave(arenaCutoff: LocalDate): Boolean {
     return this.oppfolgingsplanLPSBistandUbehandlet == true ||
