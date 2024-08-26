@@ -1,20 +1,26 @@
 package no.nav.syfo.frisktilarbeid.kafka
 
 import io.ktor.server.testing.*
-import io.mockk.*
-import no.nav.syfo.personstatus.domain.PersonIdent
+import io.mockk.clearMocks
+import io.mockk.every
+import io.mockk.verify
 import no.nav.syfo.oppfolgingstilfelle.kafka.toPersonOversiktStatus
-import no.nav.syfo.personstatus.db.*
+import no.nav.syfo.personstatus.db.getPersonOversiktStatusList
+import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.TestKafkaModule.kafkaConsumerFriskTilArbeid
-import no.nav.syfo.testutil.generator.*
-import org.amshove.kluent.*
+import no.nav.syfo.testutil.generator.friskTilArbeidConsumerRecord
+import no.nav.syfo.testutil.generator.friskTilArbeidTopicPartition
+import no.nav.syfo.testutil.generator.generateKafkaFriskTilArbeidVedtak
+import no.nav.syfo.testutil.generator.generateKafkaOppfolgingstilfellePerson
+import org.amshove.kluent.shouldBe
+import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeNull
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import java.time.Duration
 import java.time.LocalDate
-import java.time.OffsetDateTime
 
 class KafkaFriskTilArbeidServiceSpek : Spek({
     with(TestApplicationEngine()) {
@@ -28,7 +34,6 @@ class KafkaFriskTilArbeidServiceSpek : Spek({
         val topicPartition = friskTilArbeidTopicPartition()
         val vedtak = generateKafkaFriskTilArbeidVedtak(
             personIdent = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),
-            createdAt = OffsetDateTime.now(),
             fom = LocalDate.now().plusDays(1),
         )
         val kafkaFriskTilArbeidConsumerRecord = friskTilArbeidConsumerRecord(

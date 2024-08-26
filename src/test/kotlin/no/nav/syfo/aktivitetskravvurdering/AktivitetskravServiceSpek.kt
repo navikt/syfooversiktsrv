@@ -3,8 +3,10 @@ package no.nav.syfo.aktivitetskravvurdering
 import io.mockk.*
 import no.nav.syfo.aktivitetskravvurdering.domain.Aktivitetskrav
 import no.nav.syfo.aktivitetskravvurdering.domain.AktivitetskravStatus
+import no.nav.syfo.personstatus.db.createPersonOversiktStatus
+import no.nav.syfo.personstatus.db.getPersonOversiktStatusList
+import no.nav.syfo.personstatus.db.updatePersonOversiktStatusAktivitetskrav
 import no.nav.syfo.personstatus.domain.PersonIdent
-import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.testutil.UserConstants
 import no.nav.syfo.testutil.generator.generatePPersonOversiktStatus
@@ -12,7 +14,6 @@ import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import java.sql.Connection
 import java.time.LocalDate
-import java.time.OffsetDateTime
 
 class AktivitetskravServiceSpek : Spek({
     val CREATE_OR_UPDATE_PERSON_OVERSIKT_STATUS_PATH = "no.nav.syfo.personstatus.db.CreateOrUpdatePersonOversiktStatusKt"
@@ -37,7 +38,6 @@ class AktivitetskravServiceSpek : Spek({
         }
 
         it("Create new personoversiktstatus with aktivitetskravinfo if no row exist for innbygger") {
-            val updatedAt = OffsetDateTime.now()
             val stoppunkt = LocalDate.now().plusDays(7)
             val aktivitetskrav = Aktivitetskrav(
                 personIdent = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),

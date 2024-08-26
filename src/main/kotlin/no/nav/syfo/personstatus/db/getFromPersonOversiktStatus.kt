@@ -57,6 +57,7 @@ const val queryHentUbehandledePersonerTilknyttetEnhet = """
                             OR friskmelding_til_arbeidsformidling_fom IS NOT NULL
                             OR is_aktiv_sen_oppfolging_kandidat = 't'
                             OR is_aktiv_aktivitetskrav_vurdering = 't'
+                            OR is_aktiv_manglende_medvirkning_vurdering = 't'
                             )
                         );
                 """
@@ -127,6 +128,7 @@ fun ResultSet.toPPersonOversiktStatus(): PPersonOversiktStatus =
         isAktivArbeidsuforhetvurdering = getBoolean("arbeidsuforhet_aktiv_vurdering"),
         isAktivSenOppfolgingKandidat = getBoolean("is_aktiv_sen_oppfolging_kandidat"),
         isAktivAktivitetskravvurdering = getBoolean("is_aktiv_aktivitetskrav_vurdering"),
+        isAktivManglendeMedvirkningVurdering = getBoolean("is_aktiv_manglende_medvirkning_vurdering"),
     )
 
 fun ResultSet.toVeilederBrukerKnytning(): VeilederBrukerKnytning =

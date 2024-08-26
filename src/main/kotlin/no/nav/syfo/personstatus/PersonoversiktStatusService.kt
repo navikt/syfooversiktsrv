@@ -230,6 +230,12 @@ class PersonoversiktStatusService(
             isAktivVurdering = isAktivVurdering
         )
 
+    fun upsertManglendeMedvirkningStatus(personident: PersonIdent, isAktivVurdering: Boolean): Result<Int> =
+        personoversiktStatusRepository.upsertManglendeMedvirkningStatus(
+            personident = personident,
+            isAktivVurdering = isAktivVurdering,
+        )
+
     private fun createOrUpdatePersonOversiktStatus(
         connection: Connection,
         personident: PersonIdent,

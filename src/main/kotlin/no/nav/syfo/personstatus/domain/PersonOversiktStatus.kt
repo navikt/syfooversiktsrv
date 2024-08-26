@@ -39,6 +39,7 @@ data class PersonOversiktStatus(
     val friskmeldingTilArbeidsformidlingFom: LocalDate? = null,
     val isAktivSenOppfolgingKandidat: Boolean = false,
     val isAktivAktivitetskravvurdering: Boolean = false,
+    val isAktivManglendeMedvirkningVurdering: Boolean = false,
 )
 
 fun PersonOversiktStatus.isDialogmotekandidat() =
@@ -75,7 +76,8 @@ fun PersonOversiktStatus.hasActiveOppgave(arenaCutoff: LocalDate): Boolean {
         this.trengerOppfolging ||
         this.behandlerBerOmBistandUbehandlet ||
         this.isAktivArbeidsuforhetvurdering ||
-        this.isAktivSenOppfolgingKandidat
+        this.isAktivSenOppfolgingKandidat ||
+        this.isAktivManglendeMedvirkningVurdering
 }
 
 fun List<PersonOversiktStatus>.addPersonName(
