@@ -240,13 +240,9 @@ private fun ResultSet.toPPersonOversiktStatus(): PPersonOversiktStatus =
             "oppfolgingstilfelle_bit_referanse_inntruffet",
             OffsetDateTime::class.java
         ),
-        aktivitetskrav = getString("aktivitetskrav"),
-        aktivitetskravStoppunkt = getObject("aktivitetskrav_stoppunkt", LocalDate::class.java),
-        aktivitetskravVurderingFrist = getObject("aktivitetskrav_vurdering_frist", LocalDate::class.java),
         behandlerdialogSvarUbehandlet = getBoolean("behandlerdialog_svar_ubehandlet"),
         behandlerdialogUbesvartUbehandlet = getBoolean("behandlerdialog_ubesvart_ubehandlet"),
         behandlerdialogAvvistUbehandlet = getBoolean("behandlerdialog_avvist_ubehandlet"),
-        aktivitetskravVurderStansUbehandlet = getBoolean("aktivitetskrav_vurder_stans_ubehandlet"),
         trengerOppfolging = getBoolean("trenger_oppfolging"),
         behandlerBerOmBistandUbehandlet = getBoolean("behandler_bistand_ubehandlet"),
         antallSykedager = getObject("antall_sykedager") as Int?,

@@ -1,6 +1,5 @@
 package no.nav.syfo.personstatus.domain
 
-import no.nav.syfo.aktivitetskravvurdering.domain.AktivitetskravStatus
 import no.nav.syfo.oppfolgingstilfelle.domain.Oppfolgingstilfelle
 import no.nav.syfo.oppfolgingstilfelle.domain.PersonOppfolgingstilfelleVirksomhet
 import java.time.LocalDate
@@ -28,13 +27,9 @@ data class PPersonOversiktStatus(
     val oppfolgingstilfelleEnd: LocalDate?,
     val oppfolgingstilfelleBitReferanseUuid: UUID?,
     val oppfolgingstilfelleBitReferanseInntruffet: OffsetDateTime?,
-    val aktivitetskrav: String?,
-    val aktivitetskravStoppunkt: LocalDate?,
-    val aktivitetskravVurderingFrist: LocalDate?,
     val behandlerdialogSvarUbehandlet: Boolean,
     val behandlerdialogUbesvartUbehandlet: Boolean,
     val behandlerdialogAvvistUbehandlet: Boolean,
-    val aktivitetskravVurderStansUbehandlet: Boolean,
     val trengerOppfolging: Boolean,
     val behandlerBerOmBistandUbehandlet: Boolean,
     val antallSykedager: Int?,
@@ -62,13 +57,9 @@ fun PPersonOversiktStatus.toPersonOversiktStatus(
     latestOppfolgingstilfelle = toPersonOppfolgingstilfelle(
         personOppfolgingstilfelleVirksomhetList = personOppfolgingstilfelleVirksomhetList,
     ),
-    aktivitetskrav = aktivitetskrav?.let { AktivitetskravStatus.valueOf(aktivitetskrav) },
-    aktivitetskravStoppunkt = aktivitetskravStoppunkt,
-    aktivitetskravVurderingFrist = aktivitetskravVurderingFrist,
     behandlerdialogSvarUbehandlet = behandlerdialogSvarUbehandlet,
     behandlerdialogUbesvartUbehandlet = behandlerdialogUbesvartUbehandlet,
     behandlerdialogAvvistUbehandlet = behandlerdialogAvvistUbehandlet,
-    aktivitetskravVurderStansUbehandlet = aktivitetskravVurderStansUbehandlet,
     trengerOppfolging = trengerOppfolging,
     behandlerBerOmBistandUbehandlet = behandlerBerOmBistandUbehandlet,
     friskmeldingTilArbeidsformidlingFom = friskmeldingTilArbeidsformidlingFom,

@@ -15,7 +15,6 @@ import java.time.*
 class PreloadCacheCronjob(
     private val database: DatabaseInterface,
     private val tilgangskontrollClient: VeilederTilgangskontrollClient,
-    private val arenaCutoff: LocalDate,
 ) : Cronjob {
     private val log = LoggerFactory.getLogger(PreloadCacheCronjob::class.java)
     private val runAtHour = 6
@@ -38,7 +37,7 @@ class PreloadCacheCronjob(
                     val personer = database.hentUbehandledePersonerTilknyttetEnhet(enhetNr).map { pPersonOversiktStatus ->
                         pPersonOversiktStatus.toPersonOversiktStatus(emptyList())
                     }.filter { personOversiktStatus ->
-                        personOversiktStatus.hasActiveOppgave(arenaCutoff)
+                        personOversiktStatus.hasActiveOppgave()
                     }
 
                     log.info("Caching ${personer.size} for enhet $enhetNr")

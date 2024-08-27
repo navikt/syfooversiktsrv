@@ -1,6 +1,5 @@
 package no.nav.syfo.personstatus.db
 
-import no.nav.syfo.aktivitetskravvurdering.domain.Aktivitetskrav
 import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendring
 import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.PPersonOversiktStatus
@@ -95,30 +94,6 @@ fun Connection.updatePersonOversiktStatusMotestatus(
         it.setObject(2, dialogmoteStatusendring.endringTidspunkt)
         it.setObject(3, Timestamp.from(Instant.now()))
         it.setString(4, pPersonOversiktStatus.fnr)
-        it.execute()
-    }
-}
-
-const val queryUpdatePersonOversiktStatusAktivitetskrav =
-    """
-        UPDATE PERSON_OVERSIKT_STATUS
-        SET aktivitetskrav = ?,
-        aktivitetskrav_stoppunkt = ?,
-        aktivitetskrav_vurdering_frist = ?,
-        sist_endret = ?
-        WHERE fnr = ?
-    """
-
-fun Connection.updatePersonOversiktStatusAktivitetskrav(
-    pPersonOversiktStatus: PPersonOversiktStatus,
-    aktivitetskrav: Aktivitetskrav,
-) {
-    this.prepareStatement(queryUpdatePersonOversiktStatusAktivitetskrav).use {
-        it.setString(1, aktivitetskrav.status.name)
-        it.setObject(2, aktivitetskrav.stoppunkt)
-        it.setObject(3, aktivitetskrav.vurderingFrist)
-        it.setObject(4, Timestamp.from(Instant.now()))
-        it.setString(5, pPersonOversiktStatus.fnr)
         it.execute()
     }
 }
@@ -219,25 +194,6 @@ fun Connection.updatePersonOversiktStatusBehandlerdialogAvvist(
 ) {
     this.prepareStatement(queryUpdatePersonOversiktStatusBehandlerdialogAvvist).use {
         it.setBoolean(1, isBehandlerdialogAvvistUbehandlet)
-        it.setObject(2, Timestamp.from(Instant.now()))
-        it.setString(3, personIdent.value)
-        it.execute()
-    }
-}
-
-const val queryUpdatePersonOversiktStatusAktivitetskravVurderStans =
-    """
-        UPDATE PERSON_OVERSIKT_STATUS
-        SET aktivitetskrav_vurder_stans_ubehandlet = ?, sist_endret = ?
-        WHERE fnr = ?
-    """
-
-fun Connection.updateAktivitetskravVurderStans(
-    isAktivitetskravVurderStansUbehandlet: Boolean,
-    personIdent: PersonIdent,
-) {
-    this.prepareStatement(queryUpdatePersonOversiktStatusAktivitetskravVurderStans).use {
-        it.setBoolean(1, isAktivitetskravVurderStansUbehandlet)
         it.setObject(2, Timestamp.from(Instant.now()))
         it.setString(3, personIdent.value)
         it.execute()

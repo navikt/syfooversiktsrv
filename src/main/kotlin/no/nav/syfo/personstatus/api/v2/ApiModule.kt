@@ -64,8 +64,7 @@ fun Application.apiModule(
         authenticate(JwtIssuerType.VEILEDER_V2.name) {
             registerPersonoversiktApiV2(
                 veilederTilgangskontrollClient = tilgangskontrollConsumer,
-                personoversiktStatusService = personoversiktStatusService,
-                arenaCutoff = environment.arenaCutoff
+                personoversiktStatusService = personoversiktStatusService
             )
             registerPersonTildelingApiV2(tilgangskontrollConsumer, personTildelingService, personoversiktStatusService)
         }

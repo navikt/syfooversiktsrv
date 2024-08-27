@@ -691,62 +691,6 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     personOversiktStatusList.first().navn shouldBeEqualTo "Fornavn${personIdent.value} Mellomnavn${personIdent.value} Etternavn${personIdent.value}"
                 }
 
-                it("return person with aktivitetskrav_vurder_stans true when oppgave mottatt") {
-                    val aktivitetskravVurderStansMottatt = KPersonoppgavehendelse(
-                        personident = ARBEIDSTAKER_FNR,
-                        hendelsetype = OversikthendelseType.AKTIVITETSKRAV_VURDER_STANS_MOTTATT,
-                    )
-                    val personoversiktStatus = PersonOversiktStatus(
-                        fnr = aktivitetskravVurderStansMottatt.personident
-                    ).applyHendelse(aktivitetskravVurderStansMottatt.hendelsetype)
-
-                    database.createPersonOversiktStatus(personoversiktStatus)
-
-                    database.setTildeltEnhet(
-                        ident = PersonIdent(ARBEIDSTAKER_FNR),
-                        enhet = NAV_ENHET,
-                    )
-
-                    with(
-                        handleRequest(HttpMethod.Get, url) {
-                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                        }
-                    ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.OK
-
-                        val personOversiktStatus =
-                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
-                        personOversiktStatus.fnr shouldBeEqualTo aktivitetskravVurderStansMottatt.personident
-                        personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
-                        personOversiktStatus.aktivitetskravVurderStansUbehandlet shouldBeEqualTo true
-                    }
-                }
-
-                it("return no person when aktivitetskrav_vurder_stans oppgave behandlet") {
-                    val aktivitetskravVurderStansBehandlet = KPersonoppgavehendelse(
-                        personident = ARBEIDSTAKER_FNR,
-                        hendelsetype = OversikthendelseType.AKTIVITETSKRAV_VURDER_STANS_BEHANDLET,
-                    )
-                    val personoversiktStatus = PersonOversiktStatus(
-                        fnr = aktivitetskravVurderStansBehandlet.personident
-                    ).applyHendelse(aktivitetskravVurderStansBehandlet.hendelsetype)
-
-                    database.createPersonOversiktStatus(personoversiktStatus)
-
-                    database.setTildeltEnhet(
-                        ident = PersonIdent(ARBEIDSTAKER_FNR),
-                        enhet = NAV_ENHET,
-                    )
-
-                    with(
-                        handleRequest(HttpMethod.Get, url) {
-                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                        }
-                    ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.NoContent
-                    }
-                }
-
                 it("return person when trenger_oppfolging true") {
                     val personident = ARBEIDSTAKER_FNR
                     val personoversiktStatus = PersonOversiktStatus(
@@ -999,6 +943,54 @@ object PersonoversiktStatusApiV2Spek : Spek({
                             personOversiktStatus.arbeidsuforhetvurdering shouldNotBe null
                             personOversiktStatus.arbeidsuforhetvurdering?.varsel shouldNotBe null
                             personOversiktStatus.arbeidsuforhetvurdering?.createdAt shouldBeEqualTo latestVurdering
+                        }
+                    }
+                }
+
+                describe("aktivitetskrav") {
+                    it("return person when isAktivAktivitetskravvurdering true") {
+                        val personident = ARBEIDSTAKER_FNR
+                        val personoversiktStatus = PersonOversiktStatus(
+                            fnr = personident,
+                        ).copy(isAktivAktivitetskravvurdering = true)
+
+                        database.createPersonOversiktStatus(personoversiktStatus)
+
+                        database.setTildeltEnhet(
+                            ident = PersonIdent(ARBEIDSTAKER_FNR),
+                            enhet = NAV_ENHET,
+                        )
+
+                        with(
+                            handleRequest(HttpMethod.Get, url) {
+                                addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                            }
+                        ) {
+                            response.status() shouldBeEqualTo HttpStatusCode.OK
+
+                            val personOversiktStatus =
+                                objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
+                            personOversiktStatus.fnr shouldBeEqualTo personident
+                            personOversiktStatus.enhet shouldBeEqualTo NAV_ENHET
+                        }
+                    }
+
+                    it("return no person when isAktivAktivitetskravvurdering false") {
+                        val personident = ARBEIDSTAKER_FNR
+                        val personoversiktStatus = PersonOversiktStatus(fnr = personident)
+
+                        database.createPersonOversiktStatus(personoversiktStatus)
+                        database.setTildeltEnhet(
+                            ident = PersonIdent(ARBEIDSTAKER_FNR),
+                            enhet = NAV_ENHET,
+                        )
+
+                        with(
+                            handleRequest(HttpMethod.Get, url) {
+                                addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                            }
+                        ) {
+                            response.status() shouldBeEqualTo HttpStatusCode.NoContent
                         }
                     }
                 }

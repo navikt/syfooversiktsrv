@@ -5,8 +5,6 @@ import io.ktor.util.*
 import io.mockk.clearMocks
 import io.mockk.every
 import kotlinx.coroutines.runBlocking
-import no.nav.syfo.aktivitetskravvurdering.domain.AktivitetskravStatus
-import no.nav.syfo.aktivitetskravvurdering.persistAktivitetskrav
 import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.Virksomhetsnummer
 import no.nav.syfo.personoppgavehendelse.kafka.KPersonoppgavehendelse
@@ -15,6 +13,7 @@ import no.nav.syfo.personstatus.db.getPersonOppfolgingstilfelleVirksomhetList
 import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.personstatus.domain.applyHendelse
+import no.nav.syfo.personstatus.infrastructure.database.repository.PersonOversiktStatusRepository
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER_DEFAULT
@@ -61,8 +60,7 @@ object PersonOppfolgingstilfelleVirksomhetsnavnCronjobSpek : Spek({
         val kafkaDialogmotekandidatEndringStoppunktConsumerRecord = dialogmotekandidatEndringConsumerRecord(
             kafkaDialogmotekandidatEndring = kafkaDialogmotekandidatEndringStoppunkt
         )
-        val aktivitetskravGenerator =
-            AktivitetskravGenerator(arenaCutoff = externalMockEnvironment.environment.arenaCutoff)
+        val personOversiktStatusRepository = PersonOversiktStatusRepository(database = database)
 
         beforeEachTest {
             database.dropData()
@@ -299,18 +297,10 @@ object PersonOppfolgingstilfelleVirksomhetsnavnCronjobSpek : Spek({
                 }
 
                 it("updates Virksomhetsnavn of existing PersonOppfolgingstilfelleVirksomhet if active aktivitetskrav") {
-                    val aktivitetskrav = aktivitetskravGenerator.generateAktivitetskrav(
-                        personIdent = personIdentDefault,
-                        status = AktivitetskravStatus.AVVENT,
-                        stoppunktAfterCutoff = true,
+                    personOversiktStatusRepository.upsertAktivitetskravAktivStatus(
+                        personident = personIdentDefault,
+                        isAktivVurdering = true,
                     )
-                    database.connection.use { connection ->
-                        persistAktivitetskrav(
-                            connection = connection,
-                            aktivitetskrav = aktivitetskrav,
-                        )
-                        connection.commit()
-                    }
 
                     kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
                         kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
@@ -325,7 +315,7 @@ object PersonOppfolgingstilfelleVirksomhetsnavnCronjobSpek : Spek({
                     pPersonOversiktStatusList.size shouldBeEqualTo 1
 
                     val pPersonOversiktStatus = pPersonOversiktStatusList.first()
-                    pPersonOversiktStatus.aktivitetskrav.shouldNotBeNull()
+                    pPersonOversiktStatus.isAktivAktivitetskravvurdering.shouldBeTrue()
 
                     database.connection.use { connection ->
                         val pPersonOppfolgingstilfelleVirksomhetList =

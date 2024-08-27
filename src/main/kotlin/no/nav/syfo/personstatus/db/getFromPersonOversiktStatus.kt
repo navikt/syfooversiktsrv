@@ -43,14 +43,9 @@ const val queryHentUbehandledePersonerTilknyttetEnhet = """
                                 dialogmotekandidat = 't'
                                 AND dialogmotekandidat_generated_at + INTERVAL '7 DAY' < now()
                                 )
-                            OR (
-                                (aktivitetskrav = 'NY' OR aktivitetskrav = 'AVVENT' OR aktivitetskrav = 'NY_VURDERING')
-                                AND aktivitetskrav_stoppunkt > '2023-03-10'
-                                )
                             OR behandlerdialog_svar_ubehandlet = 't'
                             OR behandlerdialog_ubesvart_ubehandlet = 't'
                             OR behandlerdialog_avvist_ubehandlet = 't'
-                            OR aktivitetskrav_vurder_stans_ubehandlet = 't'
                             OR trenger_oppfolging = 't'
                             OR behandler_bistand_ubehandlet = 't'
                             OR arbeidsuforhet_aktiv_vurdering = 't'
@@ -114,13 +109,9 @@ fun ResultSet.toPPersonOversiktStatus(): PPersonOversiktStatus =
             "oppfolgingstilfelle_bit_referanse_inntruffet",
             OffsetDateTime::class.java
         ),
-        aktivitetskrav = getString("aktivitetskrav"),
-        aktivitetskravStoppunkt = getObject("aktivitetskrav_stoppunkt", LocalDate::class.java),
-        aktivitetskravVurderingFrist = getObject("aktivitetskrav_vurdering_frist", LocalDate::class.java),
         behandlerdialogSvarUbehandlet = getBoolean("behandlerdialog_svar_ubehandlet"),
         behandlerdialogUbesvartUbehandlet = getBoolean("behandlerdialog_ubesvart_ubehandlet"),
         behandlerdialogAvvistUbehandlet = getBoolean("behandlerdialog_avvist_ubehandlet"),
-        aktivitetskravVurderStansUbehandlet = getBoolean("aktivitetskrav_vurder_stans_ubehandlet"),
         trengerOppfolging = getBoolean("trenger_oppfolging"),
         behandlerBerOmBistandUbehandlet = getBoolean("behandler_bistand_ubehandlet"),
         antallSykedager = getObject("antall_sykedager") as Int?,

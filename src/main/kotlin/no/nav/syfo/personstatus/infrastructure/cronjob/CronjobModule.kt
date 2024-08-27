@@ -56,7 +56,6 @@ fun launchCronjobModule(
     val preloadCacheCronjob = PreloadCacheCronjob(
         database = database,
         tilgangskontrollClient = tilgangskontrollClient,
-        arenaCutoff = environment.arenaCutoff,
     )
 
     val cronjobRunner = CronjobRunner(

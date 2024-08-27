@@ -24,7 +24,6 @@ object PreloadCacheCronjobWithMockSpek : Spek({
         val preloadCacheCronjob = PreloadCacheCronjob(
             database = database,
             tilgangskontrollClient = veilederTilgangskontrollMockClient,
-            arenaCutoff = externalMockEnvironment.environment.arenaCutoff,
         )
         beforeEachTest {
             clearMocks(veilederTilgangskontrollMockClient)

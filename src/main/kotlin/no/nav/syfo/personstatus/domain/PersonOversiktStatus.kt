@@ -1,6 +1,5 @@
 package no.nav.syfo.personstatus.domain
 
-import no.nav.syfo.aktivitetskravvurdering.domain.AktivitetskravStatus
 import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendringType
 import no.nav.syfo.oppfolgingstilfelle.domain.Oppfolgingstilfelle
 import no.nav.syfo.oppfolgingstilfelle.domain.toPersonOppfolgingstilfelleDTO
@@ -26,13 +25,9 @@ data class PersonOversiktStatus(
     val motestatus: String? = null,
     val motestatusGeneratedAt: OffsetDateTime? = null,
     val latestOppfolgingstilfelle: Oppfolgingstilfelle? = null,
-    val aktivitetskrav: AktivitetskravStatus? = null,
-    val aktivitetskravStoppunkt: LocalDate? = null,
-    val aktivitetskravVurderingFrist: LocalDate? = null,
     val behandlerdialogSvarUbehandlet: Boolean = false,
     val behandlerdialogUbesvartUbehandlet: Boolean = false,
     val behandlerdialogAvvistUbehandlet: Boolean = false,
-    val aktivitetskravVurderStansUbehandlet: Boolean = false,
     val trengerOppfolging: Boolean = false,
     val behandlerBerOmBistandUbehandlet: Boolean = false,
     val isAktivArbeidsuforhetvurdering: Boolean = false,
@@ -57,22 +52,14 @@ fun PersonOversiktStatus.hasOpenDialogmoteInvitation() =
 
 fun PersonOversiktStatus.noOpenDialogmoteInvitation() = !hasOpenDialogmoteInvitation()
 
-fun PersonOversiktStatus.isActiveAktivitetskrav(arenaCutoff: LocalDate) =
-    (
-        aktivitetskrav == AktivitetskravStatus.NY ||
-            aktivitetskrav == AktivitetskravStatus.AVVENT ||
-            aktivitetskrav == AktivitetskravStatus.NY_VURDERING || aktivitetskrav == AktivitetskravStatus.FORHANDSVARSEL
-        ) && aktivitetskravStoppunkt?.isAfter(arenaCutoff) == true
-
-fun PersonOversiktStatus.hasActiveOppgave(arenaCutoff: LocalDate): Boolean {
+fun PersonOversiktStatus.hasActiveOppgave(): Boolean {
     return this.oppfolgingsplanLPSBistandUbehandlet == true ||
         this.dialogmotesvarUbehandlet ||
         this.isDialogmotekandidat() ||
         (this.motebehovUbehandlet == true && this.latestOppfolgingstilfelle != null) ||
-        this.isActiveAktivitetskrav(arenaCutoff = arenaCutoff) ||
+        this.isAktivAktivitetskravvurdering ||
         this.hasActiveBehandlerdialogOppgave() ||
         this.friskmeldingTilArbeidsformidlingFom != null ||
-        this.aktivitetskravVurderStansUbehandlet ||
         this.trengerOppfolging ||
         this.behandlerBerOmBistandUbehandlet ||
         this.isAktivArbeidsuforhetvurdering ||
@@ -99,7 +86,6 @@ fun List<PersonOversiktStatus>.addPersonName(
 }
 
 fun PersonOversiktStatus.toPersonOversiktStatusDTO(
-    arenaCutoff: LocalDate,
     arbeidsuforhetvurdering: ArbeidsuforhetvurderingDTO?,
     oppfolgingsoppgave: OppfolgingsoppgaveDTO?,
     aktivitetskravvurdering: AktivitetskravDTO?,
@@ -115,11 +101,7 @@ fun PersonOversiktStatus.toPersonOversiktStatusDTO(
         dialogmotekandidat = dialogmotekandidat?.let { isDialogmotekandidat() },
         motestatus = motestatus,
         latestOppfolgingstilfelle = latestOppfolgingstilfelle?.toPersonOppfolgingstilfelleDTO(),
-        aktivitetskrav = aktivitetskrav?.name,
-        aktivitetskravActive = isActiveAktivitetskrav(arenaCutoff = arenaCutoff),
-        aktivitetskravVurderingFrist = aktivitetskravVurderingFrist,
         behandlerdialogUbehandlet = hasActiveBehandlerdialogOppgave(),
-        aktivitetskravVurderStansUbehandlet = aktivitetskravVurderStansUbehandlet,
         behandlerBerOmBistandUbehandlet = behandlerBerOmBistandUbehandlet,
         arbeidsuforhetvurdering = arbeidsuforhetvurdering,
         friskmeldingTilArbeidsformidlingFom = friskmeldingTilArbeidsformidlingFom,
@@ -173,12 +155,6 @@ fun PersonOversiktStatus.applyHendelse(
         )
         OversikthendelseType.BEHANDLERDIALOG_MELDING_AVVIST_BEHANDLET -> this.copy(
             behandlerdialogAvvistUbehandlet = false,
-        )
-        OversikthendelseType.AKTIVITETSKRAV_VURDER_STANS_MOTTATT -> this.copy(
-            aktivitetskravVurderStansUbehandlet = true,
-        )
-        OversikthendelseType.AKTIVITETSKRAV_VURDER_STANS_BEHANDLET -> this.copy(
-            aktivitetskravVurderStansUbehandlet = false,
         )
         OversikthendelseType.BEHANDLER_BER_OM_BISTAND_MOTTATT -> this.copy(
             behandlerBerOmBistandUbehandlet = true

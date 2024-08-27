@@ -21,7 +21,6 @@ import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.*
 import org.slf4j.LoggerFactory
 import java.sql.Connection
-import java.time.LocalDate
 
 class PersonoversiktStatusService(
     private val database: DatabaseInterface,
@@ -37,7 +36,6 @@ class PersonoversiktStatusService(
 
     fun hentPersonoversiktStatusTilknyttetEnhet(
         enhet: String,
-        arenaCutoff: LocalDate,
     ): List<PersonOversiktStatus> {
         val pPersonOversiktStatuser = database.hentUbehandledePersonerTilknyttetEnhet(enhet)
         val personOppfolgingstilfelleVirksomhetMap = getPersonOppfolgingstilfelleVirksomhetMap(
@@ -49,7 +47,7 @@ class PersonoversiktStatusService(
                 ?: emptyList()
             it.toPersonOversiktStatus(personOppfolgingstilfelleVirksomhetList)
         }.filter { personOversiktStatus ->
-            personOversiktStatus.hasActiveOppgave(arenaCutoff = arenaCutoff) // TODO: Trenger vi denne når db-spørringen henter ut bare aktive personer?
+            personOversiktStatus.hasActiveOppgave() // TODO: Trenger vi denne når db-spørringen henter ut bare aktive personer?
         }
     }
 
@@ -59,7 +57,6 @@ class PersonoversiktStatusService(
     suspend fun getAktiveVurderinger(
         callId: String,
         token: String,
-        arenaCutoff: LocalDate,
         personStatusOversikt: List<PersonOversiktStatus>,
     ): List<PersonOversiktStatusDTO> {
         val activeOppfolgingsoppgaver = getActiveOppfolgingsoppgaver(
@@ -76,12 +73,10 @@ class PersonoversiktStatusService(
             callId = callId,
             token = token,
             personStatuser = personStatusOversikt,
-            arenaCutoff = arenaCutoff,
         )
 
         return personStatusOversikt.map { personStatus ->
             personStatus.toPersonOversiktStatusDTO(
-                arenaCutoff = arenaCutoff,
                 arbeidsuforhetvurdering = arbeidsuforhetvurderinger.await()
                     ?.vurderinger
                     ?.get(personStatus.fnr),
@@ -143,11 +138,10 @@ class PersonoversiktStatusService(
         callId: String,
         token: String,
         personStatuser: List<PersonOversiktStatus>,
-        arenaCutoff: LocalDate,
     ): Deferred<GetAktivitetskravForPersonsResponseDTO?> =
         CoroutineScope(Dispatchers.IO).async {
             val personidenterWithActiveAktivitetskrav = personStatuser
-                .filter { it.isAktivAktivitetskravvurdering || it.isActiveAktivitetskrav(arenaCutoff = arenaCutoff) }
+                .filter { it.isAktivAktivitetskravvurdering }
                 .map { PersonIdent(it.fnr) }
             if (personidenterWithActiveAktivitetskrav.isNotEmpty()) {
                 aktivitetskravClient.getAktivitetskravForPersons(
@@ -280,10 +274,6 @@ class PersonoversiktStatusService(
                     connection.updatePersonOversiktStatusBehandlerdialogAvvist(isUbehandlet, personident)
                 OversikthendelseType.BEHANDLERDIALOG_MELDING_AVVIST_BEHANDLET ->
                     connection.updatePersonOversiktStatusBehandlerdialogAvvist(isBehandlet, personident)
-                OversikthendelseType.AKTIVITETSKRAV_VURDER_STANS_MOTTATT ->
-                    connection.updateAktivitetskravVurderStans(isUbehandlet, personident)
-                OversikthendelseType.AKTIVITETSKRAV_VURDER_STANS_BEHANDLET ->
-                    connection.updateAktivitetskravVurderStans(isBehandlet, personident)
                 OversikthendelseType.BEHANDLER_BER_OM_BISTAND_MOTTATT ->
                     connection.updateBehandlerBerOmBistand(isUbehandlet, personident)
                 OversikthendelseType.BEHANDLER_BER_OM_BISTAND_BEHANDLET ->

@@ -62,11 +62,9 @@ const val queryGetPersonerWithOppgaveAndOldEnhet =
         OR oppfolgingsplan_lps_bistand_ubehandlet = 't' 
         OR dialogmotekandidat = 't' 
         OR dialogmotesvar_ubehandlet = 't'
-        OR ((aktivitetskrav = 'NY' OR aktivitetskrav = 'AVVENT' OR aktivitetskrav = 'NY_VURDERING') AND aktivitetskrav_stoppunkt > '2023-03-10')
         OR behandlerdialog_svar_ubehandlet = 't'
         OR behandlerdialog_ubesvart_ubehandlet = 't'
         OR behandlerdialog_avvist_ubehandlet = 't'
-        OR aktivitetskrav_vurder_stans_ubehandlet = 't'
         OR trenger_oppfolging = 't'
         OR behandler_bistand_ubehandlet = 't'
         OR friskmelding_til_arbeidsformidling_fom IS NOT NULL
