@@ -10,53 +10,21 @@ class ExternalMockEnvironment private constructor() {
     val applicationState: ApplicationState = testAppState()
     val database = TestDatabase()
 
-    private val azureAdMock = AzureAdMock()
-    private val eregMock = EregMock()
-    private val pdlMock = PdlMock()
-    private val syfobehandlendeenhetMock = SyfobehandlendeenhetMock()
-    private val arbeidsuforhetvurderingMock = ArbeidsuforhetvurderingMock()
-    private val tilgangskontrollMock = VeilederTilgangskontrollMock()
-    private val oppfolgingsoppgaveMock = OppfolgingsoppgaveMock()
-
-    val externalApplicationMockMap = hashMapOf(
-        azureAdMock.name to azureAdMock.server,
-        eregMock.name to eregMock.server,
-        pdlMock.name to pdlMock.server,
-        syfobehandlendeenhetMock.name to syfobehandlendeenhetMock.server,
-        arbeidsuforhetvurderingMock.name to arbeidsuforhetvurderingMock.server,
-        tilgangskontrollMock.name to tilgangskontrollMock.server,
-        oppfolgingsoppgaveMock.name to oppfolgingsoppgaveMock.server,
-    )
-
-    val environment = testEnvironment(
-        azureTokenEndpoint = azureAdMock.url,
-        eregUrl = eregMock.url,
-        pdlUrl = pdlMock.url,
-        syfobehandlendeenhetUrl = syfobehandlendeenhetMock.url,
-        arbeidsuforhetvurderingUrl = arbeidsuforhetvurderingMock.url,
-        istilgangskontrollUrl = tilgangskontrollMock.url,
-        ishuskelappUrl = oppfolgingsoppgaveMock.url,
-    )
-
+    val environment = testEnvironment()
+    val mockHttpClient = mockHttpClient(environment = environment)
     val wellKnownVeilederV2 = wellKnownVeilederV2Mock()
 
     val pdlClient = PdlClient(
         azureAdClient = AzureAdClient(
             azureEnvironment = environment.azure,
             redisStore = RedisStore(environment.redis),
+            httpClient = mockHttpClient,
         ),
         clientEnvironment = environment.clients.pdl,
+        httpClient = mockHttpClient
     )
 
     companion object {
-        val instance: ExternalMockEnvironment by lazy {
-            ExternalMockEnvironment().also {
-                it.startExternalMocks()
-            }
-        }
+        val instance: ExternalMockEnvironment = ExternalMockEnvironment()
     }
-}
-
-private fun ExternalMockEnvironment.startExternalMocks() {
-    this.externalApplicationMockMap.forEach { (_, externalMock) -> externalMock.start() }
 }

@@ -1,5 +1,6 @@
 package no.nav.syfo.personstatus.infrastructure.clients.veiledertilgang
 
+import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.*
 import io.ktor.client.request.*
@@ -23,8 +24,8 @@ import java.util.UUID
 class VeilederTilgangskontrollClient(
     private val azureAdClient: AzureAdClient,
     private val istilgangskontrollEnv: ClientEnvironment,
+    private val httpClient: HttpClient = httpClientDefault(),
 ) {
-    private val httpClient = httpClientDefault()
 
     private val pathTilgangTilBrukereOBO = "/navident/brukere"
     private val pathPreloadCache = "/system/preloadbrukere"

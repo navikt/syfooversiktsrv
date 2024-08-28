@@ -25,6 +25,7 @@ object AzureAdClientSpek : Spek({
         val azureAdClient = AzureAdClient(
             azureEnvironment = externalMockEnvironment.environment.azure,
             redisStore = redisStoreMock,
+            httpClient = externalMockEnvironment.mockHttpClient
         )
 
         describe("AzureAdClient") {

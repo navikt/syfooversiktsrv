@@ -1,5 +1,6 @@
 package no.nav.syfo.personstatus.infrastructure.clients.arbeidsuforhet
 
+import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.*
 import io.ktor.client.request.*
@@ -24,9 +25,9 @@ import org.slf4j.LoggerFactory
 class ArbeidsuforhetvurderingClient(
     private val azureAdClient: AzureAdClient,
     private val clientEnvironment: ClientEnvironment,
+    private val httpClient: HttpClient = httpClientDefault(),
 ) : IArbeidsuforhetvurderingClient {
 
-    private val httpClient = httpClientDefault()
     private val isarbeidsuforhetUrl = "${clientEnvironment.baseUrl}$ARBEIDSUFORHET_API_PATH"
 
     override suspend fun getLatestVurderinger(

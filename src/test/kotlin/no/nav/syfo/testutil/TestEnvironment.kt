@@ -8,13 +8,12 @@ import no.nav.syfo.personstatus.infrastructure.clients.ClientsEnvironment
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureEnvironment
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseEnvironment
 import no.nav.syfo.personstatus.infrastructure.kafka.KafkaEnvironment
-import java.net.ServerSocket
 
 fun testEnvironment(
     azureTokenEndpoint: String = "azureTokenEndpoint",
     kafkaBootstrapServers: String = "boostrapserver",
     eregUrl: String = "ereg",
-    pdlUrl: String,
+    pdlUrl: String = "pdl",
     syfobehandlendeenhetUrl: String = "syfobehandlendeenhet",
     arbeidsuforhetvurderingUrl: String = "arbeidsuforhetvurdering",
     isaktivitetskravUrl: String = "isaktivitetskrav",
@@ -88,7 +87,3 @@ fun testAppState() = ApplicationState(
     alive = true,
     ready = true,
 )
-
-fun getRandomPort() = ServerSocket(0).use {
-    it.localPort
-}

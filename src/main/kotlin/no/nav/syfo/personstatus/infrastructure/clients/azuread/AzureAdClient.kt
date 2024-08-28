@@ -1,5 +1,6 @@
 package no.nav.syfo.personstatus.infrastructure.clients.azuread
 
+import io.ktor.client.*
 import io.ktor.client.call.body
 import io.ktor.client.plugins.*
 import io.ktor.client.request.accept
@@ -18,8 +19,8 @@ import kotlin.let
 class AzureAdClient(
     private val azureEnvironment: AzureEnvironment,
     private val redisStore: RedisStore,
+    private val httpClient: HttpClient = httpClientProxy(),
 ) {
-    private val httpClient = httpClientProxy()
 
     suspend fun getOnBehalfOfToken(
         scopeClientId: String,

@@ -1,5 +1,6 @@
 package no.nav.syfo.personstatus.infrastructure.clients.oppfolgingsoppgave
 
+import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.*
 import io.ktor.client.request.*
@@ -21,9 +22,9 @@ import org.slf4j.LoggerFactory
 class OppfolgingsoppgaveClient(
     private val azureAdClient: AzureAdClient,
     private val clientEnvironment: ClientEnvironment,
+    private val httpClient: HttpClient = httpClientDefault(),
 ) : IOppfolgingsoppgaveClient {
 
-    private val httpClient = httpClientDefault()
     private val ishuskelappUrl = "${clientEnvironment.baseUrl}$GET_OPPFOLGINGSOPPGAVER_API_PATH"
 
     override suspend fun getActiveOppfolgingsoppgaver(

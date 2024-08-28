@@ -111,6 +111,7 @@ dependencies {
 
     testImplementation("com.nimbusds:nimbus-jose-jwt:$nimbusjosejwt")
     testImplementation("io.ktor:ktor-server-test-host:$ktor")
+    testImplementation("io.ktor:ktor-client-mock:$ktor")
     testImplementation("io.mockk:mockk:$mockk")
     testImplementation("org.amshove.kluent:kluent:$kluent")
     testImplementation("org.spekframework.spek2:spek-dsl-jvm:$spek") {

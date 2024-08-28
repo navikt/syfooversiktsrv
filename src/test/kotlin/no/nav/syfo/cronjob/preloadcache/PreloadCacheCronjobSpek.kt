@@ -24,6 +24,7 @@ object PreloadCacheCronjobSpek : Spek({
         val azureAdClient = AzureAdClient(
             azureEnvironment = externalMockEnvironment.environment.azure,
             redisStore = redisStore,
+            httpClient = externalMockEnvironment.mockHttpClient
         )
 
         val preloadCacheCronjob = PreloadCacheCronjob(
@@ -31,6 +32,7 @@ object PreloadCacheCronjobSpek : Spek({
             tilgangskontrollClient = VeilederTilgangskontrollClient(
                 azureAdClient = azureAdClient,
                 istilgangskontrollEnv = externalMockEnvironment.environment.clients.istilgangskontroll,
+                httpClient = externalMockEnvironment.mockHttpClient
             ),
         )
 
