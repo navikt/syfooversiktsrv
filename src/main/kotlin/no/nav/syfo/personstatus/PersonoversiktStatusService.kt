@@ -15,6 +15,8 @@ import no.nav.syfo.personstatus.application.IAktivitetskravClient
 import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
 import no.nav.syfo.personstatus.application.arbeidsuforhet.ArbeidsuforhetvurderingerResponseDTO
 import no.nav.syfo.personstatus.application.arbeidsuforhet.IArbeidsuforhetvurderingClient
+import no.nav.syfo.personstatus.application.manglendemedvirkning.IManglendeMedvirkningClient
+import no.nav.syfo.personstatus.application.manglendemedvirkning.ManglendeMedvirkningResponseDTO
 import no.nav.syfo.personstatus.application.oppfolgingsoppgave.IOppfolgingsoppgaveClient
 import no.nav.syfo.personstatus.application.oppfolgingsoppgave.OppfolgingsoppgaverResponseDTO
 import no.nav.syfo.personstatus.db.*
@@ -26,6 +28,7 @@ class PersonoversiktStatusService(
     private val database: DatabaseInterface,
     private val pdlClient: PdlClient,
     private val arbeidsuforhetvurderingClient: IArbeidsuforhetvurderingClient,
+    private val manglendeMedvirkningClient: IManglendeMedvirkningClient,
     private val aktivitetskravClient: IAktivitetskravClient,
     private val oppfolgingsoppgaveClient: IOppfolgingsoppgaveClient,
     private val personoversiktStatusRepository: IPersonOversiktStatusRepository,
@@ -69,6 +72,11 @@ class PersonoversiktStatusService(
             token = token,
             personStatuser = personStatusOversikt,
         )
+        val manglendeMedvirkning = getManglendeMedvirkningVurderinger(
+            callId = callId,
+            token = token,
+            personStatuser = personStatusOversikt,
+        )
         val activeAktivitetskrav = getActiveAktivitetskravForPersons(
             callId = callId,
             token = token,
@@ -85,6 +93,9 @@ class PersonoversiktStatusService(
                     ?.get(personStatus.fnr),
                 aktivitetskravvurdering = activeAktivitetskrav.await()
                     ?.aktivitetskravvurderinger
+                    ?.get(personStatus.fnr),
+                manglendeMedvirkning = manglendeMedvirkning.await()
+                    ?.vurderinger
                     ?.get(personStatus.fnr),
             )
         }
@@ -104,6 +115,26 @@ class PersonoversiktStatusService(
                     callId = callId,
                     token = token,
                     personidenter = personidenterWithArbeidsuforhetvurdering,
+                )
+            } else {
+                null
+            }
+        }
+
+    private fun getManglendeMedvirkningVurderinger(
+        callId: String,
+        token: String,
+        personStatuser: List<PersonOversiktStatus>,
+    ): Deferred<ManglendeMedvirkningResponseDTO?> =
+        CoroutineScope(Dispatchers.IO).async {
+            val personidenterWithManglendeMedvirkningVurdering = personStatuser
+                .filter { it.isAktivManglendeMedvirkningVurdering }
+                .map { PersonIdent(it.fnr) }
+            if (personidenterWithManglendeMedvirkningVurdering.isNotEmpty()) {
+                manglendeMedvirkningClient.getLatestVurderinger(
+                    callId = callId,
+                    token = token,
+                    personidenter = personidenterWithManglendeMedvirkningVurdering,
                 )
             } else {
                 null

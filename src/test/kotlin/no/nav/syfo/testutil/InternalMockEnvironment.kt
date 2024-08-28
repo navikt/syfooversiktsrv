@@ -1,5 +1,6 @@
 package no.nav.syfo.testutil
 
+import io.mockk.mockk
 import no.nav.syfo.application.cache.RedisStore
 import no.nav.syfo.personstatus.infrastructure.clients.behandlendeenhet.BehandlendeEnhetClient
 import no.nav.syfo.personstatus.infrastructure.clients.ereg.EregClient
@@ -9,6 +10,7 @@ import no.nav.syfo.personstatus.infrastructure.cronjob.behandlendeenhet.PersonBe
 import no.nav.syfo.personstatus.infrastructure.cronjob.virksomhetsnavn.PersonOppfolgingstilfelleVirksomhetnavnCronjob
 import no.nav.syfo.personstatus.infrastructure.cronjob.virksomhetsnavn.PersonOppfolgingstilfelleVirksomhetsnavnService
 import no.nav.syfo.personstatus.PersonoversiktStatusService
+import no.nav.syfo.personstatus.application.manglendemedvirkning.IManglendeMedvirkningClient
 import no.nav.syfo.personstatus.infrastructure.clients.AktivitetskravClient
 import no.nav.syfo.personstatus.infrastructure.clients.arbeidsuforhet.ArbeidsuforhetvurderingClient
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
@@ -80,6 +82,7 @@ class InternalMockEnvironment private constructor() {
         database = database,
         pdlClient = pdlClient,
         arbeidsuforhetvurderingClient = arbeidsuforhetvurderingClient,
+        manglendeMedvirkningClient = mockk<IManglendeMedvirkningClient>(),
         personoversiktStatusRepository = personoversiktRepository,
         oppfolgingsoppgaveClient = oppfolgingsoppgaveClient,
         aktivitetskravClient = aktivitetskravClient,

@@ -6,6 +6,7 @@ import no.nav.syfo.application.cache.RedisStore
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.PdlClient
 import no.nav.syfo.personstatus.PersonoversiktStatusService
 import no.nav.syfo.personstatus.api.v2.apiModule
+import no.nav.syfo.personstatus.application.manglendemedvirkning.IManglendeMedvirkningClient
 import no.nav.syfo.personstatus.infrastructure.clients.arbeidsuforhet.ArbeidsuforhetvurderingClient
 import no.nav.syfo.personstatus.infrastructure.clients.oppfolgingsoppgave.OppfolgingsoppgaveClient
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
@@ -48,6 +49,7 @@ fun Application.testApiModule(
         pdlClient = pdlClient,
         personoversiktStatusRepository = personoversiktRepository,
         arbeidsuforhetvurderingClient = arbeidsuforhetvurderingClient,
+        manglendeMedvirkningClient = mockk<IManglendeMedvirkningClient>(),
         oppfolgingsoppgaveClient = oppfolgingsoppgaveClient,
         aktivitetskravClient = mockk(relaxed = true),
     )

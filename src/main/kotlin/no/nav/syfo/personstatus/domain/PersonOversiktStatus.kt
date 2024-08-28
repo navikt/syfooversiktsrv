@@ -6,6 +6,7 @@ import no.nav.syfo.oppfolgingstilfelle.domain.toPersonOppfolgingstilfelleDTO
 import no.nav.syfo.personstatus.api.v2.model.PersonOversiktStatusDTO
 import no.nav.syfo.personstatus.application.AktivitetskravDTO
 import no.nav.syfo.personstatus.application.arbeidsuforhet.ArbeidsuforhetvurderingDTO
+import no.nav.syfo.personstatus.application.manglendemedvirkning.ManglendeMedvirkningDTO
 import no.nav.syfo.personstatus.application.oppfolgingsoppgave.OppfolgingsoppgaveDTO
 import no.nav.syfo.util.isBeforeOrEqual
 import no.nav.syfo.util.toLocalDateOslo
@@ -89,6 +90,7 @@ fun PersonOversiktStatus.toPersonOversiktStatusDTO(
     arbeidsuforhetvurdering: ArbeidsuforhetvurderingDTO?,
     oppfolgingsoppgave: OppfolgingsoppgaveDTO?,
     aktivitetskravvurdering: AktivitetskravDTO?,
+    manglendeMedvirkning: ManglendeMedvirkningDTO?,
 ) =
     PersonOversiktStatusDTO(
         veilederIdent = veilederIdent,
@@ -108,6 +110,7 @@ fun PersonOversiktStatus.toPersonOversiktStatusDTO(
         oppfolgingsoppgave = oppfolgingsoppgave,
         isAktivSenOppfolgingKandidat = isAktivSenOppfolgingKandidat,
         aktivitetskravvurdering = aktivitetskravvurdering,
+        manglendeMedvirkning = manglendeMedvirkning,
     )
 
 fun PersonOversiktStatus.hasActiveBehandlerdialogOppgave(): Boolean {

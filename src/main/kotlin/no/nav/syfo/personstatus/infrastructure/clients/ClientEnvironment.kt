@@ -5,6 +5,7 @@ data class ClientsEnvironment(
     val pdl: ClientEnvironment,
     val syfobehandlendeenhet: ClientEnvironment,
     val arbeidsuforhetvurdering: ClientEnvironment,
+    val manglendeMedvirkning: ClientEnvironment,
     val aktivitetskrav: ClientEnvironment,
     val istilgangskontroll: ClientEnvironment,
     val ishuskelapp: ClientEnvironment,
