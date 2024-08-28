@@ -31,8 +31,10 @@ object IdenthendelseServiceSpek : Spek({
                 azureAdClient = AzureAdClient(
                     azureEnvironment = externalMockEnvironment.environment.azure,
                     redisStore = RedisStore(externalMockEnvironment.environment.redis),
+                    httpClient = externalMockEnvironment.mockHttpClient
                 ),
                 clientEnvironment = externalMockEnvironment.environment.clients.pdl,
+                httpClient = externalMockEnvironment.mockHttpClient
             )
 
             val identhendelseService = IdenthendelseService(

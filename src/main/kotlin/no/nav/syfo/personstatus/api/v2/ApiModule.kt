@@ -13,7 +13,6 @@ import no.nav.syfo.personstatus.api.v2.auth.installStatusPages
 import no.nav.syfo.personstatus.api.v2.endpoints.registerPodApi
 import no.nav.syfo.personstatus.api.v2.endpoints.registerPrometheusApi
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
-import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
 import no.nav.syfo.personstatus.infrastructure.clients.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.personstatus.PersonTildelingService
 import no.nav.syfo.personstatus.PersonoversiktStatusService
@@ -28,8 +27,8 @@ fun Application.apiModule(
     database: DatabaseInterface,
     environment: Environment,
     wellKnownVeilederV2: WellKnown,
-    azureAdClient: AzureAdClient,
     personoversiktStatusService: PersonoversiktStatusService,
+    tilgangskontrollClient: VeilederTilgangskontrollClient,
 ) {
     installCallId()
     installContentNegotiation()
@@ -50,11 +49,6 @@ fun Application.apiModule(
         database = database,
     )
 
-    val tilgangskontrollConsumer = VeilederTilgangskontrollClient(
-        azureAdClient = azureAdClient,
-        istilgangskontrollEnv = environment.clients.istilgangskontroll,
-    )
-
     routing {
         registerPodApi(
             applicationState = applicationState,
@@ -63,10 +57,10 @@ fun Application.apiModule(
         registerPrometheusApi()
         authenticate(JwtIssuerType.VEILEDER_V2.name) {
             registerPersonoversiktApiV2(
-                veilederTilgangskontrollClient = tilgangskontrollConsumer,
+                veilederTilgangskontrollClient = tilgangskontrollClient,
                 personoversiktStatusService = personoversiktStatusService
             )
-            registerPersonTildelingApiV2(tilgangskontrollConsumer, personTildelingService, personoversiktStatusService)
+            registerPersonTildelingApiV2(tilgangskontrollClient, personTildelingService, personoversiktStatusService)
         }
     }
 }

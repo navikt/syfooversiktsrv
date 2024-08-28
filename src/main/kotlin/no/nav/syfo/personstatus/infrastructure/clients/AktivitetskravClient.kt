@@ -1,5 +1,6 @@
 package no.nav.syfo.personstatus.infrastructure.clients
 
+import io.ktor.client.*
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.ServerResponseException
@@ -23,9 +24,9 @@ import org.slf4j.LoggerFactory
 class AktivitetskravClient(
     private val azureAdClient: AzureAdClient,
     private val clientEnvironment: ClientEnvironment,
+    private val httpClient: HttpClient = httpClientDefault(),
 ) : IAktivitetskravClient {
 
-    private val httpClient = httpClientDefault()
     private val baseUrl = "${clientEnvironment.baseUrl}$API_BASE_PATH"
 
     override suspend fun getAktivitetskravForPersons(

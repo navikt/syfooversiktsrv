@@ -1,5 +1,6 @@
 package no.nav.syfo.personstatus.infrastructure.clients.ereg
 
+import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.*
 import io.ktor.client.request.*
@@ -15,8 +16,8 @@ import org.slf4j.LoggerFactory
 class EregClient(
     clientEnvironment: ClientEnvironment,
     private val redisStore: RedisStore,
+    private val httpClient: HttpClient = httpClientDefault(),
 ) {
-    private val httpClient = httpClientDefault()
 
     private val eregOrganisasjonUrl: String = "${clientEnvironment.baseUrl}/$EREG_PATH"
 

@@ -9,6 +9,7 @@ import no.nav.syfo.personstatus.api.v2.apiModule
 import no.nav.syfo.personstatus.infrastructure.clients.arbeidsuforhet.ArbeidsuforhetvurderingClient
 import no.nav.syfo.personstatus.infrastructure.clients.oppfolgingsoppgave.OppfolgingsoppgaveClient
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
+import no.nav.syfo.personstatus.infrastructure.clients.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.personstatus.infrastructure.database.repository.PersonOversiktStatusRepository
 
 fun Application.testApiModule(
@@ -18,19 +19,28 @@ fun Application.testApiModule(
     val azureAdClient = AzureAdClient(
         azureEnvironment = externalMockEnvironment.environment.azure,
         redisStore = redisStore,
+        httpClient = externalMockEnvironment.mockHttpClient
     )
 
     val pdlClient = PdlClient(
         azureAdClient = azureAdClient,
         clientEnvironment = externalMockEnvironment.environment.clients.pdl,
+        httpClient = externalMockEnvironment.mockHttpClient
     )
     val arbeidsuforhetvurderingClient = ArbeidsuforhetvurderingClient(
         azureAdClient = azureAdClient,
         clientEnvironment = externalMockEnvironment.environment.clients.arbeidsuforhetvurdering,
+        httpClient = externalMockEnvironment.mockHttpClient
     )
     val oppfolgingsoppgaveClient = OppfolgingsoppgaveClient(
         azureAdClient = azureAdClient,
         clientEnvironment = externalMockEnvironment.environment.clients.ishuskelapp,
+        httpClient = externalMockEnvironment.mockHttpClient
+    )
+    val veilederTilgangskontrollClient = VeilederTilgangskontrollClient(
+        azureAdClient = azureAdClient,
+        istilgangskontrollEnv = externalMockEnvironment.environment.clients.istilgangskontroll,
+        httpClient = externalMockEnvironment.mockHttpClient
     )
     val personoversiktRepository = PersonOversiktStatusRepository(database = externalMockEnvironment.database)
     val personoversiktStatusService = PersonoversiktStatusService(
@@ -47,7 +57,7 @@ fun Application.testApiModule(
         database = externalMockEnvironment.database,
         environment = externalMockEnvironment.environment,
         wellKnownVeilederV2 = externalMockEnvironment.wellKnownVeilederV2,
-        azureAdClient = azureAdClient,
+        tilgangskontrollClient = veilederTilgangskontrollClient,
         personoversiktStatusService = personoversiktStatusService,
     )
 }

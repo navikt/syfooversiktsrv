@@ -1,5 +1,6 @@
 package no.nav.syfo.personstatus.infrastructure.clients.behandlendeenhet
 
+import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.*
 import io.ktor.client.request.*
@@ -16,10 +17,9 @@ import org.slf4j.LoggerFactory
 class BehandlendeEnhetClient(
     private val azureAdClient: AzureAdClient,
     private val clientEnvironment: ClientEnvironment,
+    private val httpClient: HttpClient = httpClientDefault(),
 ) {
     private val behandlendeEnhetUrl = "${clientEnvironment.baseUrl}$BEHANDLENDEENHET_PATH"
-
-    private val httpClient = httpClientDefault()
 
     suspend fun getEnhet(
         callId: String,

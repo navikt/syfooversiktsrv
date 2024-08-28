@@ -1,20 +1,11 @@
 package no.nav.syfo.testutil.mock
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
-import io.ktor.server.application.*
-import io.ktor.server.engine.*
-import io.ktor.server.netty.*
-import io.ktor.server.request.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
-import no.nav.syfo.personstatus.api.v2.auth.installContentNegotiation
+import io.ktor.client.engine.mock.*
+import io.ktor.client.request.*
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.model.*
 import no.nav.syfo.testutil.UserConstants
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_NO_NAME_FNR
-import no.nav.syfo.testutil.getRandomPort
-import no.nav.syfo.util.configuredJacksonMapper
 
 fun generatePdlPerson(
     pdlPersonNavn: PdlPersonNavn,
@@ -101,43 +92,26 @@ private fun String.toFakeOldIdent(): String {
     return "9$substring"
 }
 
-class PdlMock {
-    private val port = getRandomPort()
-    val url = "http://localhost:$port"
-    val name = "pdl"
-
-    private val objectMapper: ObjectMapper = configuredJacksonMapper()
-
-    val server = embeddedServer(
-        factory = Netty,
-        port = port,
-    ) {
-        installContentNegotiation()
-        routing {
-            post {
-                val pdlRequest = call.receiveText()
-                val isHentIdenter = pdlRequest.contains("hentIdenter")
-                if (isHentIdenter) {
-                    val request: PdlIdentRequest = objectMapper.readValue(pdlRequest)
-                    if (request.variables.ident == UserConstants.ARBEIDSTAKER_3_FNR) {
-                        call.respond(generatePdlIdenter("enAnnenIdent"))
-                    } else if (request.variables.ident == UserConstants.ARBEIDSTAKER_4_FNR_WITH_ERROR) {
-                        call.respond(
-                            generatePdlIdenter(request.variables.ident)
-                                .copy(errors = generatePdlError(code = "not_found"))
-                        )
-                    } else {
-                        call.respond(generatePdlIdenter(request.variables.ident))
-                    }
-                } else {
-                    val request: PdlPersonBolkRequest = objectMapper.readValue(pdlRequest)
-                    call.respond(
-                        generatePdlPersonResponse(
-                            identList = request.variables.identer,
-                        )
-                    )
-                }
+suspend fun MockRequestHandleScope.pdlMockResponse(request: HttpRequestData): HttpResponseData {
+    val isHentIdenterRequest = request.receiveBody<Any>().toString().contains("hentIdenter")
+    return if (isHentIdenterRequest) {
+        val pdlRequest = request.receiveBody<PdlIdentRequest>()
+        when (val personIdent = pdlRequest.variables.ident) {
+            UserConstants.ARBEIDSTAKER_3_FNR -> {
+                respondOk(generatePdlIdenter("enAnnenIdent"))
+            }
+            UserConstants.ARBEIDSTAKER_4_FNR_WITH_ERROR -> {
+                respondOk(
+                    generatePdlIdenter(personIdent)
+                        .copy(errors = generatePdlError(code = "not_found"))
+                )
+            }
+            else -> {
+                respondOk(generatePdlIdenter(personIdent))
             }
         }
+    } else {
+        val pdlRequest = request.receiveBody<PdlPersonBolkRequest>()
+        respondOk(generatePdlPersonResponse(identList = pdlRequest.variables.identer))
     }
 }

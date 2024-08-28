@@ -15,6 +15,7 @@ import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
 import no.nav.syfo.personstatus.infrastructure.clients.behandlendeenhet.BehandlendeEnhetClient
 import no.nav.syfo.personstatus.infrastructure.clients.oppfolgingsoppgave.OppfolgingsoppgaveClient
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.PdlClient
+import no.nav.syfo.personstatus.infrastructure.clients.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.personstatus.infrastructure.cronjob.behandlendeenhet.PersonBehandlendeEnhetService
 import no.nav.syfo.personstatus.infrastructure.cronjob.launchCronjobModule
 import no.nav.syfo.personstatus.infrastructure.database.database
@@ -65,6 +66,10 @@ fun main() {
         azureAdClient = azureAdClient,
         clientEnvironment = environment.clients.aktivitetskrav,
     )
+    val veilederTilgangskontrollClient = VeilederTilgangskontrollClient(
+        azureAdClient = azureAdClient,
+        istilgangskontrollEnv = environment.clients.istilgangskontroll,
+    )
 
     lateinit var personBehandlendeEnhetService: PersonBehandlendeEnhetService
     lateinit var personoversiktStatusService: PersonoversiktStatusService
@@ -99,7 +104,7 @@ fun main() {
                 database = database,
                 environment = environment,
                 wellKnownVeilederV2 = wellKnownVeilederV2,
-                azureAdClient = azureAdClient,
+                tilgangskontrollClient = veilederTilgangskontrollClient,
                 personoversiktStatusService = personoversiktStatusService,
             )
         }

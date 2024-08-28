@@ -26,30 +26,37 @@ class InternalMockEnvironment private constructor() {
     private val azureAdClient = AzureAdClient(
         azureEnvironment = environment.azure,
         redisStore = redisStore,
+        httpClient = externalMockEnvironment.mockHttpClient
     )
     private val pdlClient = PdlClient(
         azureAdClient = azureAdClient,
         clientEnvironment = environment.clients.pdl,
+        httpClient = externalMockEnvironment.mockHttpClient
     )
     private val behandlendeEnhetClient = BehandlendeEnhetClient(
         azureAdClient = azureAdClient,
         clientEnvironment = environment.clients.syfobehandlendeenhet,
+        httpClient = externalMockEnvironment.mockHttpClient
     )
     private val arbeidsuforhetvurderingClient = ArbeidsuforhetvurderingClient(
         azureAdClient = azureAdClient,
         clientEnvironment = environment.clients.arbeidsuforhetvurdering,
+        httpClient = externalMockEnvironment.mockHttpClient
     )
     private val oppfolgingsoppgaveClient = OppfolgingsoppgaveClient(
         azureAdClient = azureAdClient,
         clientEnvironment = environment.clients.ishuskelapp,
+        httpClient = externalMockEnvironment.mockHttpClient
     )
     private val aktivitetskravClient = AktivitetskravClient(
         azureAdClient = azureAdClient,
         clientEnvironment = environment.clients.aktivitetskrav,
+        httpClient = externalMockEnvironment.mockHttpClient
     )
     private val eregClient = EregClient(
         clientEnvironment = environment.clients.ereg,
         redisStore = redisStore,
+        httpClient = externalMockEnvironment.mockHttpClient
     )
 
     internal val personBehandlendeEnhetService = PersonBehandlendeEnhetService(
