@@ -87,7 +87,7 @@ class ArbeidsuforhetvurderingClient(
 
     companion object {
         private const val ARBEIDSUFORHET_API_PATH = "/api/internad/v1/arbeidsuforhet/get-vurderinger"
-        private val log = LoggerFactory.getLogger(ManglendeMedvirkningClient::class.java)
+        private val log = LoggerFactory.getLogger(ArbeidsuforhetvurderingClient::class.java)
 
         const val CALL_ISARBEIDSUFORHET_BASE = "${METRICS_NS}_call_isarbeidsuforhet"
         const val CALL_ISARBEIDSUFORHET_SUCCESS = "${CALL_ISARBEIDSUFORHET_BASE}_success_count"
