@@ -17,7 +17,6 @@ import no.nav.syfo.util.getBearerHeader
 import no.nav.syfo.util.getCallId
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.time.LocalDate
 import kotlin.collections.filter
 import kotlin.collections.isNotEmpty
 import kotlin.collections.map
@@ -30,7 +29,6 @@ const val personOversiktApiV2Path = "/api/v2/personoversikt"
 fun Route.registerPersonoversiktApiV2(
     veilederTilgangskontrollClient: VeilederTilgangskontrollClient,
     personoversiktStatusService: PersonoversiktStatusService,
-    arenaCutoff: LocalDate,
 ) {
     route(personOversiktApiV2Path) {
         get("/enhet/{enhet}") {
@@ -48,7 +46,6 @@ fun Route.registerPersonoversiktApiV2(
                         val personOversiktStatusList: List<PersonOversiktStatus> = personoversiktStatusService
                             .hentPersonoversiktStatusTilknyttetEnhet(
                                 enhet = enhet,
-                                arenaCutoff = arenaCutoff,
                             )
 
                         val personFnrListWithVeilederAccess: List<String> =
@@ -69,7 +66,6 @@ fun Route.registerPersonoversiktApiV2(
                             val personOversiktStatusDTO = personoversiktStatusService.getAktiveVurderinger(
                                 callId = callId,
                                 token = token,
-                                arenaCutoff = arenaCutoff,
                                 personStatusOversikt = personerWithName,
                             )
                             call.respond(personOversiktStatusDTO)

@@ -2,7 +2,6 @@ package no.nav.syfo.aktivitetskravvurdering.kafka
 
 import no.nav.syfo.ApplicationState
 import no.nav.syfo.personstatus.PersonoversiktStatusService
-import no.nav.syfo.personstatus.infrastructure.database.database
 import no.nav.syfo.personstatus.infrastructure.kafka.KafkaEnvironment
 import no.nav.syfo.personstatus.infrastructure.kafka.kafkaAivenConsumerConfig
 import no.nav.syfo.personstatus.infrastructure.kafka.launchKafkaTask
@@ -19,7 +18,6 @@ fun launchKafkaTaskAktivitetskravVurdering(
     personoversiktStatusService: PersonoversiktStatusService,
 ) {
     val aktivitetskravVurderingConsumer = AktivitetskravVurderingConsumer(
-        database = database,
         personoversiktStatusService = personoversiktStatusService,
     )
     val consumerProperties = Properties().apply {

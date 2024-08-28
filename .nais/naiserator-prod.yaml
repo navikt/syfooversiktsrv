@@ -111,8 +111,5 @@ spec:
       value: "prod-gcp.teamsykefravr.ishuskelapp"
     - name: ISHUSKELAPP_URL
       value: "http://ishuskelapp"
-    # Bruk samme dato i enhetens-oversikt-query og index
-    - name: ARENA_CUTOFF
-      value: "2023-03-10"
     - name: CRONJOB_BEHANDLENDE_ENHET_INTERVAL_DELAY_MINUTES
       value: "15"

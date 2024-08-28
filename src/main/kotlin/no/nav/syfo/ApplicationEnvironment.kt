@@ -7,7 +7,6 @@ import no.nav.syfo.personstatus.infrastructure.database.DatabaseEnvironment
 import no.nav.syfo.personstatus.infrastructure.kafka.KafkaEnvironment
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureEnvironment
 import java.lang.RuntimeException
-import java.time.LocalDate
 import kotlin.text.toInt
 import kotlin.text.toLong
 
@@ -32,7 +31,6 @@ data class Environment(
     ),
 
     val electorPath: String = getEnvVar("ELECTOR_PATH"),
-    val arenaCutoff: LocalDate = LocalDate.parse(getEnvVar("ARENA_CUTOFF")),
 
     val kafka: KafkaEnvironment = KafkaEnvironment(
         aivenBootstrapServers = getEnvVar("KAFKA_BROKERS"),

@@ -32,7 +32,6 @@ object PreloadCacheCronjobSpek : Spek({
                 azureAdClient = azureAdClient,
                 istilgangskontrollEnv = externalMockEnvironment.environment.clients.istilgangskontroll,
             ),
-            arenaCutoff = externalMockEnvironment.environment.arenaCutoff,
         )
 
         describe(PreloadCacheCronjobSpek::class.java.simpleName) {

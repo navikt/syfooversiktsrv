@@ -39,7 +39,7 @@ class AktivitetskravVurderingConsumerSpek : Spek({
             personoversiktStatusRepository = personOppgaveRepository,
         )
         val aktivitetskravVurderingConsumer =
-            AktivitetskravVurderingConsumer(database = database, personoversiktStatusService = personoversiktStatusService)
+            AktivitetskravVurderingConsumer(personoversiktStatusService = personoversiktStatusService)
 
         val aktivitetskravVurderingTopicPartition = aktivitetskravVurderingTopicPartition()
         val kafkaAktivitetskravVurderingNy = generateKafkaAktivitetskravVurdering(status = AktivitetskravStatus.NY, isFinal = false)
@@ -89,9 +89,7 @@ class AktivitetskravVurderingConsumerSpek : Spek({
                 val pPersonOversiktStatus = pPersonOversiktStatusList.first()
 
                 pPersonOversiktStatus.fnr shouldBeEqualTo kafkaAktivitetskravVurderingNy.personIdent
-                pPersonOversiktStatus.aktivitetskrav shouldBeEqualTo kafkaAktivitetskravVurderingNy.status
-                pPersonOversiktStatus.aktivitetskravStoppunkt shouldBeEqualTo kafkaAktivitetskravVurderingNy.stoppunktAt
-                pPersonOversiktStatus.aktivitetskravVurderingFrist.shouldBeNull()
+                pPersonOversiktStatus.isAktivAktivitetskravvurdering.shouldBeTrue()
 
                 pPersonOversiktStatus.enhet.shouldBeNull()
                 pPersonOversiktStatus.veilederIdent.shouldBeNull()
@@ -127,10 +125,7 @@ class AktivitetskravVurderingConsumerSpek : Spek({
                 val pPersonOversiktStatus = pPersonOversiktStatusList.first()
                 pPersonOversiktStatus.oppfolgingstilfelleGeneratedAt.shouldNotBeNull()
                 pPersonOversiktStatus.oppfolgingstilfelleBitReferanseUuid.shouldNotBeNull()
-
-                pPersonOversiktStatus.aktivitetskrav shouldBeEqualTo kafkaAktivitetskravVurderingAvventer.status
-                pPersonOversiktStatus.aktivitetskravStoppunkt shouldBeEqualTo kafkaAktivitetskravVurderingAvventer.stoppunktAt
-                pPersonOversiktStatus.aktivitetskravVurderingFrist shouldBeEqualTo kafkaAktivitetskravVurderingAvventer.frist
+                pPersonOversiktStatus.isAktivAktivitetskravvurdering.shouldBeTrue()
             }
 
             it("update is_aktiv_aktivitetskrav_vurdering to active when new aktivitetskrav vurdering is received") {

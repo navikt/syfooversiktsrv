@@ -5,8 +5,6 @@ import io.ktor.util.*
 import io.mockk.clearMocks
 import io.mockk.every
 import kotlinx.coroutines.runBlocking
-import no.nav.syfo.aktivitetskravvurdering.domain.AktivitetskravStatus
-import no.nav.syfo.aktivitetskravvurdering.persistAktivitetskrav
 import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personoppgavehendelse.kafka.KPersonoppgavehendelse
 import no.nav.syfo.personstatus.db.*
@@ -15,6 +13,7 @@ import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
 import no.nav.syfo.personstatus.domain.applyHendelse
 import no.nav.syfo.personstatus.infrastructure.cronjob.behandlendeenhet.updatePersonTildeltEnhetAndRemoveTildeltVeileder
+import no.nav.syfo.personstatus.infrastructure.database.repository.PersonOversiktStatusRepository
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_ENHET_ERROR_PERSONIDENT
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_ENHET_NOT_FOUND_PERSONIDENT
@@ -62,8 +61,8 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
         val kafkaDialogmotekandidatEndringStoppunktConsumerRecord = dialogmotekandidatEndringConsumerRecord(
             kafkaDialogmotekandidatEndring = kafkaDialogmotekandidatEndringStoppunkt
         )
-        val aktivitetskravGenerator =
-            AktivitetskravGenerator(arenaCutoff = externalMockEnvironment.environment.arenaCutoff)
+
+        val personOversiktStatusRepository = PersonOversiktStatusRepository(database = database)
 
         beforeEachTest {
             database.dropData()
@@ -304,18 +303,10 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                 }
 
                 it("updates Enhet if active aktivitetskrav") {
-                    val aktivitetskrav = aktivitetskravGenerator.generateAktivitetskrav(
-                        personIdent = personIdentDefault,
-                        status = AktivitetskravStatus.NY,
-                        stoppunktAfterCutoff = true,
+                    personOversiktStatusRepository.upsertAktivitetskravAktivStatus(
+                        personident = personIdentDefault,
+                        isAktivVurdering = true,
                     )
-                    database.connection.use { connection ->
-                        persistAktivitetskrav(
-                            connection = connection,
-                            aktivitetskrav = aktivitetskrav,
-                        )
-                        connection.commit()
-                    }
 
                     var pPersonOversiktStatusList = database.getPersonOversiktStatusList(fnr = personIdentDefault.value)
 
@@ -324,7 +315,7 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                     var pPersonOversiktStatus = pPersonOversiktStatusList.first()
                     pPersonOversiktStatus.enhet.shouldBeNull()
                     pPersonOversiktStatus.tildeltEnhetUpdatedAt.shouldBeNull()
-                    pPersonOversiktStatus.aktivitetskrav.shouldNotBeNull()
+                    pPersonOversiktStatus.isAktivAktivitetskravvurdering.shouldBeTrue()
 
                     runBlocking {
                         val result = personBehandlendeEnhetCronjob.runJob()

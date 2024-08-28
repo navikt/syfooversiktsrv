@@ -9,8 +9,6 @@ import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureEnvironment
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseEnvironment
 import no.nav.syfo.personstatus.infrastructure.kafka.KafkaEnvironment
 import java.net.ServerSocket
-import java.time.LocalDate
-import java.time.Month
 
 fun testEnvironment(
     azureTokenEndpoint: String = "azureTokenEndpoint",
@@ -38,7 +36,6 @@ fun testEnvironment(
         password = "password",
     ),
     electorPath = "/tmp",
-    arenaCutoff = LocalDate.of(2023, Month.MARCH, 10),
     kafka = KafkaEnvironment(
         aivenBootstrapServers = kafkaBootstrapServers,
         aivenCredstorePassword = "credstorepassord",

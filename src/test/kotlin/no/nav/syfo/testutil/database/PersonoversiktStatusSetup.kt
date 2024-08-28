@@ -1,8 +1,6 @@
 package no.nav.syfo.testutil.database
 
 import io.ktor.server.application.*
-import no.nav.syfo.aktivitetskravvurdering.domain.Aktivitetskrav
-import no.nav.syfo.aktivitetskravvurdering.persistAktivitetskrav
 import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendring
 import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendringType
 import no.nav.syfo.personstatus.domain.PersonIdent
@@ -78,39 +76,4 @@ fun setupExternalMockEnvironment(application: Application): ExternalMockEnvironm
         externalMockEnvironment = externalMockEnvironment
     )
     return externalMockEnvironment
-}
-
-fun persistAktivitetskravAndTildelEnhet(
-    database: TestDatabase,
-    personIdent: PersonIdent,
-    aktivitetskrav: Aktivitetskrav,
-) {
-    database.connection.use { connection ->
-        persistAktivitetskrav(
-            connection = connection,
-            aktivitetskrav = aktivitetskrav,
-        )
-        connection.commit()
-    }
-    database.setTildeltEnhet(
-        ident = personIdent,
-        enhet = UserConstants.NAV_ENHET,
-    )
-}
-
-fun setAsOpenDialogmote(
-    database: TestDatabase,
-    personIdent: PersonIdent = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),
-) {
-    database.connection.use { connection ->
-        connection.prepareStatement(queryUpdatePersonOversiktStatusMotestatus).use {
-            it.setString(1, DialogmoteStatusendringType.INNKALT.name)
-            it.setObject(2, OffsetDateTime.now())
-            it.setObject(3, OffsetDateTime.now())
-            it.setString(4, personIdent.value)
-            it.execute()
-        }
-
-        connection.commit()
-    }
 }
