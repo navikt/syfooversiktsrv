@@ -85,7 +85,7 @@ class ManglendeMedvirkningClient(
     }
 
     companion object {
-        private const val MANGLENDE_MEDVIRKNING_API_PATH = "/api/internad/v1/manglende-medvirkning/get-vurderinger"
+        const val MANGLENDE_MEDVIRKNING_API_PATH = "/api/internad/v1/manglende-medvirkning/get-vurderinger"
         private val log = LoggerFactory.getLogger(ManglendeMedvirkningClient::class.java)
 
         const val CALL_MANGLENDE_MEDVIRKNING_BASE = "${METRICS_NS}_call_ismanglendemedvirkning"
