@@ -31,12 +31,13 @@ class ManglendeMedvirkningVurderingConsumerSpek : Spek({
     val kafkaConsumer = mockk<KafkaConsumer<String, VurderingRecord>>()
     val personOversiktStatusRepository = PersonOversiktStatusRepository(database = database)
     val arbeidsuforhervurderingClient = mockk<IArbeidsuforhetvurderingClient>()
+    val manglendeMedvirkningClient = mockk<IManglendeMedvirkningClient>()
     val oppfolgingsoppgaveClient = mockk<IOppfolgingsoppgaveClient>()
     val personoversiktStatusService = PersonoversiktStatusService(
         database = database,
         pdlClient = externalMockEnvironment.pdlClient,
         arbeidsuforhetvurderingClient = arbeidsuforhervurderingClient,
-        manglendeMedvirkningClient = mockk<IManglendeMedvirkningClient>(),
+        manglendeMedvirkningClient = manglendeMedvirkningClient,
         personoversiktStatusRepository = personOversiktStatusRepository,
         oppfolgingsoppgaveClient = oppfolgingsoppgaveClient,
         aktivitetskravClient = mockk<IAktivitetskravClient>(),

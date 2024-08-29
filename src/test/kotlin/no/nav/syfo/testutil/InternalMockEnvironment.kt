@@ -1,6 +1,5 @@
 package no.nav.syfo.testutil
 
-import io.mockk.mockk
 import no.nav.syfo.application.cache.RedisStore
 import no.nav.syfo.personstatus.infrastructure.clients.behandlendeenhet.BehandlendeEnhetClient
 import no.nav.syfo.personstatus.infrastructure.clients.ereg.EregClient
@@ -10,9 +9,9 @@ import no.nav.syfo.personstatus.infrastructure.cronjob.behandlendeenhet.PersonBe
 import no.nav.syfo.personstatus.infrastructure.cronjob.virksomhetsnavn.PersonOppfolgingstilfelleVirksomhetnavnCronjob
 import no.nav.syfo.personstatus.infrastructure.cronjob.virksomhetsnavn.PersonOppfolgingstilfelleVirksomhetsnavnService
 import no.nav.syfo.personstatus.PersonoversiktStatusService
-import no.nav.syfo.personstatus.application.manglendemedvirkning.IManglendeMedvirkningClient
 import no.nav.syfo.personstatus.infrastructure.clients.AktivitetskravClient
 import no.nav.syfo.personstatus.infrastructure.clients.arbeidsuforhet.ArbeidsuforhetvurderingClient
+import no.nav.syfo.personstatus.infrastructure.clients.arbeidsuforhet.ManglendeMedvirkningClient
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
 import no.nav.syfo.personstatus.infrastructure.clients.oppfolgingsoppgave.OppfolgingsoppgaveClient
 import no.nav.syfo.personstatus.infrastructure.database.repository.PersonOversiktStatusRepository
@@ -44,6 +43,10 @@ class InternalMockEnvironment private constructor() {
         azureAdClient = azureAdClient,
         clientEnvironment = environment.clients.arbeidsuforhetvurdering,
         httpClient = externalMockEnvironment.mockHttpClient
+    )
+    private val manglendeMedvirkningClient = ManglendeMedvirkningClient(
+        azureAdClient = azureAdClient,
+        clientEnvironment = environment.clients.manglendeMedvirkning,
     )
     private val oppfolgingsoppgaveClient = OppfolgingsoppgaveClient(
         azureAdClient = azureAdClient,
@@ -82,7 +85,7 @@ class InternalMockEnvironment private constructor() {
         database = database,
         pdlClient = pdlClient,
         arbeidsuforhetvurderingClient = arbeidsuforhetvurderingClient,
-        manglendeMedvirkningClient = mockk<IManglendeMedvirkningClient>(),
+        manglendeMedvirkningClient = manglendeMedvirkningClient,
         personoversiktStatusRepository = personoversiktRepository,
         oppfolgingsoppgaveClient = oppfolgingsoppgaveClient,
         aktivitetskravClient = aktivitetskravClient,
