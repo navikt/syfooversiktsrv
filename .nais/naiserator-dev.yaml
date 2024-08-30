@@ -54,7 +54,7 @@ spec:
         - application: syfooversiktsrv-redis
         - application: isarbeidsuforhet
         - application: isaktivitetskrav
-        - application: ismanglendemedvirkning,
+        - application: ismanglendemedvirkning
         - application: istilgangskontroll
         - application: ishuskelapp
   azure:
