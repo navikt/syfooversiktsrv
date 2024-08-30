@@ -5,7 +5,6 @@ import io.ktor.client.call.*
 import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
-import io.ktor.client.utils.EmptyContent.contentType
 import io.ktor.http.*
 import io.micrometer.core.instrument.Counter
 import net.logstash.logback.argument.StructuredArguments
