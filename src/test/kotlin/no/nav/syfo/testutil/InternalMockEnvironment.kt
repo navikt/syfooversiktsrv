@@ -47,6 +47,7 @@ class InternalMockEnvironment private constructor() {
     private val manglendeMedvirkningClient = ManglendeMedvirkningClient(
         azureAdClient = azureAdClient,
         clientEnvironment = environment.clients.manglendeMedvirkning,
+        httpClient = externalMockEnvironment.mockHttpClient
     )
     private val oppfolgingsoppgaveClient = OppfolgingsoppgaveClient(
         azureAdClient = azureAdClient,
