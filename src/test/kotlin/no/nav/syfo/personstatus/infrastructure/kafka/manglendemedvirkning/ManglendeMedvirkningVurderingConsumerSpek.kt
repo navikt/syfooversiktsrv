@@ -7,6 +7,7 @@ import io.mockk.verify
 import no.nav.syfo.personstatus.PersonoversiktStatusService
 import no.nav.syfo.personstatus.application.IAktivitetskravClient
 import no.nav.syfo.personstatus.application.arbeidsuforhet.IArbeidsuforhetvurderingClient
+import no.nav.syfo.personstatus.application.manglendemedvirkning.IManglendeMedvirkningClient
 import no.nav.syfo.personstatus.application.oppfolgingsoppgave.IOppfolgingsoppgaveClient
 import no.nav.syfo.personstatus.db.createPersonOversiktStatus
 import no.nav.syfo.personstatus.domain.PersonIdent
@@ -30,11 +31,13 @@ class ManglendeMedvirkningVurderingConsumerSpek : Spek({
     val kafkaConsumer = mockk<KafkaConsumer<String, VurderingRecord>>()
     val personOversiktStatusRepository = PersonOversiktStatusRepository(database = database)
     val arbeidsuforhervurderingClient = mockk<IArbeidsuforhetvurderingClient>()
+    val manglendeMedvirkningClient = mockk<IManglendeMedvirkningClient>()
     val oppfolgingsoppgaveClient = mockk<IOppfolgingsoppgaveClient>()
     val personoversiktStatusService = PersonoversiktStatusService(
         database = database,
         pdlClient = externalMockEnvironment.pdlClient,
         arbeidsuforhetvurderingClient = arbeidsuforhervurderingClient,
+        manglendeMedvirkningClient = manglendeMedvirkningClient,
         personoversiktStatusRepository = personOversiktStatusRepository,
         oppfolgingsoppgaveClient = oppfolgingsoppgaveClient,
         aktivitetskravClient = mockk<IAktivitetskravClient>(),

@@ -11,6 +11,7 @@ import no.nav.syfo.personstatus.infrastructure.cronjob.virksomhetsnavn.PersonOpp
 import no.nav.syfo.personstatus.PersonoversiktStatusService
 import no.nav.syfo.personstatus.infrastructure.clients.AktivitetskravClient
 import no.nav.syfo.personstatus.infrastructure.clients.arbeidsuforhet.ArbeidsuforhetvurderingClient
+import no.nav.syfo.personstatus.infrastructure.clients.arbeidsuforhet.ManglendeMedvirkningClient
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
 import no.nav.syfo.personstatus.infrastructure.clients.oppfolgingsoppgave.OppfolgingsoppgaveClient
 import no.nav.syfo.personstatus.infrastructure.database.repository.PersonOversiktStatusRepository
@@ -41,6 +42,11 @@ class InternalMockEnvironment private constructor() {
     private val arbeidsuforhetvurderingClient = ArbeidsuforhetvurderingClient(
         azureAdClient = azureAdClient,
         clientEnvironment = environment.clients.arbeidsuforhetvurdering,
+        httpClient = externalMockEnvironment.mockHttpClient
+    )
+    private val manglendeMedvirkningClient = ManglendeMedvirkningClient(
+        azureAdClient = azureAdClient,
+        clientEnvironment = environment.clients.manglendeMedvirkning,
         httpClient = externalMockEnvironment.mockHttpClient
     )
     private val oppfolgingsoppgaveClient = OppfolgingsoppgaveClient(
@@ -80,6 +86,7 @@ class InternalMockEnvironment private constructor() {
         database = database,
         pdlClient = pdlClient,
         arbeidsuforhetvurderingClient = arbeidsuforhetvurderingClient,
+        manglendeMedvirkningClient = manglendeMedvirkningClient,
         personoversiktStatusRepository = personoversiktRepository,
         oppfolgingsoppgaveClient = oppfolgingsoppgaveClient,
         aktivitetskravClient = aktivitetskravClient,

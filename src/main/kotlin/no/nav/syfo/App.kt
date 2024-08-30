@@ -11,6 +11,7 @@ import no.nav.syfo.personstatus.api.v2.apiModule
 import no.nav.syfo.personstatus.api.v2.auth.getWellKnown
 import no.nav.syfo.personstatus.infrastructure.clients.AktivitetskravClient
 import no.nav.syfo.personstatus.infrastructure.clients.arbeidsuforhet.ArbeidsuforhetvurderingClient
+import no.nav.syfo.personstatus.infrastructure.clients.arbeidsuforhet.ManglendeMedvirkningClient
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
 import no.nav.syfo.personstatus.infrastructure.clients.behandlendeenhet.BehandlendeEnhetClient
 import no.nav.syfo.personstatus.infrastructure.clients.oppfolgingsoppgave.OppfolgingsoppgaveClient
@@ -66,6 +67,10 @@ fun main() {
         azureAdClient = azureAdClient,
         clientEnvironment = environment.clients.aktivitetskrav,
     )
+    val manglendeMedvirkningClient = ManglendeMedvirkningClient(
+        azureAdClient = azureAdClient,
+        clientEnvironment = environment.clients.manglendeMedvirkning,
+    )
     val veilederTilgangskontrollClient = VeilederTilgangskontrollClient(
         azureAdClient = azureAdClient,
         istilgangskontrollEnv = environment.clients.istilgangskontroll,
@@ -94,6 +99,7 @@ fun main() {
                 personoversiktStatusRepository = personoversiktStatusRepository,
                 oppfolgingsoppgaveClient = oppfolgingsoppgaveClient,
                 aktivitetskravClient = aktivitetskravClient,
+                manglendeMedvirkningClient = manglendeMedvirkningClient,
             )
             personBehandlendeEnhetService = PersonBehandlendeEnhetService(
                 database = database,

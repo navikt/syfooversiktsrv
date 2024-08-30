@@ -60,6 +60,10 @@ data class Environment(
             baseUrl = getEnvVar("ARBEIDSUFORHETVURDERING_URL"),
             clientId = getEnvVar("ARBEIDSUFORHETVURDERING_CLIENT_ID"),
         ),
+        manglendeMedvirkning = ClientEnvironment(
+            baseUrl = getEnvVar("MANGLENDEMEDVIRKNING_URL"),
+            clientId = getEnvVar("MANGLENDEMEDVIRKNING_CLIENT_ID"),
+        ),
         istilgangskontroll = ClientEnvironment(
             baseUrl = getEnvVar("ISTILGANGSKONTROLL_HOST"),
             clientId = getEnvVar("ISTILGANGSKONTROLL_CLIENT_ID"),

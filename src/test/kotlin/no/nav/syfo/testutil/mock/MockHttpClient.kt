@@ -22,6 +22,7 @@ fun mockHttpClient(environment: Environment) = HttpClient(MockEngine) {
                 requestUrl.startsWith("/${environment.clients.ereg.baseUrl}") -> eregMockResponse(request)
                 requestUrl.startsWith("/${environment.clients.arbeidsuforhetvurdering.baseUrl}") -> arbeidsuforhetVurderingMockResponse()
                 requestUrl.startsWith("/${environment.clients.ishuskelapp.baseUrl}") -> oppfolgingsoppgaveMockResponse()
+                requestUrl.startsWith("/${environment.clients.manglendeMedvirkning.baseUrl}") -> manglendeMedvirkningMockResponse()
 
                 else -> error("Unhandled ${request.url.encodedPath}")
             }

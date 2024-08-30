@@ -54,6 +54,7 @@ spec:
         - application: syfooversiktsrv-redis
         - application: isarbeidsuforhet
         - application: isaktivitetskrav
+        - application: ismanglendemedvirkning
         - application: istilgangskontroll
         - application: ishuskelapp
   azure:
@@ -102,6 +103,10 @@ spec:
       value: "dev-gcp.teamsykefravr.isaktivitetskrav"
     - name: AKTIVITETSKRAV_URL
       value: "http://isaktivitetskrav"
+    - name: MANGLENDEMEDVIRKNING_CLIENT_ID
+      value: "dev-gcp.teamsykefravr.ismanglendemedvirkning"
+    - name: MANGLENDEMEDVIRKNING_URL
+      value: "http://ismanglendemedvirkning"
     - name: ISTILGANGSKONTROLL_CLIENT_ID
       value: "dev-gcp.teamsykefravr.istilgangskontroll"
     - name: ISTILGANGSKONTROLL_HOST

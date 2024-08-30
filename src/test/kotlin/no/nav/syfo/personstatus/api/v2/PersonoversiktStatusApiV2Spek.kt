@@ -15,6 +15,7 @@ import no.nav.syfo.oppfolgingstilfelle.domain.PersonOppfolgingstilfelleVirksomhe
 import no.nav.syfo.personoppgavehendelse.kafka.KPersonoppgavehendelse
 import no.nav.syfo.personstatus.api.v2.endpoints.personOversiktApiV2Path
 import no.nav.syfo.personstatus.api.v2.model.PersonOversiktStatusDTO
+import no.nav.syfo.personstatus.application.manglendemedvirkning.ManglendeMedvirkningVurderingType
 import no.nav.syfo.personstatus.db.createPersonOversiktStatus
 import no.nav.syfo.personstatus.db.getPersonOversiktStatusList
 import no.nav.syfo.personstatus.db.lagreVeilederForBruker
@@ -935,6 +936,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         with(
                             handleRequest(HttpMethod.Get, url) { addHeader(HttpHeaders.Authorization, bearerHeader(validToken)) }
                         ) {
+
                             response.status() shouldBeEqualTo HttpStatusCode.OK
 
                             val personOversiktStatus =
@@ -943,6 +945,35 @@ object PersonoversiktStatusApiV2Spek : Spek({
                             personOversiktStatus.arbeidsuforhetvurdering shouldNotBe null
                             personOversiktStatus.arbeidsuforhetvurdering?.varsel shouldNotBe null
                             personOversiktStatus.arbeidsuforhetvurdering?.createdAt shouldBeEqualTo latestVurdering
+                        }
+                    }
+                }
+
+                describe("manglendemedvirkning") {
+                    it("returns person with active manglendemedvirkning") {
+                        val newPersonOversiktStatus = PersonOversiktStatus(fnr = ARBEIDSTAKER_FNR)
+                            .copy(isAktivManglendeMedvirkningVurdering = true)
+                        database.connection.use { connection ->
+                            connection.createPersonOversiktStatus(commit = true, personOversiktStatus = newPersonOversiktStatus)
+                        }
+                        database.setTildeltEnhet(
+                            ident = PersonIdent(ARBEIDSTAKER_FNR),
+                            enhet = NAV_ENHET,
+                        )
+
+                        with(
+                            handleRequest(HttpMethod.Get, url) { addHeader(HttpHeaders.Authorization, bearerHeader(validToken)) }
+                        ) {
+
+                            response.status() shouldBeEqualTo HttpStatusCode.OK
+
+                            val personOversiktStatus =
+                                objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
+                            personOversiktStatus.fnr shouldBeEqualTo ARBEIDSTAKER_FNR
+                            personOversiktStatus.manglendeMedvirkning shouldNotBe null
+                            personOversiktStatus.manglendeMedvirkning?.varsel shouldNotBe null
+                            personOversiktStatus.manglendeMedvirkning?.type shouldBeEqualTo ManglendeMedvirkningVurderingType.FORHANDSVARSEL
+                            personOversiktStatus.manglendeMedvirkning?.begrunnelse shouldBeEqualTo "begrunnelse"
                         }
                     }
                 }

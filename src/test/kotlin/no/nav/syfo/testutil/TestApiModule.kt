@@ -7,6 +7,7 @@ import no.nav.syfo.personstatus.infrastructure.clients.pdl.PdlClient
 import no.nav.syfo.personstatus.PersonoversiktStatusService
 import no.nav.syfo.personstatus.api.v2.apiModule
 import no.nav.syfo.personstatus.infrastructure.clients.arbeidsuforhet.ArbeidsuforhetvurderingClient
+import no.nav.syfo.personstatus.infrastructure.clients.arbeidsuforhet.ManglendeMedvirkningClient
 import no.nav.syfo.personstatus.infrastructure.clients.oppfolgingsoppgave.OppfolgingsoppgaveClient
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
 import no.nav.syfo.personstatus.infrastructure.clients.veiledertilgang.VeilederTilgangskontrollClient
@@ -32,6 +33,11 @@ fun Application.testApiModule(
         clientEnvironment = externalMockEnvironment.environment.clients.arbeidsuforhetvurdering,
         httpClient = externalMockEnvironment.mockHttpClient
     )
+    val manglendeMedvirkningClient = ManglendeMedvirkningClient(
+        azureAdClient = azureAdClient,
+        clientEnvironment = externalMockEnvironment.environment.clients.manglendeMedvirkning,
+        httpClient = externalMockEnvironment.mockHttpClient
+    )
     val oppfolgingsoppgaveClient = OppfolgingsoppgaveClient(
         azureAdClient = azureAdClient,
         clientEnvironment = externalMockEnvironment.environment.clients.ishuskelapp,
@@ -48,6 +54,7 @@ fun Application.testApiModule(
         pdlClient = pdlClient,
         personoversiktStatusRepository = personoversiktRepository,
         arbeidsuforhetvurderingClient = arbeidsuforhetvurderingClient,
+        manglendeMedvirkningClient = manglendeMedvirkningClient,
         oppfolgingsoppgaveClient = oppfolgingsoppgaveClient,
         aktivitetskravClient = mockk(relaxed = true),
     )
