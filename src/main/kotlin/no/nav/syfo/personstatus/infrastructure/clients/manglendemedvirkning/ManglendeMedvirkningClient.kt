@@ -1,9 +1,11 @@
 package no.nav.syfo.personstatus.infrastructure.clients.arbeidsuforhet
 
+import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
+import io.ktor.client.utils.EmptyContent.contentType
 import io.ktor.http.*
 import io.micrometer.core.instrument.Counter
 import net.logstash.logback.argument.StructuredArguments
@@ -24,9 +26,9 @@ import org.slf4j.LoggerFactory
 class ManglendeMedvirkningClient(
     private val azureAdClient: AzureAdClient,
     private val clientEnvironment: ClientEnvironment,
+    private val httpClient: HttpClient = httpClientDefault(),
 ) : IManglendeMedvirkningClient {
 
-    private val httpClient = httpClientDefault()
     private val manglendeMedvirkningUrl = "${clientEnvironment.baseUrl}$MANGLENDE_MEDVIRKNING_API_PATH"
 
     override suspend fun getLatestVurderinger(

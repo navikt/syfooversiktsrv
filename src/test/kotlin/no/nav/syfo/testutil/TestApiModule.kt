@@ -36,6 +36,7 @@ fun Application.testApiModule(
     val manglendeMedvirkningClient = ManglendeMedvirkningClient(
         azureAdClient = azureAdClient,
         clientEnvironment = externalMockEnvironment.environment.clients.manglendeMedvirkning,
+        httpClient = externalMockEnvironment.mockHttpClient
     )
     val oppfolgingsoppgaveClient = OppfolgingsoppgaveClient(
         azureAdClient = azureAdClient,
