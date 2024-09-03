@@ -48,39 +48,6 @@ object PersontildelingApiV2Spek : Spek({
                 navIdent = VEILEDER_ID,
             )
 
-            describe("Hent veiledertilknytninger") {
-                val url = "$baseUrl/veileder/$VEILEDER_ID"
-
-                it("skal returnere status NoContent om veileder ikke har tilknytninger") {
-                    with(
-                        handleRequest(HttpMethod.Get, url) {
-                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                        }
-                    ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.NoContent
-                    }
-                }
-
-                it("skal hente veileder sine tilknytninger ") {
-                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
-
-                    database.lagreVeilederForBruker(tilknytning)
-
-                    with(
-                        handleRequest(HttpMethod.Get, url) {
-                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                        }
-                    ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.OK
-                        val returnertVerdi =
-                            objectMapper.readValue<List<VeilederBrukerKnytning>>(response.content!!)[0]
-                        returnertVerdi.veilederIdent shouldBeEqualTo tilknytning.veilederIdent
-                        returnertVerdi.fnr shouldBeEqualTo tilknytning.fnr
-                        returnertVerdi.enhet shouldBeEqualTo ""
-                    }
-                }
-            }
-
             describe("skal lagre veiledertilknytninger") {
                 val url = "$baseUrl/registrer"
 
@@ -100,7 +67,7 @@ object PersontildelingApiV2Spek : Spek({
 
             describe("/personer") {
                 it("returns person with correct values") {
-                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
+                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR)
                     database.lagreVeilederForBruker(tilknytning)
 
                     val url = "$personTildelingApiV2Path/personer/single"
@@ -117,7 +84,7 @@ object PersontildelingApiV2Spek : Spek({
                     }
                 }
                 it("returns 404 when person does not exist") {
-                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
+                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR)
                     database.lagreVeilederForBruker(tilknytning)
 
                     val url = "$personTildelingApiV2Path/personer/single"

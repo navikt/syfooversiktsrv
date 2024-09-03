@@ -66,20 +66,6 @@ fun DatabaseInterface.hentUbehandledePersonerTilknyttetEnhet(enhet: String): Lis
     }
 }
 
-fun DatabaseInterface.hentBrukereTilknyttetVeileder(veileder: String): List<VeilederBrukerKnytning> {
-    val query = """
-                        SELECT *
-                        FROM PERSON_OVERSIKT_STATUS
-                        WHERE tildelt_veileder = ?
-                """
-    return connection.use { connection ->
-        connection.prepareStatement(query).use {
-            it.setString(1, veileder)
-            it.executeQuery().toList { toVeilederBrukerKnytning() }
-        }
-    }
-}
-
 fun ResultSet.toPPersonOversiktStatus(): PPersonOversiktStatus =
     PPersonOversiktStatus(
         id = getInt("id"),
@@ -120,11 +106,4 @@ fun ResultSet.toPPersonOversiktStatus(): PPersonOversiktStatus =
         isAktivSenOppfolgingKandidat = getBoolean("is_aktiv_sen_oppfolging_kandidat"),
         isAktivAktivitetskravvurdering = getBoolean("is_aktiv_aktivitetskrav_vurdering"),
         isAktivManglendeMedvirkningVurdering = getBoolean("is_aktiv_manglende_medvirkning_vurdering"),
-    )
-
-fun ResultSet.toVeilederBrukerKnytning(): VeilederBrukerKnytning =
-    VeilederBrukerKnytning(
-        veilederIdent = getString("tildelt_veileder"),
-        fnr = getString("fnr"),
-        enhet = getString("tildelt_enhet") ?: ""
     )

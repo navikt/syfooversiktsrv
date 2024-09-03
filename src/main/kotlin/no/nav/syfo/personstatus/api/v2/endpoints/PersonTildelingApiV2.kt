@@ -22,10 +22,7 @@ import no.nav.syfo.util.getCallId
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import kotlin.collections.filter
-import kotlin.collections.isNotEmpty
 import kotlin.collections.map
-import kotlin.takeIf
-import kotlin.text.isNotEmpty
 
 private val log: Logger = LoggerFactory.getLogger("no.nav.syfo")
 
@@ -37,24 +34,6 @@ fun Route.registerPersonTildelingApiV2(
     personoversiktStatusService: PersonoversiktStatusService,
 ) {
     route(personTildelingApiV2Path) {
-        get("/veileder/{veileder}") {
-            try {
-                val veileder: String = call.parameters["veileder"]?.takeIf { it.isNotEmpty() }
-                    ?: throw java.lang.IllegalArgumentException("Veileder mangler")
-
-                val tilknytninger: List<VeilederBrukerKnytning> =
-                    personTildelingService.hentBrukertilknytningerPaVeileder(veileder)
-
-                when {
-                    tilknytninger.isNotEmpty() -> call.respond(tilknytninger)
-                    else -> call.respond(HttpStatusCode.NoContent)
-                }
-            } catch (e: IllegalArgumentException) {
-                log.warn("Kan ikke hente tilknytninger: {}, {}", e.message, callIdArgument(getCallId()))
-                call.respond(HttpStatusCode.BadRequest, e.message ?: "Kan ikke hente tilknytninger")
-            }
-        }
-
         post("/registrer") {
             val callId = getCallId()
             val token = getBearerHeader()

@@ -176,7 +176,6 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                         val veilederBrukerKnytning = VeilederBrukerKnytning(
                             veilederIdent = UserConstants.VEILEDER_ID,
                             fnr = oversikthendelse.personident,
-                            enhet = firstEnhet,
                         )
                         database.lagreVeilederForBruker(
                             veilederBrukerKnytning = veilederBrukerKnytning,
@@ -349,7 +348,6 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                     val veilederBrukerKnytning = VeilederBrukerKnytning(
                         veilederIdent = UserConstants.VEILEDER_ID,
                         fnr = oversikthendelse.personident,
-                        enhet = behandlendeEnhetDTO().enhetId,
                     )
                     database.lagreVeilederForBruker(
                         veilederBrukerKnytning = veilederBrukerKnytning,
