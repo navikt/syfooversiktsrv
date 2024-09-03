@@ -16,6 +16,7 @@ import no.nav.syfo.personstatus.domain.VeilederBrukerKnytningListe
 import no.nav.syfo.personstatus.infrastructure.clients.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.personstatus.PersonoversiktStatusService
 import no.nav.syfo.personstatus.api.v2.model.VeilederBrukerKnytningDTO
+import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.util.*
 import no.nav.syfo.util.getBearerHeader
 import no.nav.syfo.util.getCallId
@@ -64,6 +65,32 @@ fun Route.registerPersonTildelingApiV2(
                     COUNT_PERSONTILDELING_TILDELT.increment(veilederBrukerKnytninger.size.toDouble())
 
                     call.respond(HttpStatusCode.OK)
+                }
+            } catch (e: Error) {
+                val navIdent = getNAVIdentFromToken(token)
+                log.error("Feil under tildeling av bruker for navIdent=$navIdent, ${e.message}", e.cause)
+                call.respond(HttpStatusCode.InternalServerError)
+            }
+        }
+
+        post("/personer/single") {
+            val callId = getCallId()
+            val token = getBearerHeader()
+                ?: throw java.lang.IllegalArgumentException("No Authorization header supplied")
+            try {
+                val veilederBrukerKnytning: VeilederBrukerKnytning = call.receive()
+
+                val tilgang = veilederTilgangskontrollClient.getVeilederAccessToPerson(
+                    personident = PersonIdent(veilederBrukerKnytning.fnr),
+                    token = token,
+                    callId = callId
+                )
+                if (tilgang?.erGodkjent == true) {
+                    personTildelingService.lagreKnytningMellomVeilederOgBruker(listOf(veilederBrukerKnytning))
+                    call.respond(HttpStatusCode.OK)
+                } else {
+                    log.error("Kan ikke registrere tilknytning fordi veileder ikke har tilgang til bruker, {}", callIdArgument(callId))
+                    call.respond(HttpStatusCode.Forbidden)
                 }
             } catch (e: Error) {
                 val navIdent = getNAVIdentFromToken(token)

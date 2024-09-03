@@ -12,6 +12,7 @@ import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_2_FNR
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
+import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_NO_ACCESS
 import no.nav.syfo.testutil.UserConstants.NAV_ENHET
 import no.nav.syfo.testutil.UserConstants.VEILEDER_ID
 import no.nav.syfo.util.NAV_PERSONIDENT_HEADER
@@ -66,35 +67,80 @@ object PersontildelingApiV2Spek : Spek({
             }
 
             describe("/personer") {
-                it("returns person with correct values") {
-                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR)
-                    database.lagreVeilederForBruker(tilknytning)
+                describe("GET veilederknytning for person") {
+                    it("returns person with correct values") {
+                        val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR)
+                        database.lagreVeilederForBruker(tilknytning)
 
-                    val url = "$personTildelingApiV2Path/personer/single"
-                    with(
-                        handleRequest(HttpMethod.Get, url) {
-                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                            addHeader(NAV_PERSONIDENT_HEADER, ARBEIDSTAKER_FNR)
+                        val url = "$personTildelingApiV2Path/personer/single"
+                        with(
+                            handleRequest(HttpMethod.Get, url) {
+                                addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                                addHeader(NAV_PERSONIDENT_HEADER, ARBEIDSTAKER_FNR)
+                            }
+                        ) {
+                            response.status() shouldBeEqualTo HttpStatusCode.OK
+                            val personinfo = objectMapper.readValue<VeilederBrukerKnytningDTO>(response.content!!)
+                            personinfo.tildeltVeilederident shouldBeEqualTo tilknytning.veilederIdent
+                            personinfo.personident.value shouldBeEqualTo tilknytning.fnr
                         }
-                    ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.OK
-                        val personinfo = objectMapper.readValue<VeilederBrukerKnytningDTO>(response.content!!)
-                        personinfo.tildeltVeilederident shouldBeEqualTo tilknytning.veilederIdent
-                        personinfo.personident.value shouldBeEqualTo tilknytning.fnr
+                    }
+                    it("returns 404 when person does not exist") {
+                        val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR)
+                        database.lagreVeilederForBruker(tilknytning)
+
+                        val url = "$personTildelingApiV2Path/personer/single"
+                        with(
+                            handleRequest(HttpMethod.Get, url) {
+                                addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                                addHeader(NAV_PERSONIDENT_HEADER, ARBEIDSTAKER_2_FNR)
+                            }
+                        ) {
+                            response.status() shouldBeEqualTo HttpStatusCode.NoContent
+                        }
                     }
                 }
-                it("returns 404 when person does not exist") {
-                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR)
-                    database.lagreVeilederForBruker(tilknytning)
-
+                describe("POST veilederknytning for person") {
                     val url = "$personTildelingApiV2Path/personer/single"
-                    with(
-                        handleRequest(HttpMethod.Get, url) {
-                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                            addHeader(NAV_PERSONIDENT_HEADER, ARBEIDSTAKER_2_FNR)
+
+                    val veilederBrukerKnytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR)
+
+                    it("returns OK when request is successful") {
+                        with(
+                            handleRequest(HttpMethod.Post, url) {
+                                addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                                addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                                setBody(objectMapper.writeValueAsString(veilederBrukerKnytning))
+                            }
+                        ) {
+                            response.status() shouldBeEqualTo HttpStatusCode.OK
+
+                            val person = database.getPersonOversiktStatusList(fnr = veilederBrukerKnytning.fnr).first()
+                            person.veilederIdent shouldBeEqualTo veilederBrukerKnytning.veilederIdent
                         }
-                    ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.NoContent
+                    }
+
+                    it("returns Unauthorized when missing token") {
+                        with(
+                            handleRequest(HttpMethod.Post, url) {
+                                addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                                setBody(objectMapper.writeValueAsString(veilederBrukerKnytning))
+                            }
+                        ) {
+                            response.status() shouldBeEqualTo HttpStatusCode.Unauthorized
+                        }
+                    }
+
+                    it("returns Forbidden when no access to person") {
+                        with(
+                            handleRequest(HttpMethod.Post, url) {
+                                addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                                addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                                setBody(objectMapper.writeValueAsString(VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_NO_ACCESS)))
+                            }
+                        ) {
+                            response.status() shouldBeEqualTo HttpStatusCode.Forbidden
+                        }
                     }
                 }
             }
