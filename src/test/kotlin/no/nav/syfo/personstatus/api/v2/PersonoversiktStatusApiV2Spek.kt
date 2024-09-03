@@ -184,7 +184,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         enhet = NAV_ENHET,
                     )
 
-                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
+                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR)
                     database.lagreVeilederForBruker(tilknytning)
 
                     with(
@@ -217,7 +217,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         enhet = NAV_ENHET,
                     )
 
-                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
+                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR)
                     database.lagreVeilederForBruker(tilknytning)
 
                     with(
@@ -381,7 +381,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         enhet = NAV_ENHET,
                     )
 
-                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
+                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR)
                     database.lagreVeilederForBruker(tilknytning)
 
                     with(
@@ -436,7 +436,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         enhet = NAV_ENHET,
                     )
 
-                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, NAV_ENHET)
+                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR)
                     database.lagreVeilederForBruker(tilknytning)
 
                     with(
@@ -671,7 +671,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personoppgavehendelser = listOf(oversikthendelseDialogmotesvarMottatt)
                     )
 
-                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, personIdent.value, NAV_ENHET)
+                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, personIdent.value)
                     database.lagreVeilederForBruker(tilknytning)
                     database.setTildeltEnhet(
                         ident = personIdent,

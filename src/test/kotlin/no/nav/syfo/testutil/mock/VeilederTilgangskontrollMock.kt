@@ -5,6 +5,7 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import no.nav.syfo.personstatus.infrastructure.clients.veiledertilgang.Tilgang
 import no.nav.syfo.testutil.UserConstants
+import no.nav.syfo.util.NAV_PERSONIDENT_HEADER
 
 suspend fun MockRequestHandleScope.tilgangskontrollResponse(request: HttpRequestData): HttpResponseData {
     val responseAccess = Tilgang(erGodkjent = true)
@@ -18,7 +19,15 @@ suspend fun MockRequestHandleScope.tilgangskontrollResponse(request: HttpRequest
 
     return when {
         requestUrl.endsWith("tilgang/navident/person") -> {
-            respondOk(responseAccess)
+            val personident = request.headers[NAV_PERSONIDENT_HEADER]
+            when (personident) {
+                UserConstants.ARBEIDSTAKER_NO_ACCESS -> {
+                    respondOk(body = Tilgang(erGodkjent = false))
+                }
+                else -> {
+                    respondOk(responseAccess)
+                }
+            }
         }
         requestUrl.endsWith("tilgang/navident/brukere") -> {
             respondOk(responseAccessPersons)
