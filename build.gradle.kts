@@ -1,48 +1,40 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import org.apache.tools.ant.taskdefs.condition.Os
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 group = "no.nav.syfo"
 version = "1.0-SNAPSHOT"
 
-val confluent = "7.6.1"
+val confluent = "7.7.1"
 val flyway = "9.22.3"
 val hikari = "5.1.0"
 val isdialogmoteSchema = "1.0.5"
 val jacksonDataType = "2.17.2"
-val jedis = "5.1.3"
+val jedis = "5.1.5"
 val json = "20240303"
 val kafka = "3.7.0"
 val kluent = "1.73"
 val ktor = "2.3.12"
-val logback = "1.5.6"
+val logback = "1.5.8"
 val logstashEncoder = "7.4"
-val mockk = "1.13.11"
+val mockk = "1.13.12"
 val micrometerRegistry = "1.12.8"
-val nimbusjosejwt = "9.40"
-val postgresEmbedded = if (Os.isFamily(Os.FAMILY_MAC)) "1.0.0" else "0.13.4"
-val postgres = "42.7.3"
+val nimbusjosejwt = "9.41.1"
+val postgresEmbedded = "2.0.7"
+val postgres = "42.7.4"
 val spek = "2.0.19"
 
 plugins {
-    kotlin("jvm") version "2.0.10"
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    kotlin("jvm") version "2.0.20"
+    id("com.gradleup.shadow") version "8.3.0"
     id("org.jlleitschuh.gradle.ktlint") version "11.6.0"
     id("com.github.davidmc24.gradle.plugin.avro") version "1.8.0"
 }
 
-val githubUser: String by project
-val githubPassword: String by project
 repositories {
     mavenCentral()
     maven(url = "https://packages.confluent.io/maven/")
     maven(url = "https://jitpack.io")
     maven {
-        url = uri("https://maven.pkg.github.com/navikt/isdialogmote-schema")
-        credentials {
-            username = githubUser
-            password = githubPassword
-        }
+        url = uri("https://github-package-registry-mirror.gc.nav.no/cached/maven-release")
     }
 }
 
@@ -79,7 +71,7 @@ dependencies {
     implementation("org.postgresql:postgresql:$postgres")
     implementation("com.zaxxer:HikariCP:$hikari")
     implementation("org.flywaydb:flyway-core:$flyway")
-    testImplementation("com.opentable.components:otj-pg-embedded:$postgresEmbedded")
+    testImplementation("io.zonky.test:embedded-postgres:$postgresEmbedded")
 
     // Kafka
     val excludeLog4j = fun ExternalModuleDependency.() {
@@ -127,7 +119,7 @@ kotlin {
 }
 
 tasks {
-    withType<Jar> {
+    jar {
         manifest.attributes["Main-Class"] = "no.nav.syfo.AppKt"
     }
 
@@ -135,7 +127,7 @@ tasks {
         println(project.version)
     }
 
-    withType<ShadowJar> {
+    shadowJar {
         archiveBaseName.set("app")
         archiveClassifier.set("")
         archiveVersion.set("")
@@ -146,7 +138,7 @@ tasks {
         dependsOn(":generateTestAvroJava")
     }
 
-    withType<Test> {
+    test {
         useJUnitPlatform {
             includeEngines("spek2")
         }
