@@ -16,9 +16,10 @@ data class ManglendeMedvirkningDTO(
     val uuid: UUID,
     val personident: String,
     val createdAt: LocalDateTime,
-    val type: ManglendeMedvirkningVurderingType,
+    val vurderingType: ManglendeMedvirkningVurderingType,
     val begrunnelse: String,
     val varsel: ManglendeMedvirkningVarselDTO?,
+    val veilederident: String,
 )
 
 data class ManglendeMedvirkningVarselDTO(
@@ -28,5 +29,5 @@ data class ManglendeMedvirkningVarselDTO(
 )
 
 enum class ManglendeMedvirkningVurderingType {
-    FORHANDSVARSEL, OPPFYLT, STANS, IKKE_AKTUELL,
+    FORHANDSVARSEL, OPPFYLT, STANS, IKKE_AKTUELL, UNNTAK
 }

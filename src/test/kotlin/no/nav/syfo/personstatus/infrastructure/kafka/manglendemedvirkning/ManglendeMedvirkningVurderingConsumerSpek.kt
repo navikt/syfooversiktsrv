@@ -60,14 +60,14 @@ class ManglendeMedvirkningVurderingConsumerSpek : Spek({
         val personident = PersonIdent(UserConstants.ARBEIDSTAKER_FNR)
         val forhandsvarselVurderingRecord = VurderingRecord(
             uuid = UUID.randomUUID(),
-            personident = personident,
+            personident = personident.value,
             veilederident = UserConstants.VEILEDER_ID,
             createdAt = OffsetDateTime.now(),
             begrunnelse = "begrunnelse",
             varsel = Varsel(
                 uuid = UUID.randomUUID(),
                 createdAt = OffsetDateTime.now(),
-                svarFrist = LocalDate.now().plusWeeks(3),
+                svarfrist = LocalDate.now().plusWeeks(3),
             ),
             vurderingType = VurderingTypeDTO(
                 value = VurderingType.FORHANDSVARSEL,

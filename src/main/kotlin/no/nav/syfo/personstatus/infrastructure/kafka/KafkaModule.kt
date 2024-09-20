@@ -13,6 +13,7 @@ import no.nav.syfo.oppfolgingstilfelle.kafka.launchKafkaTaskOppfolgingstilfelleP
 import no.nav.syfo.pdlpersonhendelse.kafka.launchKafkaTaskPersonhendelse
 import no.nav.syfo.personoppgavehendelse.kafka.launchKafkaTaskPersonoppgavehendelse
 import no.nav.syfo.personstatus.PersonoversiktStatusService
+import no.nav.syfo.personstatus.infrastructure.kafka.manglendemedvirkning.ManglendeMedvirkningVurderingConsumer
 import no.nav.syfo.personstatus.infrastructure.kafka.meroppfolging.SenOppfolgingKandidatStatusConsumer
 import no.nav.syfo.trengeroppfolging.kafka.launchTrengerOppfolgingConsumer
 
@@ -71,6 +72,12 @@ fun launchKafkaModule(
         .start(applicationState = applicationState, kafkaEnvironment = environment.kafka)
 
     SenOppfolgingKandidatStatusConsumer(personoversiktStatusService = personoversiktStatusService)
+        .start(
+            applicationState = applicationState,
+            kafkaEnvironment = environment.kafka,
+        )
+
+    ManglendeMedvirkningVurderingConsumer(personoversiktStatusService = personoversiktStatusService)
         .start(
             applicationState = applicationState,
             kafkaEnvironment = environment.kafka,

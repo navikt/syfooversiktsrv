@@ -21,8 +21,9 @@ fun MockRequestHandleScope.manglendeMedvirkningMockResponse(): HttpResponseData 
                         uuid = UUID.randomUUID(),
                         personident = UserConstants.ARBEIDSTAKER_FNR,
                         createdAt = LocalDateTime.now().minusDays(1),
-                        type = ManglendeMedvirkningVurderingType.FORHANDSVARSEL,
+                        vurderingType = ManglendeMedvirkningVurderingType.FORHANDSVARSEL,
                         begrunnelse = "begrunnelse",
+                        veilederident = UserConstants.VEILEDER_ID,
                         varsel = ManglendeMedvirkningVarselDTO(
                             uuid = UUID.randomUUID(),
                             createdAt = LocalDateTime.now().minusDays(1),
