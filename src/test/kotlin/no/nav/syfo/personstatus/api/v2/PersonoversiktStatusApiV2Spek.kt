@@ -972,8 +972,9 @@ object PersonoversiktStatusApiV2Spek : Spek({
                             personOversiktStatus.fnr shouldBeEqualTo ARBEIDSTAKER_FNR
                             personOversiktStatus.manglendeMedvirkning shouldNotBe null
                             personOversiktStatus.manglendeMedvirkning?.varsel shouldNotBe null
-                            personOversiktStatus.manglendeMedvirkning?.type shouldBeEqualTo ManglendeMedvirkningVurderingType.FORHANDSVARSEL
+                            personOversiktStatus.manglendeMedvirkning?.vurderingType shouldBeEqualTo ManglendeMedvirkningVurderingType.FORHANDSVARSEL
                             personOversiktStatus.manglendeMedvirkning?.begrunnelse shouldBeEqualTo "begrunnelse"
+                            personOversiktStatus.manglendeMedvirkning?.veilederident shouldBeEqualTo VEILEDER_ID
                         }
                     }
                 }

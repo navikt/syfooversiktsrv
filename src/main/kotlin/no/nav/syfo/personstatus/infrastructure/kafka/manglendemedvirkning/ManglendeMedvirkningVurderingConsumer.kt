@@ -2,8 +2,8 @@ package no.nav.syfo.personstatus.infrastructure.kafka.manglendemedvirkning
 
 import no.nav.syfo.ApplicationState
 import no.nav.syfo.personstatus.PersonoversiktStatusService
+import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.infrastructure.kafka.*
-import no.nav.syfo.personstatus.infrastructure.kafka.meroppfolging.KandidatStatusRecord
 import no.nav.syfo.util.configuredJacksonMapper
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.ConsumerRecords
@@ -47,7 +47,7 @@ class ManglendeMedvirkningVurderingConsumer(
         return validRecords.map { record ->
             val recordValue = record.value()
             personoversiktStatusService.upsertManglendeMedvirkningStatus(
-                personident = recordValue.personident,
+                personident = PersonIdent(recordValue.personident),
                 isAktivVurdering = recordValue.vurderingType.isActive,
             )
         }
@@ -59,8 +59,8 @@ class ManglendeMedvirkningVurderingConsumer(
     }
 }
 
-class ManglendeMedvirkningVurderingRecordDeserializer : Deserializer<KandidatStatusRecord> {
+class ManglendeMedvirkningVurderingRecordDeserializer : Deserializer<VurderingRecord> {
     private val mapper = configuredJacksonMapper()
-    override fun deserialize(topic: String, data: ByteArray): KandidatStatusRecord =
-        mapper.readValue(data, KandidatStatusRecord::class.java)
+    override fun deserialize(topic: String, data: ByteArray): VurderingRecord =
+        mapper.readValue(data, VurderingRecord::class.java)
 }

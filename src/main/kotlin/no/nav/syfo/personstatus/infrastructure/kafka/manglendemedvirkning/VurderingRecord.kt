@@ -1,13 +1,12 @@
 package no.nav.syfo.personstatus.infrastructure.kafka.manglendemedvirkning
 
-import no.nav.syfo.personstatus.domain.PersonIdent
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.*
 
 data class VurderingRecord(
     val uuid: UUID,
-    val personident: PersonIdent,
+    val personident: String,
     val veilederident: String,
     val createdAt: OffsetDateTime,
     val begrunnelse: String,
@@ -21,11 +20,11 @@ data class VurderingTypeDTO(
 )
 
 enum class VurderingType {
-    FORHANDSVARSEL, OPPFYLT, STANS, IKKE_AKTUELL
+    FORHANDSVARSEL, OPPFYLT, STANS, IKKE_AKTUELL, UNNTAK
 }
 
 data class Varsel(
     val uuid: UUID,
     val createdAt: OffsetDateTime,
-    val svarFrist: LocalDate,
+    val svarfrist: LocalDate,
 )
