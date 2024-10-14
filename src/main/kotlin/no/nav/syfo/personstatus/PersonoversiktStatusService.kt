@@ -50,7 +50,7 @@ class PersonoversiktStatusService(
                 ?: emptyList()
             it.toPersonOversiktStatus(personOppfolgingstilfelleVirksomhetList)
         }.filter { personOversiktStatus ->
-            personOversiktStatus.hasActiveOppgave() // TODO: Trenger vi denne når db-spørringen henter ut bare aktive personer?
+            personOversiktStatus.hasActiveOppgave()
         }
     }
 
