@@ -1,4 +1,4 @@
-package no.nav.syfo.personstatus.infrastructure.clients
+package no.nav.syfo.personstatus.infrastructure.clients.aktivitetskrav
 
 import io.ktor.client.*
 import io.ktor.client.call.body
@@ -12,10 +12,12 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.http.*
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.personstatus.domain.PersonIdent
-import no.nav.syfo.personstatus.application.AktivitetskravRequestDTO
-import no.nav.syfo.personstatus.application.GetAktivitetskravForPersonsResponseDTO
-import no.nav.syfo.personstatus.application.IAktivitetskravClient
+import no.nav.syfo.personstatus.application.aktivitetskrav.AktivitetskravRequestDTO
+import no.nav.syfo.personstatus.application.aktivitetskrav.GetAktivitetskravForPersonsResponseDTO
+import no.nav.syfo.personstatus.application.aktivitetskrav.IAktivitetskravClient
+import no.nav.syfo.personstatus.infrastructure.clients.ClientEnvironment
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
+import no.nav.syfo.personstatus.infrastructure.clients.httpClientDefault
 import no.nav.syfo.util.NAV_CALL_ID_HEADER
 import no.nav.syfo.util.bearerHeader
 import no.nav.syfo.util.callIdArgument

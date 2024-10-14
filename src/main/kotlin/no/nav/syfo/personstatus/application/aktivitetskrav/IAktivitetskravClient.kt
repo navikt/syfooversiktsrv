@@ -1,4 +1,4 @@
-package no.nav.syfo.personstatus.application
+package no.nav.syfo.personstatus.application.aktivitetskrav
 
 import no.nav.syfo.personstatus.domain.PersonIdent
 

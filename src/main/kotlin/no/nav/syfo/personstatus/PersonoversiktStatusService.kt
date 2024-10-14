@@ -10,8 +10,8 @@ import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.oppfolgingstilfelle.domain.PersonOppfolgingstilfelleVirksomhet
 import no.nav.syfo.personoppgavehendelse.kafka.*
 import no.nav.syfo.personstatus.api.v2.model.PersonOversiktStatusDTO
-import no.nav.syfo.personstatus.application.GetAktivitetskravForPersonsResponseDTO
-import no.nav.syfo.personstatus.application.IAktivitetskravClient
+import no.nav.syfo.personstatus.application.aktivitetskrav.GetAktivitetskravForPersonsResponseDTO
+import no.nav.syfo.personstatus.application.aktivitetskrav.IAktivitetskravClient
 import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
 import no.nav.syfo.personstatus.application.arbeidsuforhet.ArbeidsuforhetvurderingerResponseDTO
 import no.nav.syfo.personstatus.application.arbeidsuforhet.IArbeidsuforhetvurderingClient

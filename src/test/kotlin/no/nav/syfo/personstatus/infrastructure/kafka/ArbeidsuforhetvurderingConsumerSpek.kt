@@ -6,7 +6,7 @@ import io.mockk.every
 import io.mockk.mockk
 import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.PersonoversiktStatusService
-import no.nav.syfo.personstatus.application.IAktivitetskravClient
+import no.nav.syfo.personstatus.application.aktivitetskrav.IAktivitetskravClient
 import no.nav.syfo.personstatus.application.arbeidsuforhet.IArbeidsuforhetvurderingClient
 import no.nav.syfo.personstatus.application.manglendemedvirkning.IManglendeMedvirkningClient
 import no.nav.syfo.personstatus.application.oppfolgingsoppgave.IOppfolgingsoppgaveClient

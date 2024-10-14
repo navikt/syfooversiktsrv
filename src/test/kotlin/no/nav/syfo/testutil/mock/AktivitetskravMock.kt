@@ -2,9 +2,9 @@ package no.nav.syfo.testutil.mock
 
 import io.ktor.client.engine.mock.*
 import io.ktor.client.request.*
-import no.nav.syfo.personstatus.application.AktivitetskravDTO
-import no.nav.syfo.personstatus.application.AktivitetskravStatus
-import no.nav.syfo.personstatus.application.GetAktivitetskravForPersonsResponseDTO
+import no.nav.syfo.personstatus.application.aktivitetskrav.AktivitetskravDTO
+import no.nav.syfo.personstatus.application.aktivitetskrav.AktivitetskravStatus
+import no.nav.syfo.personstatus.application.aktivitetskrav.GetAktivitetskravForPersonsResponseDTO
 import no.nav.syfo.testutil.UserConstants
 import java.time.LocalDateTime
 import java.util.UUID

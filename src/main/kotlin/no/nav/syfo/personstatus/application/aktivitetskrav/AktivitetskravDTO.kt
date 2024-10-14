@@ -1,4 +1,4 @@
-package no.nav.syfo.personstatus.application
+package no.nav.syfo.personstatus.application.aktivitetskrav
 
 import java.time.LocalDate
 import java.time.LocalDateTime

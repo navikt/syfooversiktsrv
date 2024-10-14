@@ -1,4 +1,4 @@
-package no.nav.syfo.personstatus.infrastructure.clients.arbeidsuforhet
+package no.nav.syfo.personstatus.infrastructure.clients.manglendemedvirkning
 
 import io.ktor.client.*
 import io.ktor.client.call.*
