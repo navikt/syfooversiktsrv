@@ -1,6 +1,7 @@
 package no.nav.syfo.testutil
 
 import no.nav.syfo.application.cache.RedisStore
+import no.nav.syfo.personstatus.PersonoversiktOppgaverService
 import no.nav.syfo.personstatus.infrastructure.clients.behandlendeenhet.BehandlendeEnhetClient
 import no.nav.syfo.personstatus.infrastructure.clients.ereg.EregClient
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.PdlClient
@@ -85,11 +86,13 @@ class InternalMockEnvironment private constructor() {
     val personoversiktStatusService = PersonoversiktStatusService(
         database = database,
         pdlClient = pdlClient,
-        arbeidsuforhetvurderingClient = arbeidsuforhetvurderingClient,
-        manglendeMedvirkningClient = manglendeMedvirkningClient,
+        personOversiktOppgaverService = PersonoversiktOppgaverService(
+            arbeidsuforhetvurderingClient = arbeidsuforhetvurderingClient,
+            manglendeMedvirkningClient = manglendeMedvirkningClient,
+            oppfolgingsoppgaveClient = oppfolgingsoppgaveClient,
+            aktivitetskravClient = aktivitetskravClient,
+        ),
         personoversiktStatusRepository = personoversiktRepository,
-        oppfolgingsoppgaveClient = oppfolgingsoppgaveClient,
-        aktivitetskravClient = aktivitetskravClient,
     )
 
     companion object {

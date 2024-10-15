@@ -2,6 +2,7 @@ package no.nav.syfo.testutil
 
 import io.ktor.server.application.*
 import no.nav.syfo.application.cache.RedisStore
+import no.nav.syfo.personstatus.PersonoversiktOppgaverService
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.PdlClient
 import no.nav.syfo.personstatus.PersonoversiktStatusService
 import no.nav.syfo.personstatus.api.v2.apiModule
@@ -58,10 +59,12 @@ fun Application.testApiModule(
         database = externalMockEnvironment.database,
         pdlClient = pdlClient,
         personoversiktStatusRepository = personoversiktRepository,
-        arbeidsuforhetvurderingClient = arbeidsuforhetvurderingClient,
-        manglendeMedvirkningClient = manglendeMedvirkningClient,
-        oppfolgingsoppgaveClient = oppfolgingsoppgaveClient,
-        aktivitetskravClient = aktivitetskravClient,
+        personOversiktOppgaverService = PersonoversiktOppgaverService(
+            arbeidsuforhetvurderingClient = arbeidsuforhetvurderingClient,
+            manglendeMedvirkningClient = manglendeMedvirkningClient,
+            oppfolgingsoppgaveClient = oppfolgingsoppgaveClient,
+            aktivitetskravClient = aktivitetskravClient,
+        ),
     )
 
     this.apiModule(

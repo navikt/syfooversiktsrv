@@ -63,7 +63,7 @@ fun Route.registerPersonoversiktApiV2(
                                 callId = callId,
                                 personOversiktStatusList = personer,
                             )
-                            val personOversiktStatusDTO = personoversiktStatusService.getAktiveVurderinger(
+                            val personOversiktStatusDTO = personoversiktStatusService.getAktiveOppgaver(
                                 callId = callId,
                                 token = token,
                                 personStatusOversikt = personerWithName,
