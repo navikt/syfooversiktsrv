@@ -1,41 +1,24 @@
 package no.nav.syfo.personstatus
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
-import no.nav.syfo.personstatus.infrastructure.clients.pdl.PdlClient
-import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.oppfolgingstilfelle.domain.PersonOppfolgingstilfelleVirksomhet
-import no.nav.syfo.personoppgavehendelse.kafka.*
-import no.nav.syfo.personstatus.api.v2.model.PersonOversiktStatusDTO
-import no.nav.syfo.personstatus.application.aktivitetskrav.GetAktivitetskravForPersonsResponseDTO
-import no.nav.syfo.personstatus.application.aktivitetskrav.IAktivitetskravClient
+import no.nav.syfo.personoppgavehendelse.kafka.COUNT_KAFKA_CONSUMER_PERSONOPPGAVEHENDELSE_CREATED_PERSONOVERSIKT_STATUS
+import no.nav.syfo.personoppgavehendelse.kafka.COUNT_KAFKA_CONSUMER_PERSONOPPGAVEHENDELSE_READ
+import no.nav.syfo.personoppgavehendelse.kafka.COUNT_KAFKA_CONSUMER_PERSONOPPGAVEHENDELSE_UPDATED_PERSONOVERSIKT_STATUS
+import no.nav.syfo.personoppgavehendelse.kafka.KPersonoppgavehendelse
 import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
-import no.nav.syfo.personstatus.application.arbeidsuforhet.ArbeidsuforhetvurderingerResponseDTO
-import no.nav.syfo.personstatus.application.arbeidsuforhet.IArbeidsuforhetvurderingClient
-import no.nav.syfo.personstatus.application.manglendemedvirkning.IManglendeMedvirkningClient
-import no.nav.syfo.personstatus.application.manglendemedvirkning.ManglendeMedvirkningResponseDTO
-import no.nav.syfo.personstatus.application.oppfolgingsoppgave.IOppfolgingsoppgaveClient
-import no.nav.syfo.personstatus.application.oppfolgingsoppgave.OppfolgingsoppgaverResponseDTO
 import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.*
-import org.slf4j.LoggerFactory
+import no.nav.syfo.personstatus.infrastructure.clients.pdl.PdlClient
+import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import java.sql.Connection
 
 class PersonoversiktStatusService(
     private val database: DatabaseInterface,
     private val pdlClient: PdlClient,
-    private val arbeidsuforhetvurderingClient: IArbeidsuforhetvurderingClient,
-    private val manglendeMedvirkningClient: IManglendeMedvirkningClient,
-    private val aktivitetskravClient: IAktivitetskravClient,
-    private val oppfolgingsoppgaveClient: IOppfolgingsoppgaveClient,
     private val personoversiktStatusRepository: IPersonOversiktStatusRepository,
 ) {
     private val isUbehandlet = true
     private val isBehandlet = false
-    private val log = LoggerFactory.getLogger(PersonoversiktStatusService::class.java)
 
     fun hentPersonoversiktStatusTilknyttetEnhet(
         enhet: String,
@@ -56,134 +39,6 @@ class PersonoversiktStatusService(
 
     fun getPersonstatus(personident: PersonIdent): PersonOversiktStatus? =
         personoversiktStatusRepository.getPersonOversiktStatus(personident)
-
-    suspend fun getAktiveVurderinger(
-        callId: String,
-        token: String,
-        personStatusOversikt: List<PersonOversiktStatus>,
-    ): List<PersonOversiktStatusDTO> {
-        val activeOppfolgingsoppgaver = getActiveOppfolgingsoppgaver(
-            callId = callId,
-            token = token,
-            personStatuser = personStatusOversikt,
-        )
-        val arbeidsuforhetvurderinger = getArbeidsuforhetvurderinger(
-            callId = callId,
-            token = token,
-            personStatuser = personStatusOversikt,
-        )
-        val manglendeMedvirkning = getManglendeMedvirkningVurderinger(
-            callId = callId,
-            token = token,
-            personStatuser = personStatusOversikt,
-        )
-        val activeAktivitetskrav = getActiveAktivitetskravForPersons(
-            callId = callId,
-            token = token,
-            personStatuser = personStatusOversikt,
-        )
-
-        return personStatusOversikt.map { personStatus ->
-            personStatus.toPersonOversiktStatusDTO(
-                arbeidsuforhetvurdering = arbeidsuforhetvurderinger.await()
-                    ?.vurderinger
-                    ?.get(personStatus.fnr),
-                oppfolgingsoppgave = activeOppfolgingsoppgaver.await()
-                    ?.oppfolgingsoppgaver
-                    ?.get(personStatus.fnr),
-                aktivitetskravvurdering = activeAktivitetskrav.await()
-                    ?.aktivitetskravvurderinger
-                    ?.get(personStatus.fnr),
-                manglendeMedvirkning = manglendeMedvirkning.await()
-                    ?.vurderinger
-                    ?.get(personStatus.fnr),
-            )
-        }
-    }
-
-    private fun getArbeidsuforhetvurderinger(
-        callId: String,
-        token: String,
-        personStatuser: List<PersonOversiktStatus>,
-    ): Deferred<ArbeidsuforhetvurderingerResponseDTO?> =
-        CoroutineScope(Dispatchers.IO).async {
-            val personidenterWithArbeidsuforhetvurdering = personStatuser
-                .filter { it.isAktivArbeidsuforhetvurdering }
-                .map { PersonIdent(it.fnr) }
-            if (personidenterWithArbeidsuforhetvurdering.isNotEmpty()) {
-                arbeidsuforhetvurderingClient.getLatestVurderinger(
-                    callId = callId,
-                    token = token,
-                    personidenter = personidenterWithArbeidsuforhetvurdering,
-                )
-            } else {
-                null
-            }
-        }
-
-    private fun getManglendeMedvirkningVurderinger(
-        callId: String,
-        token: String,
-        personStatuser: List<PersonOversiktStatus>,
-    ): Deferred<ManglendeMedvirkningResponseDTO?> =
-        CoroutineScope(Dispatchers.IO).async {
-            val personidenterWithManglendeMedvirkningVurdering = personStatuser
-                .filter { it.isAktivManglendeMedvirkningVurdering }
-                .map { PersonIdent(it.fnr) }
-            if (personidenterWithManglendeMedvirkningVurdering.isNotEmpty()) {
-                manglendeMedvirkningClient.getLatestVurderinger(
-                    callId = callId,
-                    token = token,
-                    personidenter = personidenterWithManglendeMedvirkningVurdering,
-                )
-            } else {
-                null
-            }
-        }
-
-    private fun getActiveOppfolgingsoppgaver(
-        callId: String,
-        token: String,
-        personStatuser: List<PersonOversiktStatus>,
-    ): Deferred<OppfolgingsoppgaverResponseDTO?> =
-        CoroutineScope(Dispatchers.IO).async {
-            val personidenterWithOppfolgingsoppgave = personStatuser
-                .filter { it.trengerOppfolging }
-                .map { PersonIdent(it.fnr) }
-            if (personidenterWithOppfolgingsoppgave.isNotEmpty()) {
-                val response = oppfolgingsoppgaveClient.getActiveOppfolgingsoppgaver(
-                    callId = callId,
-                    token = token,
-                    personidenter = personidenterWithOppfolgingsoppgave,
-                )
-                if (response == null) {
-                    log.warn("Did not find any oppfolgingsoppgaver for enhet ${personStatuser[0].enhet}")
-                }
-                response
-            } else {
-                null
-            }
-        }
-
-    private fun getActiveAktivitetskravForPersons(
-        callId: String,
-        token: String,
-        personStatuser: List<PersonOversiktStatus>,
-    ): Deferred<GetAktivitetskravForPersonsResponseDTO?> =
-        CoroutineScope(Dispatchers.IO).async {
-            val personidenterWithActiveAktivitetskrav = personStatuser
-                .filter { it.isAktivAktivitetskravvurdering }
-                .map { PersonIdent(it.fnr) }
-            if (personidenterWithActiveAktivitetskrav.isNotEmpty()) {
-                aktivitetskravClient.getAktivitetskravForPersons(
-                    callId = callId,
-                    token = token,
-                    personidenter = personidenterWithActiveAktivitetskrav,
-                )
-            } else {
-                null
-            }
-        }
 
     private fun getPersonOppfolgingstilfelleVirksomhetMap(
         pPersonOversikStatusIds: List<Int>,

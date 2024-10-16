@@ -5,7 +5,6 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.syfo.personstatus.PersonoversiktStatusService
-import no.nav.syfo.personstatus.application.aktivitetskrav.IAktivitetskravClient
 import no.nav.syfo.personstatus.application.arbeidsuforhet.IArbeidsuforhetvurderingClient
 import no.nav.syfo.personstatus.application.manglendemedvirkning.IManglendeMedvirkningClient
 import no.nav.syfo.personstatus.application.oppfolgingsoppgave.IOppfolgingsoppgaveClient
@@ -36,11 +35,7 @@ class ManglendeMedvirkningVurderingConsumerSpek : Spek({
     val personoversiktStatusService = PersonoversiktStatusService(
         database = database,
         pdlClient = externalMockEnvironment.pdlClient,
-        arbeidsuforhetvurderingClient = arbeidsuforhervurderingClient,
-        manglendeMedvirkningClient = manglendeMedvirkningClient,
         personoversiktStatusRepository = personOversiktStatusRepository,
-        oppfolgingsoppgaveClient = oppfolgingsoppgaveClient,
-        aktivitetskravClient = mockk<IAktivitetskravClient>(),
     )
 
     val manglendeMedvirkningConsumer = ManglendeMedvirkningVurderingConsumer(

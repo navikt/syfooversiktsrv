@@ -6,6 +6,7 @@ import io.ktor.server.config.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import no.nav.syfo.application.cache.RedisStore
+import no.nav.syfo.personstatus.PersonoversiktOppgaverService
 import no.nav.syfo.personstatus.PersonoversiktStatusService
 import no.nav.syfo.personstatus.api.v2.apiModule
 import no.nav.syfo.personstatus.api.v2.auth.getWellKnown
@@ -95,11 +96,7 @@ fun main() {
             personoversiktStatusService = PersonoversiktStatusService(
                 database = database,
                 pdlClient = pdlClient,
-                arbeidsuforhetvurderingClient = arbeidsuforhetvurderingClient,
                 personoversiktStatusRepository = personoversiktStatusRepository,
-                oppfolgingsoppgaveClient = oppfolgingsoppgaveClient,
-                aktivitetskravClient = aktivitetskravClient,
-                manglendeMedvirkningClient = manglendeMedvirkningClient,
             )
             personBehandlendeEnhetService = PersonBehandlendeEnhetService(
                 database = database,
@@ -110,8 +107,14 @@ fun main() {
                 database = database,
                 environment = environment,
                 wellKnownVeilederV2 = wellKnownVeilederV2,
-                tilgangskontrollClient = veilederTilgangskontrollClient,
                 personoversiktStatusService = personoversiktStatusService,
+                tilgangskontrollClient = veilederTilgangskontrollClient,
+                personoversiktOppgaverService = PersonoversiktOppgaverService(
+                    oppfolgingsoppgaveClient = oppfolgingsoppgaveClient,
+                    aktivitetskravClient = aktivitetskravClient,
+                    manglendeMedvirkningClient = manglendeMedvirkningClient,
+                    arbeidsuforhetvurderingClient = arbeidsuforhetvurderingClient,
+                ),
             )
         }
     }

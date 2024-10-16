@@ -85,11 +85,7 @@ class InternalMockEnvironment private constructor() {
     val personoversiktStatusService = PersonoversiktStatusService(
         database = database,
         pdlClient = pdlClient,
-        arbeidsuforhetvurderingClient = arbeidsuforhetvurderingClient,
-        manglendeMedvirkningClient = manglendeMedvirkningClient,
         personoversiktStatusRepository = personoversiktRepository,
-        oppfolgingsoppgaveClient = oppfolgingsoppgaveClient,
-        aktivitetskravClient = aktivitetskravClient,
     )
 
     companion object {

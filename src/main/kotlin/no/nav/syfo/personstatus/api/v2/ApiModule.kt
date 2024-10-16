@@ -15,6 +15,7 @@ import no.nav.syfo.personstatus.api.v2.endpoints.registerPrometheusApi
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import no.nav.syfo.personstatus.infrastructure.clients.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.personstatus.PersonTildelingService
+import no.nav.syfo.personstatus.PersonoversiktOppgaverService
 import no.nav.syfo.personstatus.PersonoversiktStatusService
 import no.nav.syfo.personstatus.api.v2.auth.JwtIssuer
 import no.nav.syfo.personstatus.api.v2.auth.JwtIssuerType
@@ -29,6 +30,7 @@ fun Application.apiModule(
     wellKnownVeilederV2: WellKnown,
     personoversiktStatusService: PersonoversiktStatusService,
     tilgangskontrollClient: VeilederTilgangskontrollClient,
+    personoversiktOppgaverService: PersonoversiktOppgaverService,
 ) {
     installCallId()
     installContentNegotiation()
@@ -58,7 +60,8 @@ fun Application.apiModule(
         authenticate(JwtIssuerType.VEILEDER_V2.name) {
             registerPersonoversiktApiV2(
                 veilederTilgangskontrollClient = tilgangskontrollClient,
-                personoversiktStatusService = personoversiktStatusService
+                personoversiktStatusService = personoversiktStatusService,
+                personoversiktOppgaverService = personoversiktOppgaverService,
             )
             registerPersonTildelingApiV2(tilgangskontrollClient, personTildelingService, personoversiktStatusService)
         }

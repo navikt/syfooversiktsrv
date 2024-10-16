@@ -7,6 +7,7 @@ import io.ktor.server.routing.*
 import io.ktor.server.routing.get
 import io.ktor.server.routing.route
 import io.micrometer.core.instrument.Timer
+import no.nav.syfo.personstatus.PersonoversiktOppgaverService
 import no.nav.syfo.personstatus.infrastructure.clients.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.personstatus.infrastructure.COUNT_PERSONOVERSIKTSTATUS_ENHET_HENTET
 import no.nav.syfo.personstatus.infrastructure.HISTOGRAM_PERSONOVERSIKT
@@ -29,6 +30,7 @@ const val personOversiktApiV2Path = "/api/v2/personoversikt"
 fun Route.registerPersonoversiktApiV2(
     veilederTilgangskontrollClient: VeilederTilgangskontrollClient,
     personoversiktStatusService: PersonoversiktStatusService,
+    personoversiktOppgaverService: PersonoversiktOppgaverService,
 ) {
     route(personOversiktApiV2Path) {
         get("/enhet/{enhet}") {
@@ -63,11 +65,21 @@ fun Route.registerPersonoversiktApiV2(
                                 callId = callId,
                                 personOversiktStatusList = personer,
                             )
-                            val personOversiktStatusDTO = personoversiktStatusService.getAktiveVurderinger(
+                            val personerAktiveOppgaver = personoversiktOppgaverService.getAktiveOppgaver(
                                 callId = callId,
                                 token = token,
-                                personStatusOversikt = personerWithName,
+                                personer = personerWithName,
                             )
+                            val personOversiktStatusDTO = personerWithName.map {
+                                val aktiveOppgaver = personerAktiveOppgaver[it.fnr]
+                                it.toPersonOversiktStatusDTO(
+                                    arbeidsuforhetvurdering = aktiveOppgaver?.arbeidsuforhet,
+                                    oppfolgingsoppgave = aktiveOppgaver?.oppfolgingsoppgave,
+                                    aktivitetskravvurdering = aktiveOppgaver?.aktivitetskrav,
+                                    manglendeMedvirkning = aktiveOppgaver?.manglendeMedvirkning,
+                                )
+                            }
+
                             call.respond(personOversiktStatusDTO)
                         } else {
                             call.respond(HttpStatusCode.NoContent)
