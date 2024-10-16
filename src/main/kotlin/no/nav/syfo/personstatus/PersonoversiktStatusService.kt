@@ -5,7 +5,6 @@ import no.nav.syfo.personoppgavehendelse.kafka.COUNT_KAFKA_CONSUMER_PERSONOPPGAV
 import no.nav.syfo.personoppgavehendelse.kafka.COUNT_KAFKA_CONSUMER_PERSONOPPGAVEHENDELSE_READ
 import no.nav.syfo.personoppgavehendelse.kafka.COUNT_KAFKA_CONSUMER_PERSONOPPGAVEHENDELSE_UPDATED_PERSONOVERSIKT_STATUS
 import no.nav.syfo.personoppgavehendelse.kafka.KPersonoppgavehendelse
-import no.nav.syfo.personstatus.api.v2.model.PersonOversiktStatusDTO
 import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
 import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.*
@@ -16,7 +15,6 @@ import java.sql.Connection
 class PersonoversiktStatusService(
     private val database: DatabaseInterface,
     private val pdlClient: PdlClient,
-    private val personOversiktOppgaverService: PersonoversiktOppgaverService,
     private val personoversiktStatusRepository: IPersonOversiktStatusRepository,
 ) {
     private val isUbehandlet = true
@@ -41,28 +39,6 @@ class PersonoversiktStatusService(
 
     fun getPersonstatus(personident: PersonIdent): PersonOversiktStatus? =
         personoversiktStatusRepository.getPersonOversiktStatus(personident)
-
-    suspend fun getAktiveOppgaver(
-        callId: String,
-        token: String,
-        personStatusOversikt: List<PersonOversiktStatus>,
-    ): List<PersonOversiktStatusDTO> {
-        val personerAktiveOppgaver = personOversiktOppgaverService.getAktiveOppgaver(
-            callId = callId,
-            token = token,
-            personer = personStatusOversikt,
-        )
-
-        return personStatusOversikt.map { personStatus ->
-            val aktiveOppgaver = personerAktiveOppgaver[personStatus.fnr]
-            personStatus.toPersonOversiktStatusDTO(
-                arbeidsuforhetvurdering = aktiveOppgaver?.arbeidsuforhet,
-                oppfolgingsoppgave = aktiveOppgaver?.oppfolgingsoppgave,
-                aktivitetskravvurdering = aktiveOppgaver?.aktivitetskrav,
-                manglendeMedvirkning = aktiveOppgaver?.manglendeMedvirkning,
-            )
-        }
-    }
 
     private fun getPersonOppfolgingstilfelleVirksomhetMap(
         pPersonOversikStatusIds: List<Int>,

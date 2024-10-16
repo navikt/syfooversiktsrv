@@ -35,7 +35,6 @@ class ArbeidsuforhetvurderingConsumerSpek : Spek({
     val personoversiktStatusService = PersonoversiktStatusService(
         database = database,
         pdlClient = externalMockEnvironment.pdlClient,
-        personOversiktOppgaverService = mockk(),
         personoversiktStatusRepository = personOppgaveRepository,
     )
 

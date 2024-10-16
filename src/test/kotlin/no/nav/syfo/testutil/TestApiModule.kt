@@ -59,12 +59,6 @@ fun Application.testApiModule(
         database = externalMockEnvironment.database,
         pdlClient = pdlClient,
         personoversiktStatusRepository = personoversiktRepository,
-        personOversiktOppgaverService = PersonoversiktOppgaverService(
-            arbeidsuforhetvurderingClient = arbeidsuforhetvurderingClient,
-            manglendeMedvirkningClient = manglendeMedvirkningClient,
-            oppfolgingsoppgaveClient = oppfolgingsoppgaveClient,
-            aktivitetskravClient = aktivitetskravClient,
-        ),
     )
 
     this.apiModule(
@@ -72,7 +66,13 @@ fun Application.testApiModule(
         database = externalMockEnvironment.database,
         environment = externalMockEnvironment.environment,
         wellKnownVeilederV2 = externalMockEnvironment.wellKnownVeilederV2,
-        tilgangskontrollClient = veilederTilgangskontrollClient,
         personoversiktStatusService = personoversiktStatusService,
+        tilgangskontrollClient = veilederTilgangskontrollClient,
+        personoversiktOppgaverService = PersonoversiktOppgaverService(
+            arbeidsuforhetvurderingClient = arbeidsuforhetvurderingClient,
+            manglendeMedvirkningClient = manglendeMedvirkningClient,
+            oppfolgingsoppgaveClient = oppfolgingsoppgaveClient,
+            aktivitetskravClient = aktivitetskravClient,
+        ),
     )
 }

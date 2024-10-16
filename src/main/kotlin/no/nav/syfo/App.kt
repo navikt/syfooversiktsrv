@@ -96,12 +96,6 @@ fun main() {
             personoversiktStatusService = PersonoversiktStatusService(
                 database = database,
                 pdlClient = pdlClient,
-                personOversiktOppgaverService = PersonoversiktOppgaverService(
-                    oppfolgingsoppgaveClient = oppfolgingsoppgaveClient,
-                    aktivitetskravClient = aktivitetskravClient,
-                    manglendeMedvirkningClient = manglendeMedvirkningClient,
-                    arbeidsuforhetvurderingClient = arbeidsuforhetvurderingClient,
-                ),
                 personoversiktStatusRepository = personoversiktStatusRepository,
             )
             personBehandlendeEnhetService = PersonBehandlendeEnhetService(
@@ -113,8 +107,14 @@ fun main() {
                 database = database,
                 environment = environment,
                 wellKnownVeilederV2 = wellKnownVeilederV2,
-                tilgangskontrollClient = veilederTilgangskontrollClient,
                 personoversiktStatusService = personoversiktStatusService,
+                tilgangskontrollClient = veilederTilgangskontrollClient,
+                personoversiktOppgaverService = PersonoversiktOppgaverService(
+                    oppfolgingsoppgaveClient = oppfolgingsoppgaveClient,
+                    aktivitetskravClient = aktivitetskravClient,
+                    manglendeMedvirkningClient = manglendeMedvirkningClient,
+                    arbeidsuforhetvurderingClient = arbeidsuforhetvurderingClient,
+                ),
             )
         }
     }
