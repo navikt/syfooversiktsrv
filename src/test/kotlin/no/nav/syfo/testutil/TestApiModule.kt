@@ -11,6 +11,7 @@ import no.nav.syfo.personstatus.infrastructure.clients.arbeidsuforhet.Arbeidsufo
 import no.nav.syfo.personstatus.infrastructure.clients.manglendemedvirkning.ManglendeMedvirkningClient
 import no.nav.syfo.personstatus.infrastructure.clients.oppfolgingsoppgave.OppfolgingsoppgaveClient
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
+import no.nav.syfo.personstatus.infrastructure.clients.meroppfolging.MerOppfolgingClient
 import no.nav.syfo.personstatus.infrastructure.clients.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.personstatus.infrastructure.database.repository.PersonOversiktStatusRepository
 
@@ -49,6 +50,11 @@ fun Application.testApiModule(
         clientEnvironment = externalMockEnvironment.environment.clients.aktivitetskrav,
         httpClient = externalMockEnvironment.mockHttpClient
     )
+    val merOppfolgingClient = MerOppfolgingClient(
+        azureAdClient = azureAdClient,
+        clientEnvironment = externalMockEnvironment.environment.clients.ismeroppfolging,
+        httpClient = externalMockEnvironment.mockHttpClient
+    )
     val veilederTilgangskontrollClient = VeilederTilgangskontrollClient(
         azureAdClient = azureAdClient,
         istilgangskontrollEnv = externalMockEnvironment.environment.clients.istilgangskontroll,
@@ -73,6 +79,7 @@ fun Application.testApiModule(
             manglendeMedvirkningClient = manglendeMedvirkningClient,
             oppfolgingsoppgaveClient = oppfolgingsoppgaveClient,
             aktivitetskravClient = aktivitetskravClient,
+            merOppfolgingClient = merOppfolgingClient,
         ),
     )
 }

@@ -63,13 +63,13 @@ fun testEnvironment(
             baseUrl = arbeidsuforhetvurderingUrl,
             clientId = "dev-gcp.teamsykefravr.arbeidsuforhetvurdering",
         ),
-        aktivitetskrav = ClientEnvironment(
-            baseUrl = isaktivitetskravUrl,
-            clientId = "dev-gcp.teamsykefravr.isaktivitetskrav",
-        ),
         manglendeMedvirkning = ClientEnvironment(
             baseUrl = ismanglendemedvirkningUrl,
             clientId = "dev-gcp.teamsykefravr.ismanglendemedvirkning",
+        ),
+        aktivitetskrav = ClientEnvironment(
+            baseUrl = isaktivitetskravUrl,
+            clientId = "dev-gcp.teamsykefravr.isaktivitetskrav",
         ),
         istilgangskontroll = ClientEnvironment(
             baseUrl = istilgangskontrollUrl,
@@ -78,6 +78,10 @@ fun testEnvironment(
         ishuskelapp = ClientEnvironment(
             baseUrl = ishuskelappUrl,
             clientId = "dev-gcp.teamsykefravr.ishuskelapp",
+        ),
+        ismeroppfolging = ClientEnvironment(
+            baseUrl = "ismeroppfolgingUrl",
+            clientId = "dev-gcp.teamsykefravr.ismeroppfolging",
         ),
     ),
     redis = RedisEnvironment(

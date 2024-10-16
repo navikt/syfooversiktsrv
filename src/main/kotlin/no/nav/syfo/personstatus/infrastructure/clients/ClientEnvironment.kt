@@ -9,6 +9,7 @@ data class ClientsEnvironment(
     val aktivitetskrav: ClientEnvironment,
     val istilgangskontroll: ClientEnvironment,
     val ishuskelapp: ClientEnvironment,
+    val ismeroppfolging: ClientEnvironment,
 )
 
 data class ClientEnvironment(

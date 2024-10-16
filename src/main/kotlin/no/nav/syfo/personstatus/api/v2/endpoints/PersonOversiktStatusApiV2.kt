@@ -77,6 +77,7 @@ fun Route.registerPersonoversiktApiV2(
                                     oppfolgingsoppgave = aktiveOppgaver?.oppfolgingsoppgave,
                                     aktivitetskravvurdering = aktiveOppgaver?.aktivitetskrav,
                                     manglendeMedvirkning = aktiveOppgaver?.manglendeMedvirkning,
+                                    senOppfolgingKandidat = aktiveOppgaver?.senOppfolgingKandidat,
                                 )
                             }
 
