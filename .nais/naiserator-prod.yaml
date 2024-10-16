@@ -58,6 +58,7 @@ spec:
         - application: ismanglendemedvirkning
         - application: istilgangskontroll
         - application: ishuskelapp
+        - application: ismeroppfolging
   azure:
     application:
       allowAllUsers: true
@@ -108,6 +109,10 @@ spec:
       value: "prod-gcp.teamsykefravr.ismanglendemedvirkning"
     - name: MANGLENDEMEDVIRKNING_URL
       value: "http://ismanglendemedvirkning"
+    - name: ISMEROPPFOLGING_CLIENT_ID
+      value: "prod-gcp.teamsykefravr.ismeroppfolging"
+    - name: ISMEROPPFOLGING_URL
+      value: "http://ismeroppfolging"
     - name: ISTILGANGSKONTROLL_CLIENT_ID
       value: "prod-gcp.teamsykefravr.istilgangskontroll"
     - name: ISTILGANGSKONTROLL_HOST

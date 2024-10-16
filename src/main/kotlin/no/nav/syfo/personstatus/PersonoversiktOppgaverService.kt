@@ -11,6 +11,8 @@ import no.nav.syfo.personstatus.application.arbeidsuforhet.Arbeidsuforhetvurderi
 import no.nav.syfo.personstatus.application.arbeidsuforhet.IArbeidsuforhetvurderingClient
 import no.nav.syfo.personstatus.application.manglendemedvirkning.IManglendeMedvirkningClient
 import no.nav.syfo.personstatus.application.manglendemedvirkning.ManglendeMedvirkningResponseDTO
+import no.nav.syfo.personstatus.application.meroppfolging.IMeroppfolgingClient
+import no.nav.syfo.personstatus.application.meroppfolging.SenOppfolgingKandidaterResponseDTO
 import no.nav.syfo.personstatus.application.oppfolgingsoppgave.IOppfolgingsoppgaveClient
 import no.nav.syfo.personstatus.application.oppfolgingsoppgave.OppfolgingsoppgaverResponseDTO
 import no.nav.syfo.personstatus.domain.PersonIdent
@@ -22,6 +24,7 @@ class PersonoversiktOppgaverService(
     private val manglendeMedvirkningClient: IManglendeMedvirkningClient,
     private val aktivitetskravClient: IAktivitetskravClient,
     private val oppfolgingsoppgaveClient: IOppfolgingsoppgaveClient,
+    private val merOppfolgingClient: IMeroppfolgingClient,
 ) {
     private val log = LoggerFactory.getLogger(this::class.java)
 
@@ -50,6 +53,11 @@ class PersonoversiktOppgaverService(
             token = token,
             personStatuser = personer,
         )
+        val senOppfolgingKandidater = getSenOppfolgingKandidaterForPersons(
+            callId = callId,
+            token = token,
+            personStatuser = personer,
+        )
 
         return personer.associate {
             it.fnr to PersonoversiktAktiveOppgaver(
@@ -64,6 +72,9 @@ class PersonoversiktOppgaverService(
                     ?.get(it.fnr),
                 manglendeMedvirkning = manglendeMedvirkning.await()
                     ?.vurderinger
+                    ?.get(it.fnr),
+                senOppfolgingKandidat = senOppfolgingKandidater.await()
+                    ?.kandidater
                     ?.get(it.fnr),
             )
         }
@@ -147,6 +158,26 @@ class PersonoversiktOppgaverService(
                     callId = callId,
                     token = token,
                     personidenter = personidenterWithActiveAktivitetskrav,
+                )
+            } else {
+                null
+            }
+        }
+
+    private fun getSenOppfolgingKandidaterForPersons(
+        callId: String,
+        token: String,
+        personStatuser: List<PersonOversiktStatus>,
+    ): Deferred<SenOppfolgingKandidaterResponseDTO?> =
+        CoroutineScope(Dispatchers.IO).async {
+            val personidenterWithActiveSenOppfolgingKandidat = personStatuser
+                .filter { it.isAktivSenOppfolgingKandidat }
+                .map { PersonIdent(it.fnr) }
+            if (personidenterWithActiveSenOppfolgingKandidat.isNotEmpty()) {
+                merOppfolgingClient.getSenOppfolgingKandidater(
+                    callId = callId,
+                    token = token,
+                    personidenter = personidenterWithActiveSenOppfolgingKandidat,
                 )
             } else {
                 null

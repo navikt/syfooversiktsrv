@@ -15,6 +15,7 @@ import no.nav.syfo.personstatus.infrastructure.clients.arbeidsuforhet.Arbeidsufo
 import no.nav.syfo.personstatus.infrastructure.clients.manglendemedvirkning.ManglendeMedvirkningClient
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
 import no.nav.syfo.personstatus.infrastructure.clients.behandlendeenhet.BehandlendeEnhetClient
+import no.nav.syfo.personstatus.infrastructure.clients.meroppfolging.MerOppfolgingClient
 import no.nav.syfo.personstatus.infrastructure.clients.oppfolgingsoppgave.OppfolgingsoppgaveClient
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.PdlClient
 import no.nav.syfo.personstatus.infrastructure.clients.veiledertilgang.VeilederTilgangskontrollClient
@@ -72,6 +73,10 @@ fun main() {
         azureAdClient = azureAdClient,
         clientEnvironment = environment.clients.manglendeMedvirkning,
     )
+    val merOppfolgingClient = MerOppfolgingClient(
+        azureAdClient = azureAdClient,
+        clientEnvironment = environment.clients.ismeroppfolging,
+    )
     val veilederTilgangskontrollClient = VeilederTilgangskontrollClient(
         azureAdClient = azureAdClient,
         istilgangskontrollEnv = environment.clients.istilgangskontroll,
@@ -114,6 +119,7 @@ fun main() {
                     aktivitetskravClient = aktivitetskravClient,
                     manglendeMedvirkningClient = manglendeMedvirkningClient,
                     arbeidsuforhetvurderingClient = arbeidsuforhetvurderingClient,
+                    merOppfolgingClient = merOppfolgingClient,
                 ),
             )
         }

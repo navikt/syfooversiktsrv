@@ -899,6 +899,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.fnr shouldBeEqualTo personident
                         personOversiktStatus.enhet shouldBeEqualTo NAV_ENHET
                         personOversiktStatus.isAktivSenOppfolgingKandidat shouldBeEqualTo true
+                        personOversiktStatus.senOppfolgingKandidat shouldNotBe null
                     }
                 }
 

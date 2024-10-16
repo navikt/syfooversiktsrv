@@ -3,6 +3,7 @@ package no.nav.syfo.personstatus.api.v2.model
 import no.nav.syfo.personstatus.application.aktivitetskrav.AktivitetskravDTO
 import no.nav.syfo.personstatus.application.arbeidsuforhet.ArbeidsuforhetvurderingDTO
 import no.nav.syfo.personstatus.application.manglendemedvirkning.ManglendeMedvirkningDTO
+import no.nav.syfo.personstatus.application.meroppfolging.SenOppfolgingKandidatDTO
 import no.nav.syfo.personstatus.application.oppfolgingsoppgave.OppfolgingsoppgaveDTO
 import java.time.LocalDate
 
@@ -22,7 +23,8 @@ data class PersonOversiktStatusDTO(
     val arbeidsuforhetvurdering: ArbeidsuforhetvurderingDTO?,
     val friskmeldingTilArbeidsformidlingFom: LocalDate?,
     val oppfolgingsoppgave: OppfolgingsoppgaveDTO?,
-    val isAktivSenOppfolgingKandidat: Boolean,
+    val isAktivSenOppfolgingKandidat: Boolean, // TODO: Denne kan fjernes når frontend bruker senOppfolgingKandidat
+    val senOppfolgingKandidat: SenOppfolgingKandidatDTO?,
     val aktivitetskravvurdering: AktivitetskravDTO?,
     val manglendeMedvirkning: ManglendeMedvirkningDTO?,
 )

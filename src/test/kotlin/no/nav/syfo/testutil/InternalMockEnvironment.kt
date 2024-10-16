@@ -13,6 +13,7 @@ import no.nav.syfo.personstatus.infrastructure.clients.aktivitetskrav.Aktivitets
 import no.nav.syfo.personstatus.infrastructure.clients.arbeidsuforhet.ArbeidsuforhetvurderingClient
 import no.nav.syfo.personstatus.infrastructure.clients.manglendemedvirkning.ManglendeMedvirkningClient
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
+import no.nav.syfo.personstatus.infrastructure.clients.meroppfolging.MerOppfolgingClient
 import no.nav.syfo.personstatus.infrastructure.clients.oppfolgingsoppgave.OppfolgingsoppgaveClient
 import no.nav.syfo.personstatus.infrastructure.database.repository.PersonOversiktStatusRepository
 
@@ -57,6 +58,11 @@ class InternalMockEnvironment private constructor() {
     private val aktivitetskravClient = AktivitetskravClient(
         azureAdClient = azureAdClient,
         clientEnvironment = environment.clients.aktivitetskrav,
+        httpClient = externalMockEnvironment.mockHttpClient
+    )
+    private val merOppfolgingClient = MerOppfolgingClient(
+        azureAdClient = azureAdClient,
+        clientEnvironment = environment.clients.ismeroppfolging,
         httpClient = externalMockEnvironment.mockHttpClient
     )
     private val eregClient = EregClient(
