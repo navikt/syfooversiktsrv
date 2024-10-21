@@ -70,7 +70,7 @@ dependencies {
     // Database
     implementation("org.postgresql:postgresql:$postgres")
     implementation("com.zaxxer:HikariCP:$hikari")
-    implementation("org.flywaydb:flyway-core:$flyway")
+    implementation("org.flywaydb:flyway-database-postgresql:$flyway")
     testImplementation("io.zonky.test:embedded-postgres:$postgresEmbedded")
 
     // Kafka
