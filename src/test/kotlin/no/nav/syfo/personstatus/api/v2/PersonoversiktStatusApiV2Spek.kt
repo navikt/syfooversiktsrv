@@ -184,7 +184,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         enhet = NAV_ENHET,
                     )
 
-                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR)
+                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, VEILEDER_ID)
                     database.lagreVeilederForBruker(tilknytning)
 
                     with(
@@ -217,7 +217,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         enhet = NAV_ENHET,
                     )
 
-                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR)
+                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, VEILEDER_ID)
                     database.lagreVeilederForBruker(tilknytning)
 
                     with(
@@ -381,7 +381,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         enhet = NAV_ENHET,
                     )
 
-                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR)
+                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, VEILEDER_ID)
                     database.lagreVeilederForBruker(tilknytning)
 
                     with(
@@ -436,7 +436,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         enhet = NAV_ENHET,
                     )
 
-                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR)
+                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, VEILEDER_ID)
                     database.lagreVeilederForBruker(tilknytning)
 
                     with(
@@ -671,12 +671,12 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personoppgavehendelser = listOf(oversikthendelseDialogmotesvarMottatt)
                     )
 
-                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, personIdent.value)
-                    database.lagreVeilederForBruker(tilknytning)
+                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, personIdent.value, VEILEDER_ID)
                     database.setTildeltEnhet(
                         ident = personIdent,
                         enhet = NAV_ENHET,
                     )
+                    database.lagreVeilederForBruker(tilknytning)
                     with(
                         handleRequest(HttpMethod.Get, url) {
                             addHeader(HttpHeaders.Authorization, bearerHeader(validToken))

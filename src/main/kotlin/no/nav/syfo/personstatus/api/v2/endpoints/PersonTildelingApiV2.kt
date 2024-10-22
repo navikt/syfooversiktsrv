@@ -40,7 +40,16 @@ fun Route.registerPersonTildelingApiV2(
             val token = getBearerHeader()
                 ?: throw java.lang.IllegalArgumentException("No Authorization header supplied")
             try {
-                val veilederBrukerKnytningerListe: VeilederBrukerKnytningListe = call.receive()
+                val tildeltAv = getNAVIdentFromToken(token)
+                val veilederBrukerKnytningerListe = VeilederBrukerKnytningListe(
+                    tilknytninger = call.receive<VeilederBrukerKnytningListe>().tilknytninger.map {
+                        VeilederBrukerKnytning(
+                            veilederIdent = it.veilederIdent,
+                            fnr = it.fnr,
+                            tildeltAv = tildeltAv,
+                        )
+                    }
+                )
 
                 val tilknytningFnrListWithVeilederAccess: List<String> =
                     veilederTilgangskontrollClient.veilederPersonAccessListMedOBO(
@@ -78,7 +87,12 @@ fun Route.registerPersonTildelingApiV2(
             val token = getBearerHeader()
                 ?: throw java.lang.IllegalArgumentException("No Authorization header supplied")
             try {
-                val veilederBrukerKnytning: VeilederBrukerKnytning = call.receive()
+                val veilederBrukerKnytningFromApi: VeilederBrukerKnytning = call.receive()
+                val veilederBrukerKnytning = VeilederBrukerKnytning(
+                    veilederIdent = veilederBrukerKnytningFromApi.veilederIdent,
+                    fnr = veilederBrukerKnytningFromApi.fnr,
+                    tildeltAv = getNAVIdentFromToken(token),
+                )
 
                 val tilgang = veilederTilgangskontrollClient.getVeilederAccessToPerson(
                     personident = PersonIdent(veilederBrukerKnytning.fnr),

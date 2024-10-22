@@ -6,8 +6,10 @@ import no.nav.syfo.oppfolgingstilfelle.domain.Oppfolgingstilfelle
 import no.nav.syfo.personstatus.domain.*
 import no.nav.syfo.util.nowUTC
 import java.sql.*
+import java.sql.Date
 import java.sql.Types.NULL
 import java.time.Instant
+import java.time.LocalDate
 import java.util.*
 
 const val queryCreatePersonOversiktStatus =
@@ -167,6 +169,12 @@ fun Connection.updatePersonOversiktStatusOppfolgingstilfelle(
     )
 }
 
+const val getTildeltVeilederQuery =
+    """
+         SELECT id,tildelt_veileder,tildelt_enhet FROM PERSON_OVERSIKT_STATUS
+         WHERE fnr = ?
+    """
+
 const val updateTildeltVeilederQuery =
     """
          UPDATE PERSON_OVERSIKT_STATUS
@@ -174,29 +182,55 @@ const val updateTildeltVeilederQuery =
          WHERE fnr = ?
     """
 
+const val createVeilederHistorikk =
+    """
+         INSERT INTO VEILEDER_HISTORIKK (
+           id,uuid,person_oversikt_status_id,fra_dato,tildelt_veileder,tildelt_enhet,tildelt_av
+         ) VALUES(DEFAULT,?,?,?,?,?,?)
+    """
+
 fun DatabaseInterface.lagreVeilederForBruker(veilederBrukerKnytning: VeilederBrukerKnytning) {
-    val rowCount = this.connection.use { connection ->
-        connection.prepareStatement(updateTildeltVeilederQuery).use {
-            it.setString(1, veilederBrukerKnytning.veilederIdent)
-            it.setObject(2, Timestamp.from(Instant.now()))
-            it.setString(3, veilederBrukerKnytning.fnr)
-            it.executeUpdate()
-        }.also {
+    val existingVeilederAndEnhet = this.connection.use {
+        connection.prepareStatement(getTildeltVeilederQuery).use {
+            it.setString(1, veilederBrukerKnytning.fnr)
+            it.executeQuery().toList {
+                Triple(
+                    getInt("id"),
+                    getString("tildelt_veileder"),
+                    getString("tildelt_enhet")
+                )
+            }
+        }.firstOrNull()
+    }
+    if (
+        existingVeilederAndEnhet != null && (
+            existingVeilederAndEnhet.second == null ||
+                existingVeilederAndEnhet.second != veilederBrukerKnytning.veilederIdent
+            )
+    ) {
+        this.connection.use { connection ->
+            val rowCount = connection.prepareStatement(updateTildeltVeilederQuery).use {
+                it.setString(1, veilederBrukerKnytning.veilederIdent)
+                it.setObject(2, Timestamp.from(Instant.now()))
+                it.setString(3, veilederBrukerKnytning.fnr)
+                it.executeUpdate()
+            }
+            if (rowCount != 1) {
+                throw SQLException("lagreVeilederForBruker failed, expected single row to be updated.")
+            }
+            connection.prepareStatement(createVeilederHistorikk).use {
+                it.setString(1, UUID.randomUUID().toString())
+                it.setInt(2, existingVeilederAndEnhet.first)
+                it.setDate(3, Date.valueOf(LocalDate.now()))
+                it.setString(4, veilederBrukerKnytning.veilederIdent)
+                it.setString(5, existingVeilederAndEnhet.third)
+                it.setString(6, veilederBrukerKnytning.tildeltAv)
+                it.execute()
+            }
             connection.commit()
         }
-    }
-
-    if (rowCount == 0) {
-        val personOversiktStatus = PersonOversiktStatus(
-            veilederIdent = veilederBrukerKnytning.veilederIdent,
-            fnr = veilederBrukerKnytning.fnr,
-        )
-        this.connection.use { connection ->
-            connection.createPersonOversiktStatus(
-                commit = true,
-                personOversiktStatus = personOversiktStatus,
-            )
-        }
+    } else if (existingVeilederAndEnhet == null) {
+        throw SQLException("Kan ikke tildele personer som ikke finnes fra før")
     }
 }
 

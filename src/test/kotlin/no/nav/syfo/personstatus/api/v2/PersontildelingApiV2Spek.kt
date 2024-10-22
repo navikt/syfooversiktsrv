@@ -9,18 +9,22 @@ import no.nav.syfo.personstatus.api.v2.endpoints.personTildelingApiV2Path
 import no.nav.syfo.personstatus.api.v2.model.VeilederBrukerKnytningDTO
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
 import no.nav.syfo.personstatus.db.*
+import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_2_FNR
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_NO_ACCESS
 import no.nav.syfo.testutil.UserConstants.NAV_ENHET
 import no.nav.syfo.testutil.UserConstants.VEILEDER_ID
+import no.nav.syfo.testutil.UserConstants.VEILEDER_ID_2
+import no.nav.syfo.testutil.database.setTildeltEnhet
 import no.nav.syfo.util.NAV_PERSONIDENT_HEADER
 import no.nav.syfo.util.bearerHeader
 import no.nav.syfo.util.configuredJacksonMapper
 import org.amshove.kluent.shouldBeEqualTo
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
+import java.time.LocalDate
 
 @InternalAPI
 object PersontildelingApiV2Spek : Spek({
@@ -32,6 +36,8 @@ object PersontildelingApiV2Spek : Spek({
 
             val externalMockEnvironment = ExternalMockEnvironment.instance
             val database = externalMockEnvironment.database
+            val internalMockEnvironment = InternalMockEnvironment.instance
+            val personoversiktStatusService = internalMockEnvironment.personoversiktStatusService
 
             application.testApiModule(
                 externalMockEnvironment = externalMockEnvironment
@@ -53,7 +59,14 @@ object PersontildelingApiV2Spek : Spek({
                 val url = "$baseUrl/registrer"
 
                 it("skal lagre liste med veiledertilknytninger") {
-
+                    personoversiktStatusService.upsertAktivitetskravvurderingStatus(
+                        personident = PersonIdent(ARBEIDSTAKER_FNR),
+                        isAktivVurdering = true,
+                    )
+                    database.setTildeltEnhet(
+                        ident = PersonIdent(ARBEIDSTAKER_FNR),
+                        enhet = NAV_ENHET,
+                    )
                     with(
                         handleRequest(HttpMethod.Post, url) {
                             addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
@@ -69,7 +82,15 @@ object PersontildelingApiV2Spek : Spek({
             describe("/personer") {
                 describe("GET veilederknytning for person") {
                     it("returns person with correct values") {
-                        val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR)
+                        personoversiktStatusService.upsertAktivitetskravvurderingStatus(
+                            personident = PersonIdent(ARBEIDSTAKER_FNR),
+                            isAktivVurdering = true,
+                        )
+                        database.setTildeltEnhet(
+                            ident = PersonIdent(ARBEIDSTAKER_FNR),
+                            enhet = NAV_ENHET,
+                        )
+                        val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, VEILEDER_ID)
                         database.lagreVeilederForBruker(tilknytning)
 
                         val url = "$personTildelingApiV2Path/personer/single"
@@ -86,7 +107,15 @@ object PersontildelingApiV2Spek : Spek({
                         }
                     }
                     it("returns 404 when person does not exist") {
-                        val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR)
+                        personoversiktStatusService.upsertAktivitetskravvurderingStatus(
+                            personident = PersonIdent(ARBEIDSTAKER_FNR),
+                            isAktivVurdering = true,
+                        )
+                        database.setTildeltEnhet(
+                            ident = PersonIdent(ARBEIDSTAKER_FNR),
+                            enhet = NAV_ENHET,
+                        )
+                        val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, VEILEDER_ID)
                         database.lagreVeilederForBruker(tilknytning)
 
                         val url = "$personTildelingApiV2Path/personer/single"
@@ -102,10 +131,48 @@ object PersontildelingApiV2Spek : Spek({
                 }
                 describe("POST veilederknytning for person") {
                     val url = "$personTildelingApiV2Path/personer/single"
-
-                    val veilederBrukerKnytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR)
+                    val veilederBrukerKnytning = VeilederBrukerKnytning(VEILEDER_ID_2, ARBEIDSTAKER_FNR, VEILEDER_ID)
 
                     it("returns OK when request is successful") {
+                        personoversiktStatusService.upsertAktivitetskravvurderingStatus(
+                            personident = PersonIdent(ARBEIDSTAKER_FNR),
+                            isAktivVurdering = true,
+                        )
+                        database.setTildeltEnhet(
+                            ident = PersonIdent(ARBEIDSTAKER_FNR),
+                            enhet = NAV_ENHET,
+                        )
+                        with(
+                            handleRequest(HttpMethod.Post, url) {
+                                addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                                addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                                setBody(objectMapper.writeValueAsString(veilederBrukerKnytning))
+                            }
+                        ) {
+                            response.status() shouldBeEqualTo HttpStatusCode.OK
+
+                            val person = database.getPersonOversiktStatusList(fnr = veilederBrukerKnytning.fnr).first()
+                            person.veilederIdent shouldBeEqualTo veilederBrukerKnytning.veilederIdent
+
+                            val historikk = database.getVeilederHistorikk(ARBEIDSTAKER_FNR)
+                            historikk.size shouldBeEqualTo 1
+                            val historikkDTO = historikk.first()
+                            historikkDTO.tildeltVeileder shouldBeEqualTo veilederBrukerKnytning.veilederIdent
+                            historikkDTO.tildeltEnhet shouldBeEqualTo NAV_ENHET
+                            historikkDTO.tildeltAv shouldBeEqualTo veilederBrukerKnytning.tildeltAv
+                            historikkDTO.fraDato shouldBeEqualTo LocalDate.now()
+                        }
+                    }
+                    it("returns OK when already assigned to veileder") {
+                        personoversiktStatusService.upsertAktivitetskravvurderingStatus(
+                            personident = PersonIdent(ARBEIDSTAKER_FNR),
+                            isAktivVurdering = true,
+                        )
+                        database.setTildeltEnhet(
+                            ident = PersonIdent(ARBEIDSTAKER_FNR),
+                            enhet = NAV_ENHET,
+                        )
+                        database.lagreVeilederForBruker(veilederBrukerKnytning)
                         with(
                             handleRequest(HttpMethod.Post, url) {
                                 addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
@@ -121,6 +188,14 @@ object PersontildelingApiV2Spek : Spek({
                     }
 
                     it("returns Unauthorized when missing token") {
+                        personoversiktStatusService.upsertAktivitetskravvurderingStatus(
+                            personident = PersonIdent(ARBEIDSTAKER_FNR),
+                            isAktivVurdering = true,
+                        )
+                        database.setTildeltEnhet(
+                            ident = PersonIdent(ARBEIDSTAKER_FNR),
+                            enhet = NAV_ENHET,
+                        )
                         with(
                             handleRequest(HttpMethod.Post, url) {
                                 addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
@@ -132,11 +207,20 @@ object PersontildelingApiV2Spek : Spek({
                     }
 
                     it("returns Forbidden when no access to person") {
+                        personoversiktStatusService.upsertAktivitetskravvurderingStatus(
+                            personident = PersonIdent(ARBEIDSTAKER_FNR),
+                            isAktivVurdering = true,
+                        )
+                        setTildeltEnhet(database)
                         with(
                             handleRequest(HttpMethod.Post, url) {
                                 addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
                                 addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                                setBody(objectMapper.writeValueAsString(VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_NO_ACCESS)))
+                                setBody(
+                                    objectMapper.writeValueAsString(
+                                        VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_NO_ACCESS, VEILEDER_ID)
+                                    )
+                                )
                             }
                         ) {
                             response.status() shouldBeEqualTo HttpStatusCode.Forbidden
