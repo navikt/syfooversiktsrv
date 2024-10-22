@@ -18,6 +18,7 @@ import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER_DEFAULT
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER_NO_VIRKSOMHETSNAVN
+import no.nav.syfo.testutil.assertion.checkPPersonOppfolgingstilfelleVirksomhetUpdated
 import no.nav.syfo.testutil.assertion.checkPPersonOppfolgingstilfelleVirksomhet
 import no.nav.syfo.testutil.generator.*
 import no.nav.syfo.util.nowUTC
@@ -123,7 +124,6 @@ object PersonOppfolgingstilfelleVirksomhetsnavnCronjobSpek : Spek({
                         checkPPersonOppfolgingstilfelleVirksomhet(
                             pPersonOppfolgingstilfelleVirksomhetList = pPersonOppfolgingstilfelleVirksomhetList,
                             kafkaOppfolgingstilfellePerson = recordValue,
-                            updated = false,
                         )
 
                         runBlocking {
@@ -193,7 +193,6 @@ object PersonOppfolgingstilfelleVirksomhetsnavnCronjobSpek : Spek({
                             checkPPersonOppfolgingstilfelleVirksomhet(
                                 pPersonOppfolgingstilfelleVirksomhetList = pPersonOppfolgingstilfelleVirksomhetList,
                                 kafkaOppfolgingstilfellePerson = recordValue,
-                                updated = false,
                             )
                         }
 
@@ -217,10 +216,9 @@ object PersonOppfolgingstilfelleVirksomhetsnavnCronjobSpek : Spek({
                                     pPersonOversikStatusId = pPersonOversiktStatus.id,
                                 )
 
-                            checkPPersonOppfolgingstilfelleVirksomhet(
+                            checkPPersonOppfolgingstilfelleVirksomhetUpdated(
                                 pPersonOppfolgingstilfelleVirksomhetList = pPersonOppfolgingstilfelleVirksomhetList,
                                 kafkaOppfolgingstilfellePerson = recordValue,
-                                updated = true,
                             )
                         }
                     }
@@ -264,7 +262,6 @@ object PersonOppfolgingstilfelleVirksomhetsnavnCronjobSpek : Spek({
                         checkPPersonOppfolgingstilfelleVirksomhet(
                             pPersonOppfolgingstilfelleVirksomhetList = pPersonOppfolgingstilfelleVirksomhetList,
                             kafkaOppfolgingstilfellePerson = recordValue,
-                            updated = false,
                         )
                     }
 
@@ -288,10 +285,9 @@ object PersonOppfolgingstilfelleVirksomhetsnavnCronjobSpek : Spek({
                                 pPersonOversikStatusId = pPersonOversiktStatus.id,
                             )
 
-                        checkPPersonOppfolgingstilfelleVirksomhet(
+                        checkPPersonOppfolgingstilfelleVirksomhetUpdated(
                             pPersonOppfolgingstilfelleVirksomhetList = pPersonOppfolgingstilfelleVirksomhetList,
                             kafkaOppfolgingstilfellePerson = recordValue,
-                            updated = true,
                         )
                     }
                 }
@@ -326,7 +322,6 @@ object PersonOppfolgingstilfelleVirksomhetsnavnCronjobSpek : Spek({
                         checkPPersonOppfolgingstilfelleVirksomhet(
                             pPersonOppfolgingstilfelleVirksomhetList = pPersonOppfolgingstilfelleVirksomhetList,
                             kafkaOppfolgingstilfellePerson = recordValue,
-                            updated = false,
                         )
                     }
 
@@ -343,10 +338,9 @@ object PersonOppfolgingstilfelleVirksomhetsnavnCronjobSpek : Spek({
                                 pPersonOversikStatusId = pPersonOversiktStatus.id,
                             )
 
-                        checkPPersonOppfolgingstilfelleVirksomhet(
+                        checkPPersonOppfolgingstilfelleVirksomhetUpdated(
                             pPersonOppfolgingstilfelleVirksomhetList = pPersonOppfolgingstilfelleVirksomhetList,
                             kafkaOppfolgingstilfellePerson = recordValue,
-                            updated = true,
                         )
                     }
                 }

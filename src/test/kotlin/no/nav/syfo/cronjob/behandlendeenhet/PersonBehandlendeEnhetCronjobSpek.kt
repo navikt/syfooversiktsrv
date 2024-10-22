@@ -126,7 +126,6 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                         checkPPersonOppfolgingstilfelleVirksomhet(
                             pPersonOppfolgingstilfelleVirksomhetList = pPersonOppfolgingstilfelleVirksomhetList,
                             kafkaOppfolgingstilfellePerson = recordValue,
-                            updated = false,
                         )
                     }
 
