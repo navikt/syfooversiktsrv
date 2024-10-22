@@ -4,27 +4,27 @@ group = "no.nav.syfo"
 version = "1.0-SNAPSHOT"
 
 val confluent = "7.7.1"
-val flyway = "9.22.3"
+val flyway = "10.17.3"
 val hikari = "5.1.0"
 val isdialogmoteSchema = "1.0.5"
-val jacksonDataType = "2.17.2"
-val jedis = "5.1.5"
+val jacksonDataType = "2.18.0"
+val jedis = "5.2.0"
 val json = "20240303"
 val kafka = "3.7.0"
 val kluent = "1.73"
 val ktor = "2.3.12"
-val logback = "1.5.8"
+val logback = "1.5.11"
 val logstashEncoder = "7.4"
-val mockk = "1.13.12"
+val mockk = "1.13.13"
 val micrometerRegistry = "1.12.8"
-val nimbusjosejwt = "9.41.1"
+val nimbusjosejwt = "9.41.2"
 val postgresEmbedded = "2.0.7"
 val postgres = "42.7.4"
 val spek = "2.0.19"
 
 plugins {
-    kotlin("jvm") version "2.0.20"
-    id("com.gradleup.shadow") version "8.3.0"
+    kotlin("jvm") version "2.0.21"
+    id("com.gradleup.shadow") version "8.3.3"
     id("org.jlleitschuh.gradle.ktlint") version "11.6.0"
     id("com.github.davidmc24.gradle.plugin.avro") version "1.8.0"
 }
@@ -70,7 +70,7 @@ dependencies {
     // Database
     implementation("org.postgresql:postgresql:$postgres")
     implementation("com.zaxxer:HikariCP:$hikari")
-    implementation("org.flywaydb:flyway-core:$flyway")
+    implementation("org.flywaydb:flyway-database-postgresql:$flyway")
     testImplementation("io.zonky.test:embedded-postgres:$postgresEmbedded")
 
     // Kafka
@@ -83,19 +83,19 @@ dependencies {
         implementation("org.apache.zookeeper:zookeeper") {
             because("io.confluent:kafka-schema-registry:$confluent -> https://www.cve.org/CVERecord?id=CVE-2023-44981")
             version {
-                require("3.9.1")
+                require("3.9.2")
             }
         }
         implementation("org.apache.avro:avro") {
             because("io.confluent:kafka-schema-registry:$confluent -> https://www.cve.org/CVERecord?id=CVE-2023-39410")
             version {
-                require("1.11.3")
+                require("1.12.0")
             }
         }
         implementation("org.apache.commons:commons-compress") {
             because("org.apache.commons:commons-compress:1.22 -> https://www.cve.org/CVERecord?id=CVE-2012-2098")
             version {
-                require("1.26.0")
+                require("1.27.1")
             }
         }
     }
@@ -128,6 +128,7 @@ tasks {
     }
 
     shadowJar {
+        mergeServiceFiles()
         archiveBaseName.set("app")
         archiveClassifier.set("")
         archiveVersion.set("")
