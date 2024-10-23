@@ -101,7 +101,7 @@ const val querySetTildeltEnhet =
 
 fun DatabaseInterface.setTildeltEnhet(
     ident: PersonIdent,
-    enhet: String,
+    enhet: String?,
 ) {
     this.connection.use { connection ->
         connection.prepareStatement(querySetTildeltEnhet).use {
