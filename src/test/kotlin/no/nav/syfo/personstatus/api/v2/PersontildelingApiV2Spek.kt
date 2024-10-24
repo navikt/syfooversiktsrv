@@ -10,6 +10,7 @@ import no.nav.syfo.personstatus.api.v2.model.VeilederBrukerKnytningDTO
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
 import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.PersonIdent
+import no.nav.syfo.personstatus.infrastructure.database.repository.PersonOversiktStatusRepository
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_2_FNR
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
@@ -38,6 +39,7 @@ object PersontildelingApiV2Spek : Spek({
             val database = externalMockEnvironment.database
             val internalMockEnvironment = InternalMockEnvironment.instance
             val personoversiktStatusService = internalMockEnvironment.personoversiktStatusService
+            val personOversiktStatusRepository = PersonOversiktStatusRepository(database)
 
             application.testApiModule(
                 externalMockEnvironment = externalMockEnvironment
@@ -91,7 +93,7 @@ object PersontildelingApiV2Spek : Spek({
                             enhet = NAV_ENHET,
                         )
                         val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR)
-                        database.lagreVeilederForBruker(tilknytning, VEILEDER_ID)
+                        personOversiktStatusRepository.lagreVeilederForBruker(tilknytning, VEILEDER_ID)
 
                         val url = "$personTildelingApiV2Path/personer/single"
                         with(
@@ -116,7 +118,7 @@ object PersontildelingApiV2Spek : Spek({
                             enhet = NAV_ENHET,
                         )
                         val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR)
-                        database.lagreVeilederForBruker(tilknytning, VEILEDER_ID)
+                        personOversiktStatusRepository.lagreVeilederForBruker(tilknytning, VEILEDER_ID)
 
                         val url = "$personTildelingApiV2Path/personer/single"
                         with(
@@ -163,6 +165,34 @@ object PersontildelingApiV2Spek : Spek({
                             historikkDTO.fraDato shouldBeEqualTo LocalDate.now()
                         }
                     }
+                    describe("POST veilederknytning for person som ikke finnes i oversikten") {
+                        val url = "$personTildelingApiV2Path/personer/single"
+                        val veilederBrukerKnytning = VeilederBrukerKnytning(VEILEDER_ID_2, ARBEIDSTAKER_FNR)
+
+                        it("returns OK when request is successful") {
+                            with(
+                                handleRequest(HttpMethod.Post, url) {
+                                    addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                                    addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                                    setBody(objectMapper.writeValueAsString(veilederBrukerKnytning))
+                                }
+                            ) {
+                                response.status() shouldBeEqualTo HttpStatusCode.OK
+
+                                val person =
+                                    database.getPersonOversiktStatusList(fnr = veilederBrukerKnytning.fnr).first()
+                                person.veilederIdent shouldBeEqualTo veilederBrukerKnytning.veilederIdent
+
+                                val historikk = database.getVeilederHistorikk(ARBEIDSTAKER_FNR)
+                                historikk.size shouldBeEqualTo 1
+                                val historikkDTO = historikk.first()
+                                historikkDTO.tildeltVeileder shouldBeEqualTo veilederBrukerKnytning.veilederIdent
+                                historikkDTO.tildeltEnhet shouldBeEqualTo NAV_ENHET
+                                historikkDTO.tildeltAv shouldBeEqualTo VEILEDER_ID
+                                historikkDTO.fraDato shouldBeEqualTo LocalDate.now()
+                            }
+                        }
+                    }
                     it("returns OK when already assigned to veileder") {
                         personoversiktStatusService.upsertAktivitetskravvurderingStatus(
                             personident = PersonIdent(ARBEIDSTAKER_FNR),
@@ -172,7 +202,7 @@ object PersontildelingApiV2Spek : Spek({
                             ident = PersonIdent(ARBEIDSTAKER_FNR),
                             enhet = NAV_ENHET,
                         )
-                        database.lagreVeilederForBruker(veilederBrukerKnytning, VEILEDER_ID)
+                        personOversiktStatusRepository.lagreVeilederForBruker(veilederBrukerKnytning, VEILEDER_ID)
                         with(
                             handleRequest(HttpMethod.Post, url) {
                                 addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())

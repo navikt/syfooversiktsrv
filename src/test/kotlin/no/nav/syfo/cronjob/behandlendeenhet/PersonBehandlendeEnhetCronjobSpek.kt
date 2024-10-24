@@ -178,7 +178,7 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                             veilederIdent = UserConstants.VEILEDER_ID,
                             fnr = oversikthendelse.personident,
                         )
-                        database.lagreVeilederForBruker(
+                        personOversiktStatusRepository.lagreVeilederForBruker(
                             veilederBrukerKnytning = veilederBrukerKnytning,
                             tildeltAv = UserConstants.VEILEDER_ID,
                         )
@@ -352,7 +352,7 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                         veilederIdent = UserConstants.VEILEDER_ID,
                         fnr = oversikthendelse.personident,
                     )
-                    database.lagreVeilederForBruker(
+                    personOversiktStatusRepository.lagreVeilederForBruker(
                         veilederBrukerKnytning = veilederBrukerKnytning,
                         tildeltAv = UserConstants.VEILEDER_ID,
                     )
