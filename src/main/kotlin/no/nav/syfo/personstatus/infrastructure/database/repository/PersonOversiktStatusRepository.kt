@@ -140,15 +140,16 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
         }
     }
 
-    override fun createPersonOversiktStatusIfMissing(personident: PersonIdent) {
-        database.connection.use { connection ->
+    override fun createPersonOversiktStatusIfMissing(personident: PersonIdent): Boolean {
+        return database.connection.use { connection ->
             val existing = connection.prepareStatement(GET_PERSON_OVERSIKT_STATUS).use {
                 it.setString(1, personident.value)
                 it.executeQuery().toList { toPPersonOversiktStatus() }
             }
-            if (existing.isEmpty()) {
-                connection.createPersonOversiktStatus(false, PersonOversiktStatus(fnr = personident.value))
-                connection.commit()
+            existing.isEmpty().also {
+                if (it) {
+                    connection.createPersonOversiktStatus(true, PersonOversiktStatus(fnr = personident.value))
+                }
             }
         }
     }

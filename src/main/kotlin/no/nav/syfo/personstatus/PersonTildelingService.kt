@@ -14,8 +14,9 @@ class PersonTildelingService(
         tildeltAv: String,
     ) {
         veilederBrukerKnytninger.map {
-            personoversiktStatusRepository.createPersonOversiktStatusIfMissing(PersonIdent(it.fnr))
-            personBehandlendeEnhetService.updateBehandlendeEnhet(PersonIdent(it.fnr))
+            if (personoversiktStatusRepository.createPersonOversiktStatusIfMissing(PersonIdent(it.fnr))) {
+                personBehandlendeEnhetService.updateBehandlendeEnhet(PersonIdent(it.fnr))
+            }
             personoversiktStatusRepository.lagreVeilederForBruker(
                 veilederBrukerKnytning = it,
                 tildeltAv = tildeltAv,
