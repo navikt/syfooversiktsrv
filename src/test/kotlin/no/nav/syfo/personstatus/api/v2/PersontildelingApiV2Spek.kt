@@ -90,8 +90,8 @@ object PersontildelingApiV2Spek : Spek({
                             ident = PersonIdent(ARBEIDSTAKER_FNR),
                             enhet = NAV_ENHET,
                         )
-                        val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, VEILEDER_ID)
-                        database.lagreVeilederForBruker(tilknytning)
+                        val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR)
+                        database.lagreVeilederForBruker(tilknytning, VEILEDER_ID)
 
                         val url = "$personTildelingApiV2Path/personer/single"
                         with(
@@ -115,8 +115,8 @@ object PersontildelingApiV2Spek : Spek({
                             ident = PersonIdent(ARBEIDSTAKER_FNR),
                             enhet = NAV_ENHET,
                         )
-                        val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, VEILEDER_ID)
-                        database.lagreVeilederForBruker(tilknytning)
+                        val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR)
+                        database.lagreVeilederForBruker(tilknytning, VEILEDER_ID)
 
                         val url = "$personTildelingApiV2Path/personer/single"
                         with(
@@ -131,7 +131,7 @@ object PersontildelingApiV2Spek : Spek({
                 }
                 describe("POST veilederknytning for person") {
                     val url = "$personTildelingApiV2Path/personer/single"
-                    val veilederBrukerKnytning = VeilederBrukerKnytning(VEILEDER_ID_2, ARBEIDSTAKER_FNR, VEILEDER_ID)
+                    val veilederBrukerKnytning = VeilederBrukerKnytning(VEILEDER_ID_2, ARBEIDSTAKER_FNR)
 
                     it("returns OK when request is successful") {
                         personoversiktStatusService.upsertAktivitetskravvurderingStatus(
@@ -159,7 +159,7 @@ object PersontildelingApiV2Spek : Spek({
                             val historikkDTO = historikk.first()
                             historikkDTO.tildeltVeileder shouldBeEqualTo veilederBrukerKnytning.veilederIdent
                             historikkDTO.tildeltEnhet shouldBeEqualTo NAV_ENHET
-                            historikkDTO.tildeltAv shouldBeEqualTo veilederBrukerKnytning.tildeltAv
+                            historikkDTO.tildeltAv shouldBeEqualTo VEILEDER_ID
                             historikkDTO.fraDato shouldBeEqualTo LocalDate.now()
                         }
                     }
@@ -172,7 +172,7 @@ object PersontildelingApiV2Spek : Spek({
                             ident = PersonIdent(ARBEIDSTAKER_FNR),
                             enhet = NAV_ENHET,
                         )
-                        database.lagreVeilederForBruker(veilederBrukerKnytning)
+                        database.lagreVeilederForBruker(veilederBrukerKnytning, VEILEDER_ID)
                         with(
                             handleRequest(HttpMethod.Post, url) {
                                 addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
@@ -218,7 +218,7 @@ object PersontildelingApiV2Spek : Spek({
                                 addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
                                 setBody(
                                     objectMapper.writeValueAsString(
-                                        VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_NO_ACCESS, VEILEDER_ID)
+                                        VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_NO_ACCESS)
                                     )
                                 )
                             }

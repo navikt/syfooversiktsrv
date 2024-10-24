@@ -41,15 +41,7 @@ fun Route.registerPersonTildelingApiV2(
                 ?: throw java.lang.IllegalArgumentException("No Authorization header supplied")
             try {
                 val tildeltAv = getNAVIdentFromToken(token)
-                val veilederBrukerKnytningerListe = VeilederBrukerKnytningListe(
-                    tilknytninger = call.receive<VeilederBrukerKnytningListe>().tilknytninger.map {
-                        VeilederBrukerKnytning(
-                            veilederIdent = it.veilederIdent,
-                            fnr = it.fnr,
-                            tildeltAv = tildeltAv,
-                        )
-                    }
-                )
+                val veilederBrukerKnytningerListe = call.receive<VeilederBrukerKnytningListe>()
 
                 val tilknytningFnrListWithVeilederAccess: List<String> =
                     veilederTilgangskontrollClient.veilederPersonAccessListMedOBO(
@@ -69,7 +61,10 @@ fun Route.registerPersonTildelingApiV2(
                     )
                     call.respond(HttpStatusCode.Forbidden)
                 } else {
-                    personTildelingService.lagreKnytningMellomVeilederOgBruker(veilederBrukerKnytninger)
+                    personTildelingService.lagreKnytningMellomVeilederOgBruker(
+                        veilederBrukerKnytninger = veilederBrukerKnytninger,
+                        tildeltAv = tildeltAv,
+                    )
 
                     COUNT_PERSONTILDELING_TILDELT.increment(veilederBrukerKnytninger.size.toDouble())
 
@@ -91,7 +86,6 @@ fun Route.registerPersonTildelingApiV2(
                 val veilederBrukerKnytning = VeilederBrukerKnytning(
                     veilederIdent = veilederBrukerKnytningFromApi.veilederIdent,
                     fnr = veilederBrukerKnytningFromApi.fnr,
-                    tildeltAv = getNAVIdentFromToken(token),
                 )
 
                 val tilgang = veilederTilgangskontrollClient.getVeilederAccessToPerson(
@@ -100,7 +94,10 @@ fun Route.registerPersonTildelingApiV2(
                     callId = callId
                 )
                 if (tilgang?.erGodkjent == true) {
-                    personTildelingService.lagreKnytningMellomVeilederOgBruker(listOf(veilederBrukerKnytning))
+                    personTildelingService.lagreKnytningMellomVeilederOgBruker(
+                        veilederBrukerKnytninger = listOf(veilederBrukerKnytning),
+                        tildeltAv = getNAVIdentFromToken(token),
+                    )
                     call.respond(HttpStatusCode.OK)
                 } else {
                     log.error("Kan ikke registrere tilknytning fordi veileder ikke har tilgang til bruker, {}", callIdArgument(callId))

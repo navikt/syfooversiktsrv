@@ -189,7 +189,10 @@ const val createVeilederHistorikk =
          ) VALUES(DEFAULT,?,?,?,?,?,?)
     """
 
-fun DatabaseInterface.lagreVeilederForBruker(veilederBrukerKnytning: VeilederBrukerKnytning) {
+fun DatabaseInterface.lagreVeilederForBruker(
+    veilederBrukerKnytning: VeilederBrukerKnytning,
+    tildeltAv: String,
+) {
     val existingVeilederAndEnhet = this.connection.use {
         connection.prepareStatement(getTildeltVeilederQuery).use {
             it.setString(1, veilederBrukerKnytning.fnr)
@@ -224,7 +227,7 @@ fun DatabaseInterface.lagreVeilederForBruker(veilederBrukerKnytning: VeilederBru
                 it.setDate(3, Date.valueOf(LocalDate.now()))
                 it.setString(4, veilederBrukerKnytning.veilederIdent)
                 it.setString(5, existingVeilederAndEnhet.third)
-                it.setString(6, veilederBrukerKnytning.tildeltAv)
+                it.setString(6, tildeltAv)
                 it.execute()
             }
             connection.commit()

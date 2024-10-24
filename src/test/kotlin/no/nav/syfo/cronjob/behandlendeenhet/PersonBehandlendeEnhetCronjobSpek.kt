@@ -177,10 +177,10 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                         val veilederBrukerKnytning = VeilederBrukerKnytning(
                             veilederIdent = UserConstants.VEILEDER_ID,
                             fnr = oversikthendelse.personident,
-                            tildeltAv = UserConstants.VEILEDER_ID,
                         )
                         database.lagreVeilederForBruker(
                             veilederBrukerKnytning = veilederBrukerKnytning,
+                            tildeltAv = UserConstants.VEILEDER_ID,
                         )
 
                         kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
@@ -351,10 +351,10 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                     val veilederBrukerKnytning = VeilederBrukerKnytning(
                         veilederIdent = UserConstants.VEILEDER_ID,
                         fnr = oversikthendelse.personident,
-                        tildeltAv = UserConstants.VEILEDER_ID,
                     )
                     database.lagreVeilederForBruker(
                         veilederBrukerKnytning = veilederBrukerKnytning,
+                        tildeltAv = UserConstants.VEILEDER_ID,
                     )
                     database.setTildeltEnhet(PersonIdent(oversikthendelse.personident), null)
 

@@ -6,8 +6,13 @@ import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
 
 class PersonTildelingService(private val database: DatabaseInterface) {
 
-    fun lagreKnytningMellomVeilederOgBruker(veilederBrukerKnytninger: List<VeilederBrukerKnytning>) =
-        veilederBrukerKnytninger.map {
-            database.lagreVeilederForBruker(it)
-        }
+    fun lagreKnytningMellomVeilederOgBruker(
+        veilederBrukerKnytninger: List<VeilederBrukerKnytning>,
+        tildeltAv: String,
+    ) = veilederBrukerKnytninger.map {
+        database.lagreVeilederForBruker(
+            veilederBrukerKnytning = it,
+            tildeltAv = tildeltAv,
+        )
+    }
 }

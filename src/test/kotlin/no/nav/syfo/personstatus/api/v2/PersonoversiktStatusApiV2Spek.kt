@@ -184,8 +184,8 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         enhet = NAV_ENHET,
                     )
 
-                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, VEILEDER_ID)
-                    database.lagreVeilederForBruker(tilknytning)
+                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR)
+                    database.lagreVeilederForBruker(tilknytning, VEILEDER_ID)
 
                     with(
                         handleRequest(HttpMethod.Get, url) {
@@ -217,8 +217,8 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         enhet = NAV_ENHET,
                     )
 
-                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, VEILEDER_ID)
-                    database.lagreVeilederForBruker(tilknytning)
+                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR)
+                    database.lagreVeilederForBruker(tilknytning, VEILEDER_ID)
 
                     with(
                         handleRequest(HttpMethod.Get, url) {
@@ -381,8 +381,8 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         enhet = NAV_ENHET,
                     )
 
-                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, VEILEDER_ID)
-                    database.lagreVeilederForBruker(tilknytning)
+                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR)
+                    database.lagreVeilederForBruker(tilknytning, VEILEDER_ID)
 
                     with(
                         handleRequest(HttpMethod.Get, url) {
@@ -436,8 +436,8 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         enhet = NAV_ENHET,
                     )
 
-                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR, VEILEDER_ID)
-                    database.lagreVeilederForBruker(tilknytning)
+                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR)
+                    database.lagreVeilederForBruker(tilknytning, VEILEDER_ID)
 
                     with(
                         handleRequest(HttpMethod.Get, url) {
@@ -671,12 +671,12 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personoppgavehendelser = listOf(oversikthendelseDialogmotesvarMottatt)
                     )
 
-                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, personIdent.value, VEILEDER_ID)
+                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, personIdent.value)
                     database.setTildeltEnhet(
                         ident = personIdent,
                         enhet = NAV_ENHET,
                     )
-                    database.lagreVeilederForBruker(tilknytning)
+                    database.lagreVeilederForBruker(tilknytning, VEILEDER_ID)
                     with(
                         handleRequest(HttpMethod.Get, url) {
                             addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
