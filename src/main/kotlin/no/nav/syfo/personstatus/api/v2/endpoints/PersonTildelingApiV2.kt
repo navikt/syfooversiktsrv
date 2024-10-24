@@ -82,11 +82,7 @@ fun Route.registerPersonTildelingApiV2(
             val token = getBearerHeader()
                 ?: throw java.lang.IllegalArgumentException("No Authorization header supplied")
             try {
-                val veilederBrukerKnytningFromApi: VeilederBrukerKnytning = call.receive()
-                val veilederBrukerKnytning = VeilederBrukerKnytning(
-                    veilederIdent = veilederBrukerKnytningFromApi.veilederIdent,
-                    fnr = veilederBrukerKnytningFromApi.fnr,
-                )
+                val veilederBrukerKnytning: VeilederBrukerKnytning = call.receive()
 
                 val tilgang = veilederTilgangskontrollClient.getVeilederAccessToPerson(
                     personident = PersonIdent(veilederBrukerKnytning.fnr),
