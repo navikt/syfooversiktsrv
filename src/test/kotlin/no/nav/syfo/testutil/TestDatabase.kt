@@ -5,6 +5,7 @@ import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.db.createPersonOversiktStatus
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
+import no.nav.syfo.personstatus.infrastructure.database.toList
 import org.flywaydb.core.Flyway
 import java.sql.Connection
 import java.sql.Timestamp
@@ -100,7 +101,7 @@ const val querySetTildeltEnhet =
 
 fun DatabaseInterface.setTildeltEnhet(
     ident: PersonIdent,
-    enhet: String,
+    enhet: String?,
 ) {
     this.connection.use { connection ->
         connection.prepareStatement(querySetTildeltEnhet).use {
@@ -150,3 +151,32 @@ fun DatabaseInterface.setSistEndret(fnr: String, sistEndret: Timestamp) {
         connection.commit()
     }
 }
+
+const val queryGetVeilederHistorikk =
+    """
+        SELECT fra_dato,tildelt_veileder,tildelt_enhet,tildelt_av 
+        FROM VEILEDER_HISTORIKK
+        WHERE person_oversikt_status_id IN (select id from person_oversikt_status where fnr=?)
+    """
+
+fun DatabaseInterface.getVeilederHistorikk(fnr: String) =
+    this.connection.use {
+        connection.prepareStatement(queryGetVeilederHistorikk).use {
+            it.setString(1, fnr)
+            it.executeQuery().toList {
+                VeilederHistorikkDTO(
+                    fraDato = getDate(1).toLocalDate(),
+                    tildeltVeileder = getString(2),
+                    tildeltEnhet = getString(3),
+                    tildeltAv = getString(4),
+                )
+            }
+        }
+    }
+
+data class VeilederHistorikkDTO(
+    val fraDato: LocalDate,
+    val tildeltVeileder: String,
+    val tildeltEnhet: String,
+    val tildeltAv: String,
+)

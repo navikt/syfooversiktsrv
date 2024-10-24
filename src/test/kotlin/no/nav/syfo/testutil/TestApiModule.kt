@@ -11,8 +11,10 @@ import no.nav.syfo.personstatus.infrastructure.clients.arbeidsuforhet.Arbeidsufo
 import no.nav.syfo.personstatus.infrastructure.clients.manglendemedvirkning.ManglendeMedvirkningClient
 import no.nav.syfo.personstatus.infrastructure.clients.oppfolgingsoppgave.OppfolgingsoppgaveClient
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
+import no.nav.syfo.personstatus.infrastructure.clients.behandlendeenhet.BehandlendeEnhetClient
 import no.nav.syfo.personstatus.infrastructure.clients.meroppfolging.MerOppfolgingClient
 import no.nav.syfo.personstatus.infrastructure.clients.veiledertilgang.VeilederTilgangskontrollClient
+import no.nav.syfo.personstatus.infrastructure.cronjob.behandlendeenhet.PersonBehandlendeEnhetService
 import no.nav.syfo.personstatus.infrastructure.database.repository.PersonOversiktStatusRepository
 
 fun Application.testApiModule(
@@ -60,11 +62,20 @@ fun Application.testApiModule(
         istilgangskontrollEnv = externalMockEnvironment.environment.clients.istilgangskontroll,
         httpClient = externalMockEnvironment.mockHttpClient
     )
+    val behandlendeEnhetClient = BehandlendeEnhetClient(
+        azureAdClient = azureAdClient,
+        clientEnvironment = externalMockEnvironment.environment.clients.syfobehandlendeenhet,
+        httpClient = externalMockEnvironment.mockHttpClient,
+    )
     val personoversiktRepository = PersonOversiktStatusRepository(database = externalMockEnvironment.database)
     val personoversiktStatusService = PersonoversiktStatusService(
         database = externalMockEnvironment.database,
         pdlClient = pdlClient,
         personoversiktStatusRepository = personoversiktRepository,
+    )
+    val personBehandlendeEnhetService = PersonBehandlendeEnhetService(
+        database = externalMockEnvironment.database,
+        behandlendeEnhetClient = behandlendeEnhetClient,
     )
 
     this.apiModule(
@@ -81,5 +92,7 @@ fun Application.testApiModule(
             aktivitetskravClient = aktivitetskravClient,
             merOppfolgingClient = merOppfolgingClient,
         ),
+        personBehandlendeEnhetService = personBehandlendeEnhetService,
+        personoversiktStatusRepository = personoversiktRepository,
     )
 }

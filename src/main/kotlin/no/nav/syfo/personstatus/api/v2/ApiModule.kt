@@ -22,6 +22,8 @@ import no.nav.syfo.personstatus.api.v2.auth.JwtIssuerType
 import no.nav.syfo.personstatus.api.v2.auth.WellKnown
 import no.nav.syfo.personstatus.api.v2.endpoints.registerPersonTildelingApiV2
 import no.nav.syfo.personstatus.api.v2.endpoints.registerPersonoversiktApiV2
+import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
+import no.nav.syfo.personstatus.infrastructure.cronjob.behandlendeenhet.PersonBehandlendeEnhetService
 
 fun Application.apiModule(
     applicationState: ApplicationState,
@@ -31,6 +33,8 @@ fun Application.apiModule(
     personoversiktStatusService: PersonoversiktStatusService,
     tilgangskontrollClient: VeilederTilgangskontrollClient,
     personoversiktOppgaverService: PersonoversiktOppgaverService,
+    personBehandlendeEnhetService: PersonBehandlendeEnhetService,
+    personoversiktStatusRepository: IPersonOversiktStatusRepository,
 ) {
     installCallId()
     installContentNegotiation()
@@ -48,7 +52,8 @@ fun Application.apiModule(
     )
 
     val personTildelingService = PersonTildelingService(
-        database = database,
+        personoversiktStatusRepository = personoversiktStatusRepository,
+        personBehandlendeEnhetService = personBehandlendeEnhetService,
     )
 
     routing {

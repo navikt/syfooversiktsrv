@@ -18,8 +18,8 @@ import no.nav.syfo.personstatus.api.v2.model.PersonOversiktStatusDTO
 import no.nav.syfo.personstatus.application.manglendemedvirkning.ManglendeMedvirkningVurderingType
 import no.nav.syfo.personstatus.db.createPersonOversiktStatus
 import no.nav.syfo.personstatus.db.getPersonOversiktStatusList
-import no.nav.syfo.personstatus.db.lagreVeilederForBruker
 import no.nav.syfo.personstatus.domain.*
+import no.nav.syfo.personstatus.infrastructure.database.repository.PersonOversiktStatusRepository
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_NO_NAME_FNR
@@ -60,6 +60,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
 
             val personoversiktStatusService = internalMockEnvironment.personoversiktStatusService
             val kafkaOppfolgingstilfellePersonService = TestKafkaModule.kafkaOppfolgingstilfellePersonService
+            val personOversiktStatusRepository = PersonOversiktStatusRepository(database)
 
             val personIdentDefault = PersonIdent(ARBEIDSTAKER_FNR)
 
@@ -185,7 +186,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     )
 
                     val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR)
-                    database.lagreVeilederForBruker(tilknytning)
+                    personOversiktStatusRepository.lagreVeilederForBruker(tilknytning, VEILEDER_ID)
 
                     with(
                         handleRequest(HttpMethod.Get, url) {
@@ -218,7 +219,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     )
 
                     val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR)
-                    database.lagreVeilederForBruker(tilknytning)
+                    personOversiktStatusRepository.lagreVeilederForBruker(tilknytning, VEILEDER_ID)
 
                     with(
                         handleRequest(HttpMethod.Get, url) {
@@ -382,7 +383,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     )
 
                     val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR)
-                    database.lagreVeilederForBruker(tilknytning)
+                    personOversiktStatusRepository.lagreVeilederForBruker(tilknytning, VEILEDER_ID)
 
                     with(
                         handleRequest(HttpMethod.Get, url) {
@@ -437,7 +438,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     )
 
                     val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR)
-                    database.lagreVeilederForBruker(tilknytning)
+                    personOversiktStatusRepository.lagreVeilederForBruker(tilknytning, VEILEDER_ID)
 
                     with(
                         handleRequest(HttpMethod.Get, url) {
@@ -672,11 +673,11 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     )
 
                     val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, personIdent.value)
-                    database.lagreVeilederForBruker(tilknytning)
                     database.setTildeltEnhet(
                         ident = personIdent,
                         enhet = NAV_ENHET,
                     )
+                    personOversiktStatusRepository.lagreVeilederForBruker(tilknytning, VEILEDER_ID)
                     with(
                         handleRequest(HttpMethod.Get, url) {
                             addHeader(HttpHeaders.Authorization, bearerHeader(validToken))

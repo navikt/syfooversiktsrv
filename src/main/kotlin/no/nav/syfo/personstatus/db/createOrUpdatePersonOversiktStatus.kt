@@ -167,39 +167,6 @@ fun Connection.updatePersonOversiktStatusOppfolgingstilfelle(
     )
 }
 
-const val updateTildeltVeilederQuery =
-    """
-         UPDATE PERSON_OVERSIKT_STATUS
-         SET tildelt_veileder = ?, sist_endret = ?
-         WHERE fnr = ?
-    """
-
-fun DatabaseInterface.lagreVeilederForBruker(veilederBrukerKnytning: VeilederBrukerKnytning) {
-    val rowCount = this.connection.use { connection ->
-        connection.prepareStatement(updateTildeltVeilederQuery).use {
-            it.setString(1, veilederBrukerKnytning.veilederIdent)
-            it.setObject(2, Timestamp.from(Instant.now()))
-            it.setString(3, veilederBrukerKnytning.fnr)
-            it.executeUpdate()
-        }.also {
-            connection.commit()
-        }
-    }
-
-    if (rowCount == 0) {
-        val personOversiktStatus = PersonOversiktStatus(
-            veilederIdent = veilederBrukerKnytning.veilederIdent,
-            fnr = veilederBrukerKnytning.fnr,
-        )
-        this.connection.use { connection ->
-            connection.createPersonOversiktStatus(
-                commit = true,
-                personOversiktStatus = personOversiktStatus,
-            )
-        }
-    }
-}
-
 const val queryUpdatePersonOversiktStatusNavn =
     """
     UPDATE PERSON_OVERSIKT_STATUS

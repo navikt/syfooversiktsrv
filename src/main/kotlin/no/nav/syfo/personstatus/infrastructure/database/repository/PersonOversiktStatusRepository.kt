@@ -1,14 +1,14 @@
 package no.nav.syfo.personstatus.infrastructure.database.repository
 
-import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
-import no.nav.syfo.personstatus.domain.PPersonOversiktStatus
-import no.nav.syfo.personstatus.domain.PersonOversiktStatus
-import no.nav.syfo.personstatus.domain.toPersonOversiktStatus
+import no.nav.syfo.personstatus.db.*
+import no.nav.syfo.personstatus.domain.*
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import no.nav.syfo.personstatus.infrastructure.database.toList
 import java.lang.RuntimeException
+import java.sql.Date
 import java.sql.ResultSet
+import java.sql.SQLException
 import java.sql.Timestamp
 import java.time.Instant
 import java.time.LocalDate
@@ -140,6 +140,64 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
         }
     }
 
+    override fun createPersonOversiktStatusIfMissing(personident: PersonIdent): Boolean {
+        return database.connection.use { connection ->
+            val existing = connection.prepareStatement(GET_PERSON_OVERSIKT_STATUS).use {
+                it.setString(1, personident.value)
+                it.executeQuery().toList { toPPersonOversiktStatus() }
+            }
+            existing.isEmpty().also {
+                if (it) {
+                    connection.createPersonOversiktStatus(true, PersonOversiktStatus(fnr = personident.value))
+                }
+            }
+        }
+    }
+
+    override fun lagreVeilederForBruker(
+        veilederBrukerKnytning: VeilederBrukerKnytning,
+        tildeltAv: String,
+    ) {
+        database.connection.use { connection ->
+            val existingVeilederAndEnhet = connection.prepareStatement(GET_TILDELT_VEILEDER_QUERY).use {
+                it.setString(1, veilederBrukerKnytning.fnr)
+                it.executeQuery().toList {
+                    Triple(
+                        getInt("id"),
+                        getString("tildelt_veileder"),
+                        getString("tildelt_enhet")
+                    )
+                }
+            }.firstOrNull()
+            if (
+                existingVeilederAndEnhet != null && (
+                    existingVeilederAndEnhet.second == null ||
+                        existingVeilederAndEnhet.second != veilederBrukerKnytning.veilederIdent
+                    )
+            ) {
+                val rowCount = connection.prepareStatement(UPDATE_TILDELT_VEILEDER_QUERY).use {
+                    it.setString(1, veilederBrukerKnytning.veilederIdent)
+                    it.setObject(2, Timestamp.from(Instant.now()))
+                    it.setString(3, veilederBrukerKnytning.fnr)
+                    it.executeUpdate()
+                }
+                if (rowCount != 1) {
+                    throw SQLException("lagreVeilederForBruker failed, expected single row to be updated.")
+                }
+                connection.prepareStatement(CREATE_VEILEDER_HISTORIKK).use {
+                    it.setString(1, UUID.randomUUID().toString())
+                    it.setInt(2, existingVeilederAndEnhet.first)
+                    it.setDate(3, Date.valueOf(LocalDate.now()))
+                    it.setString(4, veilederBrukerKnytning.veilederIdent)
+                    it.setString(5, existingVeilederAndEnhet.third)
+                    it.setString(6, tildeltAv)
+                    it.execute()
+                }
+                connection.commit()
+            }
+        }
+    }
+
     companion object {
         private const val GET_PERSON_OVERSIKT_STATUS =
             """
@@ -210,6 +268,26 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
             DO UPDATE SET
                 is_aktiv_manglende_medvirkning_vurdering = EXCLUDED.is_aktiv_manglende_medvirkning_vurdering,
                 sist_endret = EXCLUDED.sist_endret
+            """
+
+        private const val GET_TILDELT_VEILEDER_QUERY =
+            """
+            SELECT id,tildelt_veileder,tildelt_enhet FROM PERSON_OVERSIKT_STATUS
+            WHERE fnr = ?
+            """
+
+        private const val UPDATE_TILDELT_VEILEDER_QUERY =
+            """
+            UPDATE PERSON_OVERSIKT_STATUS
+            SET tildelt_veileder = ?, sist_endret = ?
+            WHERE fnr = ?
+            """
+
+        const val CREATE_VEILEDER_HISTORIKK =
+            """
+            INSERT INTO VEILEDER_HISTORIKK (
+                id,uuid,person_oversikt_status_id,fra_dato,tildelt_veileder,tildelt_enhet,tildelt_av
+            ) VALUES(DEFAULT,?,?,?,?,?,?)
             """
     }
 }

@@ -14,7 +14,7 @@ class PersonBehandlendeEnhetService(
 
     suspend fun updateBehandlendeEnhet(
         personIdent: PersonIdent,
-        tildeltEnhet: String?,
+        tildeltEnhet: String? = null,
     ) {
         val maybeNewBehandlendeEnhet = behandlendeEnhetClient.getEnhet(
             callId = UUID.randomUUID().toString(),
