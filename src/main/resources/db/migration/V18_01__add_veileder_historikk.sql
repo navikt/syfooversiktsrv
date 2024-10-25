@@ -2,7 +2,7 @@ CREATE TABLE VEILEDER_HISTORIKK (
   id                        SERIAL             PRIMARY KEY,
   uuid                      CHAR(36)           NOT NULL UNIQUE,
   person_oversikt_status_id INTEGER REFERENCES PERSON_OVERSIKT_STATUS (id) ON DELETE CASCADE,
-  tildelt_dato              DATE               NOT NULL,
+  tildelt_dato              DATE,
   tildelt_veileder          VARCHAR(7)         NOT NULL,
   tildelt_enhet             VARCHAR(4)         NOT NULL,
   tildelt_av                VARCHAR(7)
