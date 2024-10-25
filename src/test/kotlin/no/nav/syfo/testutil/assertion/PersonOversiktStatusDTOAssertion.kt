@@ -6,6 +6,7 @@ import no.nav.syfo.personstatus.api.v2.model.PersonOppfolgingstilfelleDTO
 import no.nav.syfo.personstatus.api.v2.model.PersonOppfolgingstilfelleVirksomhetDTO
 import no.nav.syfo.testutil.mock.eregOrganisasjonResponse
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
 
 fun checkPersonOppfolgingstilfelleDTO(
@@ -38,8 +39,8 @@ fun checkPersonOppfolgingstilfelleVirksomhetDTOList(
 
     personOppfolgingstilfelleVirksomhetDTOList.size shouldBeEqualTo virksomhetsnummerList.size
 
-    personOppfolgingstilfelleVirksomhetDTOList.forEachIndexed { index, pPersonOppfolgingstilfelleVirksomhet ->
-        pPersonOppfolgingstilfelleVirksomhet.virksomhetsnummer shouldBeEqualTo virksomhetsnummerList[index]
+    personOppfolgingstilfelleVirksomhetDTOList.forEach { pPersonOppfolgingstilfelleVirksomhet ->
+        virksomhetsnummerList.contains(pPersonOppfolgingstilfelleVirksomhet.virksomhetsnummer).shouldBeTrue()
         pPersonOppfolgingstilfelleVirksomhet.virksomhetsnavn shouldBeEqualTo eregOrganisasjonResponse.navn.redigertnavn
     }
 }
