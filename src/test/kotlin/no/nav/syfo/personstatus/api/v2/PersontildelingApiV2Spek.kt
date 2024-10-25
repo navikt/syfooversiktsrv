@@ -179,6 +179,33 @@ object PersontildelingApiV2Spek : Spek({
                             historikkDTO.fraDato shouldBeEqualTo LocalDate.now()
                         }
                     }
+                    it("returns OK when request for person som finnes i oversikten uten enhet is successful") {
+                        personoversiktStatusService.upsertAktivitetskravvurderingStatus(
+                            personident = PersonIdent(ARBEIDSTAKER_FNR),
+                            isAktivVurdering = true,
+                        )
+                        with(
+                            handleRequest(HttpMethod.Post, url) {
+                                addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                                addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                                setBody(objectMapper.writeValueAsString(veilederBrukerKnytning))
+                            }
+                        ) {
+                            response.status() shouldBeEqualTo HttpStatusCode.OK
+
+                            val person =
+                                database.getPersonOversiktStatusList(fnr = veilederBrukerKnytning.fnr).first()
+                            person.veilederIdent shouldBeEqualTo veilederBrukerKnytning.veilederIdent
+
+                            val historikk = database.getVeilederHistorikk(ARBEIDSTAKER_FNR)
+                            historikk.size shouldBeEqualTo 1
+                            val historikkDTO = historikk.first()
+                            historikkDTO.tildeltVeileder shouldBeEqualTo veilederBrukerKnytning.veilederIdent
+                            historikkDTO.tildeltEnhet shouldBeEqualTo NAV_ENHET
+                            historikkDTO.tildeltAv shouldBeEqualTo VEILEDER_ID
+                            historikkDTO.fraDato shouldBeEqualTo LocalDate.now()
+                        }
+                    }
                     it("returns OK when already assigned to veileder") {
                         runBlocking {
                             personTildelingService.lagreKnytningMellomVeilederOgBruker(

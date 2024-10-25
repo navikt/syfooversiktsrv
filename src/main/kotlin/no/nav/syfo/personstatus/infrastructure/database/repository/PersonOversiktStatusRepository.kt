@@ -302,7 +302,7 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
         const val CREATE_VEILEDER_HISTORIKK =
             """
             INSERT INTO VEILEDER_HISTORIKK (
-                id,uuid,person_oversikt_status_id,fra_dato,tildelt_veileder,tildelt_enhet,tildelt_av
+                id,uuid,person_oversikt_status_id,tildelt_dato,tildelt_veileder,tildelt_enhet,tildelt_av
             ) VALUES(DEFAULT,?,?,?,?,?,?)
             """
     }

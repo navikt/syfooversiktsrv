@@ -154,7 +154,7 @@ fun DatabaseInterface.setSistEndret(fnr: String, sistEndret: Timestamp) {
 
 const val queryGetVeilederHistorikk =
     """
-        SELECT fra_dato,tildelt_veileder,tildelt_enhet,tildelt_av 
+        SELECT tildelt_dato,tildelt_veileder,tildelt_enhet,tildelt_av 
         FROM VEILEDER_HISTORIKK
         WHERE person_oversikt_status_id IN (select id from person_oversikt_status where fnr=?)
     """
