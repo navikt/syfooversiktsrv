@@ -145,15 +145,12 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
         return personoversiktStatus.firstOrNull()?.toPersonOversiktStatus()
     }
 
-    override fun getOrCreatePersonOversiktStatusIfMissing(personident: PersonIdent): PersonOversiktStatus {
+    override fun createPersonOversiktStatus(personOversiktStatus: PersonOversiktStatus) {
         return database.connection.use { connection ->
-            connection.getPersonOversiktStatus(personident)
-                ?: PersonOversiktStatus(fnr = personident.value).also {
-                    connection.createPersonOversiktStatus(
-                        commit = true,
-                        personOversiktStatus = it,
-                    )
-                }
+            connection.createPersonOversiktStatus(
+                commit = true,
+                personOversiktStatus = personOversiktStatus,
+            )
         }
     }
 
@@ -166,7 +163,7 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
             if (existingVeilederAndEnhet == null) {
                 throw SQLException("lagreVeilederForBruker failed, no existing personoversiktStatus found.")
             } else if (existingVeilederAndEnhet.veileder != veilederBrukerKnytning.veilederIdent) {
-                connection.updateVeileder(existingVeilederAndEnhet, veilederBrukerKnytning)
+                connection.updateTildeltVeileder(existingVeilederAndEnhet, veilederBrukerKnytning)
                 connection.addVeilederHistorikk(existingVeilederAndEnhet, veilederBrukerKnytning, tildeltAv)
                 connection.commit()
             }
@@ -185,7 +182,7 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
             }
         }.firstOrNull()
 
-    private fun Connection.updateVeileder(
+    private fun Connection.updateTildeltVeileder(
         existingVeilederAndEnhet: VeilederAndEnhet,
         veilederBrukerKnytning: VeilederBrukerKnytning,
     ) {
@@ -196,7 +193,7 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
             it.executeUpdate()
         }
         if (rowCount != 1) {
-            throw SQLException("lagreVeilederForBruker failed, expected single row to be updated.")
+            throw SQLException("updateTildeltVeileder failed, expected single row to be updated.")
         }
     }
 

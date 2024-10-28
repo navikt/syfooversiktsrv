@@ -2,6 +2,7 @@ package no.nav.syfo.personstatus
 
 import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
 import no.nav.syfo.personstatus.domain.PersonIdent
+import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
 import no.nav.syfo.personstatus.infrastructure.cronjob.behandlendeenhet.PersonBehandlendeEnhetService
 
@@ -15,9 +16,11 @@ class PersonTildelingService(
     ) {
         veilederBrukerKnytninger.forEach {
             val personident = PersonIdent(it.fnr)
-            val personoversiktStatus = personoversiktStatusRepository.getOrCreatePersonOversiktStatusIfMissing(
-                personident = personident,
-            )
+            val personoversiktStatus = personoversiktStatusRepository.getPersonOversiktStatus(personident)
+                ?: PersonOversiktStatus(fnr = it.fnr).also { personOversiktStatus ->
+                    personoversiktStatusRepository.createPersonOversiktStatus(personOversiktStatus)
+                }
+
             if (personoversiktStatus.enhet == null) {
                 personBehandlendeEnhetService.updateBehandlendeEnhet(personident)
             }
