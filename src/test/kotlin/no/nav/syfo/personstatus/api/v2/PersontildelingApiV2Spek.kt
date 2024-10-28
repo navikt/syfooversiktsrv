@@ -153,7 +153,7 @@ object PersontildelingApiV2Spek : Spek({
                             historikkDTO.tildeltVeileder shouldBeEqualTo veilederBrukerKnytning.veilederIdent
                             historikkDTO.tildeltEnhet shouldBeEqualTo NAV_ENHET
                             historikkDTO.tildeltAv shouldBeEqualTo VEILEDER_ID
-                            historikkDTO.fraDato shouldBeEqualTo LocalDate.now()
+                            historikkDTO.tildeltDato shouldBeEqualTo LocalDate.now()
                         }
                     }
                     it("returns OK when request for person som ikke finnes i oversikten is successful") {
@@ -176,7 +176,7 @@ object PersontildelingApiV2Spek : Spek({
                             historikkDTO.tildeltVeileder shouldBeEqualTo veilederBrukerKnytning.veilederIdent
                             historikkDTO.tildeltEnhet shouldBeEqualTo NAV_ENHET
                             historikkDTO.tildeltAv shouldBeEqualTo VEILEDER_ID
-                            historikkDTO.fraDato shouldBeEqualTo LocalDate.now()
+                            historikkDTO.tildeltDato shouldBeEqualTo LocalDate.now()
                         }
                     }
                     it("returns OK when request for person som finnes i oversikten uten enhet is successful") {
@@ -203,7 +203,7 @@ object PersontildelingApiV2Spek : Spek({
                             historikkDTO.tildeltVeileder shouldBeEqualTo veilederBrukerKnytning.veilederIdent
                             historikkDTO.tildeltEnhet shouldBeEqualTo NAV_ENHET
                             historikkDTO.tildeltAv shouldBeEqualTo VEILEDER_ID
-                            historikkDTO.fraDato shouldBeEqualTo LocalDate.now()
+                            historikkDTO.tildeltDato shouldBeEqualTo LocalDate.now()
                         }
                     }
                     it("returns OK when already assigned to veileder") {

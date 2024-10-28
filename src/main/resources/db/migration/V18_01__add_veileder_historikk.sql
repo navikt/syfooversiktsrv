@@ -1,5 +1,6 @@
 CREATE TABLE VEILEDER_HISTORIKK (
   id                        SERIAL             PRIMARY KEY,
+  created_at                TIMESTAMPTZ        NOT NULL,
   uuid                      CHAR(36)           NOT NULL UNIQUE,
   person_oversikt_status_id INTEGER REFERENCES PERSON_OVERSIKT_STATUS (id) ON DELETE CASCADE,
   tildelt_dato              DATE,

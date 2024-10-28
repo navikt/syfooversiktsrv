@@ -165,7 +165,7 @@ fun DatabaseInterface.getVeilederHistorikk(fnr: String) =
             it.setString(1, fnr)
             it.executeQuery().toList {
                 VeilederHistorikkDTO(
-                    fraDato = getDate(1).toLocalDate(),
+                    tildeltDato = getDate(1).toLocalDate(),
                     tildeltVeileder = getString(2),
                     tildeltEnhet = getString(3),
                     tildeltAv = getString(4),
@@ -175,7 +175,7 @@ fun DatabaseInterface.getVeilederHistorikk(fnr: String) =
     }
 
 data class VeilederHistorikkDTO(
-    val fraDato: LocalDate,
+    val tildeltDato: LocalDate,
     val tildeltVeileder: String,
     val tildeltEnhet: String,
     val tildeltAv: String,

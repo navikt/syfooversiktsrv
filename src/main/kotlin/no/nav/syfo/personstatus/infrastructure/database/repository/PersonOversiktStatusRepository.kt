@@ -207,11 +207,12 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
     ) {
         this.prepareStatement(CREATE_VEILEDER_HISTORIKK).use {
             it.setString(1, UUID.randomUUID().toString())
-            it.setInt(2, existingVeilederAndEnhet.id)
-            it.setDate(3, Date.valueOf(LocalDate.now()))
-            it.setString(4, veilederBrukerKnytning.veilederIdent)
-            it.setString(5, existingVeilederAndEnhet.enhet)
-            it.setString(6, tildeltAv)
+            it.setObject(2, OffsetDateTime.now())
+            it.setInt(3, existingVeilederAndEnhet.id)
+            it.setDate(4, Date.valueOf(LocalDate.now()))
+            it.setString(5, veilederBrukerKnytning.veilederIdent)
+            it.setString(6, existingVeilederAndEnhet.enhet)
+            it.setString(7, tildeltAv)
             it.execute()
         }
     }
@@ -304,16 +305,16 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
         const val CREATE_VEILEDER_HISTORIKK =
             """
             INSERT INTO VEILEDER_HISTORIKK (
-                id,uuid,person_oversikt_status_id,tildelt_dato,tildelt_veileder,tildelt_enhet,tildelt_av
-            ) VALUES(DEFAULT,?,?,?,?,?,?)
+                id,uuid,created_at,person_oversikt_status_id,tildelt_dato,tildelt_veileder,tildelt_enhet,tildelt_av
+            ) VALUES(DEFAULT,?,?,?,?,?,?,?)
             """
     }
 }
 
 private data class VeilederAndEnhet(
     val id: Int,
-    val veileder: String,
-    val enhet: String,
+    val veileder: String?,
+    val enhet: String?,
 )
 
 private fun ResultSet.toPPersonOversiktStatus(): PPersonOversiktStatus =
