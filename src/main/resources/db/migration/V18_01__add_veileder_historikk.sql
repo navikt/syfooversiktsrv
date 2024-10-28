@@ -11,7 +11,7 @@ CREATE TABLE VEILEDER_HISTORIKK (
 
 CREATE INDEX IX_VEILEDER_HISTORIKK_STATUS_ID ON VEILEDER_HISTORIKK (person_oversikt_status_id);
 
-INSERT INTO VEILEDER_HISTORIKK (uuid,person_oversikt_status_id,tildelt_dato,tildelt_veileder,tildelt_enhet)
+INSERT INTO VEILEDER_HISTORIKK (uuid,created_at,person_oversikt_status_id,tildelt_dato,tildelt_veileder,tildelt_enhet)
 SELECT gen_random_uuid(),now(),id,oppfolgingstilfelle_start,tildelt_veileder,tildelt_enhet
 FROM PERSON_OVERSIKT_STATUS
 WHERE tildelt_veileder IS NOT NULL AND tildelt_enhet IS NOT NULL;
