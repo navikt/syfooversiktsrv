@@ -166,7 +166,7 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
             if (existingVeilederAndEnhet == null) {
                 throw SQLException("lagreVeilederForBruker failed, no existing personoversiktStatus found.")
             } else if (existingVeilederAndEnhet.veileder != veilederBrukerKnytning.veilederIdent) {
-                connection.updateVeileder(veilederBrukerKnytning, existingVeilederAndEnhet)
+                connection.updateVeileder(existingVeilederAndEnhet, veilederBrukerKnytning)
                 connection.addVeilederHistorikk(existingVeilederAndEnhet, veilederBrukerKnytning, tildeltAv)
                 connection.commit()
             }
@@ -186,8 +186,8 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
         }.firstOrNull()
 
     private fun Connection.updateVeileder(
-        veilederBrukerKnytning: VeilederBrukerKnytning,
         existingVeilederAndEnhet: VeilederAndEnhet,
+        veilederBrukerKnytning: VeilederBrukerKnytning,
     ) {
         val rowCount = this.prepareStatement(UPDATE_TILDELT_VEILEDER_QUERY).use {
             it.setString(1, veilederBrukerKnytning.veilederIdent)
@@ -302,7 +302,7 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
             WHERE id = ?
             """
 
-        const val CREATE_VEILEDER_HISTORIKK =
+        private const val CREATE_VEILEDER_HISTORIKK =
             """
             INSERT INTO VEILEDER_HISTORIKK (
                 id,uuid,created_at,person_oversikt_status_id,tildelt_dato,tildelt_veileder,tildelt_enhet,tildelt_av
