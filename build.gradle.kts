@@ -5,7 +5,7 @@ version = "1.0-SNAPSHOT"
 
 val confluent = "7.7.1"
 val flyway = "10.17.3"
-val hikari = "5.1.0"
+val hikari = "6.0.0"
 val isdialogmoteSchema = "1.0.5"
 val jacksonDataType = "2.18.0"
 val jedis = "5.2.0"
