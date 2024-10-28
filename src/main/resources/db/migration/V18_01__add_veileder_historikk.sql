@@ -6,7 +6,7 @@ CREATE TABLE VEILEDER_HISTORIKK (
   tildelt_dato              DATE,
   tildelt_veileder          VARCHAR(7)         NOT NULL,
   tildelt_enhet             VARCHAR(4)         NOT NULL,
-  tildelt_av                VARCHAR(7)         NOT NULL,
+  tildelt_av                VARCHAR(7)         NOT NULL
 );
 
 CREATE INDEX IX_VEILEDER_HISTORIKK_STATUS_ID ON VEILEDER_HISTORIKK (person_oversikt_status_id);
