@@ -13,11 +13,12 @@ class PersonTildelingService(
         veilederBrukerKnytninger: List<VeilederBrukerKnytning>,
         tildeltAv: String,
     ) {
-        veilederBrukerKnytninger.map {
+        veilederBrukerKnytninger.forEach {
             val personident = PersonIdent(it.fnr)
-            personoversiktStatusRepository.createPersonOversiktStatusIfMissing(personident)
-            val personoversiktStatus = personoversiktStatusRepository.getPersonOversiktStatus(personident)
-            if (personoversiktStatus!!.enhet == null) {
+            val personoversiktStatus = personoversiktStatusRepository.getOrCreatePersonOversiktStatusIfMissing(
+                personident = personident,
+            )
+            if (personoversiktStatus.enhet == null) {
                 personBehandlendeEnhetService.updateBehandlendeEnhet(personident)
             }
             personoversiktStatusRepository.lagreVeilederForBruker(

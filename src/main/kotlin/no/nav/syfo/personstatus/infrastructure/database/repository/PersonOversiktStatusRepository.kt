@@ -145,12 +145,15 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
         return personoversiktStatus.firstOrNull()?.toPersonOversiktStatus()
     }
 
-    override fun createPersonOversiktStatusIfMissing(personident: PersonIdent) {
-        database.connection.use { connection ->
-            val missing = (connection.getPersonOversiktStatus(personident) == null)
-            if (missing) {
-                connection.createPersonOversiktStatus(true, PersonOversiktStatus(fnr = personident.value))
-            }
+    override fun getOrCreatePersonOversiktStatusIfMissing(personident: PersonIdent): PersonOversiktStatus {
+        return database.connection.use { connection ->
+            connection.getPersonOversiktStatus(personident)
+                ?: PersonOversiktStatus(fnr = personident.value).also {
+                    connection.createPersonOversiktStatus(
+                        commit = true,
+                        personOversiktStatus = it,
+                    )
+                }
         }
     }
 
@@ -162,7 +165,7 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
             val existingVeilederAndEnhet = connection.getExistingVeilederAndEnhet(veilederBrukerKnytning)
             if (existingVeilederAndEnhet == null) {
                 throw SQLException("lagreVeilederForBruker failed, no existing personoversiktStatus found.")
-            } else if (existingVeilederAndEnhet.second != veilederBrukerKnytning.veilederIdent) {
+            } else if (existingVeilederAndEnhet.veileder != veilederBrukerKnytning.veilederIdent) {
                 connection.updateVeileder(veilederBrukerKnytning, existingVeilederAndEnhet)
                 connection.addVeilederHistorikk(existingVeilederAndEnhet, veilederBrukerKnytning, tildeltAv)
                 connection.commit()
@@ -174,7 +177,7 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
         this.prepareStatement(GET_TILDELT_VEILEDER_QUERY).use {
             it.setString(1, veilederBrukerKnytning.fnr)
             it.executeQuery().toList {
-                Triple(
+                VeilederAndEnhet(
                     getInt("id"),
                     getString("tildelt_veileder"),
                     getString("tildelt_enhet")
@@ -184,12 +187,12 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
 
     private fun Connection.updateVeileder(
         veilederBrukerKnytning: VeilederBrukerKnytning,
-        existingVeilederAndEnhet: Triple<Int, String, String>
+        existingVeilederAndEnhet: VeilederAndEnhet,
     ) {
         val rowCount = this.prepareStatement(UPDATE_TILDELT_VEILEDER_QUERY).use {
             it.setString(1, veilederBrukerKnytning.veilederIdent)
             it.setObject(2, Timestamp.from(Instant.now()))
-            it.setInt(3, existingVeilederAndEnhet.first)
+            it.setInt(3, existingVeilederAndEnhet.id)
             it.executeUpdate()
         }
         if (rowCount != 1) {
@@ -198,16 +201,16 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
     }
 
     private fun Connection.addVeilederHistorikk(
-        existingVeilederAndEnhet: Triple<Int, String, String>,
+        existingVeilederAndEnhet: VeilederAndEnhet,
         veilederBrukerKnytning: VeilederBrukerKnytning,
         tildeltAv: String
     ) {
         this.prepareStatement(CREATE_VEILEDER_HISTORIKK).use {
             it.setString(1, UUID.randomUUID().toString())
-            it.setInt(2, existingVeilederAndEnhet.first)
+            it.setInt(2, existingVeilederAndEnhet.id)
             it.setDate(3, Date.valueOf(LocalDate.now()))
             it.setString(4, veilederBrukerKnytning.veilederIdent)
-            it.setString(5, existingVeilederAndEnhet.third)
+            it.setString(5, existingVeilederAndEnhet.enhet)
             it.setString(6, tildeltAv)
             it.execute()
         }
@@ -306,6 +309,12 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
             """
     }
 }
+
+private data class VeilederAndEnhet(
+    val id: Int,
+    val veileder: String,
+    val enhet: String,
+)
 
 private fun ResultSet.toPPersonOversiktStatus(): PPersonOversiktStatus =
     PPersonOversiktStatus(

@@ -16,7 +16,7 @@ interface IPersonOversiktStatusRepository {
 
     fun getPersonOversiktStatus(personident: PersonIdent): PersonOversiktStatus?
 
-    fun createPersonOversiktStatusIfMissing(personident: PersonIdent)
+    fun getOrCreatePersonOversiktStatusIfMissing(personident: PersonIdent): PersonOversiktStatus
 
     fun lagreVeilederForBruker(
         veilederBrukerKnytning: VeilederBrukerKnytning,
