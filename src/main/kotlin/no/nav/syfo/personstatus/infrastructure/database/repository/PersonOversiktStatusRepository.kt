@@ -145,13 +145,12 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
         return personoversiktStatus.firstOrNull()?.toPersonOversiktStatus()
     }
 
-    override fun createPersonOversiktStatusIfMissing(personident: PersonIdent): Boolean {
+    override fun createPersonOversiktStatusIfMissing(personident: PersonIdent) {
         database.connection.use { connection ->
             val missing = (connection.getPersonOversiktStatus(personident) == null)
             if (missing) {
                 connection.createPersonOversiktStatus(true, PersonOversiktStatus(fnr = personident.value))
             }
-            return missing
         }
     }
 
