@@ -30,4 +30,7 @@ class PersonTildelingService(
             )
         }
     }
+
+    fun getVeilederHistorikk(personident: PersonIdent) =
+        personoversiktStatusRepository.getVeilederHistorikk(personident.value)
 }

@@ -147,7 +147,7 @@ object PersontildelingApiV2Spek : Spek({
                             val person = database.getPersonOversiktStatusList(fnr = veilederBrukerKnytning.fnr).first()
                             person.veilederIdent shouldBeEqualTo veilederBrukerKnytning.veilederIdent
 
-                            val historikk = database.getVeilederHistorikk(ARBEIDSTAKER_FNR)
+                            val historikk = personOversiktStatusRepository.getVeilederHistorikk(ARBEIDSTAKER_FNR)
                             historikk.size shouldBeEqualTo 1
                             val historikkDTO = historikk.first()
                             historikkDTO.tildeltVeileder shouldBeEqualTo veilederBrukerKnytning.veilederIdent
@@ -170,7 +170,7 @@ object PersontildelingApiV2Spek : Spek({
                                 database.getPersonOversiktStatusList(fnr = veilederBrukerKnytning.fnr).first()
                             person.veilederIdent shouldBeEqualTo veilederBrukerKnytning.veilederIdent
 
-                            val historikk = database.getVeilederHistorikk(ARBEIDSTAKER_FNR)
+                            val historikk = personOversiktStatusRepository.getVeilederHistorikk(ARBEIDSTAKER_FNR)
                             historikk.size shouldBeEqualTo 1
                             val historikkDTO = historikk.first()
                             historikkDTO.tildeltVeileder shouldBeEqualTo veilederBrukerKnytning.veilederIdent
@@ -197,7 +197,7 @@ object PersontildelingApiV2Spek : Spek({
                                 database.getPersonOversiktStatusList(fnr = veilederBrukerKnytning.fnr).first()
                             person.veilederIdent shouldBeEqualTo veilederBrukerKnytning.veilederIdent
 
-                            val historikk = database.getVeilederHistorikk(ARBEIDSTAKER_FNR)
+                            val historikk = personOversiktStatusRepository.getVeilederHistorikk(ARBEIDSTAKER_FNR)
                             historikk.size shouldBeEqualTo 1
                             val historikkDTO = historikk.first()
                             historikkDTO.tildeltVeileder shouldBeEqualTo veilederBrukerKnytning.veilederIdent
@@ -224,7 +224,7 @@ object PersontildelingApiV2Spek : Spek({
 
                             val person = database.getPersonOversiktStatusList(fnr = veilederBrukerKnytning.fnr).first()
                             person.veilederIdent shouldBeEqualTo veilederBrukerKnytning.veilederIdent
-                            val historikk = database.getVeilederHistorikk(ARBEIDSTAKER_FNR)
+                            val historikk = personOversiktStatusRepository.getVeilederHistorikk(ARBEIDSTAKER_FNR)
                             historikk.size shouldBeEqualTo 1
                         }
                     }
@@ -246,7 +246,7 @@ object PersontildelingApiV2Spek : Spek({
 
                             val person = database.getPersonOversiktStatusList(fnr = veilederBrukerKnytning.fnr).first()
                             person.veilederIdent shouldBeEqualTo veilederBrukerKnytning.veilederIdent
-                            val historikk = database.getVeilederHistorikk(ARBEIDSTAKER_FNR)
+                            val historikk = personOversiktStatusRepository.getVeilederHistorikk(ARBEIDSTAKER_FNR)
                             historikk.size shouldBeEqualTo 2
                         }
                     }
