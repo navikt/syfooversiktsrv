@@ -18,6 +18,7 @@ import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_ENHET_ERROR_PERSONIDENT
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_ENHET_NOT_FOUND_PERSONIDENT
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
+import no.nav.syfo.testutil.UserConstants.NAV_ENHET
 import no.nav.syfo.testutil.UserConstants.NAV_ENHET_2
 import no.nav.syfo.testutil.assertion.checkPPersonOppfolgingstilfelleVirksomhet
 import no.nav.syfo.testutil.generator.*
@@ -176,8 +177,9 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                             veilederIdent = UserConstants.VEILEDER_ID,
                             fnr = oversikthendelse.personident,
                         )
-                        database.lagreVeilederForBruker(
+                        personOversiktStatusRepository.lagreVeilederForBruker(
                             veilederBrukerKnytning = veilederBrukerKnytning,
+                            tildeltAv = UserConstants.VEILEDER_ID,
                         )
 
                         kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
@@ -337,20 +339,23 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                         OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT,
                     )
                     val personoversiktStatus = PersonOversiktStatus(
-                        fnr = oversikthendelse.personident
+                        fnr = oversikthendelse.personident,
                     ).applyHendelse(oversikthendelse.hendelsetype)
 
                     database.createPersonOversiktStatus(personoversiktStatus)
 
                     var tildeltEnhetUpdatedAtBeforeUpdate: OffsetDateTime?
 
+                    database.setTildeltEnhet(PersonIdent(oversikthendelse.personident), NAV_ENHET)
                     val veilederBrukerKnytning = VeilederBrukerKnytning(
                         veilederIdent = UserConstants.VEILEDER_ID,
                         fnr = oversikthendelse.personident,
                     )
-                    database.lagreVeilederForBruker(
+                    personOversiktStatusRepository.lagreVeilederForBruker(
                         veilederBrukerKnytning = veilederBrukerKnytning,
+                        tildeltAv = UserConstants.VEILEDER_ID,
                     )
+                    database.setTildeltEnhet(PersonIdent(oversikthendelse.personident), null)
 
                     kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
                         kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,

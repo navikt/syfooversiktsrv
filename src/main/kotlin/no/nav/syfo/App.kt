@@ -121,6 +121,8 @@ fun main() {
                     arbeidsuforhetvurderingClient = arbeidsuforhetvurderingClient,
                     merOppfolgingClient = merOppfolgingClient,
                 ),
+                personBehandlendeEnhetService = personBehandlendeEnhetService,
+                personoversiktStatusRepository = personoversiktStatusRepository,
             )
         }
     }
