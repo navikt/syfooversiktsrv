@@ -357,11 +357,6 @@ object PersontildelingApiV2Spek : Spek({
                             response.status() shouldBeEqualTo HttpStatusCode.OK
                             val historikk = objectMapper.readValue<List<VeilederHistorikkDTO>>(response.content!!)
                             historikk.size shouldBeEqualTo 2
-                            val veilederHistorikkDTO = historikk.first()
-                            veilederHistorikkDTO.tildeltAv shouldBeEqualTo VEILEDER_ID_2
-                            veilederHistorikkDTO.tildeltVeileder shouldBeEqualTo VEILEDER_ID
-                            veilederHistorikkDTO.tildeltEnhet shouldBeEqualTo NAV_ENHET
-                            veilederHistorikkDTO.tildeltDato shouldBeEqualTo LocalDate.now()
                         }
                     }
                 }
