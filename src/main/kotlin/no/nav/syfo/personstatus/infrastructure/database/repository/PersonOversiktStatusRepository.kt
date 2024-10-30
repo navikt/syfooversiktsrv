@@ -1,6 +1,5 @@
 package no.nav.syfo.personstatus.infrastructure.database.repository
 
-import io.netty.handler.codec.http.HttpHeaders.getDate
 import no.nav.syfo.personstatus.api.v2.model.VeilederHistorikkDTO
 import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
 import no.nav.syfo.personstatus.db.*
