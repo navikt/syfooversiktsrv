@@ -130,7 +130,7 @@ fun Route.registerPersonTildelingApiV2(
                 call.respond(HttpStatusCode.BadRequest, e.message ?: "Kan ikke hente veileder/bruker knytning")
             }
         }
-        get("/personer/single-historikk") {
+        get("/personer/veilederhistorikk") {
             try {
                 val token = getBearerHeader()
                     ?: throw java.lang.IllegalArgumentException("No Authorization header supplied")
@@ -148,8 +148,8 @@ fun Route.registerPersonTildelingApiV2(
                     call.respond(HttpStatusCode.Forbidden)
                 }
             } catch (e: IllegalArgumentException) {
-                log.warn("Kan ikke hente veileder/bruker knytninghistorikk: {}, {}", e.message, callIdArgument(getCallId()))
-                call.respond(HttpStatusCode.BadRequest, e.message ?: "Kan ikke hente veileder/bruker knytninghistorikk")
+                log.warn("Kan ikke hente veilederhistorikk: {}, {}", e.message, callIdArgument(getCallId()))
+                call.respond(HttpStatusCode.BadRequest, e.message ?: "Kan ikke hente veilederhistorikk")
             }
         }
     }
