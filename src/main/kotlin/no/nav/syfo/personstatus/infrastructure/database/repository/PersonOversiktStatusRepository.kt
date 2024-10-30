@@ -216,10 +216,10 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
         }
     }
 
-    override fun getVeilederHistorikk(fnr: String): List<VeilederHistorikkDTO> =
+    override fun getVeilederHistorikk(personident: PersonIdent): List<VeilederHistorikkDTO> =
         database.connection.use { connection ->
             connection.prepareStatement(GET_VEILEDER_HISTORIKK).use {
-                it.setString(1, fnr)
+                it.setString(1, personident.value)
                 it.executeQuery().toList {
                     VeilederHistorikkDTO(
                         tildeltDato = getDate(1).toLocalDate(),

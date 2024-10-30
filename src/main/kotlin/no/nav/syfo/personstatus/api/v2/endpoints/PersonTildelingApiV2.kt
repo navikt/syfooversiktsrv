@@ -130,7 +130,7 @@ fun Route.registerPersonTildelingApiV2(
                 call.respond(HttpStatusCode.BadRequest, e.message ?: "Kan ikke hente veileder/bruker knytning")
             }
         }
-        get("/personer/veilederhistorikk") {
+        get("/historikk") {
             try {
                 val token = getBearerHeader()
                     ?: throw java.lang.IllegalArgumentException("No Authorization header supplied")
