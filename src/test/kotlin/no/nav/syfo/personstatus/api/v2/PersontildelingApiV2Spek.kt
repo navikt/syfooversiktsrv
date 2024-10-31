@@ -8,7 +8,7 @@ import io.ktor.util.*
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.personstatus.api.v2.endpoints.personTildelingApiV2Path
 import no.nav.syfo.personstatus.api.v2.model.VeilederBrukerKnytningDTO
-import no.nav.syfo.personstatus.api.v2.model.VeilederHistorikkDTO
+import no.nav.syfo.personstatus.api.v2.model.VeilederTildelingHistorikkDTO
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
 import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.PersonIdent
@@ -327,7 +327,7 @@ object PersontildelingApiV2Spek : Spek({
                             }
                         ) {
                             response.status() shouldBeEqualTo HttpStatusCode.OK
-                            val historikk = objectMapper.readValue<List<VeilederHistorikkDTO>>(response.content!!)
+                            val historikk = objectMapper.readValue<List<VeilederTildelingHistorikkDTO>>(response.content!!)
                             historikk.size shouldBeEqualTo 1
                             val veilederHistorikkDTO = historikk.first()
                             veilederHistorikkDTO.tildeltAv shouldBeEqualTo VEILEDER_ID_2
@@ -355,7 +355,7 @@ object PersontildelingApiV2Spek : Spek({
                             }
                         ) {
                             response.status() shouldBeEqualTo HttpStatusCode.OK
-                            val historikk = objectMapper.readValue<List<VeilederHistorikkDTO>>(response.content!!)
+                            val historikk = objectMapper.readValue<List<VeilederTildelingHistorikkDTO>>(response.content!!)
                             historikk.size shouldBeEqualTo 2
                         }
                     }

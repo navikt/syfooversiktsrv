@@ -1,6 +1,6 @@
 package no.nav.syfo.personstatus.infrastructure.database.repository
 
-import no.nav.syfo.personstatus.api.v2.model.VeilederHistorikkDTO
+import no.nav.syfo.personstatus.api.v2.model.VeilederTildelingHistorikkDTO
 import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
 import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.*
@@ -215,12 +215,12 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
         }
     }
 
-    override fun getVeilederHistorikk(personident: PersonIdent): List<VeilederHistorikkDTO> =
+    override fun getVeilederHistorikk(personident: PersonIdent): List<VeilederTildelingHistorikkDTO> =
         database.connection.use { connection ->
             connection.prepareStatement(GET_VEILEDER_HISTORIKK).use {
                 it.setString(1, personident.value)
                 it.executeQuery().toList {
-                    VeilederHistorikkDTO(
+                    VeilederTildelingHistorikkDTO(
                         tildeltDato = getDate(1).toLocalDate(),
                         tildeltVeileder = getString(2),
                         tildeltEnhet = getString(3),
