@@ -143,7 +143,7 @@ fun Route.registerPersonTildelingApiV2(
                     callId = getCallId()
                 )
                 if (tilgang?.erGodkjent == true) {
-                    call.respond(personTildelingService.getVeilederHistorikk(personident))
+                    call.respond(personTildelingService.getVeilederTilknytningHistorikk(personident))
                 } else {
                     call.respond(HttpStatusCode.Forbidden)
                 }

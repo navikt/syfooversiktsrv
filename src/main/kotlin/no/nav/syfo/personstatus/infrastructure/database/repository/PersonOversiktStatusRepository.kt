@@ -215,7 +215,7 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
         }
     }
 
-    override fun getVeilederHistorikk(personident: PersonIdent): List<VeilederTildelingHistorikkDTO> =
+    override fun getVeilederTilknytningHistorikk(personident: PersonIdent): List<VeilederTildelingHistorikkDTO> =
         database.connection.use { connection ->
             connection.prepareStatement(GET_VEILEDER_HISTORIKK).use {
                 it.setString(1, personident.value)

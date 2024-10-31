@@ -24,5 +24,5 @@ interface IPersonOversiktStatusRepository {
         tildeltAv: String,
     )
 
-    fun getVeilederHistorikk(personident: PersonIdent): List<VeilederTildelingHistorikkDTO>
+    fun getVeilederTilknytningHistorikk(personident: PersonIdent): List<VeilederTildelingHistorikkDTO>
 }
