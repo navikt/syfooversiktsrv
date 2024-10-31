@@ -130,5 +130,27 @@ fun Route.registerPersonTildelingApiV2(
                 call.respond(HttpStatusCode.BadRequest, e.message ?: "Kan ikke hente veileder/bruker knytning")
             }
         }
+        get("/historikk") {
+            try {
+                val token = getBearerHeader()
+                    ?: throw java.lang.IllegalArgumentException("No Authorization header supplied")
+                val personident = call.getPersonIdent()
+                    ?: throw IllegalArgumentException("Failed to get veileder/bruker knytning: No $NAV_PERSONIDENT_HEADER supplied in request header")
+
+                val tilgang = veilederTilgangskontrollClient.getVeilederAccessToPerson(
+                    personident = personident,
+                    token = token,
+                    callId = getCallId()
+                )
+                if (tilgang?.erGodkjent == true) {
+                    call.respond(personTildelingService.getVeilederTilknytningHistorikk(personident))
+                } else {
+                    call.respond(HttpStatusCode.Forbidden)
+                }
+            } catch (e: IllegalArgumentException) {
+                log.warn("Kan ikke hente veilederhistorikk: {}, {}", e.message, callIdArgument(getCallId()))
+                call.respond(HttpStatusCode.BadRequest, e.message ?: "Kan ikke hente veilederhistorikk")
+            }
+        }
     }
 }

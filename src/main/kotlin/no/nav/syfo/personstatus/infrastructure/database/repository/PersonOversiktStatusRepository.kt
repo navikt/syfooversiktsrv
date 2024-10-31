@@ -1,5 +1,6 @@
 package no.nav.syfo.personstatus.infrastructure.database.repository
 
+import no.nav.syfo.personstatus.api.v2.model.VeilederTildelingHistorikkDTO
 import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
 import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.*
@@ -214,6 +215,21 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
         }
     }
 
+    override fun getVeilederTilknytningHistorikk(personident: PersonIdent): List<VeilederTildelingHistorikkDTO> =
+        database.connection.use { connection ->
+            connection.prepareStatement(GET_VEILEDER_HISTORIKK).use {
+                it.setString(1, personident.value)
+                it.executeQuery().toList {
+                    VeilederTildelingHistorikkDTO(
+                        tildeltDato = getDate(1).toLocalDate(),
+                        tildeltVeileder = getString(2),
+                        tildeltEnhet = getString(3),
+                        tildeltAv = getString(4),
+                    )
+                }
+            }
+        }
+
     companion object {
         private const val GET_PERSON_OVERSIKT_STATUS =
             """
@@ -304,6 +320,14 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
             INSERT INTO VEILEDER_HISTORIKK (
                 id,uuid,created_at,person_oversikt_status_id,tildelt_dato,tildelt_veileder,tildelt_enhet,tildelt_av
             ) VALUES(DEFAULT,?,?,?,?,?,?,?)
+            """
+
+        private const val GET_VEILEDER_HISTORIKK =
+            """
+            SELECT tildelt_dato,tildelt_veileder,tildelt_enhet,tildelt_av 
+            FROM VEILEDER_HISTORIKK
+            WHERE person_oversikt_status_id IN (select id from person_oversikt_status where fnr=?)
+            ORDER BY tildelt_dato DESC
             """
     }
 }

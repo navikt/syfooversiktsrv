@@ -1,5 +1,6 @@
 package no.nav.syfo.personstatus.application
 
+import no.nav.syfo.personstatus.api.v2.model.VeilederTildelingHistorikkDTO
 import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
@@ -22,4 +23,6 @@ interface IPersonOversiktStatusRepository {
         veilederBrukerKnytning: VeilederBrukerKnytning,
         tildeltAv: String,
     )
+
+    fun getVeilederTilknytningHistorikk(personident: PersonIdent): List<VeilederTildelingHistorikkDTO>
 }

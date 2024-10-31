@@ -30,4 +30,7 @@ class PersonTildelingService(
             )
         }
     }
+
+    fun getVeilederTilknytningHistorikk(personident: PersonIdent) =
+        personoversiktStatusRepository.getVeilederTilknytningHistorikk(personident)
 }

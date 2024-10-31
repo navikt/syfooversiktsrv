@@ -8,6 +8,7 @@ import io.ktor.util.*
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.personstatus.api.v2.endpoints.personTildelingApiV2Path
 import no.nav.syfo.personstatus.api.v2.model.VeilederBrukerKnytningDTO
+import no.nav.syfo.personstatus.api.v2.model.VeilederTildelingHistorikkDTO
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
 import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.PersonIdent
@@ -147,7 +148,7 @@ object PersontildelingApiV2Spek : Spek({
                             val person = database.getPersonOversiktStatusList(fnr = veilederBrukerKnytning.fnr).first()
                             person.veilederIdent shouldBeEqualTo veilederBrukerKnytning.veilederIdent
 
-                            val historikk = database.getVeilederHistorikk(ARBEIDSTAKER_FNR)
+                            val historikk = personOversiktStatusRepository.getVeilederTilknytningHistorikk(PersonIdent(ARBEIDSTAKER_FNR))
                             historikk.size shouldBeEqualTo 1
                             val historikkDTO = historikk.first()
                             historikkDTO.tildeltVeileder shouldBeEqualTo veilederBrukerKnytning.veilederIdent
@@ -170,7 +171,7 @@ object PersontildelingApiV2Spek : Spek({
                                 database.getPersonOversiktStatusList(fnr = veilederBrukerKnytning.fnr).first()
                             person.veilederIdent shouldBeEqualTo veilederBrukerKnytning.veilederIdent
 
-                            val historikk = database.getVeilederHistorikk(ARBEIDSTAKER_FNR)
+                            val historikk = personOversiktStatusRepository.getVeilederTilknytningHistorikk(PersonIdent(ARBEIDSTAKER_FNR))
                             historikk.size shouldBeEqualTo 1
                             val historikkDTO = historikk.first()
                             historikkDTO.tildeltVeileder shouldBeEqualTo veilederBrukerKnytning.veilederIdent
@@ -197,7 +198,7 @@ object PersontildelingApiV2Spek : Spek({
                                 database.getPersonOversiktStatusList(fnr = veilederBrukerKnytning.fnr).first()
                             person.veilederIdent shouldBeEqualTo veilederBrukerKnytning.veilederIdent
 
-                            val historikk = database.getVeilederHistorikk(ARBEIDSTAKER_FNR)
+                            val historikk = personOversiktStatusRepository.getVeilederTilknytningHistorikk(PersonIdent(ARBEIDSTAKER_FNR))
                             historikk.size shouldBeEqualTo 1
                             val historikkDTO = historikk.first()
                             historikkDTO.tildeltVeileder shouldBeEqualTo veilederBrukerKnytning.veilederIdent
@@ -224,7 +225,7 @@ object PersontildelingApiV2Spek : Spek({
 
                             val person = database.getPersonOversiktStatusList(fnr = veilederBrukerKnytning.fnr).first()
                             person.veilederIdent shouldBeEqualTo veilederBrukerKnytning.veilederIdent
-                            val historikk = database.getVeilederHistorikk(ARBEIDSTAKER_FNR)
+                            val historikk = personOversiktStatusRepository.getVeilederTilknytningHistorikk(PersonIdent(ARBEIDSTAKER_FNR))
                             historikk.size shouldBeEqualTo 1
                         }
                     }
@@ -246,7 +247,7 @@ object PersontildelingApiV2Spek : Spek({
 
                             val person = database.getPersonOversiktStatusList(fnr = veilederBrukerKnytning.fnr).first()
                             person.veilederIdent shouldBeEqualTo veilederBrukerKnytning.veilederIdent
-                            val historikk = database.getVeilederHistorikk(ARBEIDSTAKER_FNR)
+                            val historikk = personOversiktStatusRepository.getVeilederTilknytningHistorikk(PersonIdent(ARBEIDSTAKER_FNR))
                             historikk.size shouldBeEqualTo 2
                         }
                     }
@@ -288,6 +289,74 @@ object PersontildelingApiV2Spek : Spek({
                             }
                         ) {
                             response.status() shouldBeEqualTo HttpStatusCode.Forbidden
+                        }
+                    }
+                }
+                describe("GET veilederhistorikk for person") {
+                    val url = "$personTildelingApiV2Path/historikk"
+
+                    it("returns OK when no tildeling") {
+                        personoversiktStatusService.upsertAktivitetskravvurderingStatus(
+                            personident = PersonIdent(ARBEIDSTAKER_FNR),
+                            isAktivVurdering = true,
+                        )
+                        with(
+                            handleRequest(HttpMethod.Get, url) {
+                                addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                                addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                                addHeader(NAV_PERSONIDENT_HEADER, ARBEIDSTAKER_FNR)
+                            }
+                        ) {
+                            response.status() shouldBeEqualTo HttpStatusCode.OK
+                            val historikk = objectMapper.readValue<List<VeilederBrukerKnytningDTO>>(response.content!!)
+                            historikk shouldBeEqualTo emptyList()
+                        }
+                    }
+                    it("returns OK when tildeling") {
+                        runBlocking {
+                            personTildelingService.lagreKnytningMellomVeilederOgBruker(
+                                listOf(VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR)),
+                                VEILEDER_ID_2
+                            )
+                        }
+                        with(
+                            handleRequest(HttpMethod.Get, url) {
+                                addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                                addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                                addHeader(NAV_PERSONIDENT_HEADER, ARBEIDSTAKER_FNR)
+                            }
+                        ) {
+                            response.status() shouldBeEqualTo HttpStatusCode.OK
+                            val historikk = objectMapper.readValue<List<VeilederTildelingHistorikkDTO>>(response.content!!)
+                            historikk.size shouldBeEqualTo 1
+                            val veilederHistorikkDTO = historikk.first()
+                            veilederHistorikkDTO.tildeltAv shouldBeEqualTo VEILEDER_ID_2
+                            veilederHistorikkDTO.tildeltVeileder shouldBeEqualTo VEILEDER_ID
+                            veilederHistorikkDTO.tildeltEnhet shouldBeEqualTo NAV_ENHET
+                            veilederHistorikkDTO.tildeltDato shouldBeEqualTo LocalDate.now()
+                        }
+                    }
+                    it("returns OK when with historikk") {
+                        runBlocking {
+                            personTildelingService.lagreKnytningMellomVeilederOgBruker(
+                                listOf(VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR)),
+                                VEILEDER_ID_2
+                            )
+                            personTildelingService.lagreKnytningMellomVeilederOgBruker(
+                                listOf(VeilederBrukerKnytning(VEILEDER_ID_2, ARBEIDSTAKER_FNR)),
+                                VEILEDER_ID
+                            )
+                        }
+                        with(
+                            handleRequest(HttpMethod.Get, url) {
+                                addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                                addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                                addHeader(NAV_PERSONIDENT_HEADER, ARBEIDSTAKER_FNR)
+                            }
+                        ) {
+                            response.status() shouldBeEqualTo HttpStatusCode.OK
+                            val historikk = objectMapper.readValue<List<VeilederTildelingHistorikkDTO>>(response.content!!)
+                            historikk.size shouldBeEqualTo 2
                         }
                     }
                 }
