@@ -3,6 +3,7 @@ package no.nav.syfo.personstatus.infrastructure.cronjob.virksomhetsnavn
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import no.nav.syfo.personstatus.infrastructure.database.toList
 import no.nav.syfo.personstatus.domain.Virksomhetsnummer
+import no.nav.syfo.personstatus.infrastructure.database.repository.PersonOversiktStatusRepository
 import java.sql.ResultSet
 
 const val queryUpdatePersonOppfolgingstilfelleVirksomhet =
@@ -31,21 +32,7 @@ const val queryPersonOppfolgingstilfelleVirksomhetNoVirksomhetsnavnList =
     SELECT PERSON_OPPFOLGINGSTILFELLE_VIRKSOMHET.id,virksomhetsnummer
     FROM PERSON_OPPFOLGINGSTILFELLE_VIRKSOMHET INNER JOIN PERSON_OVERSIKT_STATUS ON PERSON_OPPFOLGINGSTILFELLE_VIRKSOMHET.person_oversikt_status_id = PERSON_OVERSIKT_STATUS.id
     WHERE virksomhetsnavn IS NULL
-    AND (motebehov_ubehandlet = 't' 
-        OR oppfolgingsplan_lps_bistand_ubehandlet = 't' 
-        OR dialogmotekandidat = 't' 
-        OR dialogmotesvar_ubehandlet = 't' 
-        OR behandlerdialog_svar_ubehandlet = 't'
-        OR behandlerdialog_ubesvart_ubehandlet = 't'
-        OR behandlerdialog_avvist_ubehandlet = 't'
-        OR trenger_oppfolging = 't'
-        OR behandler_bistand_ubehandlet = 't'
-        OR friskmelding_til_arbeidsformidling_fom IS NOT NULL
-        OR arbeidsuforhet_aktiv_vurdering = 't'
-        OR is_aktiv_sen_oppfolging_kandidat = 't'
-        OR is_aktiv_aktivitetskrav_vurdering = 't'
-        OR is_aktiv_manglende_medvirkning_vurdering = 't'
-        )
+    AND ${PersonOversiktStatusRepository.AKTIV_OPPGAVE_WHERE_CLAUSE}
     ORDER BY PERSON_OPPFOLGINGSTILFELLE_VIRKSOMHET.created_at ASC
     LIMIT 1000
     """

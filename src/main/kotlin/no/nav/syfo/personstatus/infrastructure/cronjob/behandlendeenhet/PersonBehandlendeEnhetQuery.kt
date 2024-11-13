@@ -3,6 +3,7 @@ package no.nav.syfo.personstatus.infrastructure.cronjob.behandlendeenhet
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import no.nav.syfo.personstatus.infrastructure.database.toList
 import no.nav.syfo.personstatus.domain.PersonIdent
+import no.nav.syfo.personstatus.infrastructure.database.repository.PersonOversiktStatusRepository
 import no.nav.syfo.util.nowUTC
 import java.sql.ResultSet
 import java.sql.Types
@@ -58,21 +59,7 @@ const val queryGetPersonerWithOppgaveAndOldEnhet =
     """
     SELECT fnr, tildelt_enhet
     FROM PERSON_OVERSIKT_STATUS
-    WHERE (motebehov_ubehandlet = 't' 
-        OR oppfolgingsplan_lps_bistand_ubehandlet = 't' 
-        OR dialogmotekandidat = 't' 
-        OR dialogmotesvar_ubehandlet = 't'
-        OR behandlerdialog_svar_ubehandlet = 't'
-        OR behandlerdialog_ubesvart_ubehandlet = 't'
-        OR behandlerdialog_avvist_ubehandlet = 't'
-        OR trenger_oppfolging = 't'
-        OR behandler_bistand_ubehandlet = 't'
-        OR friskmelding_til_arbeidsformidling_fom IS NOT NULL
-        OR arbeidsuforhet_aktiv_vurdering = 't'
-        OR is_aktiv_sen_oppfolging_kandidat = 't'
-        OR is_aktiv_aktivitetskrav_vurdering = 't'
-        OR is_aktiv_manglende_medvirkning_vurdering = 't'
-        )
+    WHERE ${PersonOversiktStatusRepository.AKTIV_OPPGAVE_WHERE_CLAUSE}    
     AND (tildelt_enhet_updated_at IS NULL OR tildelt_enhet_updated_at <= NOW() - INTERVAL '24 HOURS')
     ORDER BY tildelt_enhet_updated_at ASC
     LIMIT 2000
