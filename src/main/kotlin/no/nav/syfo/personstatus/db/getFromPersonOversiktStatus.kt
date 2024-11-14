@@ -3,6 +3,7 @@ package no.nav.syfo.personstatus.db
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import no.nav.syfo.personstatus.infrastructure.database.toList
 import no.nav.syfo.personstatus.domain.*
+import no.nav.syfo.personstatus.infrastructure.database.repository.PersonOversiktStatusRepository
 import java.sql.Connection
 import java.sql.ResultSet
 import java.time.LocalDate
@@ -36,24 +37,7 @@ const val queryHentUbehandledePersonerTilknyttetEnhet = """
                         SELECT *
                         FROM PERSON_OVERSIKT_STATUS
                         WHERE ((tildelt_enhet = ?)
-                            AND (motebehov_ubehandlet = 't'
-                            OR oppfolgingsplan_lps_bistand_ubehandlet = 't'
-                            OR dialogmotesvar_ubehandlet = 't'
-                            OR (
-                                dialogmotekandidat = 't'
-                                AND dialogmotekandidat_generated_at + INTERVAL '7 DAY' < now()
-                                )
-                            OR behandlerdialog_svar_ubehandlet = 't'
-                            OR behandlerdialog_ubesvart_ubehandlet = 't'
-                            OR behandlerdialog_avvist_ubehandlet = 't'
-                            OR trenger_oppfolging = 't'
-                            OR behandler_bistand_ubehandlet = 't'
-                            OR arbeidsuforhet_aktiv_vurdering = 't'
-                            OR friskmelding_til_arbeidsformidling_fom IS NOT NULL
-                            OR is_aktiv_sen_oppfolging_kandidat = 't'
-                            OR is_aktiv_aktivitetskrav_vurdering = 't'
-                            OR is_aktiv_manglende_medvirkning_vurdering = 't'
-                            )
+                        AND ${PersonOversiktStatusRepository.AKTIV_OPPGAVE_WHERE_CLAUSE}
                         );
                 """
 

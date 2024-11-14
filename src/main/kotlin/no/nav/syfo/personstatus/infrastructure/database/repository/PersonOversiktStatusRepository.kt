@@ -329,6 +329,26 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
             WHERE person_oversikt_status_id IN (select id from person_oversikt_status where fnr=?)
             ORDER BY tildelt_dato DESC
             """
+
+        const val AKTIV_OPPGAVE_WHERE_CLAUSE =
+            """
+        (
+        motebehov_ubehandlet = 't' 
+        OR oppfolgingsplan_lps_bistand_ubehandlet = 't' 
+        OR dialogmotekandidat = 't' 
+        OR dialogmotesvar_ubehandlet = 't'
+        OR behandlerdialog_svar_ubehandlet = 't'
+        OR behandlerdialog_ubesvart_ubehandlet = 't'
+        OR behandlerdialog_avvist_ubehandlet = 't'
+        OR trenger_oppfolging = 't'
+        OR behandler_bistand_ubehandlet = 't'
+        OR friskmelding_til_arbeidsformidling_fom IS NOT NULL
+        OR arbeidsuforhet_aktiv_vurdering = 't'
+        OR is_aktiv_sen_oppfolging_kandidat = 't'
+        OR is_aktiv_aktivitetskrav_vurdering = 't'
+        OR is_aktiv_manglende_medvirkning_vurdering = 't'
+        )
+        """
     }
 }
 
