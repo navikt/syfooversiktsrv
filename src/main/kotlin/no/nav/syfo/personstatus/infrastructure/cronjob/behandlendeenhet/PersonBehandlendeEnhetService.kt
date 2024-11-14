@@ -10,7 +10,7 @@ class PersonBehandlendeEnhetService(
     private val behandlendeEnhetClient: BehandlendeEnhetClient,
 ) {
     fun getPersonerToCheckForUpdatedEnhet(): List<Pair<PersonIdent, String?>> =
-        personoversiktStatusRepository.getPersonerWithOppgaveAndOldEnhet()
+        personoversiktStatusRepository.getPersonerToUpdateEnhet()
 
     suspend fun updateBehandlendeEnhet(
         personIdent: PersonIdent,

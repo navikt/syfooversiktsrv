@@ -227,9 +227,9 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
             }
         }
 
-    override fun getPersonerWithOppgaveAndOldEnhet(): List<Pair<PersonIdent, String?>> =
+    override fun getPersonerToUpdateEnhet(): List<Pair<PersonIdent, String?>> =
         database.connection.use { connection ->
-            connection.prepareStatement(GET_PERSONER_WITH_OPPGAVE_AND_OLD_ENHET).use {
+            connection.prepareStatement(GET_PERSONER_TO_UPDATE_ENHET).use {
                 it.executeQuery().toList {
                     Pair(
                         PersonIdent(getString("fnr")),
@@ -387,11 +387,11 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
         )
         """
 
-        private const val GET_PERSONER_WITH_OPPGAVE_AND_OLD_ENHET =
+        private const val GET_PERSONER_TO_UPDATE_ENHET =
             """
             SELECT fnr, tildelt_enhet
             FROM PERSON_OVERSIKT_STATUS
-            WHERE $AKTIV_OPPGAVE_WHERE_CLAUSE    
+            WHERE (oppfolgingstilfelle_end + INTERVAL '16 DAY' >= now() OR $AKTIV_OPPGAVE_WHERE_CLAUSE)
             AND (tildelt_enhet_updated_at IS NULL OR tildelt_enhet_updated_at <= NOW() - INTERVAL '24 HOURS')
             ORDER BY tildelt_enhet_updated_at ASC
             LIMIT 2000

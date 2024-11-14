@@ -12,11 +12,13 @@ import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_ENHET_ERROR_PERSONIDENT
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_ENHET_NOT_FOUND_PERSONIDENT
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testutil.UserConstants.NAV_ENHET_2
+import no.nav.syfo.testutil.generator.generateOppfolgingstilfelle
 import no.nav.syfo.testutil.mock.behandlendeEnhetDTO
 import no.nav.syfo.util.nowUTC
 import org.amshove.kluent.*
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
+import java.time.LocalDate
 
 @InternalAPI
 object PersonBehandlendeEnhetCronjobSpek : Spek({
@@ -32,6 +34,14 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
         val personOversiktStatusRepository = PersonOversiktStatusRepository(database = database)
 
         val personIdentDefault = PersonIdent(ARBEIDSTAKER_FNR)
+        val activeOppfolgingstilfelle = generateOppfolgingstilfelle(
+            start = LocalDate.now().minusWeeks(15),
+            end = LocalDate.now().plusWeeks(1),
+            antallSykedager = null,
+        )
+        val inactiveOppfolgingstilfelle = activeOppfolgingstilfelle.copy(
+            oppfolgingstilfelleEnd = LocalDate.now().minusWeeks(3)
+        )
 
         beforeEachTest {
             database.dropData()
@@ -59,6 +69,22 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                         pPersonOversiktStatus.enhet.shouldBeNull()
                         pPersonOversiktStatus.tildeltEnhetUpdatedAt.shouldBeNull()
                     }
+
+                    runBlocking {
+                        val result = personBehandlendeEnhetCronjob.runJob()
+
+                        result.failed shouldBeEqualTo 0
+                        result.updated shouldBeEqualTo 0
+                    }
+                }
+
+                it("should not update Enhet of existing PersonOversiktStatus with inactive oppfolgingstilfelle") {
+                    personOversiktStatusRepository.createPersonOversiktStatus(
+                        PersonOversiktStatus(
+                            fnr = ARBEIDSTAKER_FNR,
+                            latestOppfolgingstilfelle = inactiveOppfolgingstilfelle,
+                        )
+                    )
 
                     runBlocking {
                         val result = personBehandlendeEnhetCronjob.runJob()
@@ -146,6 +172,81 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                         result.failed shouldBeEqualTo 0
                         result.updated shouldBeEqualTo 0
                     }
+                }
+
+                it("should update Enhet if no ubehandlet oppgave but active oppfolgingstilfelle") {
+                    personOversiktStatusRepository.createPersonOversiktStatus(
+                        PersonOversiktStatus(
+                            fnr = ARBEIDSTAKER_FNR,
+                            latestOppfolgingstilfelle = activeOppfolgingstilfelle
+                        )
+                    )
+
+                    runBlocking {
+                        val result = personBehandlendeEnhetCronjob.runJob()
+
+                        result.failed shouldBeEqualTo 0
+                        result.updated shouldBeEqualTo 1
+                    }
+
+                    val pPersonOversiktStatusList = database.getPersonOversiktStatusList(fnr = personIdentDefault.value)
+                    pPersonOversiktStatusList.size shouldBeEqualTo 1
+
+                    val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+
+                    pPersonOversiktStatus.enhet.shouldNotBeNull()
+                    pPersonOversiktStatus.tildeltEnhetUpdatedAt.shouldNotBeNull()
+                }
+
+                it("should update Enhet if no ubehandlet oppgave but active oppfolgingstilfelle (ended 14 days ago)") {
+                    personOversiktStatusRepository.createPersonOversiktStatus(
+                        PersonOversiktStatus(
+                            fnr = ARBEIDSTAKER_FNR,
+                            latestOppfolgingstilfelle = activeOppfolgingstilfelle.copy(
+                                oppfolgingstilfelleEnd = LocalDate.now().minusWeeks(2),
+                            )
+                        )
+                    )
+
+                    runBlocking {
+                        val result = personBehandlendeEnhetCronjob.runJob()
+
+                        result.failed shouldBeEqualTo 0
+                        result.updated shouldBeEqualTo 1
+                    }
+
+                    val pPersonOversiktStatusList = database.getPersonOversiktStatusList(fnr = personIdentDefault.value)
+                    pPersonOversiktStatusList.size shouldBeEqualTo 1
+
+                    val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+
+                    pPersonOversiktStatus.enhet.shouldNotBeNull()
+                    pPersonOversiktStatus.tildeltEnhetUpdatedAt.shouldNotBeNull()
+                }
+
+                it("should update Enhet if ubehandlet oppgave but inactive oppfolgingstilfelle") {
+                    personOversiktStatusRepository.createPersonOversiktStatus(
+                        PersonOversiktStatus(
+                            fnr = ARBEIDSTAKER_FNR,
+                            motebehovUbehandlet = true,
+                            latestOppfolgingstilfelle = inactiveOppfolgingstilfelle
+                        )
+                    )
+
+                    runBlocking {
+                        val result = personBehandlendeEnhetCronjob.runJob()
+
+                        result.failed shouldBeEqualTo 0
+                        result.updated shouldBeEqualTo 1
+                    }
+
+                    val pPersonOversiktStatusList = database.getPersonOversiktStatusList(fnr = personIdentDefault.value)
+                    pPersonOversiktStatusList.size shouldBeEqualTo 1
+
+                    val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+
+                    pPersonOversiktStatus.enhet.shouldNotBeNull()
+                    pPersonOversiktStatus.tildeltEnhetUpdatedAt.shouldNotBeNull()
                 }
 
                 it("should update Enhet and remove Veileder of existing PersonOversiktStatus with no Enhet and ubehandlet oppgave") {
@@ -261,6 +362,28 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                             enhet = firstEnhet,
                         )
                     )
+                    database.updateTildeltEnhetUpdatedAt(
+                        ident = personIdentDefault,
+                        time = nowUTC().minusHours(22),
+                    )
+
+                    runBlocking {
+                        val result = personBehandlendeEnhetCronjob.runJob()
+
+                        result.failed shouldBeEqualTo 0
+                        result.updated shouldBeEqualTo 0
+                    }
+                }
+
+                it("don't update if active oppfolgingstilfelle but enhet updated less than 24 hours ago") {
+                    personOversiktStatusRepository.createPersonOversiktStatus(
+                        PersonOversiktStatus(
+                            fnr = ARBEIDSTAKER_FNR,
+                            latestOppfolgingstilfelle = activeOppfolgingstilfelle,
+                            enhet = NAV_ENHET_2,
+                        )
+                    )
+
                     database.updateTildeltEnhetUpdatedAt(
                         ident = personIdentDefault,
                         time = nowUTC().minusHours(22),
