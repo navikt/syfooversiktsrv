@@ -74,7 +74,7 @@ fun Application.testApiModule(
         personoversiktStatusRepository = personoversiktRepository,
     )
     val personBehandlendeEnhetService = PersonBehandlendeEnhetService(
-        database = externalMockEnvironment.database,
+        personoversiktStatusRepository = personoversiktRepository,
         behandlendeEnhetClient = behandlendeEnhetClient,
     )
 

@@ -104,7 +104,7 @@ fun main() {
                 personoversiktStatusRepository = personoversiktStatusRepository,
             )
             personBehandlendeEnhetService = PersonBehandlendeEnhetService(
-                database = database,
+                personoversiktStatusRepository = personoversiktStatusRepository,
                 behandlendeEnhetClient = behandlendeEnhetClient,
             )
             apiModule(

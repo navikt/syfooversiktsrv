@@ -10,7 +10,6 @@ import no.nav.syfo.frisktilarbeid.kafka.VedtakStatusRecord
 import no.nav.syfo.oppfolgingstilfelle.kafka.KafkaOppfolgingstilfellePerson
 import no.nav.syfo.oppfolgingstilfelle.kafka.KafkaOppfolgingstilfellePersonService
 import no.nav.syfo.personoppgavehendelse.kafka.KPersonoppgavehendelse
-import no.nav.syfo.personstatus.infrastructure.kafka.ArbeidsuforhetvurderingRecord
 import org.apache.kafka.clients.consumer.KafkaConsumer
 
 object TestKafkaModule {
@@ -38,5 +37,4 @@ object TestKafkaModule {
         database = database,
     )
     val kafkaConsumerFriskTilArbeid = mockk<KafkaConsumer<String, VedtakStatusRecord>>()
-    val arbeidsuforhetVurderingConsumer = mockk<KafkaConsumer<String, ArbeidsuforhetvurderingRecord>>()
 }

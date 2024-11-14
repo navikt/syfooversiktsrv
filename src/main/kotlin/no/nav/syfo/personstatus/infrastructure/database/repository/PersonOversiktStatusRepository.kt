@@ -6,12 +6,9 @@ import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.*
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import no.nav.syfo.personstatus.infrastructure.database.toList
+import no.nav.syfo.util.nowUTC
 import java.lang.RuntimeException
-import java.sql.Connection
-import java.sql.Date
-import java.sql.ResultSet
-import java.sql.SQLException
-import java.sql.Timestamp
+import java.sql.*
 import java.time.Instant
 import java.time.LocalDate
 import java.time.OffsetDateTime
@@ -230,6 +227,46 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
             }
         }
 
+    override fun getPersonerWithOppgaveAndOldEnhet(): List<Pair<PersonIdent, String?>> =
+        database.connection.use { connection ->
+            connection.prepareStatement(GET_PERSONER_WITH_OPPGAVE_AND_OLD_ENHET).use {
+                it.executeQuery().toList {
+                    Pair(
+                        PersonIdent(getString("fnr")),
+                        getString("tildelt_enhet"),
+                    )
+                }
+            }
+        }
+
+    override fun updatePersonTildeltEnhetAndRemoveTildeltVeileder(personIdent: PersonIdent, enhetId: String) {
+        val now = nowUTC()
+        database.connection.use { connection ->
+            connection.prepareStatement(UPDATE_PERSON_TILDELT_VEILEDER_AND_ENHET).use {
+                it.setNull(1, Types.NULL)
+                it.setString(2, enhetId)
+                it.setObject(3, now)
+                it.setObject(4, now.toLocalDateTime())
+                it.setString(5, personIdent.value)
+                it.execute()
+            }
+            connection.commit()
+        }
+    }
+
+    override fun updatePersonTildeltEnhetUpdatedAt(personIdent: PersonIdent) {
+        val now = nowUTC()
+        database.connection.use { connection ->
+            connection.prepareStatement(UPDATE_PERSON_TILDELT_ENHET_UPDATED_AT).use {
+                it.setObject(1, now)
+                it.setObject(2, now)
+                it.setString(3, personIdent.value)
+                it.execute()
+            }
+            connection.commit()
+        }
+    }
+
     companion object {
         private const val GET_PERSON_OVERSIKT_STATUS =
             """
@@ -349,6 +386,30 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
         OR is_aktiv_manglende_medvirkning_vurdering = 't'
         )
         """
+
+        private const val GET_PERSONER_WITH_OPPGAVE_AND_OLD_ENHET =
+            """
+            SELECT fnr, tildelt_enhet
+            FROM PERSON_OVERSIKT_STATUS
+            WHERE $AKTIV_OPPGAVE_WHERE_CLAUSE    
+            AND (tildelt_enhet_updated_at IS NULL OR tildelt_enhet_updated_at <= NOW() - INTERVAL '24 HOURS')
+            ORDER BY tildelt_enhet_updated_at ASC
+            LIMIT 2000
+            """
+
+        private const val UPDATE_PERSON_TILDELT_VEILEDER_AND_ENHET =
+            """
+            UPDATE PERSON_OVERSIKT_STATUS
+            SET tildelt_veileder = ?, tildelt_enhet = ?, tildelt_enhet_updated_at = ?, sist_endret = ?
+            WHERE fnr = ?
+            """
+
+        private const val UPDATE_PERSON_TILDELT_ENHET_UPDATED_AT =
+            """
+            UPDATE PERSON_OVERSIKT_STATUS
+            SET tildelt_enhet_updated_at = ?, sist_endret = ?
+            WHERE fnr = ?
+            """
     }
 }
 
