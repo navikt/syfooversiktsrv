@@ -31,4 +31,6 @@ interface IPersonOversiktStatusRepository {
     fun updatePersonTildeltEnhetAndRemoveTildeltVeileder(personIdent: PersonIdent, enhetId: String)
 
     fun updatePersonTildeltEnhetUpdatedAt(personIdent: PersonIdent)
+
+    fun searchPerson(searchString: String): List<PersonOversiktStatus>
 }

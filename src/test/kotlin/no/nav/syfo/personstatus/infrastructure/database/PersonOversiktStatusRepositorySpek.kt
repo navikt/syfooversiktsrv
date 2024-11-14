@@ -209,6 +209,82 @@ class PersonOversiktStatusRepositorySpek : Spek({
                     result.isSuccess shouldBe true
                 }
             }
+
+            describe("Person search on initials") {
+                it("finds relevant person when searching with correct initials") {
+                    val newPersonOversiktStatus =
+                        PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR, navn = "Fornavn Mellomnavn Etternavn")
+                    personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus)
+
+                    personOversiktStatusRepository.searchPerson("FME").let {
+                        it.size shouldBe 1
+                        it.first().navn shouldBeEqualTo "Fornavn Mellomnavn Etternavn"
+                    }
+                    personOversiktStatusRepository.searchPerson("FE").let {
+                        it.size shouldBe 1
+                        it.first().navn shouldBeEqualTo "Fornavn Mellomnavn Etternavn"
+                    }
+                    personOversiktStatusRepository.searchPerson("FM").let {
+                        it.size shouldBe 1
+                        it.first().navn shouldBeEqualTo "Fornavn Mellomnavn Etternavn"
+                    }
+                }
+
+                it("returns empty list when no results") {
+                    val newPersonOversiktStatus =
+                        PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR, navn = "Fornavn Mellomnavn Etternavn")
+                    personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus)
+
+                    personOversiktStatusRepository.searchPerson("AB").size shouldBe 0
+                }
+
+                it("returns several persons when relevant") {
+                    personOversiktStatusRepository.createPersonOversiktStatus(
+                        PersonOversiktStatus(
+                            fnr = UserConstants.ARBEIDSTAKER_FNR,
+                            navn = "Fornavn Mellomnavn Etternavn"
+                        )
+                    )
+                    personOversiktStatusRepository.createPersonOversiktStatus(
+                        PersonOversiktStatus(
+                            fnr = UserConstants.ARBEIDSTAKER_2_FNR,
+                            navn = "Frank Mellomnavnsen Etternavnsen"
+                        )
+                    )
+
+                    personOversiktStatusRepository.searchPerson("FME").let {
+                        it.size shouldBe 2
+                        it.first().navn shouldBeEqualTo "Fornavn Mellomnavn Etternavn"
+                        it[1].navn shouldBeEqualTo "Frank Mellomnavnsen Etternavnsen"
+                    }
+                }
+
+                it("returns several persons when relevant") {
+                    personOversiktStatusRepository.createPersonOversiktStatus(
+                        PersonOversiktStatus(
+                            fnr = UserConstants.ARBEIDSTAKER_FNR,
+                            navn = "Fornavn Evensen Melonsen"
+                        )
+                    )
+                    personOversiktStatusRepository.createPersonOversiktStatus(
+                        PersonOversiktStatus(
+                            fnr = UserConstants.ARBEIDSTAKER_2_FNR,
+                            navn = "Frank Melonsen Evensen"
+                        )
+                    )
+
+                    personOversiktStatusRepository.searchPerson("FE").let {
+                        it.size shouldBe 2
+                        it.first().navn shouldBeEqualTo "Fornavn Evensen Melonsen"
+                        it[1].navn shouldBeEqualTo "Frank Melonsen Evensen"
+                    }
+                    personOversiktStatusRepository.searchPerson("FM").let {
+                        it.size shouldBe 2
+                        it.first().navn shouldBeEqualTo "Fornavn Evensen Melonsen"
+                        it[1].navn shouldBeEqualTo "Frank Melonsen Evensen"
+                    }
+                }
+            }
         }
     }
 })
