@@ -1,6 +1,5 @@
 package no.nav.syfo.testutil
 
-import no.nav.syfo.application.cache.RedisStore
 import no.nav.syfo.personstatus.PersonTildelingService
 import no.nav.syfo.personstatus.PersonoversiktStatusService
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
