@@ -6,13 +6,27 @@ import no.nav.syfo.application.cache.RedisStore
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.PdlClient
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
 import no.nav.syfo.testutil.mock.*
+import redis.clients.jedis.DefaultJedisClientConfig
+import redis.clients.jedis.HostAndPort
+import redis.clients.jedis.JedisPool
+import redis.clients.jedis.JedisPoolConfig
 
 class ExternalMockEnvironment private constructor() {
     val applicationState: ApplicationState = testAppState()
     val database = TestDatabase()
-    lateinit var redisStore: RedisStore
-
     val environment = testEnvironment()
+    val redisConfig = environment.redisConfig
+    var redisStore = RedisStore(
+        JedisPool(
+            JedisPoolConfig(),
+            HostAndPort(redisConfig.host, redisConfig.port),
+            DefaultJedisClientConfig.builder()
+                .ssl(redisConfig.ssl)
+                .password(redisConfig.redisPassword)
+                .build()
+        )
+    )
+
     val mockHttpClient = mockHttpClient(environment = environment)
     val wellKnownVeilederV2 = wellKnownVeilederV2Mock()
     val pdlClient = PdlClient(
@@ -24,22 +38,8 @@ class ExternalMockEnvironment private constructor() {
         clientEnvironment = environment.clients.pdl,
         httpClient = mockHttpClient
     )
-    val redisServer = testRedis(
-        port = environment.redisConfig.redisUri.port,
-        secret = environment.redisConfig.redisPassword,
-    )
 
     companion object {
         val instance: ExternalMockEnvironment = ExternalMockEnvironment()
     }
 }
-
-fun ExternalMockEnvironment.startExternalMocks() {
-    this.redisServer.start()
-}
-
-fun ExternalMockEnvironment.stopExternalMocks() {
-    this.redisServer.stop()
-}
-
-

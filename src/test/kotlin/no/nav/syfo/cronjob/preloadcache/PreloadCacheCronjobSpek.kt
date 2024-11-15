@@ -49,13 +49,6 @@ object PreloadCacheCronjobSpek : Spek({
                 httpClient = externalMockEnvironment.mockHttpClient
             ),
         )
-        beforeGroup {
-            externalMockEnvironment.startExternalMocks()
-        }
-
-        afterGroup {
-            externalMockEnvironment.stopExternalMocks()
-        }
 
         describe(PreloadCacheCronjobSpek::class.java.simpleName) {
             describe("Successful processing") {
