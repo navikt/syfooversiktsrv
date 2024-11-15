@@ -1,7 +1,6 @@
 package no.nav.syfo.testutil
 
 import io.ktor.server.application.*
-import no.nav.syfo.application.cache.RedisStore
 import no.nav.syfo.personstatus.PersonoversiktOppgaverService
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.PdlClient
 import no.nav.syfo.personstatus.PersonoversiktStatusService
@@ -16,30 +15,13 @@ import no.nav.syfo.personstatus.infrastructure.clients.meroppfolging.MerOppfolgi
 import no.nav.syfo.personstatus.infrastructure.clients.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.personstatus.infrastructure.cronjob.behandlendeenhet.PersonBehandlendeEnhetService
 import no.nav.syfo.personstatus.infrastructure.database.repository.PersonOversiktStatusRepository
-import redis.clients.jedis.DefaultJedisClientConfig
-import redis.clients.jedis.HostAndPort
-import redis.clients.jedis.JedisPool
-import redis.clients.jedis.JedisPoolConfig
 
 fun Application.testApiModule(
     externalMockEnvironment: ExternalMockEnvironment,
 ) {
-    val redisConfig = externalMockEnvironment.environment.redisConfig
-    val redisStore = RedisStore(
-        JedisPool(
-            JedisPoolConfig(),
-            HostAndPort(redisConfig.host, redisConfig.port),
-            DefaultJedisClientConfig.builder()
-                .ssl(redisConfig.ssl)
-                .password(redisConfig.redisPassword)
-                .build()
-        )
-    )
-    externalMockEnvironment.redisStore = redisStore
-
     val azureAdClient = AzureAdClient(
         azureEnvironment = externalMockEnvironment.environment.azure,
-        redisStore = redisStore,
+        redisStore = externalMockEnvironment.redisStore,
         httpClient = externalMockEnvironment.mockHttpClient
     )
 

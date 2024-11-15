@@ -2,7 +2,6 @@ package no.nav.syfo.cronjob.preloadcache
 
 import io.ktor.server.testing.*
 import kotlinx.coroutines.runBlocking
-import no.nav.syfo.application.cache.RedisStore
 import no.nav.syfo.personstatus.infrastructure.clients.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
 import no.nav.syfo.personstatus.infrastructure.cronjob.preloadcache.PreloadCacheCronjob
@@ -11,10 +10,6 @@ import no.nav.syfo.testutil.generator.generatePersonOversiktStatus
 import org.amshove.kluent.shouldBeEqualTo
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
-import redis.clients.jedis.DefaultJedisClientConfig
-import redis.clients.jedis.HostAndPort
-import redis.clients.jedis.JedisPool
-import redis.clients.jedis.JedisPoolConfig
 import java.time.*
 
 object PreloadCacheCronjobSpek : Spek({
@@ -24,20 +19,9 @@ object PreloadCacheCronjobSpek : Spek({
 
         val externalMockEnvironment = ExternalMockEnvironment.instance
         val database = externalMockEnvironment.database
-        val redisConfig = externalMockEnvironment.environment.redisConfig
-        val redisStore = RedisStore(
-            JedisPool(
-                JedisPoolConfig(),
-                HostAndPort(redisConfig.host, redisConfig.port),
-                DefaultJedisClientConfig.builder()
-                    .ssl(redisConfig.ssl)
-                    .password(redisConfig.redisPassword)
-                    .build()
-            )
-        )
         val azureAdClient = AzureAdClient(
             azureEnvironment = externalMockEnvironment.environment.azure,
-            redisStore = redisStore,
+            redisStore = externalMockEnvironment.redisStore,
             httpClient = externalMockEnvironment.mockHttpClient
         )
 
