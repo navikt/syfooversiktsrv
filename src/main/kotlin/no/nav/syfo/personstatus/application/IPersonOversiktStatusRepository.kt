@@ -26,7 +26,7 @@ interface IPersonOversiktStatusRepository {
 
     fun getVeilederTilknytningHistorikk(personident: PersonIdent): List<VeilederTildelingHistorikkDTO>
 
-    fun getPersonerToUpdateEnhet(): List<Pair<PersonIdent, String?>>
+    fun getAktivePersonerWithOutdatedEnhet(): List<Pair<PersonIdent, String?>>
 
     fun updatePersonTildeltEnhetAndRemoveTildeltVeileder(personIdent: PersonIdent, enhetId: String)
 

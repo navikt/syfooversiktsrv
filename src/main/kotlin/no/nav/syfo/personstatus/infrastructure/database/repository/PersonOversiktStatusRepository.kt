@@ -227,7 +227,7 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
             }
         }
 
-    override fun getPersonerToUpdateEnhet(): List<Pair<PersonIdent, String?>> =
+    override fun getAktivePersonerWithOutdatedEnhet(): List<Pair<PersonIdent, String?>> =
         database.connection.use { connection ->
             connection.prepareStatement(GET_PERSONER_TO_UPDATE_ENHET).use {
                 it.executeQuery().toList {

@@ -9,8 +9,8 @@ class PersonBehandlendeEnhetService(
     private val personoversiktStatusRepository: PersonOversiktStatusRepository,
     private val behandlendeEnhetClient: BehandlendeEnhetClient,
 ) {
-    fun getPersonerToCheckForUpdatedEnhet(): List<Pair<PersonIdent, String?>> =
-        personoversiktStatusRepository.getPersonerToUpdateEnhet()
+    fun getAktivePersonerWithOutdatedEnhet(): List<Pair<PersonIdent, String?>> =
+        personoversiktStatusRepository.getAktivePersonerWithOutdatedEnhet()
 
     suspend fun updateBehandlendeEnhet(
         personIdent: PersonIdent,
