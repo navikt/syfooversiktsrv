@@ -4,7 +4,9 @@ import io.ktor.server.testing.*
 import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.db.createPersonOversiktStatus
 import no.nav.syfo.personstatus.db.getPersonOversiktStatusList
+import no.nav.syfo.personstatus.domain.Initials
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
+import no.nav.syfo.personstatus.domain.SearchQuery
 import no.nav.syfo.personstatus.infrastructure.database.repository.PersonOversiktStatusRepository
 import no.nav.syfo.testutil.ExternalMockEnvironment
 import no.nav.syfo.testutil.UserConstants
@@ -211,20 +213,43 @@ class PersonOversiktStatusRepositorySpek : Spek({
             }
 
             describe("Person search on initials") {
+
+                fun searchInitials(initials: String): List<PersonOversiktStatus> =
+                    personOversiktStatusRepository.searchPerson(SearchQuery(initials = Initials(initials)))
+
                 it("finds relevant person when searching with correct initials") {
                     val newPersonOversiktStatus =
                         PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR, navn = "Fornavn Mellomnavn Etternavn")
                     personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus)
 
-                    personOversiktStatusRepository.searchPerson("FME").let {
+                    searchInitials("FME").let {
                         it.size shouldBe 1
                         it.first().navn shouldBeEqualTo "Fornavn Mellomnavn Etternavn"
                     }
-                    personOversiktStatusRepository.searchPerson("FE").let {
+                    searchInitials("FE").let {
                         it.size shouldBe 1
                         it.first().navn shouldBeEqualTo "Fornavn Mellomnavn Etternavn"
                     }
-                    personOversiktStatusRepository.searchPerson("FM").let {
+                    searchInitials("FM").let {
+                        it.size shouldBe 1
+                        it.first().navn shouldBeEqualTo "Fornavn Mellomnavn Etternavn"
+                    }
+                }
+
+                it("finds relevant person when searching with correct lowercase initials") {
+                    val newPersonOversiktStatus =
+                        PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR, navn = "Fornavn Mellomnavn Etternavn")
+                    personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus)
+
+                    searchInitials("fme").let {
+                        it.size shouldBe 1
+                        it.first().navn shouldBeEqualTo "Fornavn Mellomnavn Etternavn"
+                    }
+                    searchInitials("fe").let {
+                        it.size shouldBe 1
+                        it.first().navn shouldBeEqualTo "Fornavn Mellomnavn Etternavn"
+                    }
+                    searchInitials("fm").let {
                         it.size shouldBe 1
                         it.first().navn shouldBeEqualTo "Fornavn Mellomnavn Etternavn"
                     }
@@ -235,7 +260,7 @@ class PersonOversiktStatusRepositorySpek : Spek({
                         PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR, navn = "Fornavn Mellomnavn Etternavn")
                     personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus)
 
-                    personOversiktStatusRepository.searchPerson("AB").size shouldBe 0
+                    searchInitials("AB").size shouldBe 0
                 }
 
                 it("returns several persons when relevant") {
@@ -252,7 +277,7 @@ class PersonOversiktStatusRepositorySpek : Spek({
                         )
                     )
 
-                    personOversiktStatusRepository.searchPerson("FME").let {
+                    searchInitials("FME").let {
                         it.size shouldBe 2
                         it.first().navn shouldBeEqualTo "Fornavn Mellomnavn Etternavn"
                         it[1].navn shouldBeEqualTo "Frank Mellomnavnsen Etternavnsen"
@@ -273,12 +298,12 @@ class PersonOversiktStatusRepositorySpek : Spek({
                         )
                     )
 
-                    personOversiktStatusRepository.searchPerson("FE").let {
+                    searchInitials("FE").let {
                         it.size shouldBe 2
                         it.first().navn shouldBeEqualTo "Fornavn Evensen Melonsen"
                         it[1].navn shouldBeEqualTo "Frank Melonsen Evensen"
                     }
-                    personOversiktStatusRepository.searchPerson("FM").let {
+                    searchInitials("FM").let {
                         it.size shouldBe 2
                         it.first().navn shouldBeEqualTo "Fornavn Evensen Melonsen"
                         it[1].navn shouldBeEqualTo "Frank Melonsen Evensen"

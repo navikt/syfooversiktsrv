@@ -267,11 +267,11 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
         }
     }
 
-    override fun searchPerson(searchString: String): List<PersonOversiktStatus> {
-        val initials = searchString.toList()
+    override fun searchPerson(searchQuery: SearchQuery): List<PersonOversiktStatus> {
+        val initials = searchQuery.initials.value.toList()
         val baseQuery = "SELECT * FROM PERSON_OVERSIKT_STATUS p WHERE "
         val whereStatement =
-            "p.name LIKE ? AND " + initials.drop(1).joinToString(" AND ") { "p.name LIKE ?" }
+            "p.name ILIKE ? AND " + initials.drop(1).joinToString(" AND ") { "p.name ILIKE ?" }
         return database.connection.use { connection ->
             connection.prepareStatement(baseQuery + whereStatement).use {
                 initials.forEachIndexed { index, param ->
