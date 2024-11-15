@@ -25,6 +25,13 @@ object PreloadCacheCronjobWithMockSpek : Spek({
             database = database,
             tilgangskontrollClient = veilederTilgangskontrollMockClient,
         )
+        beforeGroup {
+            externalMockEnvironment.startExternalMocks()
+        }
+
+        afterGroup {
+            externalMockEnvironment.stopExternalMocks()
+        }
         beforeEachTest {
             clearMocks(veilederTilgangskontrollMockClient)
             coEvery { veilederTilgangskontrollMockClient.preloadCache(any()) } returns true

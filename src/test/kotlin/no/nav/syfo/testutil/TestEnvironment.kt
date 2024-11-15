@@ -2,12 +2,13 @@ package no.nav.syfo.testutil
 
 import no.nav.syfo.ApplicationState
 import no.nav.syfo.Environment
-import no.nav.syfo.application.cache.RedisEnvironment
+import no.nav.syfo.application.cache.RedisConfig
 import no.nav.syfo.personstatus.infrastructure.clients.ClientEnvironment
 import no.nav.syfo.personstatus.infrastructure.clients.ClientsEnvironment
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureEnvironment
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseEnvironment
 import no.nav.syfo.personstatus.infrastructure.kafka.KafkaEnvironment
+import java.net.URI
 
 fun testEnvironment(
     azureTokenEndpoint: String = "azureTokenEndpoint",
@@ -84,10 +85,12 @@ fun testEnvironment(
             clientId = "dev-gcp.teamsykefravr.ismeroppfolging",
         ),
     ),
-    redis = RedisEnvironment(
-        host = "localhost",
-        port = 6376,
-        secret = "password",
+    redisConfig = RedisConfig(
+        redisUri = URI("http://localhost:6379"),
+        redisDB = 0,
+        redisUsername = "redisUser",
+        redisPassword = "redisPassword",
+        ssl = false,
     ),
     cronjobBehandlendeEnhetIntervalDelayMinutes = 5,
 )

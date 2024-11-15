@@ -17,10 +17,8 @@ class InternalMockEnvironment private constructor() {
     private val externalMockEnvironment: ExternalMockEnvironment = ExternalMockEnvironment.instance
     private val database = externalMockEnvironment.database
     private val environment = externalMockEnvironment.environment
+    private val redisStore = externalMockEnvironment.redisStore
 
-    private val redisStore = RedisStore(
-        redisEnvironment = environment.redis,
-    )
     private val azureAdClient = AzureAdClient(
         azureEnvironment = environment.azure,
         redisStore = redisStore,

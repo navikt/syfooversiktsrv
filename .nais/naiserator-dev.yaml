@@ -51,7 +51,6 @@ spec:
         - host: "pdl-api.dev-fss-pub.nais.io"
       rules:
         - application: syfobehandlendeenhet
-        - application: syfooversiktsrv-redis
         - application: isarbeidsuforhet
         - application: isaktivitetskrav
         - application: ismanglendemedvirkning
@@ -66,6 +65,9 @@ spec:
       claims:
         extra:
           - "NAVident"
+  redis:
+    - instance: cache
+      access: readwrite
   gcp:
     sqlInstances:
       - type: POSTGRES_14
@@ -79,13 +81,9 @@ spec:
     autoInstrumentation:
       enabled: true
       runtime: java
-  envFrom:
-    - secret: syfooversiktsrv-redis-password
   env:
     - name: KTOR_ENV
       value: production
-    - name: REDIS_HOST
-      value: "syfooversiktsrv-redis.teamsykefravr.svc.cluster.local"
     - name: EREG_URL
       value: "https://ereg-services-q1.dev-fss-pub.nais.io"
     - name: PDL_CLIENT_ID

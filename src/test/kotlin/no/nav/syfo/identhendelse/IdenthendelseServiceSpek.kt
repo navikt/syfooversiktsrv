@@ -17,6 +17,10 @@ import org.amshove.kluent.internal.assertFailsWith
 import org.amshove.kluent.shouldBeEqualTo
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
+import redis.clients.jedis.DefaultJedisClientConfig
+import redis.clients.jedis.HostAndPort
+import redis.clients.jedis.JedisPool
+import redis.clients.jedis.JedisPoolConfig
 
 object IdenthendelseServiceSpek : Spek({
 
@@ -27,10 +31,22 @@ object IdenthendelseServiceSpek : Spek({
 
             val externalMockEnvironment = ExternalMockEnvironment.instance
             val database = externalMockEnvironment.database
+            val redisConfig = externalMockEnvironment.environment.redisConfig
+            val redisStore = RedisStore(
+                JedisPool(
+                    JedisPoolConfig(),
+                    HostAndPort(redisConfig.host, redisConfig.port),
+                    DefaultJedisClientConfig.builder()
+                        .ssl(redisConfig.ssl)
+                        .password(redisConfig.redisPassword)
+                        .build()
+                )
+            )
+
             val pdlClient = PdlClient(
                 azureAdClient = AzureAdClient(
                     azureEnvironment = externalMockEnvironment.environment.azure,
-                    redisStore = RedisStore(externalMockEnvironment.environment.redis),
+                    redisStore = redisStore,
                     httpClient = externalMockEnvironment.mockHttpClient
                 ),
                 clientEnvironment = externalMockEnvironment.environment.clients.pdl,

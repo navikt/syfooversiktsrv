@@ -11,6 +11,10 @@ import no.nav.syfo.testutil.generator.generatePersonOversiktStatus
 import org.amshove.kluent.shouldBeEqualTo
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
+import redis.clients.jedis.DefaultJedisClientConfig
+import redis.clients.jedis.HostAndPort
+import redis.clients.jedis.JedisPool
+import redis.clients.jedis.JedisPoolConfig
 import java.time.*
 
 object PreloadCacheCronjobSpek : Spek({
@@ -20,7 +24,17 @@ object PreloadCacheCronjobSpek : Spek({
 
         val externalMockEnvironment = ExternalMockEnvironment.instance
         val database = externalMockEnvironment.database
-        val redisStore = RedisStore(externalMockEnvironment.environment.redis)
+        val redisConfig = externalMockEnvironment.environment.redisConfig
+        val redisStore = RedisStore(
+            JedisPool(
+                JedisPoolConfig(),
+                HostAndPort(redisConfig.host, redisConfig.port),
+                DefaultJedisClientConfig.builder()
+                    .ssl(redisConfig.ssl)
+                    .password(redisConfig.redisPassword)
+                    .build()
+            )
+        )
         val azureAdClient = AzureAdClient(
             azureEnvironment = externalMockEnvironment.environment.azure,
             redisStore = redisStore,
@@ -35,6 +49,13 @@ object PreloadCacheCronjobSpek : Spek({
                 httpClient = externalMockEnvironment.mockHttpClient
             ),
         )
+        beforeGroup {
+            externalMockEnvironment.startExternalMocks()
+        }
+
+        afterGroup {
+            externalMockEnvironment.stopExternalMocks()
+        }
 
         describe(PreloadCacheCronjobSpek::class.java.simpleName) {
             describe("Successful processing") {
