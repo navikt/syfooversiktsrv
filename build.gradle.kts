@@ -83,7 +83,7 @@ dependencies {
         implementation("org.apache.zookeeper:zookeeper") {
             because("io.confluent:kafka-schema-registry:$confluent -> https://www.cve.org/CVERecord?id=CVE-2023-44981")
             version {
-                require("3.9.2")
+                require("3.9.3")
             }
         }
         implementation("org.apache.avro:avro") {
