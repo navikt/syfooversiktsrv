@@ -1,13 +1,13 @@
 package no.nav.syfo
 
-import no.nav.syfo.application.cache.RedisEnvironment
+import no.nav.syfo.application.cache.RedisConfig
 import no.nav.syfo.personstatus.infrastructure.clients.ClientEnvironment
 import no.nav.syfo.personstatus.infrastructure.clients.ClientsEnvironment
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseEnvironment
 import no.nav.syfo.personstatus.infrastructure.kafka.KafkaEnvironment
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureEnvironment
 import java.lang.RuntimeException
-import kotlin.text.toInt
+import java.net.URI
 import kotlin.text.toLong
 
 const val NAIS_DATABASE_ENV_PREFIX = "NAIS_DATABASE_SYFOOVERSIKTSRV_SYFOOVERSIKTSRV_DB"
@@ -81,11 +81,11 @@ data class Environment(
             clientId = getEnvVar("AKTIVITETSKRAV_CLIENT_ID"),
         ),
     ),
-
-    val redis: RedisEnvironment = RedisEnvironment(
-        host = getEnvVar("REDIS_HOST"),
-        port = getEnvVar("REDIS_PORT", "6379").toInt(),
-        secret = getEnvVar("REDIS_PASSWORD"),
+    val redisConfig: RedisConfig = RedisConfig(
+        redisUri = URI(getEnvVar("REDIS_URI_CACHE")),
+        redisDB = 21, // se https://github.com/navikt/istilgangskontroll/blob/master/README.md
+        redisUsername = getEnvVar("REDIS_USERNAME_CACHE"),
+        redisPassword = getEnvVar("REDIS_PASSWORD_CACHE"),
     ),
 
     val cronjobBehandlendeEnhetIntervalDelayMinutes: Long = getEnvVar("CRONJOB_BEHANDLENDE_ENHET_INTERVAL_DELAY_MINUTES").toLong(),

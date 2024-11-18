@@ -2,7 +2,6 @@ package no.nav.syfo.identhendelse
 
 import io.ktor.server.testing.*
 import kotlinx.coroutines.*
-import no.nav.syfo.application.cache.RedisStore
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.PdlClient
 import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.db.createPersonOversiktStatus
@@ -27,10 +26,11 @@ object IdenthendelseServiceSpek : Spek({
 
             val externalMockEnvironment = ExternalMockEnvironment.instance
             val database = externalMockEnvironment.database
+
             val pdlClient = PdlClient(
                 azureAdClient = AzureAdClient(
                     azureEnvironment = externalMockEnvironment.environment.azure,
-                    redisStore = RedisStore(externalMockEnvironment.environment.redis),
+                    redisStore = externalMockEnvironment.redisStore,
                     httpClient = externalMockEnvironment.mockHttpClient
                 ),
                 clientEnvironment = externalMockEnvironment.environment.clients.pdl,

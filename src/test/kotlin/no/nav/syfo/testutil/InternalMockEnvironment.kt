@@ -1,6 +1,5 @@
 package no.nav.syfo.testutil
 
-import no.nav.syfo.application.cache.RedisStore
 import no.nav.syfo.personstatus.PersonTildelingService
 import no.nav.syfo.personstatus.PersonoversiktStatusService
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
@@ -17,10 +16,8 @@ class InternalMockEnvironment private constructor() {
     private val externalMockEnvironment: ExternalMockEnvironment = ExternalMockEnvironment.instance
     private val database = externalMockEnvironment.database
     private val environment = externalMockEnvironment.environment
+    private val redisStore = externalMockEnvironment.redisStore
 
-    private val redisStore = RedisStore(
-        redisEnvironment = environment.redis,
-    )
     private val azureAdClient = AzureAdClient(
         azureEnvironment = environment.azure,
         redisStore = redisStore,

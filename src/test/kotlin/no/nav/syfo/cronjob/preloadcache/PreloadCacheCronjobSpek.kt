@@ -2,7 +2,6 @@ package no.nav.syfo.cronjob.preloadcache
 
 import io.ktor.server.testing.*
 import kotlinx.coroutines.runBlocking
-import no.nav.syfo.application.cache.RedisStore
 import no.nav.syfo.personstatus.infrastructure.clients.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
 import no.nav.syfo.personstatus.infrastructure.cronjob.preloadcache.PreloadCacheCronjob
@@ -20,10 +19,9 @@ object PreloadCacheCronjobSpek : Spek({
 
         val externalMockEnvironment = ExternalMockEnvironment.instance
         val database = externalMockEnvironment.database
-        val redisStore = RedisStore(externalMockEnvironment.environment.redis)
         val azureAdClient = AzureAdClient(
             azureEnvironment = externalMockEnvironment.environment.azure,
-            redisStore = redisStore,
+            redisStore = externalMockEnvironment.redisStore,
             httpClient = externalMockEnvironment.mockHttpClient
         )
 

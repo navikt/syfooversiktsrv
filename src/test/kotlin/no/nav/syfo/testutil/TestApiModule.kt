@@ -1,7 +1,6 @@
 package no.nav.syfo.testutil
 
 import io.ktor.server.application.*
-import no.nav.syfo.application.cache.RedisStore
 import no.nav.syfo.personstatus.PersonoversiktOppgaverService
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.PdlClient
 import no.nav.syfo.personstatus.PersonoversiktStatusService
@@ -20,10 +19,9 @@ import no.nav.syfo.personstatus.infrastructure.database.repository.PersonOversik
 fun Application.testApiModule(
     externalMockEnvironment: ExternalMockEnvironment,
 ) {
-    val redisStore = RedisStore(externalMockEnvironment.environment.redis)
     val azureAdClient = AzureAdClient(
         azureEnvironment = externalMockEnvironment.environment.azure,
-        redisStore = redisStore,
+        redisStore = externalMockEnvironment.redisStore,
         httpClient = externalMockEnvironment.mockHttpClient
     )
 

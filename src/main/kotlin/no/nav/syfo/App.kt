@@ -26,6 +26,10 @@ import no.nav.syfo.personstatus.infrastructure.database.databaseModule
 import no.nav.syfo.personstatus.infrastructure.database.repository.PersonOversiktStatusRepository
 import no.nav.syfo.personstatus.infrastructure.kafka.launchKafkaModule
 import org.slf4j.LoggerFactory
+import redis.clients.jedis.DefaultJedisClientConfig
+import redis.clients.jedis.HostAndPort
+import redis.clients.jedis.JedisPool
+import redis.clients.jedis.JedisPoolConfig
 import java.util.concurrent.TimeUnit
 
 const val applicationPort = 8080
@@ -40,8 +44,18 @@ fun main() {
         wellKnownUrl = environment.azure.appWellKnownUrl,
     )
 
+    val redisConfig = environment.redisConfig
     val redisStore = RedisStore(
-        redisEnvironment = environment.redis,
+        JedisPool(
+            JedisPoolConfig(),
+            HostAndPort(redisConfig.host, redisConfig.port),
+            DefaultJedisClientConfig.builder()
+                .ssl(redisConfig.ssl)
+                .user(redisConfig.redisUsername)
+                .password(redisConfig.redisPassword)
+                .database(redisConfig.redisDB)
+                .build()
+        )
     )
 
     val azureAdClient = AzureAdClient(
