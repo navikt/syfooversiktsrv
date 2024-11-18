@@ -51,7 +51,7 @@ fun Route.registerPersonoversiktApiV2(
             ) ?: emptyList()
 
             val personer = searchResult.filter { fnrWithVeilederAccess.contains(it.fnr) }
-            log.trace("Completed search for sykmeldt, found ${personer.size} personer")
+            log.info("Completed search for sykmeldt, found ${personer.size} personer")
 
             if (personer.isNotEmpty()) {
                 val personerAktiveOppgaver = personoversiktOppgaverService.getAktiveOppgaver(
