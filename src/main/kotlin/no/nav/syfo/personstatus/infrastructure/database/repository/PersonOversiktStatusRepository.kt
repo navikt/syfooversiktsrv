@@ -198,7 +198,7 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
     private fun Connection.addVeilederHistorikk(
         existingVeilederAndEnhet: VeilederAndEnhet,
         veilederBrukerKnytning: VeilederBrukerKnytning,
-        tildeltAv: String
+        tildeltAv: String,
     ) {
         this.prepareStatement(CREATE_VEILEDER_HISTORIKK).use {
             it.setString(1, UUID.randomUUID().toString())
@@ -264,6 +264,25 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
                 it.execute()
             }
             connection.commit()
+        }
+    }
+
+    override fun searchPerson(searchQuery: SearchQuery): List<PersonOversiktStatus> {
+        val initials = searchQuery.initials.value.toList()
+        val baseQuery = "SELECT * FROM PERSON_OVERSIKT_STATUS p WHERE "
+        val whereStatement =
+            "p.name ILIKE ? AND " + initials.drop(1).joinToString(" AND ") { "p.name ILIKE ?" }
+        return database.connection.use { connection ->
+            connection.prepareStatement(baseQuery + whereStatement).use {
+                initials.forEachIndexed { index, param ->
+                    if (index == 0) {
+                        it.setString(index + 1, "$param%")
+                    } else {
+                        it.setString(index + 1, "% $param%")
+                    }
+                }
+                it.executeQuery().toList { toPPersonOversiktStatus() }
+            }.map { it.toPersonOversiktStatus() }
         }
     }
 

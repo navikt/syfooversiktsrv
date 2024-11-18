@@ -3,6 +3,7 @@ package no.nav.syfo.personstatus.application
 import no.nav.syfo.personstatus.api.v2.model.VeilederTildelingHistorikkDTO
 import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
+import no.nav.syfo.personstatus.domain.SearchQuery
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
 
 interface IPersonOversiktStatusRepository {
@@ -31,4 +32,6 @@ interface IPersonOversiktStatusRepository {
     fun updatePersonTildeltEnhetAndRemoveTildeltVeileder(personIdent: PersonIdent, enhetId: String)
 
     fun updatePersonTildeltEnhetUpdatedAt(personIdent: PersonIdent)
+
+    fun searchPerson(searchQuery: SearchQuery): List<PersonOversiktStatus>
 }
