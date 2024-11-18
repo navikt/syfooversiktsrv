@@ -16,6 +16,7 @@ import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import no.nav.syfo.personstatus.infrastructure.clients.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.personstatus.PersonTildelingService
 import no.nav.syfo.personstatus.PersonoversiktOppgaverService
+import no.nav.syfo.personstatus.PersonoversiktSearchService
 import no.nav.syfo.personstatus.PersonoversiktStatusService
 import no.nav.syfo.personstatus.api.v2.auth.JwtIssuer
 import no.nav.syfo.personstatus.api.v2.auth.JwtIssuerType
@@ -55,6 +56,9 @@ fun Application.apiModule(
         personoversiktStatusRepository = personoversiktStatusRepository,
         personBehandlendeEnhetService = personBehandlendeEnhetService,
     )
+    val personoversiktSearchService = PersonoversiktSearchService(
+        personoversiktStatusRepository = personoversiktStatusRepository,
+    )
 
     routing {
         registerPodApi(
@@ -67,6 +71,7 @@ fun Application.apiModule(
                 veilederTilgangskontrollClient = tilgangskontrollClient,
                 personoversiktStatusService = personoversiktStatusService,
                 personoversiktOppgaverService = personoversiktOppgaverService,
+                personoversiktSearchService = personoversiktSearchService,
             )
             registerPersonTildelingApiV2(tilgangskontrollClient, personTildelingService, personoversiktStatusService)
         }
