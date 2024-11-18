@@ -7,8 +7,8 @@ import no.nav.syfo.dialogmotekandidat.kafka.KafkaDialogmotekandidatEndringServic
 import no.nav.syfo.dialogmotestatusendring.kafka.KafkaDialogmoteStatusendringService
 import no.nav.syfo.frisktilarbeid.kafka.FriskTilArbeidVedtakConsumer
 import no.nav.syfo.frisktilarbeid.kafka.VedtakStatusRecord
-import no.nav.syfo.oppfolgingstilfelle.kafka.KafkaOppfolgingstilfellePerson
-import no.nav.syfo.oppfolgingstilfelle.kafka.KafkaOppfolgingstilfellePersonService
+import no.nav.syfo.oppfolgingstilfelle.kafka.OppfolgingstilfellePersonRecord
+import no.nav.syfo.oppfolgingstilfelle.kafka.OppfolgingstilfelleConsumer
 import no.nav.syfo.personoppgavehendelse.kafka.KPersonoppgavehendelse
 import org.apache.kafka.clients.consumer.KafkaConsumer
 
@@ -16,10 +16,10 @@ object TestKafkaModule {
     private val externalMockEnvironment: ExternalMockEnvironment = ExternalMockEnvironment.instance
     private val database = externalMockEnvironment.database
 
-    val kafkaOppfolgingstilfellePersonService = KafkaOppfolgingstilfellePersonService(
-        database = database,
+    val oppfolgingstilfelleConsumer = OppfolgingstilfelleConsumer(
+        oppfolgingstilfelleService = externalMockEnvironment.oppfolgingstilfelleService
     )
-    val kafkaConsumerOppfolgingstilfellePerson = mockk<KafkaConsumer<String, KafkaOppfolgingstilfellePerson>>()
+    val kafkaConsumerOppfolgingstilfellePerson = mockk<KafkaConsumer<String, OppfolgingstilfellePersonRecord>>()
 
     val kafkaPersonoppgavehendelse = mockk<KafkaConsumer<String, KPersonoppgavehendelse>>()
 

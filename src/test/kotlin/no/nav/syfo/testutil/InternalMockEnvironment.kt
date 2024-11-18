@@ -10,7 +10,6 @@ import no.nav.syfo.personstatus.infrastructure.cronjob.behandlendeenhet.PersonBe
 import no.nav.syfo.personstatus.infrastructure.cronjob.behandlendeenhet.PersonBehandlendeEnhetService
 import no.nav.syfo.personstatus.infrastructure.cronjob.virksomhetsnavn.PersonOppfolgingstilfelleVirksomhetnavnCronjob
 import no.nav.syfo.personstatus.infrastructure.cronjob.virksomhetsnavn.PersonOppfolgingstilfelleVirksomhetsnavnService
-import no.nav.syfo.personstatus.infrastructure.database.repository.PersonOversiktStatusRepository
 
 class InternalMockEnvironment private constructor() {
     private val externalMockEnvironment: ExternalMockEnvironment = ExternalMockEnvironment.instance
@@ -39,7 +38,7 @@ class InternalMockEnvironment private constructor() {
         httpClient = externalMockEnvironment.mockHttpClient
     )
 
-    val personoversiktRepository = PersonOversiktStatusRepository(database = database)
+    val personoversiktRepository = externalMockEnvironment.personOversiktStatusRepository
     internal val personBehandlendeEnhetService = PersonBehandlendeEnhetService(
         personoversiktStatusRepository = personoversiktRepository,
         behandlendeEnhetClient = behandlendeEnhetClient,

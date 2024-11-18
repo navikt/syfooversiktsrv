@@ -1,8 +1,8 @@
 package no.nav.syfo.oppfolgingstilfelle.kafka
 
-import no.nav.syfo.personstatus.infrastructure.kafka.KafkaEnvironment
 import no.nav.syfo.ApplicationState
-import no.nav.syfo.personstatus.infrastructure.database.database
+import no.nav.syfo.personstatus.application.OppfolgingstilfelleService
+import no.nav.syfo.personstatus.infrastructure.kafka.KafkaEnvironment
 import no.nav.syfo.personstatus.infrastructure.kafka.kafkaAivenConsumerConfig
 import no.nav.syfo.personstatus.infrastructure.kafka.launchKafkaTask
 import no.nav.syfo.util.configuredJacksonMapper
@@ -16,9 +16,10 @@ const val OPPFOLGINGSTILFELLE_PERSON_TOPIC =
 fun launchKafkaTaskOppfolgingstilfellePerson(
     applicationState: ApplicationState,
     kafkaEnvironment: KafkaEnvironment,
+    oppfolgingstilfelleService: OppfolgingstilfelleService,
 ) {
-    val kafkaOppfolgingstilfellePersonService = KafkaOppfolgingstilfellePersonService(
-        database = database,
+    val oppfolgingstilfelleConsumer = OppfolgingstilfelleConsumer(
+        oppfolgingstilfelleService = oppfolgingstilfelleService
     )
     val consumerProperties = Properties().apply {
         putAll(kafkaAivenConsumerConfig(kafkaEnvironment = kafkaEnvironment))
@@ -30,12 +31,12 @@ fun launchKafkaTaskOppfolgingstilfellePerson(
         applicationState = applicationState,
         topic = OPPFOLGINGSTILFELLE_PERSON_TOPIC,
         consumerProperties = consumerProperties,
-        kafkaConsumerService = kafkaOppfolgingstilfellePersonService
+        kafkaConsumerService = oppfolgingstilfelleConsumer
     )
 }
 
-class KafkaOppfolgingstilfellePersonDeserializer : Deserializer<KafkaOppfolgingstilfellePerson> {
+class KafkaOppfolgingstilfellePersonDeserializer : Deserializer<OppfolgingstilfellePersonRecord> {
     private val mapper = configuredJacksonMapper()
-    override fun deserialize(topic: String, data: ByteArray): KafkaOppfolgingstilfellePerson =
-        mapper.readValue(data, KafkaOppfolgingstilfellePerson::class.java)
+    override fun deserialize(topic: String, data: ByteArray): OppfolgingstilfellePersonRecord =
+        mapper.readValue(data, OppfolgingstilfellePersonRecord::class.java)
 }

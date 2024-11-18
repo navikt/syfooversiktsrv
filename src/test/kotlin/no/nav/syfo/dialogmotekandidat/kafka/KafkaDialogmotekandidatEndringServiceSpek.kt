@@ -2,7 +2,6 @@ package no.nav.syfo.dialogmotekandidat.kafka
 
 import io.ktor.server.testing.*
 import io.mockk.*
-import no.nav.syfo.oppfolgingstilfelle.kafka.toPersonOversiktStatus
 import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.generator.*

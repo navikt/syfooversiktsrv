@@ -1,6 +1,6 @@
 package no.nav.syfo.testutil.assertion
 
-import no.nav.syfo.oppfolgingstilfelle.kafka.KafkaOppfolgingstilfellePerson
+import no.nav.syfo.oppfolgingstilfelle.kafka.OppfolgingstilfellePersonRecord
 import no.nav.syfo.personstatus.domain.PPersonOppfolgingstilfelleVirksomhet
 import no.nav.syfo.testutil.mock.eregOrganisasjonResponse
 import org.amshove.kluent.shouldBeEqualTo
@@ -9,9 +9,9 @@ import org.amshove.kluent.shouldBeTrue
 
 fun checkPPersonOppfolgingstilfelleVirksomhet(
     pPersonOppfolgingstilfelleVirksomhetList: List<PPersonOppfolgingstilfelleVirksomhet>,
-    kafkaOppfolgingstilfellePerson: KafkaOppfolgingstilfellePerson,
+    oppfolgingstilfellePersonRecord: OppfolgingstilfellePersonRecord,
 ) {
-    val virksomhetsnummerList = kafkaOppfolgingstilfellePerson.oppfolgingstilfelleList.first().virksomhetsnummerList
+    val virksomhetsnummerList = oppfolgingstilfellePersonRecord.oppfolgingstilfelleList.first().virksomhetsnummerList
 
     pPersonOppfolgingstilfelleVirksomhetList.size shouldBeEqualTo virksomhetsnummerList.size
 
@@ -23,9 +23,9 @@ fun checkPPersonOppfolgingstilfelleVirksomhet(
 
 fun checkPPersonOppfolgingstilfelleVirksomhetUpdated(
     pPersonOppfolgingstilfelleVirksomhetList: List<PPersonOppfolgingstilfelleVirksomhet>,
-    kafkaOppfolgingstilfellePerson: KafkaOppfolgingstilfellePerson,
+    oppfolgingstilfellePersonRecord: OppfolgingstilfellePersonRecord,
 ) {
-    val virksomhetsnummerList = kafkaOppfolgingstilfellePerson.oppfolgingstilfelleList.first().virksomhetsnummerList
+    val virksomhetsnummerList = oppfolgingstilfellePersonRecord.oppfolgingstilfelleList.first().virksomhetsnummerList
 
     pPersonOppfolgingstilfelleVirksomhetList.size shouldBeEqualTo virksomhetsnummerList.size
 

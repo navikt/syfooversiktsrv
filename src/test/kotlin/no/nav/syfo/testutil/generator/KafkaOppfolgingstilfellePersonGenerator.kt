@@ -21,9 +21,9 @@ fun generateKafkaOppfolgingstilfellePerson(
         Virksomhetsnummer(VIRKSOMHETSNUMMER)
     ),
     antallSykedager: Int? = oppfolgingstilfelleDurationInDays.toInt(),
-): KafkaOppfolgingstilfellePerson {
+): OppfolgingstilfellePersonRecord {
     val start = end.minusDays(oppfolgingstilfelleDurationInDays)
-    return KafkaOppfolgingstilfellePerson(
+    return OppfolgingstilfellePersonRecord(
         uuid = UUID.randomUUID().toString(),
         createdAt = nowUTC(),
         personIdentNumber = personIdent.value,
@@ -49,11 +49,11 @@ fun oppfolgingstilfellePersonTopicPartition() = TopicPartition(
 )
 
 fun oppfolgingstilfellePersonConsumerRecord(
-    kafkaOppfolgingstilfellePerson: KafkaOppfolgingstilfellePerson,
+    oppfolgingstilfellePersonRecord: OppfolgingstilfellePersonRecord,
 ) = ConsumerRecord(
     OPPFOLGINGSTILFELLE_PERSON_TOPIC,
     0,
     1,
     "key1",
-    kafkaOppfolgingstilfellePerson
+    oppfolgingstilfellePersonRecord
 )

@@ -143,6 +143,7 @@ const val queryUpdatePersonOversiktStatusOppfolgingstilfelle =
     sist_endret = ?,
     antall_sykedager = ?
     WHERE fnr = ?
+    RETURNING id
     """
 
 fun Connection.updatePersonOversiktStatusOppfolgingstilfelle(

@@ -10,6 +10,7 @@ import no.nav.syfo.personstatus.PersonoversiktOppgaverService
 import no.nav.syfo.personstatus.PersonoversiktStatusService
 import no.nav.syfo.personstatus.api.v2.apiModule
 import no.nav.syfo.personstatus.api.v2.auth.getWellKnown
+import no.nav.syfo.personstatus.application.OppfolgingstilfelleService
 import no.nav.syfo.personstatus.infrastructure.clients.aktivitetskrav.AktivitetskravClient
 import no.nav.syfo.personstatus.infrastructure.clients.arbeidsuforhet.ArbeidsuforhetvurderingClient
 import no.nav.syfo.personstatus.infrastructure.clients.manglendemedvirkning.ManglendeMedvirkningClient
@@ -98,6 +99,7 @@ fun main() {
 
     lateinit var personBehandlendeEnhetService: PersonBehandlendeEnhetService
     lateinit var personoversiktStatusService: PersonoversiktStatusService
+    lateinit var oppfolgingstilfelleService: OppfolgingstilfelleService
 
     val applicationEngineEnvironment = applicationEngineEnvironment {
         log = logger
@@ -112,6 +114,9 @@ fun main() {
                 databaseEnvironment = environment.database,
             )
             val personoversiktStatusRepository = PersonOversiktStatusRepository(database = database)
+            oppfolgingstilfelleService = OppfolgingstilfelleService(
+                personOversiktStatusRepository = personoversiktStatusRepository,
+            )
             personoversiktStatusService = PersonoversiktStatusService(
                 database = database,
                 pdlClient = pdlClient,
@@ -159,6 +164,7 @@ fun main() {
             azureAdClient = azureAdClient,
             personoversiktStatusService = personoversiktStatusService,
             personBehandlendeEnhetService = personBehandlendeEnhetService,
+            oppfolgingstilfelleService = oppfolgingstilfelleService,
         )
         launchCronjobModule(
             applicationState = applicationState,

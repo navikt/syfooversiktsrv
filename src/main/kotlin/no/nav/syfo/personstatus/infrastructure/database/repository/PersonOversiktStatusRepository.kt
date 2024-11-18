@@ -1,5 +1,6 @@
 package no.nav.syfo.personstatus.infrastructure.database.repository
 
+import no.nav.syfo.oppfolgingstilfelle.domain.Oppfolgingstilfelle
 import no.nav.syfo.personstatus.api.v2.model.VeilederTildelingHistorikkDTO
 import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
 import no.nav.syfo.personstatus.db.*
@@ -283,6 +284,33 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
                 }
                 it.executeQuery().toList { toPPersonOversiktStatus() }
             }.map { it.toPersonOversiktStatus() }
+        }
+    }
+
+    override fun updatePersonOversiktStatusOppfolgingstilfelle(
+        personstatus: PersonOversiktStatus,
+        oppfolgingstilfelle: Oppfolgingstilfelle,
+    ) {
+        database.connection.use { connection ->
+            val personstatusId = connection.prepareStatement(queryUpdatePersonOversiktStatusOppfolgingstilfelle).use {
+                it.setObject(1, oppfolgingstilfelle.updatedAt)
+                it.setObject(2, oppfolgingstilfelle.generatedAt)
+                it.setObject(3, oppfolgingstilfelle.oppfolgingstilfelleStart)
+                it.setObject(4, oppfolgingstilfelle.oppfolgingstilfelleEnd)
+                it.setString(5, oppfolgingstilfelle.oppfolgingstilfelleBitReferanseUuid.toString())
+                it.setObject(6, oppfolgingstilfelle.oppfolgingstilfelleBitReferanseInntruffet)
+                it.setObject(7, Timestamp.from(Instant.now()))
+                if (oppfolgingstilfelle.antallSykedager != null) {
+                    it.setInt(8, oppfolgingstilfelle.antallSykedager)
+                } else it.setNull(8, Types.INTEGER)
+                it.setString(9, personstatus.fnr)
+                it.executeQuery().toList { getInt("id") }.first()
+            }
+            connection.updatePersonOppfolgingstilfelleVirksomhetList(
+                personOversiktStatusId = personstatusId,
+                personOppfolgingstilfelleVirksomhetList = oppfolgingstilfelle.virksomhetList,
+            )
+            connection.commit()
         }
     }
 

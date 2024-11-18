@@ -1,10 +1,11 @@
 package no.nav.syfo.testutil
 
-import io.ktor.server.netty.*
 import no.nav.syfo.ApplicationState
 import no.nav.syfo.application.cache.RedisStore
-import no.nav.syfo.personstatus.infrastructure.clients.pdl.PdlClient
+import no.nav.syfo.personstatus.application.OppfolgingstilfelleService
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
+import no.nav.syfo.personstatus.infrastructure.clients.pdl.PdlClient
+import no.nav.syfo.personstatus.infrastructure.database.repository.PersonOversiktStatusRepository
 import no.nav.syfo.testutil.mock.*
 import redis.clients.jedis.DefaultJedisClientConfig
 import redis.clients.jedis.HostAndPort
@@ -29,6 +30,9 @@ class ExternalMockEnvironment private constructor() {
 
     val mockHttpClient = mockHttpClient(environment = environment)
     val wellKnownVeilederV2 = wellKnownVeilederV2Mock()
+
+    val personOversiktStatusRepository = PersonOversiktStatusRepository(database = database)
+
     val pdlClient = PdlClient(
         azureAdClient = AzureAdClient(
             azureEnvironment = environment.azure,
@@ -37,6 +41,10 @@ class ExternalMockEnvironment private constructor() {
         ),
         clientEnvironment = environment.clients.pdl,
         httpClient = mockHttpClient
+    )
+
+    val oppfolgingstilfelleService = OppfolgingstilfelleService(
+        personOversiktStatusRepository = personOversiktStatusRepository,
     )
 
     companion object {
