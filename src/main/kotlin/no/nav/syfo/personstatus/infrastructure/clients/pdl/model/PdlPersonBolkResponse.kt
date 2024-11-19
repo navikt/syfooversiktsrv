@@ -1,6 +1,7 @@
 package no.nav.syfo.personstatus.infrastructure.clients.pdl.model
 
 import no.nav.syfo.util.lowerCapitalize
+import java.time.LocalDate
 import kotlin.collections.first
 import kotlin.let
 import kotlin.text.isNullOrBlank
@@ -22,12 +23,17 @@ data class PdlHentPerson(
 
 data class PdlPerson(
     val navn: List<PdlPersonNavn>,
+    val foedselsdato: List<Foedselsdato>,
 )
 
 data class PdlPersonNavn(
     val fornavn: String,
     val mellomnavn: String?,
     val etternavn: String,
+)
+
+data class Foedselsdato(
+    val foedselsdato: LocalDate?,
 )
 
 fun PdlPerson.fullName(): String? {

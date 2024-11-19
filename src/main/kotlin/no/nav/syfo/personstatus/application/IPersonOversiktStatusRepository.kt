@@ -6,6 +6,7 @@ import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.personstatus.domain.SearchQuery
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
+import no.nav.syfo.personstatus.infrastructure.clients.pdl.model.PdlHentPerson
 
 interface IPersonOversiktStatusRepository {
 
@@ -18,6 +19,8 @@ interface IPersonOversiktStatusRepository {
     fun upsertManglendeMedvirkningStatus(personident: PersonIdent, isAktivVurdering: Boolean): Result<Int>
 
     fun getPersonOversiktStatus(personident: PersonIdent): PersonOversiktStatus?
+
+    fun getPersonstatusesWithoutNavnOrFodselsdato(): List<PersonOversiktStatus>
 
     fun createPersonOversiktStatus(personOversiktStatus: PersonOversiktStatus)
 
@@ -33,6 +36,8 @@ interface IPersonOversiktStatusRepository {
     fun updatePersonTildeltEnhetAndRemoveTildeltVeileder(personIdent: PersonIdent, enhetId: String)
 
     fun updatePersonTildeltEnhetUpdatedAt(personIdent: PersonIdent)
+
+    fun updatePersonstatusesWithNavnOrFodselsdato(personer: List<PersonOversiktStatus>)
 
     fun searchPerson(searchQuery: SearchQuery): List<PersonOversiktStatus>
 

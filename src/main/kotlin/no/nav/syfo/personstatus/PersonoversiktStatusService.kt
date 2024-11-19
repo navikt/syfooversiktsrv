@@ -8,8 +8,11 @@ import no.nav.syfo.personoppgavehendelse.kafka.KPersonoppgavehendelse
 import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
 import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.*
+import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdToken
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.PdlClient
+import no.nav.syfo.personstatus.infrastructure.clients.pdl.model.fullName
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
+import org.slf4j.LoggerFactory
 import java.sql.Connection
 
 class PersonoversiktStatusService(
@@ -116,6 +119,22 @@ class PersonoversiktStatusService(
             isAktivVurdering = isAktivVurdering,
         )
 
+    suspend fun updateNavnOrFodselsdatoWhereMissing(systemToken: AzureAdToken) {
+        val personStatuser = personoversiktStatusRepository.getPersonstatusesWithoutNavnOrFodselsdato()
+        val personidenter = personStatuser.map { PersonIdent(it.fnr) }
+
+        val result = pdlClient.getPersons(personidenter = personidenter, token = systemToken)?.hentPersonBolk ?: emptyList()
+        val resultById = result.associateBy { it.ident }
+        val editedPersonStatuser = personStatuser.mapNotNull { personStatus ->
+            val pdlPerson = resultById[personStatus.fnr]
+            pdlPerson?.person?.fullName()?.let {
+                personStatus.updateNavn(it)
+            }
+        }
+
+        personoversiktStatusRepository.updatePersonstatusesWithNavnOrFodselsdato(editedPersonStatuser)
+    }
+
     private fun createOrUpdatePersonOversiktStatus(
         connection: Connection,
         personident: PersonIdent,
@@ -168,5 +187,9 @@ class PersonoversiktStatusService(
 
             COUNT_KAFKA_CONSUMER_PERSONOPPGAVEHENDELSE_UPDATED_PERSONOVERSIKT_STATUS.increment()
         }
+    }
+
+    companion object {
+        private val log = LoggerFactory.getLogger(PersonoversiktStatusService::class.java)
     }
 }

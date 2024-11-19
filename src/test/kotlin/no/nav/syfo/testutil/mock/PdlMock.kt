@@ -13,6 +13,9 @@ fun generatePdlPerson(
     navn = listOf(
         pdlPersonNavn,
     ),
+    foedselsdato = listOf(
+        Foedselsdato(foedselsdato = null),
+    ),
 )
 
 fun generatePdlPersonNavn(

@@ -38,7 +38,10 @@ data class PersonOversiktStatus(
     val isAktivSenOppfolgingKandidat: Boolean = false,
     val isAktivAktivitetskravvurdering: Boolean = false,
     val isAktivManglendeMedvirkningVurdering: Boolean = false,
-)
+) {
+    fun updateNavn(navn: String): PersonOversiktStatus =
+        this.copy(navn = navn)
+}
 
 fun PersonOversiktStatus.isDialogmotekandidat() =
     dialogmotekandidat == true &&

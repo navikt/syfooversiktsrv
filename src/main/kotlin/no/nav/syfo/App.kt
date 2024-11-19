@@ -173,6 +173,7 @@ fun main() {
             redisStore = redisStore,
             azureAdClient = azureAdClient,
             personBehandlendeEnhetService = personBehandlendeEnhetService,
+            personoversiktStatusService = personoversiktStatusService,
         )
     }
 

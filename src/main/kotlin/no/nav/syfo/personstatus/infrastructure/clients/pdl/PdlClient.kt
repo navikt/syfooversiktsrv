@@ -78,9 +78,9 @@ class PdlClient(
         val token = azureAdClient.getSystemToken(clientEnvironment.clientId)
             ?: throw RuntimeException("Failed to send request to PDL: No token was found")
 
-        return personList(
+        return getPersons(
             callId = callId,
-            personIdentList = personIdentList,
+            personidenter = personIdentList,
             token = token,
         )
             ?.hentPersonBolk
@@ -90,9 +90,9 @@ class PdlClient(
             ?: emptyMap()
     }
 
-    private suspend fun personList(
-        callId: String,
-        personIdentList: List<PersonIdent>,
+    suspend fun getPersons(
+        callId: String? = null,
+        personidenter: List<PersonIdent>,
         token: AzureAdToken,
     ): PdlHentPersonBolkData? {
         val query = getPdlQuery(
@@ -102,7 +102,7 @@ class PdlClient(
         val request = PdlPersonBolkRequest(
             query = query,
             variables = PdlPersonBolkVariables(
-                identer = personIdentList.map { personIdentNumber ->
+                identer = personidenter.map { personIdentNumber ->
                     personIdentNumber.value
                 }
             ),
