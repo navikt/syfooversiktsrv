@@ -899,7 +899,6 @@ object PersonoversiktStatusApiV2Spek : Spek({
                             objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
                         personOversiktStatus.fnr shouldBeEqualTo personident
                         personOversiktStatus.enhet shouldBeEqualTo NAV_ENHET
-                        personOversiktStatus.isAktivSenOppfolgingKandidat shouldBeEqualTo true
                         personOversiktStatus.senOppfolgingKandidat shouldNotBe null
                     }
                 }

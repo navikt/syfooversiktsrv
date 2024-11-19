@@ -10,6 +10,7 @@ import java.time.LocalDate
 data class PersonOversiktStatusDTO(
     val veilederIdent: String?,
     val fnr: String,
+    val fodselsdato: LocalDate?,
     val navn: String,
     val enhet: String,
     val motebehovUbehandlet: Boolean?,
@@ -23,7 +24,6 @@ data class PersonOversiktStatusDTO(
     val arbeidsuforhetvurdering: ArbeidsuforhetvurderingDTO?,
     val friskmeldingTilArbeidsformidlingFom: LocalDate?,
     val oppfolgingsoppgave: OppfolgingsoppgaveDTO?,
-    val isAktivSenOppfolgingKandidat: Boolean, // TODO: Denne kan fjernes når frontend bruker senOppfolgingKandidat
     val senOppfolgingKandidat: SenOppfolgingKandidatDTO?,
     val aktivitetskravvurdering: AktivitetskravDTO?,
     val manglendeMedvirkning: ManglendeMedvirkningDTO?,

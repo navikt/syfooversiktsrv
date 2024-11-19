@@ -10,6 +10,7 @@ data class PPersonOversiktStatus(
     val veilederIdent: String?,
     val uuid: UUID,
     val fnr: String,
+    val fodselsdato: LocalDate?,
     val navn: String?,
     val id: Int,
     val enhet: String?,
@@ -44,6 +45,7 @@ fun PPersonOversiktStatus.toPersonOversiktStatus(
     personOppfolgingstilfelleVirksomhetList: List<PersonOppfolgingstilfelleVirksomhet> = emptyList(),
 ) = PersonOversiktStatus(
     fnr = fnr,
+    fodselsdato = fodselsdato,
     navn = navn,
     enhet = enhet,
     veilederIdent = veilederIdent,

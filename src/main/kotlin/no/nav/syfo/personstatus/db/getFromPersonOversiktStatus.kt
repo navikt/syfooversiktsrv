@@ -56,6 +56,7 @@ fun ResultSet.toPPersonOversiktStatus(): PPersonOversiktStatus =
         uuid = getString("uuid").let { UUID.fromString(it) },
         veilederIdent = getString("tildelt_veileder"),
         fnr = getString("fnr"),
+        fodselsdato = getObject("fodselsdato", LocalDate::class.java),
         navn = getString("name"),
         enhet = getString("tildelt_enhet"),
         tildeltEnhetUpdatedAt = getObject("tildelt_enhet_updated_at", OffsetDateTime::class.java),

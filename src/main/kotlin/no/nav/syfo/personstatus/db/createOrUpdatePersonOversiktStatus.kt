@@ -16,6 +16,7 @@ const val queryCreatePersonOversiktStatus =
         id,
         uuid,
         fnr,
+        fodselsdato,
         name,
         tildelt_veileder,
         tildelt_enhet,
@@ -47,7 +48,7 @@ const val queryCreatePersonOversiktStatus =
         is_aktiv_sen_oppfolging_kandidat,
         is_aktiv_aktivitetskrav_vurdering,
         is_aktiv_manglende_medvirkning_vurdering
-    ) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     RETURNING id
     """
 
@@ -62,58 +63,59 @@ fun Connection.createPersonOversiktStatus(
     val personOversiktStatusId: Int = this.prepareStatement(queryCreatePersonOversiktStatus).use {
         it.setString(1, uuid)
         it.setString(2, personOversiktStatus.fnr)
-        it.setString(3, personOversiktStatus.navn)
-        it.setString(4, personOversiktStatus.veilederIdent)
-        it.setString(5, personOversiktStatus.enhet)
+        it.setObject(3, personOversiktStatus.fodselsdato)
+        it.setString(4, personOversiktStatus.navn)
+        it.setString(5, personOversiktStatus.veilederIdent)
+        it.setString(6, personOversiktStatus.enhet)
         if (personOversiktStatus.enhet != null) {
-            it.setObject(6, now)
+            it.setObject(7, now)
         } else {
-            it.setNull(6, Types.TIMESTAMP_WITH_TIMEZONE)
+            it.setNull(7, Types.TIMESTAMP_WITH_TIMEZONE)
         }
-        it.setTimestamp(7, tidspunkt)
         it.setTimestamp(8, tidspunkt)
+        it.setTimestamp(9, tidspunkt)
         if (personOversiktStatus.motebehovUbehandlet != null) {
-            it.setBoolean(9, personOversiktStatus.motebehovUbehandlet)
+            it.setBoolean(10, personOversiktStatus.motebehovUbehandlet)
         } else {
-            it.setNull(9, NULL)
+            it.setNull(10, NULL)
         }
-        it.setNull(10, NULL)
+        it.setNull(11, NULL)
         if (personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet != null) {
-            it.setBoolean(11, personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet)
+            it.setBoolean(12, personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet)
         } else {
-            it.setNull(11, NULL)
+            it.setNull(12, NULL)
         }
-        it.setBoolean(12, personOversiktStatus.dialogmotesvarUbehandlet)
-        it.setObject(13, personOversiktStatus.latestOppfolgingstilfelle?.updatedAt)
-        it.setObject(14, personOversiktStatus.latestOppfolgingstilfelle?.generatedAt)
-        it.setObject(15, personOversiktStatus.latestOppfolgingstilfelle?.oppfolgingstilfelleStart)
-        it.setObject(16, personOversiktStatus.latestOppfolgingstilfelle?.oppfolgingstilfelleEnd)
+        it.setBoolean(13, personOversiktStatus.dialogmotesvarUbehandlet)
+        it.setObject(14, personOversiktStatus.latestOppfolgingstilfelle?.updatedAt)
+        it.setObject(15, personOversiktStatus.latestOppfolgingstilfelle?.generatedAt)
+        it.setObject(16, personOversiktStatus.latestOppfolgingstilfelle?.oppfolgingstilfelleStart)
+        it.setObject(17, personOversiktStatus.latestOppfolgingstilfelle?.oppfolgingstilfelleEnd)
         if (personOversiktStatus.latestOppfolgingstilfelle != null) {
             it.setString(
-                17,
+                18,
                 personOversiktStatus.latestOppfolgingstilfelle.oppfolgingstilfelleBitReferanseUuid.toString()
             )
         } else {
-            it.setNull(17, Types.CHAR)
+            it.setNull(18, Types.CHAR)
         }
-        it.setObject(18, personOversiktStatus.latestOppfolgingstilfelle?.oppfolgingstilfelleBitReferanseInntruffet)
-        it.setObject(19, personOversiktStatus.dialogmotekandidat)
-        it.setObject(20, personOversiktStatus.dialogmotekandidatGeneratedAt)
-        it.setString(21, personOversiktStatus.motestatus)
-        it.setObject(22, personOversiktStatus.motestatusGeneratedAt)
-        it.setBoolean(23, personOversiktStatus.behandlerdialogSvarUbehandlet)
-        it.setBoolean(24, personOversiktStatus.behandlerdialogUbesvartUbehandlet)
-        it.setBoolean(25, personOversiktStatus.behandlerdialogAvvistUbehandlet)
-        it.setBoolean(26, personOversiktStatus.trengerOppfolging)
-        it.setBoolean(27, personOversiktStatus.behandlerBerOmBistandUbehandlet)
-        it.setBoolean(28, personOversiktStatus.isAktivArbeidsuforhetvurdering)
+        it.setObject(19, personOversiktStatus.latestOppfolgingstilfelle?.oppfolgingstilfelleBitReferanseInntruffet)
+        it.setObject(20, personOversiktStatus.dialogmotekandidat)
+        it.setObject(21, personOversiktStatus.dialogmotekandidatGeneratedAt)
+        it.setString(22, personOversiktStatus.motestatus)
+        it.setObject(23, personOversiktStatus.motestatusGeneratedAt)
+        it.setBoolean(24, personOversiktStatus.behandlerdialogSvarUbehandlet)
+        it.setBoolean(25, personOversiktStatus.behandlerdialogUbesvartUbehandlet)
+        it.setBoolean(26, personOversiktStatus.behandlerdialogAvvistUbehandlet)
+        it.setBoolean(27, personOversiktStatus.trengerOppfolging)
+        it.setBoolean(28, personOversiktStatus.behandlerBerOmBistandUbehandlet)
+        it.setBoolean(29, personOversiktStatus.isAktivArbeidsuforhetvurdering)
         if (personOversiktStatus.latestOppfolgingstilfelle?.antallSykedager != null) {
-            it.setInt(29, personOversiktStatus.latestOppfolgingstilfelle.antallSykedager)
-        } else it.setNull(29, Types.INTEGER)
-        it.setObject(30, personOversiktStatus.friskmeldingTilArbeidsformidlingFom)
-        it.setBoolean(31, personOversiktStatus.isAktivSenOppfolgingKandidat)
-        it.setBoolean(32, personOversiktStatus.isAktivAktivitetskravvurdering)
-        it.setBoolean(33, personOversiktStatus.isAktivManglendeMedvirkningVurdering)
+            it.setInt(30, personOversiktStatus.latestOppfolgingstilfelle.antallSykedager)
+        } else it.setNull(30, Types.INTEGER)
+        it.setObject(31, personOversiktStatus.friskmeldingTilArbeidsformidlingFom)
+        it.setBoolean(32, personOversiktStatus.isAktivSenOppfolgingKandidat)
+        it.setBoolean(33, personOversiktStatus.isAktivAktivitetskravvurdering)
+        it.setBoolean(34, personOversiktStatus.isAktivManglendeMedvirkningVurdering)
         it.executeQuery().toList { getInt("id") }.firstOrNull()
     } ?: throw SQLException("Creating PersonOversikStatus failed, no rows affected.")
 

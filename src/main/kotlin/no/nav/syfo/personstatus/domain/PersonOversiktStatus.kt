@@ -17,6 +17,7 @@ import java.time.OffsetDateTime
 data class PersonOversiktStatus(
     val veilederIdent: String? = null,
     val fnr: String,
+    val fodselsdato: LocalDate? = null,
     val navn: String? = null,
     val enhet: String? = null,
     val motebehovUbehandlet: Boolean? = null,
@@ -97,6 +98,7 @@ fun PersonOversiktStatus.toPersonOversiktStatusDTO(
     PersonOversiktStatusDTO(
         veilederIdent = veilederIdent,
         fnr = fnr,
+        fodselsdato = fodselsdato,
         navn = navn ?: "",
         enhet = enhet ?: "",
         motebehovUbehandlet = motebehovUbehandlet,
@@ -110,7 +112,6 @@ fun PersonOversiktStatus.toPersonOversiktStatusDTO(
         arbeidsuforhetvurdering = arbeidsuforhetvurdering,
         friskmeldingTilArbeidsformidlingFom = friskmeldingTilArbeidsformidlingFom,
         oppfolgingsoppgave = oppfolgingsoppgave,
-        isAktivSenOppfolgingKandidat = isAktivSenOppfolgingKandidat,
         aktivitetskravvurdering = aktivitetskravvurdering,
         manglendeMedvirkning = manglendeMedvirkning,
         senOppfolgingKandidat = senOppfolgingKandidat,

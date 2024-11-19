@@ -16,6 +16,7 @@ import org.amshove.kluent.*
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import java.time.LocalDate
+import java.time.Month
 
 val activeOppfolgingstilfelle = generateOppfolgingstilfelle(
     start = LocalDate.now().minusWeeks(15),
@@ -148,7 +149,8 @@ class PersonOversiktStatusRepositorySpek : Spek({
 
             describe("getPersonOversiktStatus") {
                 it("Retrieves person oversikt status when one exists") {
-                    val newPersonOversiktStatus = PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR)
+                    val fodselsdato = LocalDate.of(1985, Month.MAY, 17)
+                    val newPersonOversiktStatus = PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR, fodselsdato = fodselsdato)
                     database.connection.use { connection ->
                         connection.createPersonOversiktStatus(
                             commit = true,
@@ -160,6 +162,7 @@ class PersonOversiktStatusRepositorySpek : Spek({
                         personOversiktStatusRepository.getPersonOversiktStatus(PersonIdent(UserConstants.ARBEIDSTAKER_FNR))
                     personStatus shouldNotBe null
                     personStatus?.fnr shouldBeEqualTo newPersonOversiktStatus.fnr
+                    personStatus?.fodselsdato shouldBeEqualTo fodselsdato
                 }
                 it("Handles trying to retrieve non existing person oversikt status") {
                     val personStatus =
