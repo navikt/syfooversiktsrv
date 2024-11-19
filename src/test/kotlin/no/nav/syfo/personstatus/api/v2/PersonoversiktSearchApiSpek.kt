@@ -11,15 +11,23 @@ import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.personstatus.infrastructure.database.repository.PersonOversiktStatusRepository
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.VEILEDER_ID
+import no.nav.syfo.testutil.generator.generateOppfolgingstilfelle
 import no.nav.syfo.util.bearerHeader
 import no.nav.syfo.util.configuredJacksonMapper
 import org.amshove.kluent.shouldBeEqualTo
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
+import java.time.LocalDate
 
 object PersonoversiktSearchApiSpek : Spek({
 
     val objectMapper: ObjectMapper = configuredJacksonMapper()
+
+    val activeOppfolgingstilfelle = generateOppfolgingstilfelle(
+        start = LocalDate.now().minusWeeks(15),
+        end = LocalDate.now().plusWeeks(1),
+        antallSykedager = null,
+    )
 
     describe("PersonoversiktSearchApi") {
         with(TestApplicationEngine()) {
@@ -45,9 +53,9 @@ object PersonoversiktSearchApiSpek : Spek({
                 navIdent = VEILEDER_ID,
             )
 
-            it("returns person matching search when veileder has access to person") {
+            it("returns sykmeldt person matching search when veileder has access to person") {
                 val newPersonOversiktStatus =
-                    PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR, navn = "Fornavn Etternavn")
+                    PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR, navn = "Fornavn Etternavn", latestOppfolgingstilfelle = activeOppfolgingstilfelle)
                 personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus)
                 val searchQueryDTO = SearchQueryDTO(initials = "FE")
 
@@ -67,7 +75,7 @@ object PersonoversiktSearchApiSpek : Spek({
 
             it("returns nothing when no person matching search") {
                 val newPersonOversiktStatus =
-                    PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR, navn = "Fornavn Etternavn")
+                    PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR, navn = "Fornavn Etternavn", latestOppfolgingstilfelle = activeOppfolgingstilfelle)
                 personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus)
                 val searchQueryDTO = SearchQueryDTO(initials = "AB")
 
@@ -82,9 +90,9 @@ object PersonoversiktSearchApiSpek : Spek({
                 }
             }
 
-            it("returns nothing when person matching search but veileder has no access to person") {
+            it("returns nothing when sykmeldt person matching search but veileder has no access to person") {
                 val newPersonOversiktStatus =
-                    PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_NO_ACCESS, navn = "Fornavn Etternavn")
+                    PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_NO_ACCESS, navn = "Fornavn Etternavn", latestOppfolgingstilfelle = activeOppfolgingstilfelle)
                 personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus)
                 val searchQueryDTO = SearchQueryDTO(initials = "FE")
 

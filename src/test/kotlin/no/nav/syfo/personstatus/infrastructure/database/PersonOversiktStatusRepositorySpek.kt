@@ -11,9 +11,20 @@ import no.nav.syfo.personstatus.infrastructure.database.repository.PersonOversik
 import no.nav.syfo.testutil.ExternalMockEnvironment
 import no.nav.syfo.testutil.UserConstants
 import no.nav.syfo.testutil.dropData
+import no.nav.syfo.testutil.generator.generateOppfolgingstilfelle
 import org.amshove.kluent.*
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
+import java.time.LocalDate
+
+val activeOppfolgingstilfelle = generateOppfolgingstilfelle(
+    start = LocalDate.now().minusWeeks(15),
+    end = LocalDate.now().plusWeeks(1),
+    antallSykedager = null,
+)
+val inactiveOppfolgingstilfelle = activeOppfolgingstilfelle.copy(
+    oppfolgingstilfelleEnd = LocalDate.now().minusWeeks(3)
+)
 
 class PersonOversiktStatusRepositorySpek : Spek({
 
@@ -217,9 +228,12 @@ class PersonOversiktStatusRepositorySpek : Spek({
                 fun searchInitials(initials: String): List<PersonOversiktStatus> =
                     personOversiktStatusRepository.searchPerson(SearchQuery(initials = Initials(initials)))
 
-                it("finds relevant person when searching with correct initials") {
-                    val newPersonOversiktStatus =
-                        PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR, navn = "Fornavn Mellomnavn Etternavn")
+                it("finds relevant sykmeldt person when searching with correct initials") {
+                    val newPersonOversiktStatus = PersonOversiktStatus(
+                        fnr = UserConstants.ARBEIDSTAKER_FNR,
+                        navn = "Fornavn Mellomnavn Etternavn",
+                        latestOppfolgingstilfelle = activeOppfolgingstilfelle,
+                    )
                     personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus)
 
                     searchInitials("FME").let {
@@ -236,9 +250,12 @@ class PersonOversiktStatusRepositorySpek : Spek({
                     }
                 }
 
-                it("finds relevant person when searching with correct lowercase initials") {
-                    val newPersonOversiktStatus =
-                        PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR, navn = "Fornavn Mellomnavn Etternavn")
+                it("finds relevant sykmeldt person when searching with correct lowercase initials") {
+                    val newPersonOversiktStatus = PersonOversiktStatus(
+                        fnr = UserConstants.ARBEIDSTAKER_FNR,
+                        navn = "Fornavn Mellomnavn Etternavn",
+                        latestOppfolgingstilfelle = activeOppfolgingstilfelle,
+                    )
                     personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus)
 
                     searchInitials("fme").let {
@@ -255,25 +272,41 @@ class PersonOversiktStatusRepositorySpek : Spek({
                     }
                 }
 
-                it("returns empty list when no results") {
-                    val newPersonOversiktStatus =
-                        PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR, navn = "Fornavn Mellomnavn Etternavn")
+                it("returns empty list when no matching results") {
+                    val newPersonOversiktStatus = PersonOversiktStatus(
+                        fnr = UserConstants.ARBEIDSTAKER_FNR,
+                        navn = "Fornavn Mellomnavn Etternavn",
+                        latestOppfolgingstilfelle = activeOppfolgingstilfelle,
+                    )
                     personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus)
 
                     searchInitials("AB").size shouldBe 0
+                }
+
+                it("returns empty list when matching initials but no active oppfolgingstilfelle") {
+                    val newPersonOversiktStatus = PersonOversiktStatus(
+                        fnr = UserConstants.ARBEIDSTAKER_FNR,
+                        navn = "Fornavn Mellomnavn Etternavn",
+                        latestOppfolgingstilfelle = inactiveOppfolgingstilfelle,
+                    )
+                    personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus)
+
+                    searchInitials("FME").size shouldBe 0
                 }
 
                 it("returns several persons when relevant") {
                     personOversiktStatusRepository.createPersonOversiktStatus(
                         PersonOversiktStatus(
                             fnr = UserConstants.ARBEIDSTAKER_FNR,
-                            navn = "Fornavn Mellomnavn Etternavn"
+                            navn = "Fornavn Mellomnavn Etternavn",
+                            latestOppfolgingstilfelle = activeOppfolgingstilfelle,
                         )
                     )
                     personOversiktStatusRepository.createPersonOversiktStatus(
                         PersonOversiktStatus(
                             fnr = UserConstants.ARBEIDSTAKER_2_FNR,
-                            navn = "Frank Mellomnavnsen Etternavnsen"
+                            navn = "Frank Mellomnavnsen Etternavnsen",
+                            latestOppfolgingstilfelle = activeOppfolgingstilfelle,
                         )
                     )
 
@@ -288,13 +321,15 @@ class PersonOversiktStatusRepositorySpek : Spek({
                     personOversiktStatusRepository.createPersonOversiktStatus(
                         PersonOversiktStatus(
                             fnr = UserConstants.ARBEIDSTAKER_FNR,
-                            navn = "Fornavn Evensen Melonsen"
+                            navn = "Fornavn Evensen Melonsen",
+                            latestOppfolgingstilfelle = activeOppfolgingstilfelle,
                         )
                     )
                     personOversiktStatusRepository.createPersonOversiktStatus(
                         PersonOversiktStatus(
                             fnr = UserConstants.ARBEIDSTAKER_2_FNR,
-                            navn = "Frank Melonsen Evensen"
+                            navn = "Frank Melonsen Evensen",
+                            latestOppfolgingstilfelle = activeOppfolgingstilfelle,
                         )
                     )
 
