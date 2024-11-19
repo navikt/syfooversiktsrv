@@ -2,16 +2,19 @@ package no.nav.syfo.personstatus.api.v2.endpoints
 
 import io.ktor.http.*
 import io.ktor.server.application.call
+import io.ktor.server.request.*
 import io.ktor.server.response.respond
 import io.ktor.server.routing.*
 import io.ktor.server.routing.get
 import io.ktor.server.routing.route
 import io.micrometer.core.instrument.Timer
 import no.nav.syfo.personstatus.PersonoversiktOppgaverService
+import no.nav.syfo.personstatus.PersonoversiktSearchService
 import no.nav.syfo.personstatus.infrastructure.clients.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.personstatus.infrastructure.COUNT_PERSONOVERSIKTSTATUS_ENHET_HENTET
 import no.nav.syfo.personstatus.infrastructure.HISTOGRAM_PERSONOVERSIKT
 import no.nav.syfo.personstatus.PersonoversiktStatusService
+import no.nav.syfo.personstatus.api.v2.model.SearchQueryDTO
 import no.nav.syfo.personstatus.domain.*
 import no.nav.syfo.util.*
 import no.nav.syfo.util.getBearerHeader
@@ -31,8 +34,47 @@ fun Route.registerPersonoversiktApiV2(
     veilederTilgangskontrollClient: VeilederTilgangskontrollClient,
     personoversiktStatusService: PersonoversiktStatusService,
     personoversiktOppgaverService: PersonoversiktOppgaverService,
+    personoversiktSearchService: PersonoversiktSearchService,
 ) {
     route(personOversiktApiV2Path) {
+        post("/search") {
+            val callId = getCallId()
+            val token = getBearerHeader()
+                ?: throw java.lang.IllegalArgumentException("No Authorization header supplied")
+            val searchQuery = call.receive<SearchQueryDTO>().toSearchQuery()
+
+            val searchResult = personoversiktSearchService.searchSykmeldt(searchQuery = searchQuery)
+            val fnrWithVeilederAccess = veilederTilgangskontrollClient.veilederPersonAccessListMedOBO(
+                personIdentNumberList = searchResult.map { it.fnr },
+                token = token,
+                callId = callId,
+            ) ?: emptyList()
+
+            val personer = searchResult.filter { fnrWithVeilederAccess.contains(it.fnr) }
+            log.info("Completed search for sykmeldt, found ${personer.size} personer")
+
+            if (personer.isNotEmpty()) {
+                val personerAktiveOppgaver = personoversiktOppgaverService.getAktiveOppgaver(
+                    callId = callId,
+                    token = token,
+                    personer = personer,
+                )
+                val personOversiktStatusDTOs = personer.map {
+                    val aktiveOppgaver = personerAktiveOppgaver[it.fnr]
+                    it.toPersonOversiktStatusDTO(
+                        arbeidsuforhetvurdering = aktiveOppgaver?.arbeidsuforhet,
+                        oppfolgingsoppgave = aktiveOppgaver?.oppfolgingsoppgave,
+                        aktivitetskravvurdering = aktiveOppgaver?.aktivitetskrav,
+                        manglendeMedvirkning = aktiveOppgaver?.manglendeMedvirkning,
+                        senOppfolgingKandidat = aktiveOppgaver?.senOppfolgingKandidat,
+                    )
+                }
+
+                call.respond(personOversiktStatusDTOs)
+            } else {
+                call.respond(HttpStatusCode.NoContent)
+            }
+        }
         get("/enhet/{enhet}") {
             try {
                 val callId = getCallId()
