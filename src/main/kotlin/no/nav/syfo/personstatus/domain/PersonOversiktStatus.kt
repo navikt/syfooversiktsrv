@@ -39,8 +39,16 @@ data class PersonOversiktStatus(
     val isAktivAktivitetskravvurdering: Boolean = false,
     val isAktivManglendeMedvirkningVurdering: Boolean = false,
 ) {
-    fun updateNavn(navn: String): PersonOversiktStatus =
-        this.copy(navn = navn)
+    fun updatePersonDetails(navn: String? = null, fodselsdato: LocalDate? = null): PersonOversiktStatus =
+        if (navn != null && fodselsdato != null) {
+            this.copy(navn = navn, fodselsdato = fodselsdato)
+        } else if (navn != null) {
+            this.copy(navn = navn)
+        } else if (fodselsdato != null) {
+            this.copy(fodselsdato = fodselsdato)
+        } else {
+            this
+        }
 }
 
 fun PersonOversiktStatus.isDialogmotekandidat() =

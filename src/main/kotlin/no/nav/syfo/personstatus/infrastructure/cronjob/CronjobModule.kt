@@ -46,8 +46,6 @@ fun launchCronjobModule(
 
     val populateNavnAndFodselsdatoCronjob = PopulateNavnAndFodselsdatoCronjob(
         personoversiktStatusService = personoversiktStatusService,
-        azureAdClient = azureAdClient,
-        clientEnvironment = environment.clients.pdl,
     )
 
     val reaperService = ReaperService(

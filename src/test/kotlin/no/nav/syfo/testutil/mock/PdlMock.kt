@@ -6,6 +6,7 @@ import no.nav.syfo.personstatus.infrastructure.clients.pdl.model.*
 import no.nav.syfo.testutil.UserConstants
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_NO_NAME_FNR
+import java.time.LocalDate
 
 fun generatePdlPerson(
     pdlPersonNavn: PdlPersonNavn,
@@ -14,7 +15,7 @@ fun generatePdlPerson(
         pdlPersonNavn,
     ),
     foedselsdato = listOf(
-        Foedselsdato(foedselsdato = null),
+        Foedselsdato(foedselsdato = LocalDate.now().minusYears(30)),
     ),
 )
 

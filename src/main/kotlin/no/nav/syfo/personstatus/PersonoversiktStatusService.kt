@@ -8,11 +8,9 @@ import no.nav.syfo.personoppgavehendelse.kafka.KPersonoppgavehendelse
 import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
 import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.*
-import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdToken
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.PdlClient
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.model.fullName
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
-import org.slf4j.LoggerFactory
 import java.sql.Connection
 
 class PersonoversiktStatusService(
@@ -119,20 +117,25 @@ class PersonoversiktStatusService(
             isAktivVurdering = isAktivVurdering,
         )
 
-    suspend fun updateNavnOrFodselsdatoWhereMissing(systemToken: AzureAdToken) {
-        val personStatuser = personoversiktStatusRepository.getPersonstatusesWithoutNavnOrFodselsdato()
+    suspend fun updateNavnOrFodselsdatoWhereMissing(updateLimit: Int) {
+        val personStatuser = personoversiktStatusRepository.getPersonstatusesWithoutNavnOrFodselsdato(updateLimit)
         val personidenter = personStatuser.map { PersonIdent(it.fnr) }
 
-        val result = pdlClient.getPersons(personidenter = personidenter, token = systemToken)?.hentPersonBolk ?: emptyList()
-        val resultById = result.associateBy { it.ident }
+        val pdlPersons = pdlClient.getPersons(personidenter = personidenter)?.hentPersonBolk ?: emptyList()
+        val pdlPersonsById = pdlPersons.associateBy { it.ident }
         val editedPersonStatuser = personStatuser.mapNotNull { personStatus ->
-            val pdlPerson = resultById[personStatus.fnr]
-            pdlPerson?.person?.fullName()?.let {
-                personStatus.updateNavn(it)
+            val pdlPerson = pdlPersonsById[personStatus.fnr]
+            val fullName = pdlPerson?.person?.fullName()
+            val fodselsdato = pdlPerson?.person?.foedselsdato?.first()?.foedselsdato
+
+            val isUpdate = fullName != null || fodselsdato != null
+            if (isUpdate) {
+                personStatus.updatePersonDetails(navn = fullName, fodselsdato = fodselsdato)
+            } else {
+                null
             }
         }
-
-        personoversiktStatusRepository.updatePersonstatusesWithNavnOrFodselsdato(editedPersonStatuser)
+        personoversiktStatusRepository.updatePersonstatusesWithNavnAndFodselsdato(editedPersonStatuser)
     }
 
     private fun createOrUpdatePersonOversiktStatus(
@@ -187,9 +190,5 @@ class PersonoversiktStatusService(
 
             COUNT_KAFKA_CONSUMER_PERSONOPPGAVEHENDELSE_UPDATED_PERSONOVERSIKT_STATUS.increment()
         }
-    }
-
-    companion object {
-        private val log = LoggerFactory.getLogger(PersonoversiktStatusService::class.java)
     }
 }

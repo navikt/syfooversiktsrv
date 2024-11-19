@@ -5,7 +5,6 @@ import no.nav.syfo.personstatus.api.v2.model.VeilederTildelingHistorikkDTO
 import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
 import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.*
-import no.nav.syfo.personstatus.infrastructure.clients.pdl.model.PdlHentPerson
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import no.nav.syfo.personstatus.infrastructure.database.toList
 import no.nav.syfo.util.nowUTC
@@ -145,21 +144,21 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
         return personoversiktStatus.firstOrNull()?.toPersonOversiktStatus()
     }
 
-    override fun getPersonstatusesWithoutNavnOrFodselsdato(): List<PersonOversiktStatus> =
+    override fun getPersonstatusesWithoutNavnOrFodselsdato(limit: Int): List<PersonOversiktStatus> =
         database.connection.use { connection ->
             connection.prepareStatement(GET_PERSON_STATUSES_WITHOUT_NAVN_OR_FODSELSDATO).use {
+                it.setInt(1, limit)
                 it.executeQuery().toList { toPPersonOversiktStatus() }
             }
         }.map { it.toPersonOversiktStatus() }
-    
-    override fun createPersonOversiktStatus(personOversiktStatus: PersonOversiktStatus) {
-        return database.connection.use { connection ->
+
+    override fun createPersonOversiktStatus(personOversiktStatus: PersonOversiktStatus): PersonOversiktStatus =
+        database.connection.use { connection ->
             connection.createPersonOversiktStatus(
                 commit = true,
                 personOversiktStatus = personOversiktStatus,
             )
         }
-    }
 
     override fun lagreVeilederForBruker(
         veilederBrukerKnytning: VeilederBrukerKnytning,
@@ -276,41 +275,27 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
         }
     }
 
-    fun DatabaseInterface.updatePersonOversiktStatusNavn(
-        personIdentNameMap: Map<String, String>,
-    ) {
-        val now = Timestamp.from(Instant.now())
-        this.connection.use { connection ->
-            database.connection.prepareStatement(UPDATE_PERSON_NAVN_OG_FODSELSDATO).use {
-                personIdentNameMap.forEach { (personident, navn) ->
-                    it.setString(1, navn)
-                    it.setObject(2, now)
-                    it.setString(3, personident)
-                    it.executeUpdate()
-                }
-            }
-            connection.commit()
-        }
-    }
-
-    override fun updatePersonstatusesWithNavnOrFodselsdato(personer: List<PersonOversiktStatus>) {
-/*        database.connection.use { connection ->
+    override fun updatePersonstatusesWithNavnAndFodselsdato(personer: List<PersonOversiktStatus>): List<PersonOversiktStatus> =
+        database.connection.use { connection ->
             connection.prepareStatement(UPDATE_PERSON_NAVN_OG_FODSELSDATO).use {
-                personer.forEach { person ->
-                    it.setString(1, navn)
-                    it.setObject(2, Timestamp.from(Instant.now()))
-                    it.setString(3, personident)
-                    it.setString(4, personident)
-                    it.executeUpdate()
+                personer.map { person ->
+                    it.setString(1, person.navn)
+                    if (person.fodselsdato != null) {
+                        it.setDate(2, Date.valueOf(person.fodselsdato))
+                    } else {
+                        it.setNull(2, Types.DATE)
+                    }
+                    it.setObject(3, Timestamp.from(Instant.now()))
+                    it.setString(4, person.fnr)
+                    it.executeQuery().toList { toPPersonOversiktStatus() }.first()
                 }
-            }
-            connection.commit()
-        }*/
-    }
+            }.also { connection.commit() }
+        }.map { it.toPersonOversiktStatus() }
 
     override fun searchPerson(searchQuery: SearchQuery): List<PersonOversiktStatus> {
         val initials = searchQuery.initials.value.toList()
-        val baseQuery = "SELECT * FROM PERSON_OVERSIKT_STATUS p WHERE p.oppfolgingstilfelle_end + INTERVAL '16 DAY' >= now() AND p.fodselsdato = ? AND "
+        val baseQuery =
+            "SELECT * FROM PERSON_OVERSIKT_STATUS p WHERE p.oppfolgingstilfelle_end + INTERVAL '16 DAY' >= now() AND p.fodselsdato = ? AND "
         val nameQuery =
             "p.name ILIKE ? AND " + initials.drop(1).joinToString(" AND ") { "p.name ILIKE ?" }
         return database.connection.use { connection ->
@@ -502,16 +487,18 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
 
         private const val GET_PERSON_STATUSES_WITHOUT_NAVN_OR_FODSELSDATO =
             """
-            SELECT *
+            SELECT * 
             FROM PERSON_OVERSIKT_STATUS
             WHERE (name IS NULL OR fodselsdato IS NULL) AND (oppfolgingstilfelle_end + INTERVAL '16 DAY' >= now() OR $AKTIV_OPPGAVE_WHERE_CLAUSE)
+            LIMIT ?
             """
 
         private const val UPDATE_PERSON_NAVN_OG_FODSELSDATO =
             """
             UPDATE PERSON_OVERSIKT_STATUS
-            SET name = ?, sist_endret = ?, fodselsdato = ?
+            SET name = ?, fodselsdato = ?, sist_endret = ?
             WHERE fnr = ?
+            RETURNING *
             """
     }
 }

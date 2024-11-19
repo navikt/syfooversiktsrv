@@ -1,10 +1,10 @@
 package no.nav.syfo.personstatus.infrastructure.database
 
 import io.ktor.server.testing.*
-import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.db.createPersonOversiktStatus
 import no.nav.syfo.personstatus.db.getPersonOversiktStatusList
 import no.nav.syfo.personstatus.domain.Initials
+import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.personstatus.domain.SearchQuery
 import no.nav.syfo.personstatus.infrastructure.database.repository.PersonOversiktStatusRepository
@@ -395,6 +395,152 @@ class PersonOversiktStatusRepositorySpek : Spek({
                         it.first().navn shouldBeEqualTo "Fornavn Evensen Melonsen"
                         it[1].navn shouldBeEqualTo "Frank Melonsen Evensen"
                     }
+                }
+            }
+
+            describe("updatePersonstatusesWithNavnAndFodselsdato") {
+                it("updates navn") {
+                    val createdPersonStatus = personOversiktStatusRepository.createPersonOversiktStatus(
+                        PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR)
+                    )
+                    val updatedPersonStatus = createdPersonStatus.updatePersonDetails(navn = "Stian Sykmeldt")
+
+                    val updatesPersonStatuses =
+                        personOversiktStatusRepository.updatePersonstatusesWithNavnAndFodselsdato(listOf(updatedPersonStatus))
+
+                    updatesPersonStatuses.first().navn shouldBeEqualTo "Stian Sykmeldt"
+                }
+
+                it("updates fodselsdato") {
+                    val createdPersonStatus = personOversiktStatusRepository.createPersonOversiktStatus(
+                        PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR)
+                    )
+                    val updatedPersonStatus = createdPersonStatus.updatePersonDetails(fodselsdato = LocalDate.now())
+
+                    val updatesPersonStatuses =
+                        personOversiktStatusRepository.updatePersonstatusesWithNavnAndFodselsdato(listOf(updatedPersonStatus))
+
+                    updatesPersonStatuses.first().fodselsdato shouldBeEqualTo updatedPersonStatus.fodselsdato
+                }
+
+                it("updates navn and fodselsdato") {
+                    val createdPersonStatus = personOversiktStatusRepository.createPersonOversiktStatus(
+                        PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR)
+                    )
+                    val updatedPersonStatus = createdPersonStatus.apply {
+                        updatePersonDetails(navn = "Stian Sykmeldt")
+                        updatePersonDetails(fodselsdato = LocalDate.now())
+                    }
+
+                    val updatesPersonStatuses =
+                        personOversiktStatusRepository.updatePersonstatusesWithNavnAndFodselsdato(listOf(updatedPersonStatus))
+
+                    updatesPersonStatuses.first().navn shouldBeEqualTo updatedPersonStatus.navn
+                    updatesPersonStatuses.first().fodselsdato shouldBeEqualTo updatedPersonStatus.fodselsdato
+                }
+            }
+
+            describe("getPersonstatusesWithoutNavnOrFodselsdato") {
+                it("correctly finds persons with missing name or fodselsdato, and active oppgave, but not active oppfolgingstilfelle") {
+                    val personNotMissingAnything = personOversiktStatusRepository.createPersonOversiktStatus(
+                        PersonOversiktStatus(
+                            fnr = UserConstants.ARBEIDSTAKER_FNR,
+                            navn = "Stian Sykmeldt",
+                            fodselsdato = LocalDate.now(),
+                            isAktivAktivitetskravvurdering = true
+                        )
+                    )
+                    val personMissingName = personOversiktStatusRepository.createPersonOversiktStatus(
+                        PersonOversiktStatus(
+                            fnr = UserConstants.ARBEIDSTAKER_2_FNR,
+                            isAktivAktivitetskravvurdering = true
+                        )
+                    )
+
+                    val personsWithMissingName = personOversiktStatusRepository.getPersonstatusesWithoutNavnOrFodselsdato(10)
+
+                    personsWithMissingName.size shouldBeEqualTo 1
+                    personsWithMissingName.first().fnr shouldBeEqualTo personMissingName.fnr
+                    personNotMissingAnything shouldNotBeIn personsWithMissingName
+                }
+
+                it("correctly finds persons missing either name or fodselsdato") {
+                    val personWithNameMissingFodselsdato = personOversiktStatusRepository.createPersonOversiktStatus(
+                        PersonOversiktStatus(
+                            fnr = UserConstants.ARBEIDSTAKER_FNR,
+                            navn = "Stian Sykmeldt",
+                            isAktivAktivitetskravvurdering = true
+                        )
+                    )
+                    val personWithFodselsdatoMissingName = personOversiktStatusRepository.createPersonOversiktStatus(
+                        PersonOversiktStatus(
+                            fnr = UserConstants.ARBEIDSTAKER_2_FNR,
+                            fodselsdato = LocalDate.now(),
+                            isAktivAktivitetskravvurdering = true
+                        )
+                    )
+
+                    val persons = personOversiktStatusRepository.getPersonstatusesWithoutNavnOrFodselsdato(10)
+
+                    persons.size shouldBeEqualTo 2
+                    persons.first().fnr shouldBeEqualTo personWithNameMissingFodselsdato.fnr
+                    persons[1].fnr shouldBeEqualTo personWithFodselsdatoMissingName.fnr
+                }
+
+                it("correctly finds persons with missing name, and not active oppgave, but active oppfolgingstilfelle") {
+                    val personNotActiveOppfolgingstilfelle = personOversiktStatusRepository.createPersonOversiktStatus(
+                        PersonOversiktStatus(
+                            fnr = UserConstants.ARBEIDSTAKER_FNR,
+                            latestOppfolgingstilfelle = generateOppfolgingstilfelle(
+                                start = LocalDate.now().minusDays(30),
+                                end = LocalDate.now().minusDays(20),
+                                antallSykedager = 10,
+                            )
+                        )
+                    )
+                    val personActiveOppfolgingstilfelle = personOversiktStatusRepository.createPersonOversiktStatus(
+                        PersonOversiktStatus(
+                            fnr = UserConstants.ARBEIDSTAKER_2_FNR,
+                            latestOppfolgingstilfelle = generateOppfolgingstilfelle(
+                                start = LocalDate.now().minusDays(10),
+                                end = LocalDate.now().minusDays(5),
+                                antallSykedager = 10,
+                            )
+                        )
+                    )
+
+                    val personsWithMissingName = personOversiktStatusRepository.getPersonstatusesWithoutNavnOrFodselsdato(10)
+
+                    personsWithMissingName.size shouldBeEqualTo 1
+                    personsWithMissingName.first().fnr shouldBeEqualTo personActiveOppfolgingstilfelle.fnr
+                    personNotActiveOppfolgingstilfelle shouldNotBeIn personsWithMissingName
+                }
+
+                it("correctly returns empty list when no persons with active oppgave, or active oppfolgingstilfelle") {
+                    personOversiktStatusRepository.createPersonOversiktStatus(
+                        PersonOversiktStatus(
+                            fnr = UserConstants.ARBEIDSTAKER_FNR,
+                            latestOppfolgingstilfelle = generateOppfolgingstilfelle(
+                                start = LocalDate.now().minusDays(40),
+                                end = LocalDate.now().minusDays(20),
+                                antallSykedager = 10,
+                            )
+                        )
+                    )
+                    personOversiktStatusRepository.createPersonOversiktStatus(
+                        PersonOversiktStatus(
+                            fnr = UserConstants.ARBEIDSTAKER_2_FNR,
+                            latestOppfolgingstilfelle = generateOppfolgingstilfelle(
+                                start = LocalDate.now().minusDays(30),
+                                end = LocalDate.now().minusDays(17),
+                                antallSykedager = 10,
+                            )
+                        )
+                    )
+
+                    val personsWithMissingName = personOversiktStatusRepository.getPersonstatusesWithoutNavnOrFodselsdato(10)
+
+                    personsWithMissingName.size shouldBeEqualTo 0
                 }
             }
         }

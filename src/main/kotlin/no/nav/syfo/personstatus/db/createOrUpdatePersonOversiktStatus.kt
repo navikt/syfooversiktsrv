@@ -49,18 +49,18 @@ const val queryCreatePersonOversiktStatus =
         is_aktiv_aktivitetskrav_vurdering,
         is_aktiv_manglende_medvirkning_vurdering
     ) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    RETURNING id
+    RETURNING *
     """
 
 fun Connection.createPersonOversiktStatus(
     commit: Boolean,
     personOversiktStatus: PersonOversiktStatus,
-) {
+): PersonOversiktStatus {
     val tidspunkt = Timestamp.from(Instant.now())
     val now = nowUTC()
     var parameterIndex = 1
 
-    val personOversiktStatusId: Int = this.prepareStatement(queryCreatePersonOversiktStatus).use {
+    val pPersonStatus: PPersonOversiktStatus = this.prepareStatement(queryCreatePersonOversiktStatus).use {
         it.setString(parameterIndex++, UUID.randomUUID().toString())
         it.setString(parameterIndex++, personOversiktStatus.fnr)
         it.setObject(parameterIndex++, personOversiktStatus.fodselsdato)
@@ -116,19 +116,20 @@ fun Connection.createPersonOversiktStatus(
         it.setBoolean(parameterIndex++, personOversiktStatus.isAktivSenOppfolgingKandidat)
         it.setBoolean(parameterIndex++, personOversiktStatus.isAktivAktivitetskravvurdering)
         it.setBoolean(parameterIndex++, personOversiktStatus.isAktivManglendeMedvirkningVurdering)
-        it.executeQuery().toList { getInt("id") }.firstOrNull()
+        it.executeQuery().toList { toPPersonOversiktStatus() }.firstOrNull()
     } ?: throw SQLException("Creating PersonOversikStatus failed, no rows affected.")
 
     personOversiktStatus.latestOppfolgingstilfelle?.let { personOppfolgingstilfelle ->
         createPersonOppfolgingstilfelleVirksomhetList(
             commit = commit,
-            personOversiktStatusId = personOversiktStatusId,
+            personOversiktStatusId = pPersonStatus.id,
             personOppfolgingstilfelleVirksomhetList = personOppfolgingstilfelle.virksomhetList,
         )
     }
     if (commit) {
         this.commit()
     }
+    return pPersonStatus.toPersonOversiktStatus()
 }
 
 const val queryUpdatePersonOversiktStatusOppfolgingstilfelle =
