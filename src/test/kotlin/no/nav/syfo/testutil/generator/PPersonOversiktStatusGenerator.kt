@@ -7,6 +7,7 @@ import java.util.*
 fun generatePPersonOversiktStatus(fnr: String = UserConstants.ARBEIDSTAKER_FNR) = PPersonOversiktStatus(
     veilederIdent = null,
     fnr = fnr,
+    fodselsdato = null,
     uuid = UUID.randomUUID(),
     navn = null,
     id = 1,
