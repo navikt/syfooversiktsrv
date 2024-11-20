@@ -270,16 +270,18 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
 
     override fun searchPerson(searchQuery: SearchQuery): List<PersonOversiktStatus> {
         val initials = searchQuery.initials.value.toList()
-        val baseQuery = "SELECT * FROM PERSON_OVERSIKT_STATUS p WHERE oppfolgingstilfelle_end + INTERVAL '16 DAY' >= now() AND "
-        val whereStatement =
+        val baseQuery = "SELECT * FROM PERSON_OVERSIKT_STATUS p WHERE p.oppfolgingstilfelle_end + INTERVAL '16 DAY' >= now() AND p.fodselsdato = ? AND "
+        val nameQuery =
             "p.name ILIKE ? AND " + initials.drop(1).joinToString(" AND ") { "p.name ILIKE ?" }
         return database.connection.use { connection ->
-            connection.prepareStatement(baseQuery + whereStatement).use {
+            connection.prepareStatement(baseQuery + nameQuery).use {
+                var parameterIndex = 1
+                it.setObject(parameterIndex++, searchQuery.birthdate)
                 initials.forEachIndexed { index, param ->
                     if (index == 0) {
-                        it.setString(index + 1, "$param%")
+                        it.setString(parameterIndex++, "$param%")
                     } else {
-                        it.setString(index + 1, "% $param%")
+                        it.setString(parameterIndex++, "% $param%")
                     }
                 }
                 it.executeQuery().toList { toPPersonOversiktStatus() }

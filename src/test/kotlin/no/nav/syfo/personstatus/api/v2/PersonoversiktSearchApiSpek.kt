@@ -18,6 +18,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import java.time.LocalDate
+import java.time.Month
 
 object PersonoversiktSearchApiSpek : Spek({
 
@@ -52,12 +53,13 @@ object PersonoversiktSearchApiSpek : Spek({
                 issuer = externalMockEnvironment.wellKnownVeilederV2.issuer,
                 navIdent = VEILEDER_ID,
             )
+            val fodselsdato = LocalDate.of(1985, Month.MAY, 17)
 
             it("returns sykmeldt person matching search when veileder has access to person") {
                 val newPersonOversiktStatus =
-                    PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR, navn = "Fornavn Etternavn", latestOppfolgingstilfelle = activeOppfolgingstilfelle)
+                    PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR, navn = "Fornavn Etternavn", fodselsdato = fodselsdato, latestOppfolgingstilfelle = activeOppfolgingstilfelle)
                 personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus)
-                val searchQueryDTO = SearchQueryDTO(initials = "FE")
+                val searchQueryDTO = SearchQueryDTO(initials = "FE", birthdate = fodselsdato)
 
                 with(
                     handleRequest(HttpMethod.Post, url) {
@@ -75,9 +77,9 @@ object PersonoversiktSearchApiSpek : Spek({
 
             it("returns nothing when no person matching search") {
                 val newPersonOversiktStatus =
-                    PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR, navn = "Fornavn Etternavn", latestOppfolgingstilfelle = activeOppfolgingstilfelle)
+                    PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR, navn = "Fornavn Etternavn", fodselsdato = fodselsdato, latestOppfolgingstilfelle = activeOppfolgingstilfelle)
                 personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus)
-                val searchQueryDTO = SearchQueryDTO(initials = "AB")
+                val searchQueryDTO = SearchQueryDTO(initials = "AB", birthdate = LocalDate.now())
 
                 with(
                     handleRequest(HttpMethod.Post, url) {
@@ -92,9 +94,9 @@ object PersonoversiktSearchApiSpek : Spek({
 
             it("returns nothing when sykmeldt person matching search but veileder has no access to person") {
                 val newPersonOversiktStatus =
-                    PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_NO_ACCESS, navn = "Fornavn Etternavn", latestOppfolgingstilfelle = activeOppfolgingstilfelle)
+                    PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_NO_ACCESS, navn = "Fornavn Etternavn", fodselsdato = fodselsdato, latestOppfolgingstilfelle = activeOppfolgingstilfelle)
                 personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus)
-                val searchQueryDTO = SearchQueryDTO(initials = "FE")
+                val searchQueryDTO = SearchQueryDTO(initials = "FE", birthdate = fodselsdato)
 
                 with(
                     handleRequest(HttpMethod.Post, url) {
