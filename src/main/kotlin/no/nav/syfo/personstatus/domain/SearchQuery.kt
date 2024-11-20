@@ -1,7 +1,10 @@
 package no.nav.syfo.personstatus.domain
 
+import java.time.LocalDate
+
 data class SearchQuery(
     val initials: Initials,
+    val birthdate: LocalDate,
 )
 
 @JvmInline
