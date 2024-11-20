@@ -6,7 +6,6 @@ import kotlinx.coroutines.runBlocking
 import no.nav.syfo.personstatus.db.getPersonOversiktStatusList
 import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
-import no.nav.syfo.personstatus.infrastructure.database.repository.PersonOversiktStatusRepository
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_ENHET_ERROR_PERSONIDENT
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_ENHET_NOT_FOUND_PERSONIDENT
@@ -26,10 +25,10 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
 
         val externalMockEnvironment = ExternalMockEnvironment.instance
         val database = externalMockEnvironment.database
+        val personOversiktStatusRepository = externalMockEnvironment.personOversiktStatusRepository
         val internalMockEnvironment = InternalMockEnvironment.instance
 
         val personBehandlendeEnhetCronjob = internalMockEnvironment.personBehandlendeEnhetCronjob
-        val personOversiktStatusRepository = PersonOversiktStatusRepository(database = database)
 
         val personIdentDefault = PersonIdent(ARBEIDSTAKER_FNR)
 

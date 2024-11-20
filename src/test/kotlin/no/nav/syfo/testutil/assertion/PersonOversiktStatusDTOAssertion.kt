@@ -1,7 +1,6 @@
 package no.nav.syfo.testutil.assertion
 
-import no.nav.syfo.oppfolgingstilfelle.kafka.KafkaOppfolgingstilfellePerson
-import no.nav.syfo.oppfolgingstilfelle.kafka.toPersonOppfolgingstilfelle
+import no.nav.syfo.oppfolgingstilfelle.kafka.OppfolgingstilfellePersonRecord
 import no.nav.syfo.personstatus.api.v2.model.PersonOppfolgingstilfelleDTO
 import no.nav.syfo.personstatus.api.v2.model.PersonOppfolgingstilfelleVirksomhetDTO
 import no.nav.syfo.testutil.mock.eregOrganisasjonResponse
@@ -11,9 +10,9 @@ import org.amshove.kluent.shouldNotBeNull
 
 fun checkPersonOppfolgingstilfelleDTO(
     personOppfolgingstilfelleDTO: PersonOppfolgingstilfelleDTO?,
-    kafkaOppfolgingstilfellePerson: KafkaOppfolgingstilfellePerson,
+    oppfolgingstilfellePersonRecord: OppfolgingstilfellePersonRecord,
 ) {
-    val latestOppfolgingstilfelle = kafkaOppfolgingstilfellePerson.oppfolgingstilfelleList.firstOrNull()
+    val latestOppfolgingstilfelle = oppfolgingstilfellePersonRecord.oppfolgingstilfelleList.firstOrNull()
 
     latestOppfolgingstilfelle.shouldNotBeNull()
 
@@ -21,21 +20,21 @@ fun checkPersonOppfolgingstilfelleDTO(
 
     personOppfolgingstilfelleDTO.oppfolgingstilfelleStart shouldBeEqualTo latestOppfolgingstilfelle.start
     personOppfolgingstilfelleDTO.oppfolgingstilfelleEnd shouldBeEqualTo latestOppfolgingstilfelle.end
-    personOppfolgingstilfelleDTO.varighetUker shouldBeEqualTo kafkaOppfolgingstilfellePerson.toPersonOppfolgingstilfelle(
+    personOppfolgingstilfelleDTO.varighetUker shouldBeEqualTo oppfolgingstilfellePersonRecord.toPersonOppfolgingstilfelle(
         latestOppfolgingstilfelle
     ).varighetUker()
 
     checkPersonOppfolgingstilfelleVirksomhetDTOList(
         personOppfolgingstilfelleVirksomhetDTOList = personOppfolgingstilfelleDTO.virksomhetList,
-        kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePerson,
+        oppfolgingstilfellePersonRecord = oppfolgingstilfellePersonRecord,
     )
 }
 
 fun checkPersonOppfolgingstilfelleVirksomhetDTOList(
     personOppfolgingstilfelleVirksomhetDTOList: List<PersonOppfolgingstilfelleVirksomhetDTO>,
-    kafkaOppfolgingstilfellePerson: KafkaOppfolgingstilfellePerson,
+    oppfolgingstilfellePersonRecord: OppfolgingstilfellePersonRecord,
 ) {
-    val virksomhetsnummerList = kafkaOppfolgingstilfellePerson.oppfolgingstilfelleList.first().virksomhetsnummerList
+    val virksomhetsnummerList = oppfolgingstilfellePersonRecord.oppfolgingstilfelleList.first().virksomhetsnummerList
 
     personOppfolgingstilfelleVirksomhetDTOList.size shouldBeEqualTo virksomhetsnummerList.size
 

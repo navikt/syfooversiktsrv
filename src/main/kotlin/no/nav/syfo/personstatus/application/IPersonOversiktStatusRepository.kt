@@ -1,5 +1,6 @@
 package no.nav.syfo.personstatus.application
 
+import no.nav.syfo.oppfolgingstilfelle.domain.Oppfolgingstilfelle
 import no.nav.syfo.personstatus.api.v2.model.VeilederTildelingHistorikkDTO
 import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
@@ -34,4 +35,9 @@ interface IPersonOversiktStatusRepository {
     fun updatePersonTildeltEnhetUpdatedAt(personIdent: PersonIdent)
 
     fun searchPerson(searchQuery: SearchQuery): List<PersonOversiktStatus>
+
+    fun updatePersonOversiktStatusOppfolgingstilfelle(
+        personstatus: PersonOversiktStatus,
+        oppfolgingstilfelle: Oppfolgingstilfelle,
+    )
 }

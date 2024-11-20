@@ -5,7 +5,6 @@ import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendring
 import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendringType
 import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.Virksomhetsnummer
-import no.nav.syfo.oppfolgingstilfelle.kafka.toPersonOversiktStatus
 import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.generator.*

@@ -8,7 +8,6 @@ import no.nav.syfo.personstatus.PersonoversiktStatusService
 import no.nav.syfo.personstatus.db.createPersonOversiktStatus
 import no.nav.syfo.personstatus.db.getPersonOversiktStatusList
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
-import no.nav.syfo.personstatus.infrastructure.database.repository.PersonOversiktStatusRepository
 import no.nav.syfo.personstatus.infrastructure.kafka.mockPollConsumerRecords
 import no.nav.syfo.testutil.ExternalMockEnvironment
 import no.nav.syfo.testutil.UserConstants
@@ -24,8 +23,8 @@ import java.util.*
 class SenOppfolgingKandidatStatusConsumerSpek : Spek({
     val externalMockEnvironment = ExternalMockEnvironment.instance
     val database = externalMockEnvironment.database
+    val personOppgaveRepository = externalMockEnvironment.personOversiktStatusRepository
     val kafkaConsumer = mockk<KafkaConsumer<String, KandidatStatusRecord>>()
-    val personOppgaveRepository = PersonOversiktStatusRepository(database = database)
     val personoversiktStatusService = PersonoversiktStatusService(
         database = database,
         pdlClient = externalMockEnvironment.pdlClient,

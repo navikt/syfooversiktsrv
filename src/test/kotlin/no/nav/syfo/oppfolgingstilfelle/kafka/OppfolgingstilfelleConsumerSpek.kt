@@ -27,7 +27,7 @@ import org.spekframework.spek2.style.specification.describe
 import java.time.Duration
 
 @InternalAPI
-object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
+object OppfolgingstilfelleConsumerSpek : Spek({
 
     with(TestApplicationEngine()) {
         start()
@@ -39,18 +39,18 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
             externalMockEnvironment = externalMockEnvironment,
         )
 
-        val kafkaOppfolgingstilfellePersonService = TestKafkaModule.kafkaOppfolgingstilfellePersonService
+        val oppfolgingstilfelleConsumer = TestKafkaModule.oppfolgingstilfelleConsumer
 
         val mockKafkaConsumerOppfolgingstilfellePerson = TestKafkaModule.kafkaConsumerOppfolgingstilfellePerson
 
         val oppfolgingstilfellePersonTopicPartition = oppfolgingstilfellePersonTopicPartition()
         val personIdentDefault = PersonIdent(ARBEIDSTAKER_FNR)
 
-        val kafkaOppfolgingstilfellePersonServiceRelevant = generateKafkaOppfolgingstilfellePerson(
+        val oppfolgingstilfellePersonRecordRelevant = generateKafkaOppfolgingstilfellePerson(
             personIdent = personIdentDefault,
         )
         val kafkaOppfolgingstilfellePersonServiceRecordRelevant = oppfolgingstilfellePersonConsumerRecord(
-            kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonServiceRelevant
+            oppfolgingstilfellePersonRecord = oppfolgingstilfellePersonRecordRelevant
         )
         val kafkaOppfolgingstilfellePersonRelevantNotArbeidstaker = generateKafkaOppfolgingstilfellePerson(
             arbeidstakerAtTilfelleEnd = false,
@@ -58,10 +58,10 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
             virksomhetsnummerList = emptyList(),
         )
         val kafkaOppfolgingstilfellePersonRelevantNotArbeidstakerRecord = oppfolgingstilfellePersonConsumerRecord(
-            kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonRelevantNotArbeidstaker
+            oppfolgingstilfellePersonRecord = kafkaOppfolgingstilfellePersonRelevantNotArbeidstaker
         )
 
-        fun mockConsumer(vararg records: ConsumerRecord<String, KafkaOppfolgingstilfellePerson>) {
+        fun mockConsumer(vararg records: ConsumerRecord<String, OppfolgingstilfellePersonRecord>) {
             every { mockKafkaConsumerOppfolgingstilfellePerson.poll(any<Duration>()) } returns ConsumerRecords(
                 mapOf(
                     oppfolgingstilfellePersonTopicPartition to listOf(
@@ -83,7 +83,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
             it("should create new PersonOversiktStatus if no PersonOversiktStatus exists for PersonIdent") {
                 mockConsumer(kafkaOppfolgingstilfellePersonServiceRecordRelevant)
 
-                kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                oppfolgingstilfelleConsumer.pollAndProcessRecords(
                     kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                 )
 
@@ -109,7 +109,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
 
                     checkPPersonOversiktStatusOppfolgingstilfelle(
                         pPersonOversiktStatus = pPersonOversiktStatus,
-                        kafkaOppfolgingstilfellePerson = recordValue,
+                        oppfolgingstilfellePersonRecord = recordValue,
                     )
                 }
             }
@@ -117,7 +117,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
             it("should create new PersonOversiktStatus if no PersonOversiktStatus exists for PersonIdent even if not arbeidstaker") {
                 mockConsumer(kafkaOppfolgingstilfellePersonRelevantNotArbeidstakerRecord)
 
-                kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                oppfolgingstilfelleConsumer.pollAndProcessRecords(
                     kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                 )
 
@@ -143,7 +143,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
 
                     checkPPersonOversiktStatusOppfolgingstilfelle(
                         pPersonOversiktStatus = pPersonOversiktStatus,
-                        kafkaOppfolgingstilfellePerson = recordValue,
+                        oppfolgingstilfellePersonRecord = recordValue,
                     )
                 }
             }
@@ -161,7 +161,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
 
                 database.createPersonOversiktStatus(personoversiktStatus)
 
-                kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                oppfolgingstilfelleConsumer.pollAndProcessRecords(
                     kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                 )
 
@@ -188,7 +188,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
 
                 checkPPersonOversiktStatusOppfolgingstilfelle(
                     pPersonOversiktStatus = pPersonOversiktStatus,
-                    kafkaOppfolgingstilfellePerson = recordValue,
+                    oppfolgingstilfellePersonRecord = recordValue,
                 )
             }
 
@@ -197,7 +197,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     personIdent = personIdentDefault,
                 )
                 val kafkaOppfolgingstilfellePersonServiceRecordRelevantFirst = oppfolgingstilfellePersonConsumerRecord(
-                    kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonServiceRelevantFirst,
+                    oppfolgingstilfellePersonRecord = kafkaOppfolgingstilfellePersonServiceRelevantFirst,
                 )
 
                 val kafkaOppfolgingstilfellePersonServiceRelevantNewest = generateKafkaOppfolgingstilfellePerson(
@@ -208,15 +208,15 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     )
                 )
                 val kafkaOppfolgingstilfellePersonServiceRecordRelevantNewest = oppfolgingstilfellePersonConsumerRecord(
-                    kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonServiceRelevantNewest,
+                    oppfolgingstilfellePersonRecord = kafkaOppfolgingstilfellePersonServiceRelevantNewest,
                 )
 
                 mockConsumer(
-                    kafkaOppfolgingstilfellePersonServiceRecordRelevantNewest,
                     kafkaOppfolgingstilfellePersonServiceRecordRelevantFirst,
+                    kafkaOppfolgingstilfellePersonServiceRecordRelevantNewest,
                 )
 
-                kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                oppfolgingstilfelleConsumer.pollAndProcessRecords(
                     kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                 )
 
@@ -242,7 +242,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
 
                     checkPPersonOversiktStatusOppfolgingstilfelle(
                         pPersonOversiktStatus = pPersonOversiktStatus,
-                        kafkaOppfolgingstilfellePerson = recordValue,
+                        oppfolgingstilfellePersonRecord = recordValue,
                     )
 
                     val pPersonOppfolgingstilfelleVirksomhetList =
@@ -261,7 +261,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     personIdent = personIdentDefault,
                 )
                 val kafkaOppfolgingstilfellePersonServiceRecordRelevantFirst = oppfolgingstilfellePersonConsumerRecord(
-                    kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonServiceRelevantFirst
+                    oppfolgingstilfellePersonRecord = kafkaOppfolgingstilfellePersonServiceRelevantFirst
                 )
 
                 val kafkaOppfolgingstilfellePersonServiceRelevantNewest = generateKafkaOppfolgingstilfellePerson(
@@ -271,7 +271,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     referanseTilfelleBitInntruffet = kafkaOppfolgingstilfellePersonServiceRelevantFirst.referanseTilfelleBitInntruffet
                 )
                 val kafkaOppfolgingstilfellePersonServiceRecordRelevantNewest = oppfolgingstilfellePersonConsumerRecord(
-                    kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonServiceRelevantNewest,
+                    oppfolgingstilfellePersonRecord = kafkaOppfolgingstilfellePersonServiceRelevantNewest,
                 )
 
                 mockConsumer(
@@ -279,7 +279,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     kafkaOppfolgingstilfellePersonServiceRecordRelevantFirst,
                 )
 
-                kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                oppfolgingstilfelleConsumer.pollAndProcessRecords(
                     kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                 )
 
@@ -305,7 +305,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
 
                     checkPPersonOversiktStatusOppfolgingstilfelle(
                         pPersonOversiktStatus = pPersonOversiktStatus,
-                        kafkaOppfolgingstilfellePerson = recordValue,
+                        oppfolgingstilfellePersonRecord = recordValue,
                     )
 
                     val pPersonOppfolgingstilfelleVirksomhetList =
@@ -324,7 +324,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     personIdent = personIdentDefault,
                 )
                 val kafkaOppfolgingstilfellePersonServiceRecordRelevantFirst = oppfolgingstilfellePersonConsumerRecord(
-                    kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonServiceRelevantFirst,
+                    oppfolgingstilfellePersonRecord = kafkaOppfolgingstilfellePersonServiceRelevantFirst,
                 )
 
                 val kafkaOppfolgingstilfellePersonServiceRelevantSecond = generateKafkaOppfolgingstilfellePerson(
@@ -335,7 +335,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     )
                 )
                 val kafkaOppfolgingstilfellePersonServiceRecordRelevantSecond = oppfolgingstilfellePersonConsumerRecord(
-                    kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonServiceRelevantSecond,
+                    oppfolgingstilfellePersonRecord = kafkaOppfolgingstilfellePersonServiceRelevantSecond,
                 )
 
                 val kafkaOppfolgingstilfellePersonServiceRelevantNewest = generateKafkaOppfolgingstilfellePerson(
@@ -346,18 +346,18 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     )
                 )
                 val kafkaOppfolgingstilfellePersonServiceRecordRelevantNewest = oppfolgingstilfellePersonConsumerRecord(
-                    kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonServiceRelevantNewest,
+                    oppfolgingstilfellePersonRecord = kafkaOppfolgingstilfellePersonServiceRelevantNewest,
                 )
 
                 mockConsumer(kafkaOppfolgingstilfellePersonServiceRecordRelevantSecond)
 
-                kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                oppfolgingstilfelleConsumer.pollAndProcessRecords(
                     kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                 )
 
                 mockConsumer(kafkaOppfolgingstilfellePersonServiceRecordRelevantFirst)
 
-                kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                oppfolgingstilfelleConsumer.pollAndProcessRecords(
                     kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                 )
 
@@ -383,7 +383,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
 
                     checkPPersonOversiktStatusOppfolgingstilfelle(
                         pPersonOversiktStatus = pPersonOversiktStatus,
-                        kafkaOppfolgingstilfellePerson = recordValueSecond,
+                        oppfolgingstilfellePersonRecord = recordValueSecond,
                     )
 
                     val pPersonOppfolgingstilfelleVirksomhetList =
@@ -398,7 +398,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
 
                 mockConsumer(kafkaOppfolgingstilfellePersonServiceRecordRelevantNewest)
 
-                kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                oppfolgingstilfelleConsumer.pollAndProcessRecords(
                     kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                 )
 
@@ -424,7 +424,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
 
                     checkPPersonOversiktStatusOppfolgingstilfelle(
                         pPersonOversiktStatus = pPersonOversiktStatus,
-                        kafkaOppfolgingstilfellePerson = recordValueNewest,
+                        oppfolgingstilfellePersonRecord = recordValueNewest,
                     )
 
                     val pPersonOppfolgingstilfelleVirksomhetList =
@@ -443,7 +443,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     personIdent = personIdentDefault,
                 )
                 val kafkaOppfolgingstilfellePersonServiceRecordRelevantFirst = oppfolgingstilfellePersonConsumerRecord(
-                    kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonServiceRelevantFirst,
+                    oppfolgingstilfellePersonRecord = kafkaOppfolgingstilfellePersonServiceRelevantFirst,
                 )
                 val oppfolgingstilfelle = kafkaOppfolgingstilfellePersonServiceRelevantFirst.oppfolgingstilfelleList[0]
                 val kafkaOppfolgingstilfellePersonServiceRelevantSecond = generateKafkaOppfolgingstilfellePerson(
@@ -462,17 +462,17 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     )
                 )
                 val kafkaOppfolgingstilfellePersonServiceRecordRelevantSecond = oppfolgingstilfellePersonConsumerRecord(
-                    kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonServiceRelevantSecond,
+                    oppfolgingstilfellePersonRecord = kafkaOppfolgingstilfellePersonServiceRelevantSecond,
                 )
                 mockConsumer(kafkaOppfolgingstilfellePersonServiceRecordRelevantFirst)
 
-                kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                oppfolgingstilfelleConsumer.pollAndProcessRecords(
                     kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                 )
 
                 mockConsumer(kafkaOppfolgingstilfellePersonServiceRecordRelevantSecond)
 
-                kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                oppfolgingstilfelleConsumer.pollAndProcessRecords(
                     kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                 )
                 val recordValueSecond = kafkaOppfolgingstilfellePersonServiceRecordRelevantSecond.value()
@@ -497,7 +497,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
 
                     checkPPersonOversiktStatusOppfolgingstilfelle(
                         pPersonOversiktStatus = pPersonOversiktStatus,
-                        kafkaOppfolgingstilfellePerson = recordValueSecond,
+                        oppfolgingstilfellePersonRecord = recordValueSecond,
                     )
 
                     val pPersonOppfolgingstilfelleVirksomhetList =
@@ -516,7 +516,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     personIdent = personIdentDefault,
                 )
                 val kafkaOppfolgingstilfellePersonServiceRecordRelevantFirst = oppfolgingstilfellePersonConsumerRecord(
-                    kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonServiceRelevantFirst,
+                    oppfolgingstilfellePersonRecord = kafkaOppfolgingstilfellePersonServiceRelevantFirst,
                 )
 
                 val kafkaOppfolgingstilfellePersonServiceRelevantSecond = generateKafkaOppfolgingstilfellePerson(
@@ -527,7 +527,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     referanseTilfelleBitUuid = kafkaOppfolgingstilfellePersonServiceRelevantFirst.referanseTilfelleBitUuid,
                 )
                 val kafkaOppfolgingstilfellePersonServiceRecordRelevantSecond = oppfolgingstilfellePersonConsumerRecord(
-                    kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonServiceRelevantSecond,
+                    oppfolgingstilfellePersonRecord = kafkaOppfolgingstilfellePersonServiceRelevantSecond,
                 )
 
                 val kafkaOppfolgingstilfellePersonServiceRelevantNewest = generateKafkaOppfolgingstilfellePerson(
@@ -538,18 +538,18 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     referanseTilfelleBitUuid = kafkaOppfolgingstilfellePersonServiceRelevantFirst.referanseTilfelleBitUuid,
                 )
                 val kafkaOppfolgingstilfellePersonServiceRecordRelevantNewest = oppfolgingstilfellePersonConsumerRecord(
-                    kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonServiceRelevantNewest,
+                    oppfolgingstilfellePersonRecord = kafkaOppfolgingstilfellePersonServiceRelevantNewest,
                 )
 
                 mockConsumer(kafkaOppfolgingstilfellePersonServiceRecordRelevantSecond)
 
-                kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                oppfolgingstilfelleConsumer.pollAndProcessRecords(
                     kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                 )
 
                 mockConsumer(kafkaOppfolgingstilfellePersonServiceRecordRelevantFirst)
 
-                kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                oppfolgingstilfelleConsumer.pollAndProcessRecords(
                     kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                 )
 
@@ -575,7 +575,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
 
                     checkPPersonOversiktStatusOppfolgingstilfelle(
                         pPersonOversiktStatus = pPersonOversiktStatus,
-                        kafkaOppfolgingstilfellePerson = recordValueSecond,
+                        oppfolgingstilfellePersonRecord = recordValueSecond,
                     )
 
                     val pPersonOppfolgingstilfelleVirksomhetList =
@@ -590,7 +590,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
 
                 mockConsumer(kafkaOppfolgingstilfellePersonServiceRecordRelevantNewest)
 
-                kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                oppfolgingstilfelleConsumer.pollAndProcessRecords(
                     kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                 )
 
@@ -616,7 +616,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
 
                     checkPPersonOversiktStatusOppfolgingstilfelle(
                         pPersonOversiktStatus = pPersonOversiktStatus,
-                        kafkaOppfolgingstilfellePerson = recordValueNewest,
+                        oppfolgingstilfellePersonRecord = recordValueNewest,
                     )
 
                     val pPersonOppfolgingstilfelleVirksomhetList =
@@ -640,12 +640,12 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     virksomhetsnummerList = virksomhetsnummerListFirst
                 )
                 val kafkaOppfolgingstilfellePersonServiceRecordRelevantFirst = oppfolgingstilfellePersonConsumerRecord(
-                    kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonServiceRelevantFirst,
+                    oppfolgingstilfellePersonRecord = kafkaOppfolgingstilfellePersonServiceRelevantFirst,
                 )
 
                 mockConsumer(kafkaOppfolgingstilfellePersonServiceRecordRelevantFirst)
 
-                kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                oppfolgingstilfelleConsumer.pollAndProcessRecords(
                     kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                 )
 
@@ -658,12 +658,12 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     virksomhetsnummerList = virksomhetsnummerListSecond,
                 )
                 val kafkaOppfolgingstilfellePersonServiceRecordRelevantSecond = oppfolgingstilfellePersonConsumerRecord(
-                    kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonServiceRelevantSecond,
+                    oppfolgingstilfellePersonRecord = kafkaOppfolgingstilfellePersonServiceRelevantSecond,
                 )
 
                 mockConsumer(kafkaOppfolgingstilfellePersonServiceRecordRelevantSecond)
 
-                kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                oppfolgingstilfelleConsumer.pollAndProcessRecords(
                     kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                 )
 
@@ -689,7 +689,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
 
                     checkPPersonOversiktStatusOppfolgingstilfelle(
                         pPersonOversiktStatus = pPersonOversiktStatus,
-                        kafkaOppfolgingstilfellePerson = recordValue,
+                        oppfolgingstilfellePersonRecord = recordValue,
                     )
 
                     val pPersonOppfolgingstilfelleVirksomhetList =
@@ -710,11 +710,11 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
                     antallSykedager = null,
                 )
                 val kafkaOppfolgingstilfellePersonRecord = oppfolgingstilfellePersonConsumerRecord(
-                    kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePerson
+                    oppfolgingstilfellePersonRecord = kafkaOppfolgingstilfellePerson
                 )
                 mockConsumer(kafkaOppfolgingstilfellePersonRecord)
 
-                kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                oppfolgingstilfelleConsumer.pollAndProcessRecords(
                     kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                 )
 
@@ -740,7 +740,7 @@ object KafkaOppfolgingstilfellePersonServiceSpek : Spek({
 
                     checkPPersonOversiktStatusOppfolgingstilfelle(
                         pPersonOversiktStatus = pPersonOversiktStatus,
-                        kafkaOppfolgingstilfellePerson = recordValue,
+                        oppfolgingstilfellePersonRecord = recordValue,
                     )
                 }
             }

@@ -9,8 +9,6 @@ import io.mockk.clearMocks
 import io.mockk.every
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendringType
-import no.nav.syfo.personstatus.domain.PersonIdent
-import no.nav.syfo.personstatus.domain.Virksomhetsnummer
 import no.nav.syfo.oppfolgingstilfelle.domain.PersonOppfolgingstilfelleVirksomhet
 import no.nav.syfo.personoppgavehendelse.kafka.KPersonoppgavehendelse
 import no.nav.syfo.personstatus.api.v2.endpoints.personOversiktApiV2Path
@@ -19,7 +17,8 @@ import no.nav.syfo.personstatus.application.manglendemedvirkning.ManglendeMedvir
 import no.nav.syfo.personstatus.db.createPersonOversiktStatus
 import no.nav.syfo.personstatus.db.getPersonOversiktStatusList
 import no.nav.syfo.personstatus.domain.*
-import no.nav.syfo.personstatus.infrastructure.database.repository.PersonOversiktStatusRepository
+import no.nav.syfo.personstatus.domain.PersonIdent
+import no.nav.syfo.personstatus.domain.Virksomhetsnummer
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_NO_NAME_FNR
@@ -49,6 +48,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
 
             val externalMockEnvironment = ExternalMockEnvironment.instance
             val database = externalMockEnvironment.database
+            val personOversiktStatusRepository = externalMockEnvironment.personOversiktStatusRepository
 
             application.testApiModule(
                 externalMockEnvironment = externalMockEnvironment
@@ -59,8 +59,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                 internalMockEnvironment.personOppfolgingstilfelleVirksomhetnavnCronjob
 
             val personoversiktStatusService = internalMockEnvironment.personoversiktStatusService
-            val kafkaOppfolgingstilfellePersonService = TestKafkaModule.kafkaOppfolgingstilfellePersonService
-            val personOversiktStatusRepository = PersonOversiktStatusRepository(database)
+            val oppfolgingstilfelleConsumer = TestKafkaModule.oppfolgingstilfelleConsumer
 
             val personIdentDefault = PersonIdent(ARBEIDSTAKER_FNR)
 
@@ -76,7 +75,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                 )
             )
             val kafkaOppfolgingstilfellePersonRecordRelevant = oppfolgingstilfellePersonConsumerRecord(
-                kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonRelevant,
+                oppfolgingstilfellePersonRecord = kafkaOppfolgingstilfellePersonRelevant,
             )
 
             val mockKafkaConsumerDialogmotekandidatEndring =
@@ -231,7 +230,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                 }
 
                 it("should return NoContent, if there is a person with a relevant active Oppfolgingstilfelle, but neither MOTEBEHOV_SVAR_MOTTATT nor DIALOGMOTEKANDIDAT") {
-                    kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                    oppfolgingstilfelleConsumer.pollAndProcessRecords(
                         kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                     )
                     runBlocking {
@@ -252,7 +251,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                 }
 
                 it("should return list of PersonOversiktStatus, if MOTEBEHOV_SVAR_MOTTATT and OPPFOLGINGSPLANLPS_BISTAND_MOTTATT and DIALOGMOTESVAR_MOTTATT, and there is a person with a relevant active Oppfolgingstilfelle") {
-                    kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                    oppfolgingstilfelleConsumer.pollAndProcessRecords(
                         kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                     )
                     val oversiktHendelse = KPersonoppgavehendelse(
@@ -305,13 +304,13 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.latestOppfolgingstilfelle.shouldNotBeNull()
                         checkPersonOppfolgingstilfelleDTO(
                             personOppfolgingstilfelleDTO = personOversiktStatus.latestOppfolgingstilfelle,
-                            kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonRelevant,
+                            oppfolgingstilfellePersonRecord = kafkaOppfolgingstilfellePersonRelevant,
                         )
                     }
                 }
 
                 it("should return list of PersonOversiktStatus, if MOTEBEHOV_SVAR_MOTTATT and if there is a person with 2 relevant active Oppfolgingstilfelle with different virksomhetsnummer") {
-                    kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                    oppfolgingstilfelleConsumer.pollAndProcessRecords(
                         kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                     )
                     val oversiktHendelse = KPersonoppgavehendelse(
@@ -352,7 +351,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.latestOppfolgingstilfelle.shouldNotBeNull()
                         checkPersonOppfolgingstilfelleDTO(
                             personOppfolgingstilfelleDTO = personOversiktStatus.latestOppfolgingstilfelle,
-                            kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonRelevant,
+                            oppfolgingstilfellePersonRecord = kafkaOppfolgingstilfellePersonRelevant,
                         )
                     }
                 }
@@ -370,7 +369,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personoppgavehendelser = listOf(oversiktHendelse, oversiktHendelseOPLPSBistandMottatt)
                     )
 
-                    kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                    oppfolgingstilfelleConsumer.pollAndProcessRecords(
                         kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                     )
                     runBlocking {
@@ -406,13 +405,13 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.latestOppfolgingstilfelle.shouldNotBeNull()
                         checkPersonOppfolgingstilfelleDTO(
                             personOppfolgingstilfelleDTO = personOversiktStatus.latestOppfolgingstilfelle,
-                            kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonRelevant,
+                            oppfolgingstilfellePersonRecord = kafkaOppfolgingstilfellePersonRelevant,
                         )
                     }
                 }
 
                 it("should return Person, receives Oppfolgingstilfelle, and then MOTEBEHOV_SVAR_MOTTATT and OPPFOLGINGSPLANLPS_BISTAND_MOTTATT") {
-                    kafkaOppfolgingstilfellePersonService.pollAndProcessRecords(
+                    oppfolgingstilfelleConsumer.pollAndProcessRecords(
                         kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
                     )
 
@@ -461,7 +460,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.latestOppfolgingstilfelle.shouldNotBeNull()
                         checkPersonOppfolgingstilfelleDTO(
                             personOppfolgingstilfelleDTO = personOversiktStatus.latestOppfolgingstilfelle,
-                            kafkaOppfolgingstilfellePerson = kafkaOppfolgingstilfellePersonRelevant,
+                            oppfolgingstilfellePersonRecord = kafkaOppfolgingstilfellePersonRelevant,
                         )
                     }
                 }

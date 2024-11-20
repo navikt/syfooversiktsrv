@@ -12,7 +12,6 @@ import no.nav.syfo.personstatus.api.v2.model.VeilederTildelingHistorikkDTO
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
 import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.PersonIdent
-import no.nav.syfo.personstatus.infrastructure.database.repository.PersonOversiktStatusRepository
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_2_FNR
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
@@ -39,9 +38,9 @@ object PersontildelingApiV2Spek : Spek({
 
             val externalMockEnvironment = ExternalMockEnvironment.instance
             val database = externalMockEnvironment.database
+            val personOversiktStatusRepository = externalMockEnvironment.personOversiktStatusRepository
             val internalMockEnvironment = InternalMockEnvironment.instance
             val personoversiktStatusService = internalMockEnvironment.personoversiktStatusService
-            val personOversiktStatusRepository = PersonOversiktStatusRepository(database)
             val personTildelingService = internalMockEnvironment.personTildelingService
 
             application.testApiModule(

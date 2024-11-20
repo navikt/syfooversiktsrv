@@ -3,11 +3,9 @@ package no.nav.syfo.aktivitetskravvurdering.kafka
 import io.ktor.server.testing.*
 import io.mockk.*
 import no.nav.syfo.aktivitetskravvurdering.domain.AktivitetskravStatus
-import no.nav.syfo.oppfolgingstilfelle.kafka.toPersonOversiktStatus
 import no.nav.syfo.personstatus.PersonoversiktStatusService
 import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
-import no.nav.syfo.personstatus.infrastructure.database.repository.PersonOversiktStatusRepository
 import no.nav.syfo.personstatus.infrastructure.kafka.mockPollConsumerRecords
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.generator.*
@@ -24,9 +22,9 @@ class AktivitetskravVurderingConsumerSpek : Spek({
 
         val externalMockEnvironment = ExternalMockEnvironment.instance
         val database = externalMockEnvironment.database
+        val personOppgaveRepository = externalMockEnvironment.personOversiktStatusRepository
 
         val consumerMock = mockk<KafkaConsumer<String, AktivitetskravVurderingRecord>>()
-        val personOppgaveRepository = PersonOversiktStatusRepository(database = database)
         val personoversiktStatusService = PersonoversiktStatusService(
             database = database,
             pdlClient = externalMockEnvironment.pdlClient,
