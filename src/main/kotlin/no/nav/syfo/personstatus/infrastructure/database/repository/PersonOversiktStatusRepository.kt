@@ -276,7 +276,7 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
         return database.connection.use { connection ->
             connection.prepareStatement(baseQuery + nameQuery).use {
                 var parameterIndex = 1
-                it.setObject(parameterIndex++, searchQuery.birthdate)
+                it.setDate(parameterIndex++, Date.valueOf(searchQuery.birthdate))
                 initials.forEachIndexed { index, param ->
                     if (index == 0) {
                         it.setString(parameterIndex++, "$param%")
