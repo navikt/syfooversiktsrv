@@ -36,6 +36,8 @@ data class Foedselsdato(
     val foedselsdato: LocalDate?,
 )
 
+fun PdlPerson.fodselsdato(): LocalDate? = this.foedselsdato.firstOrNull()?.foedselsdato
+
 fun PdlPerson.fullName(): String? {
     val nameList = this.navn
     if (nameList.isEmpty()) {

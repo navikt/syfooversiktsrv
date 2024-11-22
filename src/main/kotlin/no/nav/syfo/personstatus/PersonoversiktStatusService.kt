@@ -9,6 +9,7 @@ import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
 import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.*
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.PdlClient
+import no.nav.syfo.personstatus.infrastructure.clients.pdl.model.fodselsdato
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.model.fullName
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import java.sql.Connection
@@ -126,7 +127,7 @@ class PersonoversiktStatusService(
         val editedPersonStatuser = personStatuser.mapNotNull { personStatus ->
             val pdlPerson = pdlPersonsById[personStatus.fnr]
             val fullName = pdlPerson?.person?.fullName()
-            val fodselsdato = pdlPerson?.person?.foedselsdato?.first()?.foedselsdato
+            val fodselsdato = pdlPerson?.person?.fodselsdato()
 
             val isUpdate = fullName != null || fodselsdato != null
             if (isUpdate) {
