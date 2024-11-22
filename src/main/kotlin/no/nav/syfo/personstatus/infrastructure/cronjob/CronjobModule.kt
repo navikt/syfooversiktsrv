@@ -4,6 +4,7 @@ import no.nav.syfo.ApplicationState
 import no.nav.syfo.Environment
 import no.nav.syfo.launchBackgroundTask
 import no.nav.syfo.application.cache.RedisStore
+import no.nav.syfo.personstatus.PersonoversiktStatusService
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
 import no.nav.syfo.personstatus.infrastructure.clients.ereg.EregClient
@@ -24,6 +25,7 @@ fun launchCronjobModule(
     redisStore: RedisStore,
     azureAdClient: AzureAdClient,
     personBehandlendeEnhetService: PersonBehandlendeEnhetService,
+    personoversiktStatusService: PersonoversiktStatusService,
 ) {
     val eregClient = EregClient(
         clientEnvironment = environment.clients.ereg,
@@ -40,6 +42,10 @@ fun launchCronjobModule(
     val personBehandlendeEnhetCronjob = PersonBehandlendeEnhetCronjob(
         personBehandlendeEnhetService = personBehandlendeEnhetService,
         intervalDelayMinutes = environment.cronjobBehandlendeEnhetIntervalDelayMinutes,
+    )
+
+    val populateNavnAndFodselsdatoCronjob = PopulateNavnAndFodselsdatoCronjob(
+        personoversiktStatusService = personoversiktStatusService,
     )
 
     val reaperService = ReaperService(
@@ -70,6 +76,7 @@ fun launchCronjobModule(
         personBehandlendeEnhetCronjob,
         reaperCronjob,
         preloadCacheCronjob,
+        populateNavnAndFodselsdatoCronjob,
     ).forEach { cronjob ->
         launchBackgroundTask(
             applicationState = applicationState,

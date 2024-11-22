@@ -5,11 +5,10 @@ import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.infrastructure.clients.ClientEnvironment
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
-import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdToken
 import no.nav.syfo.personstatus.infrastructure.clients.httpClientDefault
-import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.model.PdlHentPersonBolkData
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.model.PdlIdentRequest
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.model.PdlIdentResponse
@@ -74,27 +73,23 @@ class PdlClient(
     suspend fun getPdlPersonIdentNumberNavnMap(
         callId: String,
         personIdentList: List<PersonIdent>,
-    ): Map<String, String> {
-        val token = azureAdClient.getSystemToken(clientEnvironment.clientId)
-            ?: throw RuntimeException("Failed to send request to PDL: No token was found")
-
-        return personList(
+    ): Map<String, String> =
+        getPersons(
             callId = callId,
-            personIdentList = personIdentList,
-            token = token,
+            personidenter = personIdentList,
         )
             ?.hentPersonBolk
             ?.associate { (ident, person) ->
                 ident to (person?.fullName() ?: "")
             }
             ?: emptyMap()
-    }
 
-    private suspend fun personList(
-        callId: String,
-        personIdentList: List<PersonIdent>,
-        token: AzureAdToken,
+    suspend fun getPersons(
+        callId: String? = null,
+        personidenter: List<PersonIdent>,
     ): PdlHentPersonBolkData? {
+        val token = azureAdClient.getSystemToken(clientEnvironment.clientId)
+            ?: throw RuntimeException("Failed to send request to PDL: No token was found")
         val query = getPdlQuery(
             queryFilePath = "/pdl/hentPersonBolk.graphql",
         )
@@ -102,7 +97,7 @@ class PdlClient(
         val request = PdlPersonBolkRequest(
             query = query,
             variables = PdlPersonBolkVariables(
-                identer = personIdentList.map { personIdentNumber ->
+                identer = personidenter.map { personIdentNumber ->
                     personIdentNumber.value
                 }
             ),

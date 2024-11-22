@@ -38,7 +38,18 @@ data class PersonOversiktStatus(
     val isAktivSenOppfolgingKandidat: Boolean = false,
     val isAktivAktivitetskravvurdering: Boolean = false,
     val isAktivManglendeMedvirkningVurdering: Boolean = false,
-)
+) {
+    fun updatePersonDetails(navn: String? = null, fodselsdato: LocalDate? = null): PersonOversiktStatus =
+        if (navn != null && fodselsdato != null) {
+            this.copy(navn = navn, fodselsdato = fodselsdato)
+        } else if (navn != null) {
+            this.copy(navn = navn)
+        } else if (fodselsdato != null) {
+            this.copy(fodselsdato = fodselsdato)
+        } else {
+            this
+        }
+}
 
 fun PersonOversiktStatus.isDialogmotekandidat() =
     dialogmotekandidat == true &&

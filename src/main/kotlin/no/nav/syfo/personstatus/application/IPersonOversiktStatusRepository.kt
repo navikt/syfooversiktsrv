@@ -19,7 +19,9 @@ interface IPersonOversiktStatusRepository {
 
     fun getPersonOversiktStatus(personident: PersonIdent): PersonOversiktStatus?
 
-    fun createPersonOversiktStatus(personOversiktStatus: PersonOversiktStatus)
+    fun getPersonstatusesWithoutNavnOrFodselsdato(limit: Int): List<PersonOversiktStatus>
+
+    fun createPersonOversiktStatus(personOversiktStatus: PersonOversiktStatus): PersonOversiktStatus
 
     fun lagreVeilederForBruker(
         veilederBrukerKnytning: VeilederBrukerKnytning,
@@ -33,6 +35,8 @@ interface IPersonOversiktStatusRepository {
     fun updatePersonTildeltEnhetAndRemoveTildeltVeileder(personIdent: PersonIdent, enhetId: String)
 
     fun updatePersonTildeltEnhetUpdatedAt(personIdent: PersonIdent)
+
+    fun updatePersonstatusesWithNavnAndFodselsdato(personer: List<PersonOversiktStatus>): List<PersonOversiktStatus>
 
     fun searchPerson(searchQuery: SearchQuery): List<PersonOversiktStatus>
 
