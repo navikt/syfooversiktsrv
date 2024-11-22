@@ -9,7 +9,9 @@ import no.nav.syfo.testutil.ExternalMockEnvironment
 import no.nav.syfo.testutil.UserConstants
 import no.nav.syfo.testutil.dropData
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldNotBeEqualTo
+import org.amshove.kluent.shouldNotBeNull
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import java.time.LocalDate
@@ -99,6 +101,25 @@ class PersonoversiktStatusServiceSpek : Spek({
                     personNotMissingButActive.fnr shouldBeEqualTo personNotMissingButActiveEdited?.fnr
                     personNotMissingButActive.navn shouldBeEqualTo personNotMissingButActiveEdited?.navn
                     personNotMissingButActive.fodselsdato shouldBeEqualTo personNotMissingButActiveEdited?.fodselsdato
+                }
+                it("correctly updates navn for person missing name and fodselsdato and missing fodselsdato in PDL") {
+                    val personMissingNavnAndFodselsdato = personOversiktStatusRepository.createPersonOversiktStatus(
+                        PersonOversiktStatus(
+                            fnr = UserConstants.ARBEIDSTAKER_NO_FODSELSDATO,
+                            isAktivAktivitetskravvurdering = true,
+                        )
+                    )
+
+                    runBlocking {
+                        personoversiktStatusService.updateNavnOrFodselsdatoWhereMissing(updateLimit = 10)
+                    }
+
+                    val personMissingNavnAndFodselsdatoEdited =
+                        personOversiktStatusRepository.getPersonOversiktStatus(PersonIdent(UserConstants.ARBEIDSTAKER_NO_FODSELSDATO))
+
+                    personMissingNavnAndFodselsdato.fnr shouldBeEqualTo personMissingNavnAndFodselsdatoEdited?.fnr
+                    personMissingNavnAndFodselsdatoEdited?.navn.shouldNotBeNull()
+                    personMissingNavnAndFodselsdatoEdited?.fodselsdato.shouldBeNull()
                 }
             }
         }
