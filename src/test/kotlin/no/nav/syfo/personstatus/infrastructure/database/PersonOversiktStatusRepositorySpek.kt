@@ -432,7 +432,7 @@ class PersonOversiktStatusRepositorySpek : Spek({
                     val updatesPersonStatuses =
                         personOversiktStatusRepository.updatePersonstatusesWithNavnAndFodselsdato(listOf(updatedPersonStatus))
 
-                    updatesPersonStatuses.first().navn shouldBeEqualTo "Stian Sykmeldt"
+                    updatesPersonStatuses.first().map { it.navn shouldBeEqualTo "Stian Sykmeldt" }
                 }
 
                 it("updates fodselsdato") {
@@ -444,7 +444,7 @@ class PersonOversiktStatusRepositorySpek : Spek({
                     val updatesPersonStatuses =
                         personOversiktStatusRepository.updatePersonstatusesWithNavnAndFodselsdato(listOf(updatedPersonStatus))
 
-                    updatesPersonStatuses.first().fodselsdato shouldBeEqualTo updatedPersonStatus.fodselsdato
+                    updatesPersonStatuses.first().map { it.fodselsdato shouldBeEqualTo updatedPersonStatus.fodselsdato }
                 }
 
                 it("updates navn and fodselsdato") {
@@ -459,8 +459,8 @@ class PersonOversiktStatusRepositorySpek : Spek({
                     val updatesPersonStatuses =
                         personOversiktStatusRepository.updatePersonstatusesWithNavnAndFodselsdato(listOf(updatedPersonStatus))
 
-                    updatesPersonStatuses.first().navn shouldBeEqualTo updatedPersonStatus.navn
-                    updatesPersonStatuses.first().fodselsdato shouldBeEqualTo updatedPersonStatus.fodselsdato
+                    updatesPersonStatuses.first().map { it.navn shouldBeEqualTo updatedPersonStatus.navn }
+                    updatesPersonStatuses.first().map { it.fodselsdato shouldBeEqualTo updatedPersonStatus.fodselsdato }
                 }
             }
 

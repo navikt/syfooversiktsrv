@@ -275,22 +275,33 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
         }
     }
 
-    override fun updatePersonstatusesWithNavnAndFodselsdato(personer: List<PersonOversiktStatus>): List<PersonOversiktStatus> =
-        database.connection.use { connection ->
-            connection.prepareStatement(UPDATE_PERSON_NAVN_OG_FODSELSDATO).use {
-                personer.map { person ->
-                    it.setString(1, person.navn)
-                    if (person.fodselsdato != null) {
-                        it.setDate(2, Date.valueOf(person.fodselsdato))
-                    } else {
-                        it.setNull(2, Types.DATE)
-                    }
-                    it.setObject(3, Timestamp.from(Instant.now()))
-                    it.setString(4, person.fnr)
-                    it.executeQuery().toList { toPPersonOversiktStatus() }.first()
+    override fun updatePersonstatusesWithNavnAndFodselsdato(personer: List<PersonOversiktStatus>): List<Result<PersonOversiktStatus>> =
+        personer.map { person ->
+            database.connection.use { connection ->
+                connection.updatePersonStatusWithNavnAndFodselsdato(person)
+            }
+        }
+
+    private fun Connection.updatePersonStatusWithNavnAndFodselsdato(person: PersonOversiktStatus): Result<PersonOversiktStatus> =
+        try {
+            this.prepareStatement(UPDATE_PERSON_NAVN_OG_FODSELSDATO).use {
+                it.setString(1, person.navn)
+                if (person.fodselsdato != null) {
+                    it.setDate(2, Date.valueOf(person.fodselsdato))
+                } else {
+                    it.setNull(2, Types.DATE)
                 }
-            }.also { connection.commit() }
-        }.map { it.toPersonOversiktStatus() }
+                it.setObject(3, Timestamp.from(Instant.now()))
+                it.setString(4, person.fnr)
+                it.executeQuery()
+                    .toList { toPPersonOversiktStatus().toPersonOversiktStatus() }
+                    .first()
+                    .let { Result.success<PersonOversiktStatus>(it) }
+                    .also { this.commit() }
+            }
+        } catch (e: SQLException) {
+            Result.failure(e)
+        }
 
     override fun searchPerson(searchQuery: SearchQuery): List<PersonOversiktStatus> {
         val initials = searchQuery.initials.value.toList()

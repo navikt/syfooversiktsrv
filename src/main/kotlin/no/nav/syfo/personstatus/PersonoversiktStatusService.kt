@@ -118,7 +118,7 @@ class PersonoversiktStatusService(
             isAktivVurdering = isAktivVurdering,
         )
 
-    suspend fun updateNavnOrFodselsdatoWhereMissing(updateLimit: Int) {
+    suspend fun updateNavnOrFodselsdatoWhereMissing(updateLimit: Int): List<Result<PersonOversiktStatus>> {
         val personStatuser = personoversiktStatusRepository.getPersonstatusesWithoutNavnOrFodselsdato(updateLimit)
         val personidenter = personStatuser.map { PersonIdent(it.fnr) }
 
@@ -136,7 +136,7 @@ class PersonoversiktStatusService(
                 null
             }
         }
-        personoversiktStatusRepository.updatePersonstatusesWithNavnAndFodselsdato(editedPersonStatuser)
+        return personoversiktStatusRepository.updatePersonstatusesWithNavnAndFodselsdato(editedPersonStatuser)
     }
 
     private fun createOrUpdatePersonOversiktStatus(
