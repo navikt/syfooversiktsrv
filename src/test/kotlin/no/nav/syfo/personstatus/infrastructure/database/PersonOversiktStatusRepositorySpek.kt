@@ -260,6 +260,30 @@ class PersonOversiktStatusRepositorySpek : Spek({
                     }
                 }
 
+                it("finds person with oppgave but not sykmeldt when searching with correct initials and birthdate") {
+                    val newPersonOversiktStatus = PersonOversiktStatus(
+                        fnr = UserConstants.ARBEIDSTAKER_FNR,
+                        fodselsdato = fodselsdato,
+                        navn = "Fornavn Mellomnavn Etternavn",
+                        trengerOppfolging = true,
+                        latestOppfolgingstilfelle = inactiveOppfolgingstilfelle,
+                    )
+                    personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus)
+
+                    searchPerson(initials = "FME", birthdate = fodselsdato).let {
+                        it.size shouldBe 1
+                        it.first().navn shouldBeEqualTo "Fornavn Mellomnavn Etternavn"
+                    }
+                    searchPerson("FE", birthdate = fodselsdato).let {
+                        it.size shouldBe 1
+                        it.first().navn shouldBeEqualTo "Fornavn Mellomnavn Etternavn"
+                    }
+                    searchPerson("FM", birthdate = fodselsdato).let {
+                        it.size shouldBe 1
+                        it.first().navn shouldBeEqualTo "Fornavn Mellomnavn Etternavn"
+                    }
+                }
+
                 it("finds relevant sykmeldt person when searching with correct lowercase initials and birthdate") {
                     val newPersonOversiktStatus = PersonOversiktStatus(
                         fnr = UserConstants.ARBEIDSTAKER_FNR,
@@ -330,7 +354,7 @@ class PersonOversiktStatusRepositorySpek : Spek({
                     searchPerson("FME", birthdate = fodselsdato).size shouldBe 0
                 }
 
-                it("returns empty list when matching initials and birthdate but no active oppfolgingstilfelle") {
+                it("returns empty list when matching initials and birthdate but no active oppfolgingstilfelle or oppgave") {
                     val newPersonOversiktStatus = PersonOversiktStatus(
                         fnr = UserConstants.ARBEIDSTAKER_FNR,
                         fodselsdato = fodselsdato,
