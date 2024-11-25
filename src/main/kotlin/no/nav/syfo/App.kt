@@ -115,6 +115,7 @@ fun main() {
             )
             val personoversiktStatusRepository = PersonOversiktStatusRepository(database = database)
             oppfolgingstilfelleService = OppfolgingstilfelleService(
+                pdlClient = pdlClient,
                 personOversiktStatusRepository = personoversiktStatusRepository,
             )
             personoversiktStatusService = PersonoversiktStatusService(

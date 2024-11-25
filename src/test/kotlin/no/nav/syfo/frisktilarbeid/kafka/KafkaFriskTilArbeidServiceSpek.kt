@@ -4,6 +4,7 @@ import io.ktor.server.testing.*
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.verify
+import kotlinx.coroutines.runBlocking
 import no.nav.syfo.personstatus.db.getPersonOversiktStatusList
 import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.testutil.*
@@ -60,9 +61,9 @@ class KafkaFriskTilArbeidServiceSpek : Spek({
                     )
                 )
 
-                kafkaFriskTilArbeidService.pollAndProcessRecords(
-                    kafkaConsumer = kafkaConsumerFriskTilArbeid,
-                )
+                runBlocking {
+                    kafkaFriskTilArbeidService.pollAndProcessRecords(kafkaConsumer = kafkaConsumerFriskTilArbeid)
+                }
 
                 verify(exactly = 1) {
                     kafkaConsumerFriskTilArbeid.commitSync()
@@ -96,9 +97,9 @@ class KafkaFriskTilArbeidServiceSpek : Spek({
                     personOversiktStatus = kafkaOppfolgingstilfellePerson.toPersonOversiktStatus(kafkaOppfolgingstilfelle)
                 )
 
-                kafkaFriskTilArbeidService.pollAndProcessRecords(
-                    kafkaConsumer = kafkaConsumerFriskTilArbeid,
-                )
+                runBlocking {
+                    kafkaFriskTilArbeidService.pollAndProcessRecords(kafkaConsumer = kafkaConsumerFriskTilArbeid)
+                }
 
                 verify(exactly = 1) {
                     kafkaConsumerFriskTilArbeid.commitSync()
@@ -120,9 +121,9 @@ class KafkaFriskTilArbeidServiceSpek : Spek({
                         )
                     )
                 )
-                kafkaFriskTilArbeidService.pollAndProcessRecords(
-                    kafkaConsumer = kafkaConsumerFriskTilArbeid,
-                )
+                runBlocking {
+                    kafkaFriskTilArbeidService.pollAndProcessRecords(kafkaConsumer = kafkaConsumerFriskTilArbeid)
+                }
                 clearMocks(kafkaConsumerFriskTilArbeid)
                 every { kafkaConsumerFriskTilArbeid.commitSync() } returns Unit
 
@@ -144,9 +145,9 @@ class KafkaFriskTilArbeidServiceSpek : Spek({
                     )
                 )
 
-                kafkaFriskTilArbeidService.pollAndProcessRecords(
-                    kafkaConsumer = kafkaConsumerFriskTilArbeid,
-                )
+                runBlocking {
+                    kafkaFriskTilArbeidService.pollAndProcessRecords(kafkaConsumer = kafkaConsumerFriskTilArbeid)
+                }
 
                 verify(exactly = 1) {
                     kafkaConsumerFriskTilArbeid.commitSync()

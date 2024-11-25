@@ -7,12 +7,12 @@ import org.apache.kafka.clients.consumer.KafkaConsumer
 import java.time.Duration
 
 class TrengerOppfolgingConsumer(
-    private val trengerOppfolgingService: TrengerOppfolgingService
+    private val trengerOppfolgingService: TrengerOppfolgingService,
 ) : KafkaConsumerService<KafkaHuskelapp> {
 
     override val pollDurationInMillis: Long = 1000
 
-    override fun pollAndProcessRecords(kafkaConsumer: KafkaConsumer<String, KafkaHuskelapp>) {
+    override suspend fun pollAndProcessRecords(kafkaConsumer: KafkaConsumer<String, KafkaHuskelapp>) {
         val records = kafkaConsumer.poll(Duration.ofMillis(pollDurationInMillis))
         if (records.count() > 0) {
             processRecords(records)

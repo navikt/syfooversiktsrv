@@ -14,7 +14,7 @@ class OppfolgingstilfelleConsumer(
 
     override val pollDurationInMillis: Long = 1000
 
-    override fun pollAndProcessRecords(kafkaConsumer: KafkaConsumer<String, OppfolgingstilfellePersonRecord>) {
+    override suspend fun pollAndProcessRecords(kafkaConsumer: KafkaConsumer<String, OppfolgingstilfellePersonRecord>) {
         val records = kafkaConsumer.poll(Duration.ofMillis(pollDurationInMillis))
         if (records.count() > 0) {
             processRecords(records)
@@ -22,7 +22,7 @@ class OppfolgingstilfelleConsumer(
         }
     }
 
-    private fun processRecords(records: ConsumerRecords<String, OppfolgingstilfellePersonRecord>) {
+    private suspend fun processRecords(records: ConsumerRecords<String, OppfolgingstilfellePersonRecord>) {
         val (tombstoneRecordList, recordsValid) = records.partition { it.value() == null }
         processTombstoneRecordList(tombstoneRecordList)
 
@@ -50,7 +50,7 @@ class OppfolgingstilfelleConsumer(
         }
     }
 
-    private fun receiveOppfolgingstilfellePerson(record: OppfolgingstilfellePersonRecord) {
+    private suspend fun receiveOppfolgingstilfellePerson(record: OppfolgingstilfellePersonRecord) {
         val latestTilfelle = record.oppfolgingstilfelleList.maxByOrNull { it.start }
         if (latestTilfelle == null) {
             log.warn("SKipped processing of record: No latest Oppfolgingstilfelle found in record.")
@@ -58,7 +58,6 @@ class OppfolgingstilfelleConsumer(
             return
         }
         if (latestTilfelle.virksomhetsnummerList.isEmpty()) COUNT_KAFKA_CONSUMER_OPPFOLGINGSTILFELLE_PERSON_NOT_ARBEIDSTAKER.increment()
-
         val personOversiktStatus = record.toPersonOversiktStatus(latestKafkaOppfolgingstilfelle = latestTilfelle)
         val latestPersonOppfolgingstilfelle = record.toPersonOppfolgingstilfelle(latestKafkaOppfolgingstilfelle = latestTilfelle)
         oppfolgingstilfelleService.upsertPersonOversiktStatus(personOversiktStatus, latestPersonOppfolgingstilfelle)

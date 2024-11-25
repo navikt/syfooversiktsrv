@@ -19,7 +19,7 @@ class ArbeidsuforhetvurderingConsumer(
 
     override val pollDurationInMillis: Long = 1000
 
-    override fun pollAndProcessRecords(kafkaConsumer: KafkaConsumer<String, ArbeidsuforhetvurderingRecord>) {
+    override suspend fun pollAndProcessRecords(kafkaConsumer: KafkaConsumer<String, ArbeidsuforhetvurderingRecord>) {
         val records = kafkaConsumer.poll(Duration.ofMillis(pollDurationInMillis))
         if (records.count() > 0) {
             log.info("ArbeidsuforhetvurderingConsumer trace: Received ${records.count()} records")

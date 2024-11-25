@@ -14,7 +14,7 @@ class AktivitetskravVurderingConsumer(
 
     override val pollDurationInMillis: Long = 1000
 
-    override fun pollAndProcessRecords(kafkaConsumer: KafkaConsumer<String, AktivitetskravVurderingRecord>) {
+    override suspend fun pollAndProcessRecords(kafkaConsumer: KafkaConsumer<String, AktivitetskravVurderingRecord>) {
         val records = kafkaConsumer.poll(Duration.ofMillis(pollDurationInMillis))
         if (records.count() > 0) {
             processRecords(records)

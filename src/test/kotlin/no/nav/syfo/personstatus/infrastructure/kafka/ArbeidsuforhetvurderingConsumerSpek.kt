@@ -4,6 +4,7 @@ import io.mockk.*
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.runBlocking
 import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.PersonoversiktStatusService
 import no.nav.syfo.personstatus.db.createPersonOversiktStatus
@@ -67,7 +68,9 @@ class ArbeidsuforhetvurderingConsumerSpek : Spek({
                 topic = "teamsykefravr.arbeidsuforhet-vurdering",
             )
 
-            arbeidsuforhetvurderingConsumer.pollAndProcessRecords(kafkaConsumer = kafkaConsumer)
+            runBlocking {
+                arbeidsuforhetvurderingConsumer.pollAndProcessRecords(kafkaConsumer = kafkaConsumer)
+            }
 
             verify(exactly = 1) {
                 kafkaConsumer.commitSync()
