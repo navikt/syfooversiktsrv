@@ -1,5 +1,6 @@
 package no.nav.syfo.personstatus
 
+import io.micrometer.core.instrument.Counter
 import no.nav.syfo.oppfolgingstilfelle.domain.PersonOppfolgingstilfelleVirksomhet
 import no.nav.syfo.personoppgavehendelse.kafka.COUNT_KAFKA_CONSUMER_PERSONOPPGAVEHENDELSE_CREATED_PERSONOVERSIKT_STATUS
 import no.nav.syfo.personoppgavehendelse.kafka.COUNT_KAFKA_CONSUMER_PERSONOPPGAVEHENDELSE_READ
@@ -8,10 +9,13 @@ import no.nav.syfo.personoppgavehendelse.kafka.KPersonoppgavehendelse
 import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
 import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.*
+import no.nav.syfo.personstatus.infrastructure.METRICS_NS
+import no.nav.syfo.personstatus.infrastructure.METRICS_REGISTRY
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.PdlClient
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.model.fodselsdato
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.model.fullName
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
+import org.slf4j.LoggerFactory
 import java.sql.Connection
 
 class PersonoversiktStatusService(
@@ -64,6 +68,8 @@ class PersonoversiktStatusService(
         return if (personIdentMissingNameList.isEmpty()) {
             personOversiktStatusList
         } else {
+            log.info("Got ${personIdentMissingNameList.size} personoversikt statuses with missing names. Get names from PDL and update database...")
+            COUNT_GET_PERSONOVERSIKT_MISSING_NAMES.increment()
             val personIdentNavnMap = pdlClient.getPdlPersonIdentNumberNavnMap(
                 callId = callId,
                 personIdentList = personIdentMissingNameList,
@@ -191,5 +197,13 @@ class PersonoversiktStatusService(
 
             COUNT_KAFKA_CONSUMER_PERSONOPPGAVEHENDELSE_UPDATED_PERSONOVERSIKT_STATUS.increment()
         }
+    }
+
+    companion object {
+        private val log = LoggerFactory.getLogger(this::class.java)
+        private const val GET_PERSONOVERSIKT_MISSING_NAMES = "${METRICS_NS}_get_personoversikt_missing_names"
+        val COUNT_GET_PERSONOVERSIKT_MISSING_NAMES: Counter = Counter.builder(GET_PERSONOVERSIKT_MISSING_NAMES)
+            .description("Counts the number of times personoversikt statuses has any missing names")
+            .register(METRICS_REGISTRY)
     }
 }
