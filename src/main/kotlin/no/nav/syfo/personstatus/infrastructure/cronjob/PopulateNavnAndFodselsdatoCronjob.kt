@@ -11,7 +11,12 @@ class PopulateNavnAndFodselsdatoCronjob(
 
     override suspend fun run() {
         log.info("Run PopulateNavnAndFodselsdatoCronjob")
-        personoversiktStatusService.updateNavnOrFodselsdatoWhereMissing(updateLimit = UPDATE_LIMIT)
+        val (success, failure) = personoversiktStatusService.updateNavnOrFodselsdatoWhereMissing(updateLimit = UPDATE_LIMIT)
+            .partition { it.isSuccess }
+        log.info("PopulateNavnAndFodselsdatoCronjob finished. ${success.size} entries updated. ${failure.size} entries failed to update")
+        if (failure.isNotEmpty()) {
+            log.error("Failed when running PopulateNavnAndFodselsdatoCronjob.", failure.first().exceptionOrNull())
+        }
     }
 
     companion object {

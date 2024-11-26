@@ -36,7 +36,7 @@ interface IPersonOversiktStatusRepository {
 
     fun updatePersonTildeltEnhetUpdatedAt(personIdent: PersonIdent)
 
-    fun updatePersonstatusesWithNavnAndFodselsdato(personer: List<PersonOversiktStatus>): List<PersonOversiktStatus>
+    fun updatePersonstatusesWithNavnAndFodselsdato(personer: List<PersonOversiktStatus>): List<Result<PersonOversiktStatus>>
 
     fun searchPerson(searchQuery: SearchQuery): List<PersonOversiktStatus>
 
