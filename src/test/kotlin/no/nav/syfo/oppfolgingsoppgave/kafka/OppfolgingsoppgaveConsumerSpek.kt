@@ -1,12 +1,12 @@
-package no.nav.syfo.trengeroppfolging.kafka
+package no.nav.syfo.oppfolgingsoppgave.kafka
 
 import io.ktor.server.testing.*
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import no.nav.syfo.oppfolgingsoppgave.OppfolgingsoppgaveService
 import kotlinx.coroutines.runBlocking
-import no.nav.syfo.trengeroppfolging.TrengerOppfolgingService
 import no.nav.syfo.personstatus.db.getPersonOversiktStatusList
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.testutil.*
@@ -21,7 +21,7 @@ import org.spekframework.spek2.style.specification.describe
 import java.time.Duration
 import java.time.LocalDate
 
-class TrengerOppfolgingConsumerSpek : Spek({
+class OppfolgingsoppgaveConsumerSpek : Spek({
     with(TestApplicationEngine()) {
         start()
 
@@ -29,12 +29,12 @@ class TrengerOppfolgingConsumerSpek : Spek({
         val internalMockEnvironment = InternalMockEnvironment.instance
         val database = externalMockEnvironment.database
 
-        val kafkaConsumerMock = mockk<KafkaConsumer<String, KafkaHuskelapp>>()
-        val trengerOppfolgingService = TrengerOppfolgingService(
+        val kafkaConsumerMock = mockk<KafkaConsumer<String, OppfolgingsoppgaveRecord>>()
+        val oppfolgingsoppgaveService = OppfolgingsoppgaveService(
             database = database,
             personBehandlendeEnhetService = internalMockEnvironment.personBehandlendeEnhetService
         )
-        val trengerOppfolgingConsumer = TrengerOppfolgingConsumer(trengerOppfolgingService)
+        val oppfolgingsoppgaveConsumer = OppfolgingsoppgaveConsumer(oppfolgingsoppgaveService)
 
         val frist = LocalDate.now().plusWeeks(1)
 
@@ -45,7 +45,7 @@ class TrengerOppfolgingConsumerSpek : Spek({
             every { kafkaConsumerMock.commitSync() } returns Unit
         }
 
-        describe("${TrengerOppfolgingConsumer::class.java.simpleName}: pollAndProcessRecords") {
+        describe("${OppfolgingsoppgaveConsumer::class.java.simpleName}: pollAndProcessRecords") {
             describe("no PersonOversiktStatus exists for personident") {
                 it("creates new PersonOversiktStatus for personident from kafka record with active huskelapp and frist") {
                     val activeHuskelappWithFrist = generateKafkaHuskelapp(isActive = true, frist = frist)
@@ -54,7 +54,7 @@ class TrengerOppfolgingConsumerSpek : Spek({
                         kafkaConsumerMock = kafkaConsumerMock,
                     )
 
-                    runBlocking { trengerOppfolgingConsumer.pollAndProcessRecords(kafkaConsumer = kafkaConsumerMock) }
+                    runBlocking { oppfolgingsoppgaveConsumer.pollAndProcessRecords(kafkaConsumer = kafkaConsumerMock) }
 
                     verify(exactly = 1) {
                         kafkaConsumerMock.commitSync()
@@ -65,7 +65,7 @@ class TrengerOppfolgingConsumerSpek : Spek({
                     pPersonOversiktStatusList.size shouldBeEqualTo 1
                     val pPersonOversiktStatus = pPersonOversiktStatusList.first()
                     pPersonOversiktStatus.fnr shouldBeEqualTo activeHuskelappWithFrist.personIdent
-                    pPersonOversiktStatus.trengerOppfolging.shouldBeTrue()
+                    pPersonOversiktStatus.isAktivOppfolgingsoppgave.shouldBeTrue()
                 }
                 it("creates new PersonOversiktStatus for personident from kafka record with active huskelapp no frist") {
                     val activeHuskelappNoFrist = generateKafkaHuskelapp(isActive = true, frist = null)
@@ -75,7 +75,7 @@ class TrengerOppfolgingConsumerSpek : Spek({
                     )
 
                     runBlocking {
-                        trengerOppfolgingConsumer.pollAndProcessRecords(kafkaConsumer = kafkaConsumerMock)
+                        oppfolgingsoppgaveConsumer.pollAndProcessRecords(kafkaConsumer = kafkaConsumerMock)
                     }
 
                     verify(exactly = 1) {
@@ -87,7 +87,7 @@ class TrengerOppfolgingConsumerSpek : Spek({
                     pPersonOversiktStatusList.size shouldBeEqualTo 1
                     val pPersonOversiktStatus = pPersonOversiktStatusList.first()
                     pPersonOversiktStatus.fnr shouldBeEqualTo activeHuskelappNoFrist.personIdent
-                    pPersonOversiktStatus.trengerOppfolging.shouldBeTrue()
+                    pPersonOversiktStatus.isAktivOppfolgingsoppgave.shouldBeTrue()
                 }
                 it("updates PersonOversiktStatus tildeltEnhet for personident from kafka record with active huskelapp") {
                     val activeHuskelappNoFrist = generateKafkaHuskelapp(isActive = true, frist = null)
@@ -97,7 +97,7 @@ class TrengerOppfolgingConsumerSpek : Spek({
                     )
 
                     runBlocking {
-                        trengerOppfolgingConsumer.pollAndProcessRecords(kafkaConsumer = kafkaConsumerMock)
+                        oppfolgingsoppgaveConsumer.pollAndProcessRecords(kafkaConsumer = kafkaConsumerMock)
                     }
 
                     verify(exactly = 1) {
@@ -118,7 +118,7 @@ class TrengerOppfolgingConsumerSpek : Spek({
                     )
 
                     runBlocking {
-                        trengerOppfolgingConsumer.pollAndProcessRecords(kafkaConsumer = kafkaConsumerMock)
+                        oppfolgingsoppgaveConsumer.pollAndProcessRecords(kafkaConsumer = kafkaConsumerMock)
                     }
 
                     verify(exactly = 1) {
@@ -140,7 +140,7 @@ class TrengerOppfolgingConsumerSpek : Spek({
                     )
 
                     runBlocking {
-                        trengerOppfolgingConsumer.pollAndProcessRecords(kafkaConsumer = kafkaConsumerMock)
+                        oppfolgingsoppgaveConsumer.pollAndProcessRecords(kafkaConsumer = kafkaConsumerMock)
                     }
 
                     verify(exactly = 1) {
@@ -167,7 +167,7 @@ class TrengerOppfolgingConsumerSpek : Spek({
                     )
 
                     runBlocking {
-                        trengerOppfolgingConsumer.pollAndProcessRecords(kafkaConsumer = kafkaConsumerMock)
+                        oppfolgingsoppgaveConsumer.pollAndProcessRecords(kafkaConsumer = kafkaConsumerMock)
                     }
 
                     verify(exactly = 1) {
@@ -178,7 +178,7 @@ class TrengerOppfolgingConsumerSpek : Spek({
                     pPersonOversiktStatusList.size shouldBeEqualTo 1
                     val pPersonOversiktStatus = pPersonOversiktStatusList.first()
                     pPersonOversiktStatus.fnr shouldBeEqualTo activeHuskelappWithFrist.personIdent
-                    pPersonOversiktStatus.trengerOppfolging.shouldBeTrue()
+                    pPersonOversiktStatus.isAktivOppfolgingsoppgave.shouldBeTrue()
                 }
                 it("updates to trenger_oppfolging false from kafka record with inactive huskelapp and frist") {
                     val inactiveHuskelappWithFrist = generateKafkaHuskelapp(isActive = false, frist = frist)
@@ -187,7 +187,7 @@ class TrengerOppfolgingConsumerSpek : Spek({
                         personOversiktStatus = PersonOversiktStatus(
                             fnr = personident,
                         ).copy(
-                            trengerOppfolging = true,
+                            isAktivOppfolgingsoppgave = true,
                         )
                     )
                     mockIncomingKafkaRecord(
@@ -196,7 +196,7 @@ class TrengerOppfolgingConsumerSpek : Spek({
                     )
 
                     runBlocking {
-                        trengerOppfolgingConsumer.pollAndProcessRecords(kafkaConsumer = kafkaConsumerMock)
+                        oppfolgingsoppgaveConsumer.pollAndProcessRecords(kafkaConsumer = kafkaConsumerMock)
                     }
 
                     verify(exactly = 1) {
@@ -207,7 +207,7 @@ class TrengerOppfolgingConsumerSpek : Spek({
                     pPersonOversiktStatusList.size shouldBeEqualTo 1
                     val pPersonOversiktStatus = pPersonOversiktStatusList.first()
                     pPersonOversiktStatus.fnr shouldBeEqualTo inactiveHuskelappWithFrist.personIdent
-                    pPersonOversiktStatus.trengerOppfolging.shouldBeFalse()
+                    pPersonOversiktStatus.isAktivOppfolgingsoppgave.shouldBeFalse()
                 }
                 it("updates to trenger_oppfolging false from kafka record with inactive huskelapp and no frist") {
                     val inactiveHuskelappNoFrist = generateKafkaHuskelapp(isActive = false, frist = null)
@@ -216,7 +216,7 @@ class TrengerOppfolgingConsumerSpek : Spek({
                         personOversiktStatus = PersonOversiktStatus(
                             fnr = personident,
                         ).copy(
-                            trengerOppfolging = true,
+                            isAktivOppfolgingsoppgave = true,
                         )
                     )
                     mockIncomingKafkaRecord(
@@ -225,7 +225,7 @@ class TrengerOppfolgingConsumerSpek : Spek({
                     )
 
                     runBlocking {
-                        trengerOppfolgingConsumer.pollAndProcessRecords(kafkaConsumer = kafkaConsumerMock)
+                        oppfolgingsoppgaveConsumer.pollAndProcessRecords(kafkaConsumer = kafkaConsumerMock)
                     }
 
                     verify(exactly = 1) {
@@ -236,19 +236,19 @@ class TrengerOppfolgingConsumerSpek : Spek({
                     pPersonOversiktStatusList.size shouldBeEqualTo 1
                     val pPersonOversiktStatus = pPersonOversiktStatusList.first()
                     pPersonOversiktStatus.fnr shouldBeEqualTo inactiveHuskelappNoFrist.personIdent
-                    pPersonOversiktStatus.trengerOppfolging.shouldBeFalse()
+                    pPersonOversiktStatus.isAktivOppfolgingsoppgave.shouldBeFalse()
                 }
             }
         }
     }
 })
 
-fun mockIncomingKafkaRecord(kafkaRecord: KafkaHuskelapp, kafkaConsumerMock: KafkaConsumer<String, KafkaHuskelapp>) {
+fun mockIncomingKafkaRecord(kafkaRecord: OppfolgingsoppgaveRecord, kafkaConsumerMock: KafkaConsumer<String, OppfolgingsoppgaveRecord>) {
     every { kafkaConsumerMock.poll(any<Duration>()) } returns ConsumerRecords(
         mapOf(
             huskelappTopicPartition() to listOf(
                 huskelappConsumerRecord(
-                    kafkaHuskelapp = kafkaRecord,
+                    oppfolgingsoppgaveRecord = kafkaRecord,
                 ),
             )
         )

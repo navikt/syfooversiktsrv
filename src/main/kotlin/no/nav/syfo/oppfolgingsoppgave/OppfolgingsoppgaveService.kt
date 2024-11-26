@@ -1,4 +1,4 @@
-package no.nav.syfo.trengeroppfolging
+package no.nav.syfo.oppfolgingsoppgave
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -6,19 +6,19 @@ import kotlinx.coroutines.runBlocking
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import no.nav.syfo.personstatus.infrastructure.cronjob.behandlendeenhet.PersonBehandlendeEnhetService
 import no.nav.syfo.personstatus.domain.PersonIdent
-import no.nav.syfo.trengeroppfolging.domain.TrengerOppfolging
-import no.nav.syfo.trengeroppfolging.kafka.COUNT_KAFKA_CONSUMER_TRENGER_OPPFOLGING_READ
+import no.nav.syfo.oppfolgingsoppgave.domain.Oppfolgingsoppgave
+import no.nav.syfo.oppfolgingsoppgave.kafka.COUNT_KAFKA_CONSUMER_TRENGER_OPPFOLGING_READ
 import no.nav.syfo.personstatus.db.createPersonOversiktStatus
 import no.nav.syfo.personstatus.db.getPersonOversiktStatusList
-import no.nav.syfo.personstatus.db.updateTrengerOppfolging
+import no.nav.syfo.personstatus.db.updateOppfolgingsoppgave
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-class TrengerOppfolgingService(
+class OppfolgingsoppgaveService(
     private val database: DatabaseInterface,
     private val personBehandlendeEnhetService: PersonBehandlendeEnhetService,
 ) {
-    fun processTrengerOppfolging(records: List<TrengerOppfolging>) {
+    fun processOppfolgingsoppgave(records: List<Oppfolgingsoppgave>) {
         createOrUpdatePersonOversiktStatus(records)
         records.filter { it.isActive }.forEach {
             val personOversiktStatus = database.getPersonOversiktStatusList(
@@ -28,24 +28,24 @@ class TrengerOppfolgingService(
         }
     }
 
-    private fun createOrUpdatePersonOversiktStatus(records: List<TrengerOppfolging>) {
+    private fun createOrUpdatePersonOversiktStatus(records: List<Oppfolgingsoppgave>) {
         database.connection.use { connection ->
-            records.forEach { trengerOppfolging ->
+            records.forEach { oppfolgingsOppgave ->
                 val existingPersonOversiktStatus = connection.getPersonOversiktStatusList(
-                    fnr = trengerOppfolging.personIdent.value,
+                    fnr = oppfolgingsOppgave.personIdent.value,
                 ).firstOrNull()
 
                 if (existingPersonOversiktStatus == null) {
-                    val personoversiktStatus = trengerOppfolging.toPersonoversiktStatus()
+                    val personoversiktStatus = oppfolgingsOppgave.toPersonoversiktStatus()
                     connection.createPersonOversiktStatus(
                         commit = false,
                         personOversiktStatus = personoversiktStatus,
                     )
                 } else {
-                    connection.updateTrengerOppfolging(trengerOppfolging = trengerOppfolging)
+                    connection.updateOppfolgingsoppgave(oppfolgingsoppgave = oppfolgingsOppgave)
                 }
 
-                log.info("Received trengerOppfolging with uuid=${trengerOppfolging.uuid}")
+                log.info("Received oppfolgingsOppgave with uuid=${oppfolgingsOppgave.uuid}")
                 COUNT_KAFKA_CONSUMER_TRENGER_OPPFOLGING_READ.increment()
             }
             connection.commit()

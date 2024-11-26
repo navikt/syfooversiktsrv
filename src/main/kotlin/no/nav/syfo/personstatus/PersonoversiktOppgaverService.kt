@@ -127,7 +127,7 @@ class PersonoversiktOppgaverService(
     ): Deferred<OppfolgingsoppgaverResponseDTO?> =
         CoroutineScope(Dispatchers.IO).async {
             val personidenterWithOppfolgingsoppgave = personStatuser
-                .filter { it.trengerOppfolging }
+                .filter { it.isAktivOppfolgingsoppgave }
                 .map { PersonIdent(it.fnr) }
             if (personidenterWithOppfolgingsoppgave.isNotEmpty()) {
                 val response = oppfolgingsoppgaveClient.getActiveOppfolgingsoppgaver(

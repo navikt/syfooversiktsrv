@@ -1,11 +1,11 @@
-package no.nav.syfo.trengeroppfolging.kafka
+package no.nav.syfo.oppfolgingsoppgave.kafka
 
 import no.nav.syfo.ApplicationState
 import no.nav.syfo.personstatus.infrastructure.database.database
 import no.nav.syfo.personstatus.infrastructure.kafka.KafkaEnvironment
 import no.nav.syfo.personstatus.infrastructure.kafka.kafkaAivenConsumerConfig
 import no.nav.syfo.personstatus.infrastructure.cronjob.behandlendeenhet.PersonBehandlendeEnhetService
-import no.nav.syfo.trengeroppfolging.TrengerOppfolgingService
+import no.nav.syfo.oppfolgingsoppgave.OppfolgingsoppgaveService
 import no.nav.syfo.personstatus.infrastructure.kafka.launchKafkaTask
 import no.nav.syfo.util.configuredJacksonMapper
 import org.apache.kafka.clients.consumer.ConsumerConfig
@@ -15,17 +15,17 @@ import java.util.*
 const val HUSKELAPP_TOPIC =
     "teamsykefravr.huskelapp"
 
-fun launchTrengerOppfolgingConsumer(
+fun launchOppfolgingsoppgaveConsumer(
     applicationState: ApplicationState,
     kafkaEnvironment: KafkaEnvironment,
     personBehandlendeEnhetService: PersonBehandlendeEnhetService,
 ) {
-    val trengerOppfolgingService = TrengerOppfolgingService(
+    val oppfolgingsoppgaveService = OppfolgingsoppgaveService(
         database = database,
         personBehandlendeEnhetService = personBehandlendeEnhetService,
     )
-    val trengerOppfolgingConsumer = TrengerOppfolgingConsumer(
-        trengerOppfolgingService = trengerOppfolgingService,
+    val oppfolgingsoppgaveConsumer = OppfolgingsoppgaveConsumer(
+        oppfolgingsoppgaveService = oppfolgingsoppgaveService,
     )
     val consumerProperties = Properties().apply {
         putAll(kafkaAivenConsumerConfig(kafkaEnvironment = kafkaEnvironment))
@@ -36,12 +36,12 @@ fun launchTrengerOppfolgingConsumer(
         applicationState = applicationState,
         topic = HUSKELAPP_TOPIC,
         consumerProperties = consumerProperties,
-        kafkaConsumerService = trengerOppfolgingConsumer
+        kafkaConsumerService = oppfolgingsoppgaveConsumer
     )
 }
 
-class KafkaHuskelappDeserializer : Deserializer<KafkaHuskelapp> {
+class KafkaHuskelappDeserializer : Deserializer<OppfolgingsoppgaveRecord> {
     private val mapper = configuredJacksonMapper()
-    override fun deserialize(topic: String, data: ByteArray): KafkaHuskelapp =
-        mapper.readValue(data, KafkaHuskelapp::class.java)
+    override fun deserialize(topic: String, data: ByteArray): OppfolgingsoppgaveRecord =
+        mapper.readValue(data, OppfolgingsoppgaveRecord::class.java)
 }

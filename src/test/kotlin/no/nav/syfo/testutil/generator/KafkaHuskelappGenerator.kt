@@ -1,7 +1,7 @@
 package no.nav.syfo.testutil.generator
 
-import no.nav.syfo.trengeroppfolging.kafka.HUSKELAPP_TOPIC
-import no.nav.syfo.trengeroppfolging.kafka.KafkaHuskelapp
+import no.nav.syfo.oppfolgingsoppgave.kafka.HUSKELAPP_TOPIC
+import no.nav.syfo.oppfolgingsoppgave.kafka.OppfolgingsoppgaveRecord
 import no.nav.syfo.testutil.UserConstants
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.TopicPartition
@@ -14,7 +14,7 @@ fun generateKafkaHuskelapp(
     personIdent: String = UserConstants.ARBEIDSTAKER_FNR,
     isActive: Boolean = true,
     frist: LocalDate?,
-) = KafkaHuskelapp(
+) = OppfolgingsoppgaveRecord(
     uuid = uuid,
     personIdent = personIdent,
     createdAt = OffsetDateTime.now(),
@@ -32,11 +32,11 @@ fun huskelappTopicPartition() = TopicPartition(
 )
 
 fun huskelappConsumerRecord(
-    kafkaHuskelapp: KafkaHuskelapp,
+    oppfolgingsoppgaveRecord: OppfolgingsoppgaveRecord,
 ) = ConsumerRecord(
     HUSKELAPP_TOPIC,
     0,
     1,
     "key1",
-    kafkaHuskelapp
+    oppfolgingsoppgaveRecord
 )
