@@ -5,6 +5,7 @@ import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.runBlocking
 import no.nav.syfo.trengeroppfolging.TrengerOppfolgingService
 import no.nav.syfo.personstatus.db.getPersonOversiktStatusList
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
@@ -53,9 +54,7 @@ class TrengerOppfolgingConsumerSpek : Spek({
                         kafkaConsumerMock = kafkaConsumerMock,
                     )
 
-                    trengerOppfolgingConsumer.pollAndProcessRecords(
-                        kafkaConsumer = kafkaConsumerMock,
-                    )
+                    runBlocking { trengerOppfolgingConsumer.pollAndProcessRecords(kafkaConsumer = kafkaConsumerMock) }
 
                     verify(exactly = 1) {
                         kafkaConsumerMock.commitSync()
@@ -75,9 +74,9 @@ class TrengerOppfolgingConsumerSpek : Spek({
                         kafkaConsumerMock = kafkaConsumerMock,
                     )
 
-                    trengerOppfolgingConsumer.pollAndProcessRecords(
-                        kafkaConsumer = kafkaConsumerMock,
-                    )
+                    runBlocking {
+                        trengerOppfolgingConsumer.pollAndProcessRecords(kafkaConsumer = kafkaConsumerMock)
+                    }
 
                     verify(exactly = 1) {
                         kafkaConsumerMock.commitSync()
@@ -97,9 +96,9 @@ class TrengerOppfolgingConsumerSpek : Spek({
                         kafkaConsumerMock = kafkaConsumerMock,
                     )
 
-                    trengerOppfolgingConsumer.pollAndProcessRecords(
-                        kafkaConsumer = kafkaConsumerMock,
-                    )
+                    runBlocking {
+                        trengerOppfolgingConsumer.pollAndProcessRecords(kafkaConsumer = kafkaConsumerMock)
+                    }
 
                     verify(exactly = 1) {
                         kafkaConsumerMock.commitSync()
@@ -118,9 +117,9 @@ class TrengerOppfolgingConsumerSpek : Spek({
                         kafkaConsumerMock = kafkaConsumerMock,
                     )
 
-                    trengerOppfolgingConsumer.pollAndProcessRecords(
-                        kafkaConsumer = kafkaConsumerMock,
-                    )
+                    runBlocking {
+                        trengerOppfolgingConsumer.pollAndProcessRecords(kafkaConsumer = kafkaConsumerMock)
+                    }
 
                     verify(exactly = 1) {
                         kafkaConsumerMock.commitSync()
@@ -140,9 +139,9 @@ class TrengerOppfolgingConsumerSpek : Spek({
                         kafkaConsumerMock = kafkaConsumerMock,
                     )
 
-                    trengerOppfolgingConsumer.pollAndProcessRecords(
-                        kafkaConsumer = kafkaConsumerMock,
-                    )
+                    runBlocking {
+                        trengerOppfolgingConsumer.pollAndProcessRecords(kafkaConsumer = kafkaConsumerMock)
+                    }
 
                     verify(exactly = 1) {
                         kafkaConsumerMock.commitSync()
@@ -167,9 +166,9 @@ class TrengerOppfolgingConsumerSpek : Spek({
                         kafkaConsumerMock = kafkaConsumerMock,
                     )
 
-                    trengerOppfolgingConsumer.pollAndProcessRecords(
-                        kafkaConsumer = kafkaConsumerMock,
-                    )
+                    runBlocking {
+                        trengerOppfolgingConsumer.pollAndProcessRecords(kafkaConsumer = kafkaConsumerMock)
+                    }
 
                     verify(exactly = 1) {
                         kafkaConsumerMock.commitSync()
@@ -196,9 +195,9 @@ class TrengerOppfolgingConsumerSpek : Spek({
                         kafkaConsumerMock = kafkaConsumerMock,
                     )
 
-                    trengerOppfolgingConsumer.pollAndProcessRecords(
-                        kafkaConsumer = kafkaConsumerMock,
-                    )
+                    runBlocking {
+                        trengerOppfolgingConsumer.pollAndProcessRecords(kafkaConsumer = kafkaConsumerMock)
+                    }
 
                     verify(exactly = 1) {
                         kafkaConsumerMock.commitSync()
@@ -225,9 +224,9 @@ class TrengerOppfolgingConsumerSpek : Spek({
                         kafkaConsumerMock = kafkaConsumerMock,
                     )
 
-                    trengerOppfolgingConsumer.pollAndProcessRecords(
-                        kafkaConsumer = kafkaConsumerMock,
-                    )
+                    runBlocking {
+                        trengerOppfolgingConsumer.pollAndProcessRecords(kafkaConsumer = kafkaConsumerMock)
+                    }
 
                     verify(exactly = 1) {
                         kafkaConsumerMock.commitSync()

@@ -4,6 +4,7 @@ import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.runBlocking
 import no.nav.syfo.personstatus.PersonoversiktStatusService
 import no.nav.syfo.personstatus.db.createPersonOversiktStatus
 import no.nav.syfo.personstatus.domain.PersonIdent
@@ -69,7 +70,7 @@ class ManglendeMedvirkningVurderingConsumerSpek : Spek({
                 topic = "teamsykefravr.manglende-medvirkning-vurdering",
             )
 
-            manglendeMedvirkningConsumer.pollAndProcessRecords(kafkaConsumer)
+            runBlocking { manglendeMedvirkningConsumer.pollAndProcessRecords(kafkaConsumer) }
 
             verify(exactly = 1) {
                 kafkaConsumer.commitSync()
@@ -103,7 +104,7 @@ class ManglendeMedvirkningVurderingConsumerSpek : Spek({
                 topic = "teamsykefravr.manglende-medvirkning-vurdering",
             )
 
-            manglendeMedvirkningConsumer.pollAndProcessRecords(kafkaConsumer)
+            runBlocking { manglendeMedvirkningConsumer.pollAndProcessRecords(kafkaConsumer) }
 
             verify(exactly = 1) {
                 kafkaConsumer.commitSync()
@@ -130,7 +131,7 @@ class ManglendeMedvirkningVurderingConsumerSpek : Spek({
                 topic = "teamsykefravr.manglende-medvirkning-vurdering",
             )
 
-            manglendeMedvirkningConsumer.pollAndProcessRecords(kafkaConsumer)
+            runBlocking { manglendeMedvirkningConsumer.pollAndProcessRecords(kafkaConsumer) }
 
             verify(exactly = 1) {
                 kafkaConsumer.commitSync()

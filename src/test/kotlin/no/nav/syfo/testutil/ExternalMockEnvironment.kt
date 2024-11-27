@@ -44,6 +44,7 @@ class ExternalMockEnvironment private constructor() {
     )
 
     val oppfolgingstilfelleService = OppfolgingstilfelleService(
+        pdlClient = pdlClient,
         personOversiktStatusRepository = personOversiktStatusRepository,
     )
 

@@ -27,10 +27,10 @@ fun generatePdlPersonNavn(
     etternavn = "Etternavn$ident",
 )
 
-fun generatePdlHentPerson(
+fun generatePdlHentPersonBolk(
     ident: String = ARBEIDSTAKER_FNR,
     pdlPersonNavn: PdlPersonNavn = generatePdlPersonNavn(ident = ident),
-) = PdlHentPerson(
+) = PdlHentPersonBolkResult(
     ident = ident,
     person = generatePdlPerson(
         pdlPersonNavn = pdlPersonNavn,
@@ -39,13 +39,23 @@ fun generatePdlHentPerson(
     code = "ok",
 )
 
+fun generatePdlHentPerson(
+    ident: String = ARBEIDSTAKER_FNR,
+    pdlPersonNavn: PdlPersonNavn = generatePdlPersonNavn(ident = ident),
+) = PdlHentPerson(
+    hentPerson = generatePdlPerson(
+        pdlPersonNavn = pdlPersonNavn,
+        fodselsdato = if (ident == ARBEIDSTAKER_NO_FODSELSDATO) null else LocalDate.now().minusYears(30),
+    ),
+)
+
 fun generatePdlHentPersonBolkData(
     identList: List<String>,
 ) = PdlHentPersonBolkData(
     hentPersonBolk = identList.filter { ident ->
         ident != ARBEIDSTAKER_NO_NAME_FNR
     }.map { ident ->
-        generatePdlHentPerson(ident = ident)
+        generatePdlHentPersonBolk(ident = ident)
     }
 )
 
@@ -80,6 +90,11 @@ fun generatePdlIdenter(
     errors = null,
 )
 
+fun generatePdlHentPersonResponse(ident: String) = PdlHentPersonResponse(
+    errors = null,
+    data = generatePdlHentPerson(ident = ident),
+)
+
 fun generatePdlError(code: String? = null) = listOf(
     PdlError(
         message = "Error",
@@ -99,6 +114,7 @@ private fun String.toFakeOldIdent(): String {
 
 suspend fun MockRequestHandleScope.pdlMockResponse(request: HttpRequestData): HttpResponseData {
     val isHentIdenterRequest = request.receiveBody<Any>().toString().contains("hentIdenter")
+    val isHentPersonBolkRequest = request.receiveBody<Any>().toString().contains("hentPersonBolk")
     return if (isHentIdenterRequest) {
         val pdlRequest = request.receiveBody<PdlIdentRequest>()
         when (val personIdent = pdlRequest.variables.ident) {
@@ -115,8 +131,11 @@ suspend fun MockRequestHandleScope.pdlMockResponse(request: HttpRequestData): Ht
                 respondOk(generatePdlIdenter(personIdent))
             }
         }
-    } else {
+    } else if (isHentPersonBolkRequest) {
         val pdlRequest = request.receiveBody<PdlPersonBolkRequest>()
         respondOk(generatePdlPersonResponse(identList = pdlRequest.variables.identer))
+    } else {
+        val pdlRequest = request.receiveBody<PdlHentPersonRequest>()
+        respondOk(generatePdlHentPersonResponse(ident = pdlRequest.variables.ident))
     }
 }

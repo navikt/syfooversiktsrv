@@ -2,6 +2,7 @@ package no.nav.syfo.dialogmotestatusendring.kafka
 
 import io.ktor.server.testing.*
 import io.mockk.*
+import kotlinx.coroutines.runBlocking
 import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendring
 import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendringType
 import no.nav.syfo.personstatus.db.*
@@ -59,9 +60,9 @@ class KafkaDialogmoteStatusendringServiceSpek : Spek({
                     )
                 )
 
-                kafkaDialogmoteStatusendringService.pollAndProcessRecords(
-                    kafkaConsumer = mockKafkaConsumerDialogmoteStatusendring
-                )
+                runBlocking {
+                    kafkaDialogmoteStatusendringService.pollAndProcessRecords(kafkaConsumer = mockKafkaConsumerDialogmoteStatusendring)
+                }
 
                 verify(exactly = 1) {
                     mockKafkaConsumerDialogmoteStatusendring.commitSync()
@@ -99,9 +100,9 @@ class KafkaDialogmoteStatusendringServiceSpek : Spek({
                     personOversiktStatus = kafkaOppfolgingstilfellePerson.toPersonOversiktStatus(kafkaOppfolgingstilfelle)
                 )
 
-                kafkaDialogmoteStatusendringService.pollAndProcessRecords(
-                    kafkaConsumer = mockKafkaConsumerDialogmoteStatusendring
-                )
+                runBlocking {
+                    kafkaDialogmoteStatusendringService.pollAndProcessRecords(kafkaConsumer = mockKafkaConsumerDialogmoteStatusendring)
+                }
 
                 verify(exactly = 1) {
                     mockKafkaConsumerDialogmoteStatusendring.commitSync()
@@ -135,9 +136,9 @@ class KafkaDialogmoteStatusendringServiceSpek : Spek({
                     personOversiktStatus = existingPersonOversiktStatus
                 )
 
-                kafkaDialogmoteStatusendringService.pollAndProcessRecords(
-                    kafkaConsumer = mockKafkaConsumerDialogmoteStatusendring
-                )
+                runBlocking {
+                    kafkaDialogmoteStatusendringService.pollAndProcessRecords(kafkaConsumer = mockKafkaConsumerDialogmoteStatusendring)
+                }
 
                 verify(exactly = 1) {
                     mockKafkaConsumerDialogmoteStatusendring.commitSync()
@@ -169,9 +170,9 @@ class KafkaDialogmoteStatusendringServiceSpek : Spek({
                     personOversiktStatus = existingPersonOversiktStatus
                 )
 
-                kafkaDialogmoteStatusendringService.pollAndProcessRecords(
-                    kafkaConsumer = mockKafkaConsumerDialogmoteStatusendring
-                )
+                runBlocking {
+                    kafkaDialogmoteStatusendringService.pollAndProcessRecords(kafkaConsumer = mockKafkaConsumerDialogmoteStatusendring)
+                }
 
                 verify(exactly = 1) {
                     mockKafkaConsumerDialogmoteStatusendring.commitSync()

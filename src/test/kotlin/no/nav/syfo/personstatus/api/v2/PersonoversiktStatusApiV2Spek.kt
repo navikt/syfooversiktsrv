@@ -230,9 +230,9 @@ object PersonoversiktStatusApiV2Spek : Spek({
                 }
 
                 it("should return NoContent, if there is a person with a relevant active Oppfolgingstilfelle, but neither MOTEBEHOV_SVAR_MOTTATT nor DIALOGMOTEKANDIDAT") {
-                    oppfolgingstilfelleConsumer.pollAndProcessRecords(
-                        kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
-                    )
+                    runBlocking {
+                        oppfolgingstilfelleConsumer.pollAndProcessRecords(kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson)
+                    }
                     runBlocking {
                         personOppfolgingstilfelleVirksomhetnavnCronjob.runJob()
                     }
@@ -251,9 +251,9 @@ object PersonoversiktStatusApiV2Spek : Spek({
                 }
 
                 it("should return list of PersonOversiktStatus, if MOTEBEHOV_SVAR_MOTTATT and OPPFOLGINGSPLANLPS_BISTAND_MOTTATT and DIALOGMOTESVAR_MOTTATT, and there is a person with a relevant active Oppfolgingstilfelle") {
-                    oppfolgingstilfelleConsumer.pollAndProcessRecords(
-                        kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
-                    )
+                    runBlocking {
+                        oppfolgingstilfelleConsumer.pollAndProcessRecords(kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson)
+                    }
                     val oversiktHendelse = KPersonoppgavehendelse(
                         ARBEIDSTAKER_FNR,
                         OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT,
@@ -310,9 +310,9 @@ object PersonoversiktStatusApiV2Spek : Spek({
                 }
 
                 it("should return list of PersonOversiktStatus, if MOTEBEHOV_SVAR_MOTTATT and if there is a person with 2 relevant active Oppfolgingstilfelle with different virksomhetsnummer") {
-                    oppfolgingstilfelleConsumer.pollAndProcessRecords(
-                        kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
-                    )
+                    runBlocking {
+                        oppfolgingstilfelleConsumer.pollAndProcessRecords(kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson)
+                    }
                     val oversiktHendelse = KPersonoppgavehendelse(
                         ARBEIDSTAKER_FNR,
                         OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT,
@@ -368,11 +368,8 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     personoversiktStatusService.createOrUpdatePersonoversiktStatuser(
                         personoppgavehendelser = listOf(oversiktHendelse, oversiktHendelseOPLPSBistandMottatt)
                     )
-
-                    oppfolgingstilfelleConsumer.pollAndProcessRecords(
-                        kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
-                    )
                     runBlocking {
+                        oppfolgingstilfelleConsumer.pollAndProcessRecords(kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson)
                         personOppfolgingstilfelleVirksomhetnavnCronjob.runJob()
                     }
 
@@ -411,9 +408,9 @@ object PersonoversiktStatusApiV2Spek : Spek({
                 }
 
                 it("should return Person, receives Oppfolgingstilfelle, and then MOTEBEHOV_SVAR_MOTTATT and OPPFOLGINGSPLANLPS_BISTAND_MOTTATT") {
-                    oppfolgingstilfelleConsumer.pollAndProcessRecords(
-                        kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
-                    )
+                    runBlocking {
+                        oppfolgingstilfelleConsumer.pollAndProcessRecords(kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson)
+                    }
 
                     val oversiktHendelse = KPersonoppgavehendelse(
                         ARBEIDSTAKER_FNR,

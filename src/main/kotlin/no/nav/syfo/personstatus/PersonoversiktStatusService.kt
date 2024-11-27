@@ -6,12 +6,12 @@ import no.nav.syfo.personoppgavehendelse.kafka.COUNT_KAFKA_CONSUMER_PERSONOPPGAV
 import no.nav.syfo.personoppgavehendelse.kafka.COUNT_KAFKA_CONSUMER_PERSONOPPGAVEHENDELSE_READ
 import no.nav.syfo.personoppgavehendelse.kafka.COUNT_KAFKA_CONSUMER_PERSONOPPGAVEHENDELSE_UPDATED_PERSONOVERSIKT_STATUS
 import no.nav.syfo.personoppgavehendelse.kafka.KPersonoppgavehendelse
+import no.nav.syfo.personstatus.application.IPdlClient
 import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
 import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.*
 import no.nav.syfo.personstatus.infrastructure.METRICS_NS
 import no.nav.syfo.personstatus.infrastructure.METRICS_REGISTRY
-import no.nav.syfo.personstatus.infrastructure.clients.pdl.PdlClient
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.model.fodselsdato
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.model.fullName
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
@@ -20,7 +20,7 @@ import java.sql.Connection
 
 class PersonoversiktStatusService(
     private val database: DatabaseInterface,
-    private val pdlClient: PdlClient,
+    private val pdlClient: IPdlClient,
     private val personoversiktStatusRepository: IPersonOversiktStatusRepository,
 ) {
     private val isUbehandlet = true
@@ -79,9 +79,7 @@ class PersonoversiktStatusService(
         }
     }
 
-    fun createOrUpdatePersonoversiktStatuser(
-        personoppgavehendelser: List<KPersonoppgavehendelse>,
-    ) {
+    fun createOrUpdatePersonoversiktStatuser(personoppgavehendelser: List<KPersonoppgavehendelse>) {
         database.connection.use { connection ->
             personoppgavehendelser.forEach { personoppgavehendelse ->
                 val personident = PersonIdent(personoppgavehendelse.personident)

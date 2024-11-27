@@ -2,6 +2,7 @@ package no.nav.syfo.aktivitetskravvurdering.kafka
 
 import io.ktor.server.testing.*
 import io.mockk.*
+import kotlinx.coroutines.runBlocking
 import no.nav.syfo.aktivitetskravvurdering.domain.AktivitetskravStatus
 import no.nav.syfo.personstatus.PersonoversiktStatusService
 import no.nav.syfo.personstatus.db.*
@@ -70,7 +71,7 @@ class AktivitetskravVurderingConsumerSpek : Spek({
                     )
                 )
 
-                aktivitetskravVurderingConsumer.pollAndProcessRecords(kafkaConsumer = consumerMock)
+                runBlocking { aktivitetskravVurderingConsumer.pollAndProcessRecords(kafkaConsumer = consumerMock) }
                 verify(exactly = 1) { consumerMock.commitSync() }
 
                 val pPersonOversiktStatusList =
@@ -106,8 +107,7 @@ class AktivitetskravVurderingConsumerSpek : Spek({
                         kafkaOppfolgingstilfelle
                     )
                 )
-
-                aktivitetskravVurderingConsumer.pollAndProcessRecords(kafkaConsumer = consumerMock)
+                runBlocking { aktivitetskravVurderingConsumer.pollAndProcessRecords(kafkaConsumer = consumerMock) }
                 verify(exactly = 1) { consumerMock.commitSync() }
 
                 val pPersonOversiktStatusList =
@@ -136,8 +136,7 @@ class AktivitetskravVurderingConsumerSpek : Spek({
                 val personstatusBeforeConsuming =
                     database.connection.use { it.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR) }.first()
                 personstatusBeforeConsuming.isAktivAktivitetskravvurdering shouldBe false
-
-                aktivitetskravVurderingConsumer.pollAndProcessRecords(kafkaConsumer = consumerMock)
+                runBlocking { aktivitetskravVurderingConsumer.pollAndProcessRecords(kafkaConsumer = consumerMock) }
                 verify(exactly = 1) { consumerMock.commitSync() }
 
                 val personstatus = database.connection.use { it.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR) }.first()
@@ -160,7 +159,7 @@ class AktivitetskravVurderingConsumerSpek : Spek({
                     recordValue = aktivitetskravVurderingOppfylt,
                     topic = AKTIVITETSKRAV_VURDERING_TOPIC,
                 )
-                aktivitetskravVurderingConsumer.pollAndProcessRecords(kafkaConsumer = consumerMock)
+                runBlocking { aktivitetskravVurderingConsumer.pollAndProcessRecords(kafkaConsumer = consumerMock) }
                 verify(exactly = 1) { consumerMock.commitSync() }
 
                 val pPersonOversiktStatusList = database.connection.use { it.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR) }

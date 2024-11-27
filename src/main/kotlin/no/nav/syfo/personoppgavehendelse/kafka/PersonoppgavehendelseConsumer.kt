@@ -10,7 +10,7 @@ class PersonoppgavehendelseConsumer(
 ) : KafkaConsumerService<KPersonoppgavehendelse> {
     override val pollDurationInMillis: Long = 100
 
-    override fun pollAndProcessRecords(kafkaConsumer: KafkaConsumer<String, KPersonoppgavehendelse>) {
+    override suspend fun pollAndProcessRecords(kafkaConsumer: KafkaConsumer<String, KPersonoppgavehendelse>) {
         val records = kafkaConsumer.poll(Duration.ofMillis(pollDurationInMillis))
 
         if (records.count() > 0) {

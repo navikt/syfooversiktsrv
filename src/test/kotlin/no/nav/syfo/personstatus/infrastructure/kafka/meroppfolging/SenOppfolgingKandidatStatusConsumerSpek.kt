@@ -4,6 +4,7 @@ import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.runBlocking
 import no.nav.syfo.personstatus.PersonoversiktStatusService
 import no.nav.syfo.personstatus.db.createPersonOversiktStatus
 import no.nav.syfo.personstatus.db.getPersonOversiktStatusList
@@ -60,7 +61,7 @@ class SenOppfolgingKandidatStatusConsumerSpek : Spek({
                 topic = SenOppfolgingKandidatStatusConsumer.SEN_OPPFOLGING_KANDIDAT_STATUS_TOPIC,
             )
 
-            senOppfolgingKandidatStatusConsumer.pollAndProcessRecords(kafkaConsumer)
+            runBlocking { senOppfolgingKandidatStatusConsumer.pollAndProcessRecords(kafkaConsumer) }
 
             verify(exactly = 1) {
                 kafkaConsumer.commitSync()
@@ -84,7 +85,7 @@ class SenOppfolgingKandidatStatusConsumerSpek : Spek({
                 topic = SenOppfolgingKandidatStatusConsumer.SEN_OPPFOLGING_KANDIDAT_STATUS_TOPIC,
             )
 
-            senOppfolgingKandidatStatusConsumer.pollAndProcessRecords(kafkaConsumer)
+            runBlocking { senOppfolgingKandidatStatusConsumer.pollAndProcessRecords(kafkaConsumer) }
 
             verify(exactly = 1) {
                 kafkaConsumer.commitSync()
@@ -117,7 +118,7 @@ class SenOppfolgingKandidatStatusConsumerSpek : Spek({
                 topic = SenOppfolgingKandidatStatusConsumer.SEN_OPPFOLGING_KANDIDAT_STATUS_TOPIC,
             )
 
-            senOppfolgingKandidatStatusConsumer.pollAndProcessRecords(kafkaConsumer)
+            runBlocking { senOppfolgingKandidatStatusConsumer.pollAndProcessRecords(kafkaConsumer) }
 
             verify(exactly = 1) {
                 kafkaConsumer.commitSync()

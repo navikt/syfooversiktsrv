@@ -3,16 +3,27 @@ package no.nav.syfo.personstatus.application
 import no.nav.syfo.oppfolgingstilfelle.domain.Oppfolgingstilfelle
 import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
+import no.nav.syfo.personstatus.infrastructure.clients.pdl.model.fodselsdato
+import no.nav.syfo.personstatus.infrastructure.clients.pdl.model.fullName
+import org.slf4j.LoggerFactory
 import java.time.temporal.ChronoUnit
 
 class OppfolgingstilfelleService(
+    private val pdlClient: IPdlClient,
     private val personOversiktStatusRepository: IPersonOversiktStatusRepository,
 ) {
-
-    fun upsertPersonOversiktStatus(personStatus: PersonOversiktStatus, newPersonOppfolgingsTilfelle: Oppfolgingstilfelle) {
+    suspend fun upsertPersonOversiktStatus(personStatus: PersonOversiktStatus, newPersonOppfolgingsTilfelle: Oppfolgingstilfelle) {
         val existingPerson: PersonOversiktStatus? = personOversiktStatusRepository.getPersonOversiktStatus(PersonIdent(personStatus.fnr))
         if (existingPerson == null) {
-            personOversiktStatusRepository.createPersonOversiktStatus(personStatus)
+            pdlClient.getPerson(PersonIdent(personStatus.fnr))
+                .map {
+                    val editedPersonStatues =
+                        personStatus.updatePersonDetails(navn = it.fullName(), fodselsdato = it.fodselsdato())
+                    personOversiktStatusRepository.createPersonOversiktStatus(editedPersonStatues)
+                }.onFailure { throwable ->
+                    log.error("Failed to get person from PDL: ${throwable.message}. Creating person without name and fodselsdato")
+                    personOversiktStatusRepository.createPersonOversiktStatus(personStatus)
+                }
         } else {
             val shouldUpdateOppfolgingstilfelle =
                 shouldUpdatePersonOppfolgingstilfelle(
@@ -49,5 +60,9 @@ class OppfolgingstilfelleService(
                 }
             } ?: true
         }
+    }
+
+    companion object {
+        private val log = LoggerFactory.getLogger(this::class.java)
     }
 }

@@ -4,6 +4,7 @@ import io.ktor.server.testing.*
 import io.ktor.util.*
 import io.mockk.clearMocks
 import io.mockk.every
+import kotlinx.coroutines.runBlocking
 import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.Virksomhetsnummer
 import no.nav.syfo.personoppgavehendelse.kafka.KPersonoppgavehendelse
@@ -20,6 +21,7 @@ import no.nav.syfo.testutil.assertion.checkPPersonOversiktStatusOppfolgingstilfe
 import no.nav.syfo.testutil.generator.*
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
+import org.amshove.kluent.shouldNotBe
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.spekframework.spek2.Spek
@@ -34,7 +36,7 @@ object OppfolgingstilfelleConsumerSpek : Spek({
 
         val externalMockEnvironment = ExternalMockEnvironment.instance
         val database = externalMockEnvironment.database
-
+        val personOversiktStatusRepository = externalMockEnvironment.personOversiktStatusRepository
         application.testApiModule(
             externalMockEnvironment = externalMockEnvironment,
         )
@@ -49,16 +51,16 @@ object OppfolgingstilfelleConsumerSpek : Spek({
         val oppfolgingstilfellePersonRecordRelevant = generateKafkaOppfolgingstilfellePerson(
             personIdent = personIdentDefault,
         )
-        val kafkaOppfolgingstilfellePersonServiceRecordRelevant = oppfolgingstilfellePersonConsumerRecord(
+        val oppfolgingstilfellePersonConsumerRecordRelevant = oppfolgingstilfellePersonConsumerRecord(
             oppfolgingstilfellePersonRecord = oppfolgingstilfellePersonRecordRelevant
         )
-        val kafkaOppfolgingstilfellePersonRelevantNotArbeidstaker = generateKafkaOppfolgingstilfellePerson(
+        val oppfolgingstilfellePersonRecordRelevantNotArbeidstaker = generateKafkaOppfolgingstilfellePerson(
             arbeidstakerAtTilfelleEnd = false,
             personIdent = personIdentDefault,
             virksomhetsnummerList = emptyList(),
         )
-        val kafkaOppfolgingstilfellePersonRelevantNotArbeidstakerRecord = oppfolgingstilfellePersonConsumerRecord(
-            oppfolgingstilfellePersonRecord = kafkaOppfolgingstilfellePersonRelevantNotArbeidstaker
+        val oppfolgingstilfellePersonConsumerRecordRelevantNotArbeidstaker = oppfolgingstilfellePersonConsumerRecord(
+            oppfolgingstilfellePersonRecord = oppfolgingstilfellePersonRecordRelevantNotArbeidstaker
         )
 
         fun mockConsumer(vararg records: ConsumerRecord<String, OppfolgingstilfellePersonRecord>) {
@@ -81,13 +83,33 @@ object OppfolgingstilfelleConsumerSpek : Spek({
         describe("Read KafkaOppfolgingstilfellePerson") {
 
             it("should create new PersonOversiktStatus if no PersonOversiktStatus exists for PersonIdent") {
-                mockConsumer(kafkaOppfolgingstilfellePersonServiceRecordRelevant)
+                mockConsumer(oppfolgingstilfellePersonConsumerRecordRelevant)
 
-                oppfolgingstilfelleConsumer.pollAndProcessRecords(
-                    kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
-                )
+                runBlocking {
+                    oppfolgingstilfelleConsumer.pollAndProcessRecords(
+                        kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
+                    )
+                }
 
-                val recordValue = kafkaOppfolgingstilfellePersonServiceRecordRelevant.value()
+                val recordValue = oppfolgingstilfellePersonConsumerRecordRelevant.value()
+
+                val pPersonStatus = personOversiktStatusRepository.getPersonOversiktStatus(PersonIdent(recordValue.personIdentNumber))
+
+                pPersonStatus?.fnr shouldBeEqualTo recordValue.personIdentNumber
+                pPersonStatus?.navn shouldNotBe null
+                pPersonStatus?.fodselsdato shouldNotBe null
+            }
+
+            it("should create new PersonOversiktStatus with navn and fodselsdato from PDL") {
+                mockConsumer(oppfolgingstilfellePersonConsumerRecordRelevant)
+
+                runBlocking {
+                    oppfolgingstilfelleConsumer.pollAndProcessRecords(
+                        kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
+                    )
+                }
+
+                val recordValue = oppfolgingstilfellePersonConsumerRecordRelevant.value()
 
                 database.connection.use { connection ->
                     val pPersonOversiktStatusList = connection.getPersonOversiktStatusList(
@@ -115,13 +137,15 @@ object OppfolgingstilfelleConsumerSpek : Spek({
             }
 
             it("should create new PersonOversiktStatus if no PersonOversiktStatus exists for PersonIdent even if not arbeidstaker") {
-                mockConsumer(kafkaOppfolgingstilfellePersonRelevantNotArbeidstakerRecord)
+                mockConsumer(oppfolgingstilfellePersonConsumerRecordRelevantNotArbeidstaker)
 
-                oppfolgingstilfelleConsumer.pollAndProcessRecords(
-                    kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
-                )
+                runBlocking {
+                    oppfolgingstilfelleConsumer.pollAndProcessRecords(
+                        kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
+                    )
+                }
 
-                val recordValue = kafkaOppfolgingstilfellePersonRelevantNotArbeidstakerRecord.value()
+                val recordValue = oppfolgingstilfellePersonConsumerRecordRelevantNotArbeidstaker.value()
 
                 database.connection.use { connection ->
                     val pPersonOversiktStatusList = connection.getPersonOversiktStatusList(
@@ -149,7 +173,7 @@ object OppfolgingstilfelleConsumerSpek : Spek({
             }
 
             it("should update existing PersonOversiktStatus with OPPFOLGINGSPLANLPS_BISTAND_MOTTATT, with data from KafkaOppfolgingstilfellePerson") {
-                mockConsumer(kafkaOppfolgingstilfellePersonServiceRecordRelevant)
+                mockConsumer(oppfolgingstilfellePersonConsumerRecordRelevant)
 
                 val oversiktHendelseOPLPSBistandMottatt = KPersonoppgavehendelse(
                     personIdentDefault.value,
@@ -160,12 +184,13 @@ object OppfolgingstilfelleConsumerSpek : Spek({
                 ).applyHendelse(oversiktHendelseOPLPSBistandMottatt.hendelsetype)
 
                 database.createPersonOversiktStatus(personoversiktStatus)
+                runBlocking {
+                    oppfolgingstilfelleConsumer.pollAndProcessRecords(
+                        kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
+                    )
+                }
 
-                oppfolgingstilfelleConsumer.pollAndProcessRecords(
-                    kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
-                )
-
-                val recordValue = kafkaOppfolgingstilfellePersonServiceRecordRelevant.value()
+                val recordValue = oppfolgingstilfellePersonConsumerRecordRelevant.value()
 
                 val pPersonOversiktStatusList = database.connection.use { connection ->
                     connection.getPersonOversiktStatusList(
@@ -216,9 +241,11 @@ object OppfolgingstilfelleConsumerSpek : Spek({
                     kafkaOppfolgingstilfellePersonServiceRecordRelevantNewest,
                 )
 
-                oppfolgingstilfelleConsumer.pollAndProcessRecords(
-                    kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
-                )
+                runBlocking {
+                    oppfolgingstilfelleConsumer.pollAndProcessRecords(
+                        kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
+                    )
+                }
 
                 val recordValue = kafkaOppfolgingstilfellePersonServiceRecordRelevantNewest.value()
 
@@ -279,9 +306,11 @@ object OppfolgingstilfelleConsumerSpek : Spek({
                     kafkaOppfolgingstilfellePersonServiceRecordRelevantFirst,
                 )
 
-                oppfolgingstilfelleConsumer.pollAndProcessRecords(
-                    kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
-                )
+                runBlocking {
+                    oppfolgingstilfelleConsumer.pollAndProcessRecords(
+                        kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
+                    )
+                }
 
                 val recordValue = kafkaOppfolgingstilfellePersonServiceRecordRelevantNewest.value()
 
@@ -351,15 +380,19 @@ object OppfolgingstilfelleConsumerSpek : Spek({
 
                 mockConsumer(kafkaOppfolgingstilfellePersonServiceRecordRelevantSecond)
 
-                oppfolgingstilfelleConsumer.pollAndProcessRecords(
-                    kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
-                )
+                runBlocking {
+                    oppfolgingstilfelleConsumer.pollAndProcessRecords(
+                        kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
+                    )
+                }
 
                 mockConsumer(kafkaOppfolgingstilfellePersonServiceRecordRelevantFirst)
 
-                oppfolgingstilfelleConsumer.pollAndProcessRecords(
-                    kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
-                )
+                runBlocking {
+                    oppfolgingstilfelleConsumer.pollAndProcessRecords(
+                        kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
+                    )
+                }
 
                 val recordValueSecond = kafkaOppfolgingstilfellePersonServiceRecordRelevantSecond.value()
 
@@ -398,9 +431,11 @@ object OppfolgingstilfelleConsumerSpek : Spek({
 
                 mockConsumer(kafkaOppfolgingstilfellePersonServiceRecordRelevantNewest)
 
-                oppfolgingstilfelleConsumer.pollAndProcessRecords(
-                    kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
-                )
+                runBlocking {
+                    oppfolgingstilfelleConsumer.pollAndProcessRecords(
+                        kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
+                    )
+                }
 
                 val recordValueNewest = kafkaOppfolgingstilfellePersonServiceRecordRelevantNewest.value()
 
@@ -466,15 +501,19 @@ object OppfolgingstilfelleConsumerSpek : Spek({
                 )
                 mockConsumer(kafkaOppfolgingstilfellePersonServiceRecordRelevantFirst)
 
-                oppfolgingstilfelleConsumer.pollAndProcessRecords(
-                    kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
-                )
+                runBlocking {
+                    oppfolgingstilfelleConsumer.pollAndProcessRecords(
+                        kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
+                    )
+                }
 
                 mockConsumer(kafkaOppfolgingstilfellePersonServiceRecordRelevantSecond)
 
-                oppfolgingstilfelleConsumer.pollAndProcessRecords(
-                    kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
-                )
+                runBlocking {
+                    oppfolgingstilfelleConsumer.pollAndProcessRecords(
+                        kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
+                    )
+                }
                 val recordValueSecond = kafkaOppfolgingstilfellePersonServiceRecordRelevantSecond.value()
 
                 database.connection.use { connection ->
@@ -543,15 +582,19 @@ object OppfolgingstilfelleConsumerSpek : Spek({
 
                 mockConsumer(kafkaOppfolgingstilfellePersonServiceRecordRelevantSecond)
 
-                oppfolgingstilfelleConsumer.pollAndProcessRecords(
-                    kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
-                )
+                runBlocking {
+                    oppfolgingstilfelleConsumer.pollAndProcessRecords(
+                        kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
+                    )
+                }
 
                 mockConsumer(kafkaOppfolgingstilfellePersonServiceRecordRelevantFirst)
 
-                oppfolgingstilfelleConsumer.pollAndProcessRecords(
-                    kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
-                )
+                runBlocking {
+                    oppfolgingstilfelleConsumer.pollAndProcessRecords(
+                        kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
+                    )
+                }
 
                 val recordValueSecond = kafkaOppfolgingstilfellePersonServiceRecordRelevantSecond.value()
 
@@ -590,9 +633,11 @@ object OppfolgingstilfelleConsumerSpek : Spek({
 
                 mockConsumer(kafkaOppfolgingstilfellePersonServiceRecordRelevantNewest)
 
-                oppfolgingstilfelleConsumer.pollAndProcessRecords(
-                    kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
-                )
+                runBlocking {
+                    oppfolgingstilfelleConsumer.pollAndProcessRecords(
+                        kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
+                    )
+                }
 
                 val recordValueNewest = kafkaOppfolgingstilfellePersonServiceRecordRelevantNewest.value()
 
@@ -645,9 +690,11 @@ object OppfolgingstilfelleConsumerSpek : Spek({
 
                 mockConsumer(kafkaOppfolgingstilfellePersonServiceRecordRelevantFirst)
 
-                oppfolgingstilfelleConsumer.pollAndProcessRecords(
-                    kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
-                )
+                runBlocking {
+                    oppfolgingstilfelleConsumer.pollAndProcessRecords(
+                        kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
+                    )
+                }
 
                 val virksomhetsnummerListSecond = listOf(
                     Virksomhetsnummer(VIRKSOMHETSNUMMER_2),
@@ -663,9 +710,11 @@ object OppfolgingstilfelleConsumerSpek : Spek({
 
                 mockConsumer(kafkaOppfolgingstilfellePersonServiceRecordRelevantSecond)
 
-                oppfolgingstilfelleConsumer.pollAndProcessRecords(
-                    kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
-                )
+                runBlocking {
+                    oppfolgingstilfelleConsumer.pollAndProcessRecords(
+                        kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
+                    )
+                }
 
                 val recordValue = kafkaOppfolgingstilfellePersonServiceRecordRelevantSecond.value()
 
@@ -714,9 +763,11 @@ object OppfolgingstilfelleConsumerSpek : Spek({
                 )
                 mockConsumer(kafkaOppfolgingstilfellePersonRecord)
 
-                oppfolgingstilfelleConsumer.pollAndProcessRecords(
-                    kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
-                )
+                runBlocking {
+                    oppfolgingstilfelleConsumer.pollAndProcessRecords(
+                        kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
+                    )
+                }
 
                 val recordValue = kafkaOppfolgingstilfellePersonRecord.value()
 

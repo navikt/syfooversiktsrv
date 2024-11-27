@@ -12,10 +12,10 @@ data class PdlPersonBolkResponse(
 )
 
 data class PdlHentPersonBolkData(
-    val hentPersonBolk: List<PdlHentPerson>?,
+    val hentPersonBolk: List<PdlHentPersonBolkResult>?,
 )
 
-data class PdlHentPerson(
+data class PdlHentPersonBolkResult(
     val ident: String,
     val person: PdlPerson?,
     val code: String,
