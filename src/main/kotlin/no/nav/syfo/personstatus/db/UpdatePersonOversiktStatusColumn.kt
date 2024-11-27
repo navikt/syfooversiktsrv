@@ -3,7 +3,7 @@ package no.nav.syfo.personstatus.db
 import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendring
 import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.PPersonOversiktStatus
-import no.nav.syfo.trengeroppfolging.domain.TrengerOppfolging
+import no.nav.syfo.oppfolgingsoppgave.domain.Oppfolgingsoppgave
 import java.sql.Connection
 import java.sql.Timestamp
 import java.time.Instant
@@ -200,20 +200,20 @@ fun Connection.updatePersonOversiktStatusBehandlerdialogAvvist(
     }
 }
 
-const val queryUpdatePersonOversiktStatusTrengerOppfolging =
+const val queryUpdatePersonOversiktStatusOppfolgingsoppgave =
     """
         UPDATE PERSON_OVERSIKT_STATUS
         SET trenger_oppfolging = ?, sist_endret = ?
         WHERE fnr = ?
     """
 
-fun Connection.updateTrengerOppfolging(
-    trengerOppfolging: TrengerOppfolging,
+fun Connection.updateOppfolgingsoppgave(
+    oppfolgingsoppgave: Oppfolgingsoppgave,
 ) {
-    this.prepareStatement(queryUpdatePersonOversiktStatusTrengerOppfolging).use {
-        it.setBoolean(1, trengerOppfolging.isActive)
+    this.prepareStatement(queryUpdatePersonOversiktStatusOppfolgingsoppgave).use {
+        it.setBoolean(1, oppfolgingsoppgave.isActive)
         it.setObject(2, Timestamp.from(Instant.now()))
-        it.setString(3, trengerOppfolging.personIdent.value)
+        it.setString(3, oppfolgingsoppgave.personIdent.value)
         it.execute()
     }
 }

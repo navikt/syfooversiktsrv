@@ -693,7 +693,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     val personident = ARBEIDSTAKER_FNR
                     val personoversiktStatus = PersonOversiktStatus(
                         fnr = personident,
-                    ).copy(trengerOppfolging = true)
+                    ).copy(isAktivOppfolgingsoppgave = true)
 
                     database.createPersonOversiktStatus(personoversiktStatus)
 

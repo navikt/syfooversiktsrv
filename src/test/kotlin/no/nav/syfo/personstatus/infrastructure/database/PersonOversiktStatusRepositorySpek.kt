@@ -265,7 +265,7 @@ class PersonOversiktStatusRepositorySpek : Spek({
                         fnr = UserConstants.ARBEIDSTAKER_FNR,
                         fodselsdato = fodselsdato,
                         navn = "Fornavn Mellomnavn Etternavn",
-                        trengerOppfolging = true,
+                        isAktivOppfolgingsoppgave = true,
                         latestOppfolgingstilfelle = inactiveOppfolgingstilfelle,
                     )
                     personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus)

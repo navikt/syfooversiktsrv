@@ -1,18 +1,18 @@
-package no.nav.syfo.trengeroppfolging.kafka
+package no.nav.syfo.oppfolgingsoppgave.kafka
 
-import no.nav.syfo.trengeroppfolging.TrengerOppfolgingService
+import no.nav.syfo.oppfolgingsoppgave.OppfolgingsoppgaveService
 import no.nav.syfo.personstatus.infrastructure.kafka.KafkaConsumerService
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import java.time.Duration
 
-class TrengerOppfolgingConsumer(
-    private val trengerOppfolgingService: TrengerOppfolgingService,
-) : KafkaConsumerService<KafkaHuskelapp> {
+class OppfolgingsoppgaveConsumer(
+    private val oppfolgingsoppgaveService: OppfolgingsoppgaveService,
+) : KafkaConsumerService<OppfolgingsoppgaveRecord> {
 
     override val pollDurationInMillis: Long = 1000
 
-    override suspend fun pollAndProcessRecords(kafkaConsumer: KafkaConsumer<String, KafkaHuskelapp>) {
+    override suspend fun pollAndProcessRecords(kafkaConsumer: KafkaConsumer<String, OppfolgingsoppgaveRecord>) {
         val records = kafkaConsumer.poll(Duration.ofMillis(pollDurationInMillis))
         if (records.count() > 0) {
             processRecords(records)
@@ -21,11 +21,11 @@ class TrengerOppfolgingConsumer(
     }
 
     private fun processRecords(
-        consumerRecords: ConsumerRecords<String, KafkaHuskelapp>,
+        consumerRecords: ConsumerRecords<String, OppfolgingsoppgaveRecord>,
     ) {
         val validRecords = consumerRecords.requireNoNulls()
-        trengerOppfolgingService.processTrengerOppfolging(
-            records = validRecords.map { it.value().toTrengerOppfolging() }
+        oppfolgingsoppgaveService.processOppfolgingsoppgave(
+            records = validRecords.map { it.value().toOppfolgingsoppgave() }
         )
     }
 }

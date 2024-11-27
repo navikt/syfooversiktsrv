@@ -106,7 +106,7 @@ fun Connection.createPersonOversiktStatus(
         it.setBoolean(parameterIndex++, personOversiktStatus.behandlerdialogSvarUbehandlet)
         it.setBoolean(parameterIndex++, personOversiktStatus.behandlerdialogUbesvartUbehandlet)
         it.setBoolean(parameterIndex++, personOversiktStatus.behandlerdialogAvvistUbehandlet)
-        it.setBoolean(parameterIndex++, personOversiktStatus.trengerOppfolging)
+        it.setBoolean(parameterIndex++, personOversiktStatus.isAktivOppfolgingsoppgave)
         it.setBoolean(parameterIndex++, personOversiktStatus.behandlerBerOmBistandUbehandlet)
         it.setBoolean(parameterIndex++, personOversiktStatus.isAktivArbeidsuforhetvurdering)
         if (personOversiktStatus.latestOppfolgingstilfelle?.antallSykedager != null) {

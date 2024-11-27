@@ -1,11 +1,11 @@
-package no.nav.syfo.trengeroppfolging.kafka
+package no.nav.syfo.oppfolgingsoppgave.kafka
 
-import no.nav.syfo.trengeroppfolging.domain.TrengerOppfolging
+import no.nav.syfo.oppfolgingsoppgave.domain.Oppfolgingsoppgave
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.UUID
 
-data class KafkaHuskelapp(
+data class OppfolgingsoppgaveRecord(
     val uuid: UUID,
     val personIdent: String,
     val veilederIdent: String,
@@ -16,7 +16,7 @@ data class KafkaHuskelapp(
     val createdAt: OffsetDateTime,
     val updatedAt: OffsetDateTime,
 ) {
-    fun toTrengerOppfolging() = TrengerOppfolging.create(
+    fun toOppfolgingsoppgave() = Oppfolgingsoppgave.create(
         uuid = uuid,
         personIdent = personIdent,
         isActive = isActive,

@@ -1,18 +1,18 @@
-package no.nav.syfo.trengeroppfolging.domain
+package no.nav.syfo.oppfolgingsoppgave.domain
 
 import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import java.time.LocalDate
 import java.util.UUID
 
-data class TrengerOppfolging private constructor(
+data class Oppfolgingsoppgave private constructor(
     val uuid: UUID,
     val personIdent: PersonIdent,
     val isActive: Boolean,
     val frist: LocalDate?,
 ) {
     companion object {
-        fun create(uuid: UUID, personIdent: String, isActive: Boolean, frist: LocalDate?): TrengerOppfolging = TrengerOppfolging(
+        fun create(uuid: UUID, personIdent: String, isActive: Boolean, frist: LocalDate?): Oppfolgingsoppgave = Oppfolgingsoppgave(
             uuid = uuid,
             personIdent = PersonIdent(personIdent),
             isActive = isActive,
@@ -23,6 +23,6 @@ data class TrengerOppfolging private constructor(
     fun toPersonoversiktStatus() = PersonOversiktStatus(
         fnr = personIdent.value,
     ).copy(
-        trengerOppfolging = isActive,
+        isAktivOppfolgingsoppgave = isActive,
     )
 }

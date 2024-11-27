@@ -16,7 +16,7 @@ import no.nav.syfo.personstatus.PersonoversiktStatusService
 import no.nav.syfo.personstatus.application.OppfolgingstilfelleService
 import no.nav.syfo.personstatus.infrastructure.kafka.manglendemedvirkning.ManglendeMedvirkningVurderingConsumer
 import no.nav.syfo.personstatus.infrastructure.kafka.meroppfolging.SenOppfolgingKandidatStatusConsumer
-import no.nav.syfo.trengeroppfolging.kafka.launchTrengerOppfolgingConsumer
+import no.nav.syfo.oppfolgingsoppgave.kafka.launchOppfolgingsoppgaveConsumer
 
 fun launchKafkaModule(
     applicationState: ApplicationState,
@@ -62,7 +62,7 @@ fun launchKafkaModule(
         environment = environment,
     )
 
-    launchTrengerOppfolgingConsumer(
+    launchOppfolgingsoppgaveConsumer(
         applicationState = applicationState,
         kafkaEnvironment = environment.kafka,
         personBehandlendeEnhetService = personBehandlendeEnhetService,

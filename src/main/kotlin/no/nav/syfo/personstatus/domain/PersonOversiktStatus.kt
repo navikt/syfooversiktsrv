@@ -31,7 +31,7 @@ data class PersonOversiktStatus(
     val behandlerdialogSvarUbehandlet: Boolean = false,
     val behandlerdialogUbesvartUbehandlet: Boolean = false,
     val behandlerdialogAvvistUbehandlet: Boolean = false,
-    val trengerOppfolging: Boolean = false,
+    val isAktivOppfolgingsoppgave: Boolean = false,
     val behandlerBerOmBistandUbehandlet: Boolean = false,
     val isAktivArbeidsuforhetvurdering: Boolean = false,
     val friskmeldingTilArbeidsformidlingFom: LocalDate? = null,
@@ -74,7 +74,7 @@ fun PersonOversiktStatus.hasActiveOppgave(): Boolean {
         this.isAktivAktivitetskravvurdering ||
         this.hasActiveBehandlerdialogOppgave() ||
         this.friskmeldingTilArbeidsformidlingFom != null ||
-        this.trengerOppfolging ||
+        this.isAktivOppfolgingsoppgave ||
         this.behandlerBerOmBistandUbehandlet ||
         this.isAktivArbeidsuforhetvurdering ||
         this.isAktivSenOppfolgingKandidat ||
