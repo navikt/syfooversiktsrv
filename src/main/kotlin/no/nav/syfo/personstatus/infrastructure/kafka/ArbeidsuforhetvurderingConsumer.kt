@@ -1,7 +1,7 @@
 package no.nav.syfo.personstatus.infrastructure.kafka
 
 import no.nav.syfo.ApplicationState
-import no.nav.syfo.personstatus.PersonoversiktStatusService
+import no.nav.syfo.personstatus.application.PersonoversiktStatusService
 import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.util.configuredJacksonMapper
 import org.apache.kafka.clients.consumer.ConsumerConfig

@@ -1,6 +1,7 @@
 package no.nav.syfo.personstatus.infrastructure.cronjob.behandlendeenhet
 
 import net.logstash.logback.argument.StructuredArguments
+import no.nav.syfo.personstatus.application.PersonBehandlendeEnhetService
 import no.nav.syfo.personstatus.infrastructure.cronjob.Cronjob
 import no.nav.syfo.personstatus.infrastructure.cronjob.CronjobResult
 import org.slf4j.LoggerFactory

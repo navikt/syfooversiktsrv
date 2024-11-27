@@ -2,7 +2,6 @@ package no.nav.syfo.personstatus.application
 
 import io.ktor.server.testing.TestApplicationEngine
 import kotlinx.coroutines.runBlocking
-import no.nav.syfo.personstatus.PersonoversiktStatusService
 import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.testutil.ExternalMockEnvironment
@@ -25,11 +24,7 @@ class PersonoversiktStatusServiceSpek : Spek({
             val database = externalMockEnvironment.database
             val personOversiktStatusRepository = externalMockEnvironment.personOversiktStatusRepository
 
-            val personoversiktStatusService = PersonoversiktStatusService(
-                database = database,
-                pdlClient = externalMockEnvironment.pdlClient,
-                personoversiktStatusRepository = personOversiktStatusRepository,
-            )
+            val personoversiktStatusService = externalMockEnvironment.personoversiktStatusService
 
             beforeEachTest { database.dropData() }
             afterEachGroup { database.dropData() }

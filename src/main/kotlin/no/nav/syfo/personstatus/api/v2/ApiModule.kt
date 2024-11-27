@@ -14,17 +14,17 @@ import no.nav.syfo.personstatus.api.v2.endpoints.registerPodApi
 import no.nav.syfo.personstatus.api.v2.endpoints.registerPrometheusApi
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import no.nav.syfo.personstatus.infrastructure.clients.veiledertilgang.VeilederTilgangskontrollClient
-import no.nav.syfo.personstatus.PersonTildelingService
-import no.nav.syfo.personstatus.PersonoversiktOppgaverService
-import no.nav.syfo.personstatus.PersonoversiktSearchService
-import no.nav.syfo.personstatus.PersonoversiktStatusService
+import no.nav.syfo.personstatus.application.PersonoversiktOppgaverService
+import no.nav.syfo.personstatus.application.PersonoversiktStatusService
 import no.nav.syfo.personstatus.api.v2.auth.JwtIssuer
 import no.nav.syfo.personstatus.api.v2.auth.JwtIssuerType
 import no.nav.syfo.personstatus.api.v2.auth.WellKnown
 import no.nav.syfo.personstatus.api.v2.endpoints.registerPersonTildelingApiV2
 import no.nav.syfo.personstatus.api.v2.endpoints.registerPersonoversiktApiV2
 import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
-import no.nav.syfo.personstatus.infrastructure.cronjob.behandlendeenhet.PersonBehandlendeEnhetService
+import no.nav.syfo.personstatus.application.PersonTildelingService
+import no.nav.syfo.personstatus.application.PersonoversiktSearchService
+import no.nav.syfo.personstatus.application.PersonBehandlendeEnhetService
 
 fun Application.apiModule(
     applicationState: ApplicationState,

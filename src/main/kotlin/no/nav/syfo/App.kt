@@ -6,11 +6,11 @@ import io.ktor.server.config.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import no.nav.syfo.application.cache.RedisStore
-import no.nav.syfo.personstatus.PersonoversiktOppgaverService
-import no.nav.syfo.personstatus.PersonoversiktStatusService
+import no.nav.syfo.personstatus.application.PersonoversiktStatusService
 import no.nav.syfo.personstatus.api.v2.apiModule
 import no.nav.syfo.personstatus.api.v2.auth.getWellKnown
 import no.nav.syfo.personstatus.application.OppfolgingstilfelleService
+import no.nav.syfo.personstatus.application.PersonoversiktOppgaverService
 import no.nav.syfo.personstatus.infrastructure.clients.aktivitetskrav.AktivitetskravClient
 import no.nav.syfo.personstatus.infrastructure.clients.arbeidsuforhet.ArbeidsuforhetvurderingClient
 import no.nav.syfo.personstatus.infrastructure.clients.manglendemedvirkning.ManglendeMedvirkningClient
@@ -20,7 +20,7 @@ import no.nav.syfo.personstatus.infrastructure.clients.meroppfolging.MerOppfolgi
 import no.nav.syfo.personstatus.infrastructure.clients.oppfolgingsoppgave.OppfolgingsoppgaveClient
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.PdlClient
 import no.nav.syfo.personstatus.infrastructure.clients.veiledertilgang.VeilederTilgangskontrollClient
-import no.nav.syfo.personstatus.infrastructure.cronjob.behandlendeenhet.PersonBehandlendeEnhetService
+import no.nav.syfo.personstatus.application.PersonBehandlendeEnhetService
 import no.nav.syfo.personstatus.infrastructure.cronjob.launchCronjobModule
 import no.nav.syfo.personstatus.infrastructure.database.database
 import no.nav.syfo.personstatus.infrastructure.database.databaseModule

@@ -10,11 +10,11 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import no.nav.syfo.personstatus.api.v2.auth.getNAVIdentFromToken
 import no.nav.syfo.personstatus.infrastructure.COUNT_PERSONTILDELING_TILDELT
-import no.nav.syfo.personstatus.PersonTildelingService
+import no.nav.syfo.personstatus.application.PersonTildelingService
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytningListe
 import no.nav.syfo.personstatus.infrastructure.clients.veiledertilgang.VeilederTilgangskontrollClient
-import no.nav.syfo.personstatus.PersonoversiktStatusService
+import no.nav.syfo.personstatus.application.PersonoversiktStatusService
 import no.nav.syfo.personstatus.api.v2.model.VeilederBrukerKnytningDTO
 import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.util.*

@@ -1,7 +1,7 @@
 package no.nav.syfo.personoppgavehendelse.kafka
 
 import no.nav.syfo.personstatus.infrastructure.kafka.KafkaConsumerService
-import no.nav.syfo.personstatus.PersonoversiktStatusService
+import no.nav.syfo.personstatus.application.PersonoversiktStatusService
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import java.time.Duration
 

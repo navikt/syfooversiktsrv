@@ -1,12 +1,11 @@
-package no.nav.syfo.personstatus.infrastructure.cronjob.behandlendeenhet
+package no.nav.syfo.personstatus.application
 
 import no.nav.syfo.personstatus.infrastructure.clients.behandlendeenhet.BehandlendeEnhetClient
 import no.nav.syfo.personstatus.domain.PersonIdent
-import no.nav.syfo.personstatus.infrastructure.database.repository.PersonOversiktStatusRepository
 import java.util.*
 
 class PersonBehandlendeEnhetService(
-    private val personoversiktStatusRepository: PersonOversiktStatusRepository,
+    private val personoversiktStatusRepository: IPersonOversiktStatusRepository,
     private val behandlendeEnhetClient: BehandlendeEnhetClient,
 ) {
     fun getPersonerToCheckForUpdatedEnhet(): List<Pair<PersonIdent, String?>> =

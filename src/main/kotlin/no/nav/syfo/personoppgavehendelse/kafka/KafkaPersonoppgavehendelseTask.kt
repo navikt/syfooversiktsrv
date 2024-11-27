@@ -4,7 +4,7 @@ import no.nav.syfo.personstatus.infrastructure.kafka.KafkaEnvironment
 import no.nav.syfo.ApplicationState
 import no.nav.syfo.personstatus.infrastructure.kafka.kafkaAivenConsumerConfig
 import no.nav.syfo.personstatus.infrastructure.kafka.launchKafkaTask
-import no.nav.syfo.personstatus.PersonoversiktStatusService
+import no.nav.syfo.personstatus.application.PersonoversiktStatusService
 import no.nav.syfo.util.configuredJacksonMapper
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.Deserializer

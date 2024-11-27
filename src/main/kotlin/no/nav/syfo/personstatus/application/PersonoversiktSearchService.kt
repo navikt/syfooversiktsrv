@@ -1,9 +1,9 @@
-package no.nav.syfo.personstatus
+package no.nav.syfo.personstatus.application
 
-import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.personstatus.domain.SearchQuery
 import org.slf4j.LoggerFactory
+import kotlin.jvm.java
 import kotlin.time.measureTimedValue
 
 class PersonoversiktSearchService(

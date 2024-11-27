@@ -4,7 +4,6 @@ import io.ktor.server.testing.*
 import io.mockk.*
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.aktivitetskravvurdering.domain.AktivitetskravStatus
-import no.nav.syfo.personstatus.PersonoversiktStatusService
 import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.personstatus.infrastructure.kafka.mockPollConsumerRecords
@@ -23,14 +22,9 @@ class AktivitetskravVurderingConsumerSpek : Spek({
 
         val externalMockEnvironment = ExternalMockEnvironment.instance
         val database = externalMockEnvironment.database
-        val personOppgaveRepository = externalMockEnvironment.personOversiktStatusRepository
 
         val consumerMock = mockk<KafkaConsumer<String, AktivitetskravVurderingRecord>>()
-        val personoversiktStatusService = PersonoversiktStatusService(
-            database = database,
-            pdlClient = externalMockEnvironment.pdlClient,
-            personoversiktStatusRepository = personOppgaveRepository,
-        )
+        val personoversiktStatusService = externalMockEnvironment.personoversiktStatusService
         val aktivitetskravVurderingConsumer =
             AktivitetskravVurderingConsumer(personoversiktStatusService = personoversiktStatusService)
 

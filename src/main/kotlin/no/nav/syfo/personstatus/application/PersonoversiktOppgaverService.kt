@@ -1,10 +1,9 @@
-package no.nav.syfo.personstatus
+package no.nav.syfo.personstatus.application
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import no.nav.syfo.personstatus.application.PersonoversiktAktiveOppgaver
 import no.nav.syfo.personstatus.application.aktivitetskrav.GetAktivitetskravForPersonsResponseDTO
 import no.nav.syfo.personstatus.application.aktivitetskrav.IAktivitetskravClient
 import no.nav.syfo.personstatus.application.arbeidsuforhet.ArbeidsuforhetvurderingerResponseDTO
@@ -18,6 +17,12 @@ import no.nav.syfo.personstatus.application.oppfolgingsoppgave.Oppfolgingsoppgav
 import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import org.slf4j.LoggerFactory
+import kotlin.collections.associate
+import kotlin.collections.filter
+import kotlin.collections.isNotEmpty
+import kotlin.collections.map
+import kotlin.jvm.java
+import kotlin.to
 
 class PersonoversiktOppgaverService(
     private val arbeidsuforhetvurderingClient: IArbeidsuforhetvurderingClient,

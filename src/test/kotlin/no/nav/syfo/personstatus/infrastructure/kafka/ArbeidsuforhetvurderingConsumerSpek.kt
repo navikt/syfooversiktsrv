@@ -5,10 +5,9 @@ import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
-import no.nav.syfo.personstatus.domain.PersonIdent
-import no.nav.syfo.personstatus.PersonoversiktStatusService
 import no.nav.syfo.personstatus.db.createPersonOversiktStatus
 import no.nav.syfo.personstatus.db.getPersonOversiktStatusList
+import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.testutil.ExternalMockEnvironment
 import no.nav.syfo.testutil.UserConstants
@@ -27,12 +26,7 @@ class ArbeidsuforhetvurderingConsumerSpek : Spek({
     val externalMockEnvironment = ExternalMockEnvironment.instance
     val database = externalMockEnvironment.database
     val kafkaConsumer = mockk<KafkaConsumer<String, ArbeidsuforhetvurderingRecord>>()
-    val personOppgaveRepository = externalMockEnvironment.personOversiktStatusRepository
-    val personoversiktStatusService = PersonoversiktStatusService(
-        database = database,
-        pdlClient = externalMockEnvironment.pdlClient,
-        personoversiktStatusRepository = personOppgaveRepository,
-    )
+    val personoversiktStatusService = externalMockEnvironment.personoversiktStatusService
 
     val arbeidsuforhetvurderingConsumer = ArbeidsuforhetvurderingConsumer(
         personoversiktStatusService = personoversiktStatusService,
