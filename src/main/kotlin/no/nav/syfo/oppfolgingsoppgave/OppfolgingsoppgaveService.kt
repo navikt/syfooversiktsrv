@@ -4,7 +4,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
-import no.nav.syfo.personstatus.infrastructure.cronjob.behandlendeenhet.PersonBehandlendeEnhetService
+import no.nav.syfo.personstatus.application.PersonBehandlendeEnhetService
 import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.oppfolgingsoppgave.domain.Oppfolgingsoppgave
 import no.nav.syfo.oppfolgingsoppgave.kafka.COUNT_KAFKA_CONSUMER_TRENGER_OPPFOLGING_READ

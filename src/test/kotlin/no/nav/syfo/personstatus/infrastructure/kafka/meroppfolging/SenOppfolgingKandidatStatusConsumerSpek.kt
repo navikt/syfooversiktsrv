@@ -5,7 +5,6 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
-import no.nav.syfo.personstatus.PersonoversiktStatusService
 import no.nav.syfo.personstatus.db.createPersonOversiktStatus
 import no.nav.syfo.personstatus.db.getPersonOversiktStatusList
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
@@ -24,13 +23,8 @@ import java.util.*
 class SenOppfolgingKandidatStatusConsumerSpek : Spek({
     val externalMockEnvironment = ExternalMockEnvironment.instance
     val database = externalMockEnvironment.database
-    val personOppgaveRepository = externalMockEnvironment.personOversiktStatusRepository
     val kafkaConsumer = mockk<KafkaConsumer<String, KandidatStatusRecord>>()
-    val personoversiktStatusService = PersonoversiktStatusService(
-        database = database,
-        pdlClient = externalMockEnvironment.pdlClient,
-        personoversiktStatusRepository = personOppgaveRepository,
-    )
+    val personoversiktStatusService = externalMockEnvironment.personoversiktStatusService
 
     val senOppfolgingKandidatStatusConsumer = SenOppfolgingKandidatStatusConsumer(
         personoversiktStatusService = personoversiktStatusService,

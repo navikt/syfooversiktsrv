@@ -5,7 +5,6 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
-import no.nav.syfo.personstatus.PersonoversiktStatusService
 import no.nav.syfo.personstatus.db.createPersonOversiktStatus
 import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
@@ -26,11 +25,7 @@ class ManglendeMedvirkningVurderingConsumerSpek : Spek({
     val database = externalMockEnvironment.database
     val kafkaConsumer = mockk<KafkaConsumer<String, VurderingRecord>>()
     val personOversiktStatusRepository = externalMockEnvironment.personOversiktStatusRepository
-    val personoversiktStatusService = PersonoversiktStatusService(
-        database = database,
-        pdlClient = externalMockEnvironment.pdlClient,
-        personoversiktStatusRepository = personOversiktStatusRepository,
-    )
+    val personoversiktStatusService = externalMockEnvironment.personoversiktStatusService
 
     val manglendeMedvirkningConsumer = ManglendeMedvirkningVurderingConsumer(
         personoversiktStatusService = personoversiktStatusService,

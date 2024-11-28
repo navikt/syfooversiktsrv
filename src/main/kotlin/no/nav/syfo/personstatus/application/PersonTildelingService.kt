@@ -1,10 +1,10 @@
-package no.nav.syfo.personstatus
+package no.nav.syfo.personstatus.application
 
-import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
 import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
-import no.nav.syfo.personstatus.infrastructure.cronjob.behandlendeenhet.PersonBehandlendeEnhetService
+import kotlin.also
+import kotlin.collections.forEach
 
 class PersonTildelingService(
     private val personoversiktStatusRepository: IPersonOversiktStatusRepository,

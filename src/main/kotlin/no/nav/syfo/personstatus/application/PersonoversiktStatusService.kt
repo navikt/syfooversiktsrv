@@ -1,4 +1,4 @@
-package no.nav.syfo.personstatus
+package no.nav.syfo.personstatus.application
 
 import io.micrometer.core.instrument.Counter
 import no.nav.syfo.oppfolgingstilfelle.domain.PersonOppfolgingstilfelleVirksomhet
@@ -6,10 +6,24 @@ import no.nav.syfo.personoppgavehendelse.kafka.COUNT_KAFKA_CONSUMER_PERSONOPPGAV
 import no.nav.syfo.personoppgavehendelse.kafka.COUNT_KAFKA_CONSUMER_PERSONOPPGAVEHENDELSE_READ
 import no.nav.syfo.personoppgavehendelse.kafka.COUNT_KAFKA_CONSUMER_PERSONOPPGAVEHENDELSE_UPDATED_PERSONOVERSIKT_STATUS
 import no.nav.syfo.personoppgavehendelse.kafka.KPersonoppgavehendelse
-import no.nav.syfo.personstatus.application.IPdlClient
-import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
-import no.nav.syfo.personstatus.db.*
+import no.nav.syfo.personstatus.db.createPersonOversiktStatus
+import no.nav.syfo.personstatus.db.getPersonOppfolgingstilfelleVirksomhetMap
+import no.nav.syfo.personstatus.db.getPersonOversiktStatusList
+import no.nav.syfo.personstatus.db.hentUbehandledePersonerTilknyttetEnhet
+import no.nav.syfo.personstatus.db.updateBehandlerBerOmBistand
+import no.nav.syfo.personstatus.db.updatePersonOversiktMotebehov
+import no.nav.syfo.personstatus.db.updatePersonOversiktStatusBehandlerdialogAvvist
+import no.nav.syfo.personstatus.db.updatePersonOversiktStatusBehandlerdialogSvar
+import no.nav.syfo.personstatus.db.updatePersonOversiktStatusBehandlerdialogUbesvart
+import no.nav.syfo.personstatus.db.updatePersonOversiktStatusDialogmotesvar
+import no.nav.syfo.personstatus.db.updatePersonOversiktStatusLPS
+import no.nav.syfo.personstatus.db.updatePersonOversiktStatusNavn
 import no.nav.syfo.personstatus.domain.*
+import no.nav.syfo.personstatus.domain.addPersonName
+import no.nav.syfo.personstatus.domain.applyHendelse
+import no.nav.syfo.personstatus.domain.hasActiveOppgave
+import no.nav.syfo.personstatus.domain.toPersonOppfolgingstilfelleVirksomhet
+import no.nav.syfo.personstatus.domain.toPersonOversiktStatus
 import no.nav.syfo.personstatus.infrastructure.METRICS_NS
 import no.nav.syfo.personstatus.infrastructure.METRICS_REGISTRY
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.model.fodselsdato
@@ -17,6 +31,16 @@ import no.nav.syfo.personstatus.infrastructure.clients.pdl.model.fullName
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import org.slf4j.LoggerFactory
 import java.sql.Connection
+import kotlin.collections.associateBy
+import kotlin.collections.filter
+import kotlin.collections.firstOrNull
+import kotlin.collections.forEach
+import kotlin.collections.map
+import kotlin.collections.mapNotNull
+import kotlin.collections.mapValues
+import kotlin.jvm.java
+import kotlin.text.isNullOrEmpty
+import kotlin.use
 
 class PersonoversiktStatusService(
     private val database: DatabaseInterface,

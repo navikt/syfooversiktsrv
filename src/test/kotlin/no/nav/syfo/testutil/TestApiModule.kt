@@ -1,9 +1,9 @@
 package no.nav.syfo.testutil
 
 import io.ktor.server.application.*
-import no.nav.syfo.personstatus.PersonoversiktOppgaverService
-import no.nav.syfo.personstatus.PersonoversiktStatusService
 import no.nav.syfo.personstatus.api.v2.apiModule
+import no.nav.syfo.personstatus.application.PersonBehandlendeEnhetService
+import no.nav.syfo.personstatus.application.PersonoversiktOppgaverService
 import no.nav.syfo.personstatus.infrastructure.clients.aktivitetskrav.AktivitetskravClient
 import no.nav.syfo.personstatus.infrastructure.clients.arbeidsuforhet.ArbeidsuforhetvurderingClient
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
@@ -13,7 +13,6 @@ import no.nav.syfo.personstatus.infrastructure.clients.meroppfolging.MerOppfolgi
 import no.nav.syfo.personstatus.infrastructure.clients.oppfolgingsoppgave.OppfolgingsoppgaveClient
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.PdlClient
 import no.nav.syfo.personstatus.infrastructure.clients.veiledertilgang.VeilederTilgangskontrollClient
-import no.nav.syfo.personstatus.infrastructure.cronjob.behandlendeenhet.PersonBehandlendeEnhetService
 
 fun Application.testApiModule(
     externalMockEnvironment: ExternalMockEnvironment,
@@ -65,11 +64,7 @@ fun Application.testApiModule(
         httpClient = externalMockEnvironment.mockHttpClient,
     )
     val personoversiktRepository = externalMockEnvironment.personOversiktStatusRepository
-    val personoversiktStatusService = PersonoversiktStatusService(
-        database = externalMockEnvironment.database,
-        pdlClient = pdlClient,
-        personoversiktStatusRepository = personoversiktRepository,
-    )
+    val personoversiktStatusService = externalMockEnvironment.personoversiktStatusService
     val personBehandlendeEnhetService = PersonBehandlendeEnhetService(
         personoversiktStatusRepository = personoversiktRepository,
         behandlendeEnhetClient = behandlendeEnhetClient,

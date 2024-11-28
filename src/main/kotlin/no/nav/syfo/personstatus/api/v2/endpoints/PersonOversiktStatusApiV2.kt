@@ -8,12 +8,12 @@ import io.ktor.server.routing.*
 import io.ktor.server.routing.get
 import io.ktor.server.routing.route
 import io.micrometer.core.instrument.Timer
-import no.nav.syfo.personstatus.PersonoversiktOppgaverService
-import no.nav.syfo.personstatus.PersonoversiktSearchService
+import no.nav.syfo.personstatus.application.PersonoversiktOppgaverService
+import no.nav.syfo.personstatus.application.PersonoversiktSearchService
 import no.nav.syfo.personstatus.infrastructure.clients.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.personstatus.infrastructure.COUNT_PERSONOVERSIKTSTATUS_ENHET_HENTET
 import no.nav.syfo.personstatus.infrastructure.HISTOGRAM_PERSONOVERSIKT
-import no.nav.syfo.personstatus.PersonoversiktStatusService
+import no.nav.syfo.personstatus.application.PersonoversiktStatusService
 import no.nav.syfo.personstatus.api.v2.model.SearchQueryDTO
 import no.nav.syfo.personstatus.domain.*
 import no.nav.syfo.util.*

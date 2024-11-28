@@ -1,6 +1,6 @@
 package no.nav.syfo.personstatus.infrastructure.cronjob
 
-import no.nav.syfo.personstatus.PersonoversiktStatusService
+import no.nav.syfo.personstatus.application.PersonoversiktStatusService
 import org.slf4j.LoggerFactory
 
 class PopulateNavnAndFodselsdatoCronjob(

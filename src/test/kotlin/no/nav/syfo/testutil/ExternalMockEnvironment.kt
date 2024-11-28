@@ -3,6 +3,7 @@ package no.nav.syfo.testutil
 import no.nav.syfo.ApplicationState
 import no.nav.syfo.application.cache.RedisStore
 import no.nav.syfo.personstatus.application.OppfolgingstilfelleService
+import no.nav.syfo.personstatus.application.PersonoversiktStatusService
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.PdlClient
 import no.nav.syfo.personstatus.infrastructure.database.repository.PersonOversiktStatusRepository
@@ -43,6 +44,11 @@ class ExternalMockEnvironment private constructor() {
         httpClient = mockHttpClient
     )
 
+    val personoversiktStatusService = PersonoversiktStatusService(
+        database = database,
+        pdlClient = pdlClient,
+        personoversiktStatusRepository = personOversiktStatusRepository,
+    )
     val oppfolgingstilfelleService = OppfolgingstilfelleService(
         pdlClient = pdlClient,
         personOversiktStatusRepository = personOversiktStatusRepository,
