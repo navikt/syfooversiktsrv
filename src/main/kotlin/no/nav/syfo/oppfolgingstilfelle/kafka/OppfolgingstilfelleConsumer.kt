@@ -36,6 +36,7 @@ class OppfolgingstilfelleConsumer(
             .map { it.value.firstOrNull() }
             .filterNotNull()
 
+        log.info("OppfolgingstilfelleConsumer received ${recordsRelevant.size} relevant records")
         recordsRelevant.forEach { record ->
             COUNT_KAFKA_CONSUMER_OPPFOLGINGSTILFELLE_PERSON_READ.increment()
             receiveOppfolgingstilfellePerson(record.value())

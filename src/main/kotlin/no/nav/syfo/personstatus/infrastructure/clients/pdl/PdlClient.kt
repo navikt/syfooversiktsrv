@@ -138,39 +138,43 @@ class PdlClient(
         }
     }
 
-    override suspend fun getPerson(personIdent: PersonIdent): Result<PdlPerson> {
-        val token = azureAdClient.getSystemToken(clientEnvironment.clientId)
-            ?: throw RuntimeException("Failed to send request to PDL: No token was found")
-        val query = getPdlQuery("/pdl/hentPerson.graphql")
-        val request = PdlHentPersonRequest(query, PdlHentPersonRequestVariables(personIdent.value))
+    override suspend fun getPerson(personIdent: PersonIdent): Result<PdlPerson> =
+        try {
+            val token = azureAdClient.getSystemToken(clientEnvironment.clientId)
+                ?: throw RuntimeException("Failed to send request to PDL: No token was found")
+            val query = getPdlQuery("/pdl/hentPerson.graphql")
+            val request = PdlHentPersonRequest(query, PdlHentPersonRequestVariables(personIdent.value))
 
-        val response: HttpResponse = httpClient.post(clientEnvironment.baseUrl) {
-            setBody(request)
-            header(HttpHeaders.ContentType, "application/json")
-            header(HttpHeaders.Authorization, bearerHeader(token.accessToken))
-            header(BEHANDLINGSNUMMER_HEADER_KEY, BEHANDLINGSNUMMER_HEADER_VALUE)
-        }
+            val response: HttpResponse = httpClient.post(clientEnvironment.baseUrl) {
+                setBody(request)
+                header(HttpHeaders.ContentType, "application/json")
+                header(HttpHeaders.Authorization, bearerHeader(token.accessToken))
+                header(BEHANDLINGSNUMMER_HEADER_KEY, BEHANDLINGSNUMMER_HEADER_VALUE)
+            }
 
-        when (response.status) {
-            HttpStatusCode.OK -> {
-                val pdlPersonReponse = response.body<PdlHentPersonResponse>()
-                val isErrors = !pdlPersonReponse.errors.isNullOrEmpty()
-                if (isErrors) {
-                    pdlPersonReponse.errors.forEach {
-                        logger.error("Error while requesting person from PersonDataLosningen: ${it.errorMessage()}")
+            when (response.status) {
+                HttpStatusCode.OK -> {
+                    val pdlPersonReponse = response.body<PdlHentPersonResponse>()
+                    val isErrors = !pdlPersonReponse.errors.isNullOrEmpty()
+                    if (isErrors) {
+                        pdlPersonReponse.errors.forEach {
+                            logger.error("Error while requesting person from PersonDataLosningen: ${it.errorMessage()}")
+                        }
                     }
+                    pdlPersonReponse.data?.hentPerson
+                        ?.let { Result.success(it) }
+                        ?: Result.failure(RuntimeException("No person found in PDL response"))
                 }
-                return pdlPersonReponse.data?.hentPerson
-                    ?.let { Result.success(it) }
-                    ?: Result.failure(RuntimeException("No person found in PDL response"))
-            }
 
-            else -> {
-                logger.error("Request with url: ${clientEnvironment.baseUrl} failed with reponse code ${response.status.value}")
-                return Result.failure(RuntimeException("Failed to get person from PDL"))
+                else -> {
+                    logger.error("Request with url: ${clientEnvironment.baseUrl} failed with reponse code ${response.status.value}")
+                    Result.failure(RuntimeException("Failed to get person from PDL"))
+                }
             }
+        } catch (e: Exception) {
+            logger.error("Failed to get person from PDL", e)
+            Result.failure(e)
         }
-    }
 
     private fun getPdlQuery(queryFilePath: String): String {
         return this::class.java.getResource(queryFilePath)!!
