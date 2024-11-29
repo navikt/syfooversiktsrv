@@ -148,8 +148,10 @@ class PersonoversiktStatusService(
 
     suspend fun updateNavnOrFodselsdatoWhereMissing(updateLimit: Int): List<Result<PersonOversiktStatus>> {
         val personStatuser = personoversiktStatusRepository.getPersonstatusesWithoutNavnOrFodselsdato(updateLimit)
+        if (personStatuser.isEmpty()) {
+            return emptyList()
+        }
         val personidenter = personStatuser.map { PersonIdent(it.fnr) }
-
         val pdlPersons = pdlClient.getPersons(personidenter = personidenter)?.hentPersonBolk ?: emptyList()
         val pdlPersonsById = pdlPersons.associateBy { it.ident }
         val editedPersonStatuser = personStatuser.mapNotNull { personStatus ->
