@@ -75,6 +75,52 @@ object PersonoversiktSearchApiSpek : Spek({
                 }
             }
 
+            it("returns sykmeldt person matching search using fodselsdato when veileder has access to person") {
+                val newPersonOversiktStatus =
+                    PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR, navn = "Fornavn Etternavn", fodselsdato = fodselsdato, latestOppfolgingstilfelle = activeOppfolgingstilfelle)
+                personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus)
+                val searchQueryDTO = SearchQueryDTO(initials = null, birthdate = fodselsdato)
+
+                with(
+                    handleRequest(HttpMethod.Post, url) {
+                        addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                        addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        setBody(objectMapper.writeValueAsString(searchQueryDTO))
+                    }
+                ) {
+                    response.status() shouldBeEqualTo HttpStatusCode.OK
+                    val personer = objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!)
+                    personer.size shouldBeEqualTo 1
+                    personer.first().fnr shouldBeEqualTo UserConstants.ARBEIDSTAKER_FNR
+                }
+            }
+            it("returns sykmeldte personer matching search using fodselsdato when veileder has access to personer") {
+                val newPersonOversiktStatus =
+                    PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR, navn = "Fornavn Etternavn", fodselsdato = fodselsdato, latestOppfolgingstilfelle = activeOppfolgingstilfelle)
+                val newPersonOversiktStatus2 =
+                    PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_2_FNR, navn = "Firstname Etternavn", fodselsdato = fodselsdato, latestOppfolgingstilfelle = activeOppfolgingstilfelle)
+                val newPersonOversiktStatus3 =
+                    PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_NO_ACCESS, navn = "Forstname Etternavn", fodselsdato = fodselsdato, latestOppfolgingstilfelle = activeOppfolgingstilfelle)
+                personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus)
+                personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus2)
+                personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus3)
+                val searchQueryDTO = SearchQueryDTO(initials = null, birthdate = fodselsdato)
+
+                with(
+                    handleRequest(HttpMethod.Post, url) {
+                        addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                        addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        setBody(objectMapper.writeValueAsString(searchQueryDTO))
+                    }
+                ) {
+                    response.status() shouldBeEqualTo HttpStatusCode.OK
+                    val personer = objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!)
+                    personer.size shouldBeEqualTo 2
+                    personer[0].fnr shouldBeEqualTo UserConstants.ARBEIDSTAKER_2_FNR
+                    personer[1].fnr shouldBeEqualTo UserConstants.ARBEIDSTAKER_FNR
+                }
+            }
+
             it("does not return sykmeldt person not matching search when veileder has access to person") {
                 val newPersonOversiktStatus =
                     PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR, navn = "Fornavn Etternavn", fodselsdato = fodselsdato, latestOppfolgingstilfelle = activeOppfolgingstilfelle)
