@@ -5,7 +5,7 @@ import no.nav.syfo.personstatus.domain.SearchQuery
 import java.time.LocalDate
 
 data class SearchQueryDTO(
-    val initials: String,
+    val initials: String?,
     val birthdate: LocalDate,
 ) {
     fun toSearchQuery(): SearchQuery = SearchQuery(
