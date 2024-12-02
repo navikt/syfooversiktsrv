@@ -75,6 +75,23 @@ object PersonoversiktSearchApiSpek : Spek({
                 }
             }
 
+            it("does not return sykmeldt person not matching search when veileder has access to person") {
+                val newPersonOversiktStatus =
+                    PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR, navn = "Fornavn Etternavn", fodselsdato = fodselsdato, latestOppfolgingstilfelle = activeOppfolgingstilfelle)
+                personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus)
+                val searchQueryDTO = SearchQueryDTO(initials = "FN", birthdate = fodselsdato)
+
+                with(
+                    handleRequest(HttpMethod.Post, url) {
+                        addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                        addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        setBody(objectMapper.writeValueAsString(searchQueryDTO))
+                    }
+                ) {
+                    response.status() shouldBeEqualTo HttpStatusCode.NoContent
+                }
+            }
+
             it("returns nothing when no person matching search") {
                 val newPersonOversiktStatus =
                     PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR, navn = "Fornavn Etternavn", fodselsdato = fodselsdato, latestOppfolgingstilfelle = activeOppfolgingstilfelle)

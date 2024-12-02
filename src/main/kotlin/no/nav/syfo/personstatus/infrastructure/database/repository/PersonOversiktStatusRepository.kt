@@ -307,19 +307,12 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
         val initials = searchQuery.initials.value.toList()
         val baseQuery =
             "SELECT * FROM PERSON_OVERSIKT_STATUS p WHERE (p.oppfolgingstilfelle_end + INTERVAL '16 DAY' >= now() OR $AKTIV_OPPGAVE_WHERE_CLAUSE) AND p.fodselsdato = ? AND "
-        val nameQuery =
-            "p.name ILIKE ? AND " + initials.drop(1).joinToString(" AND ") { "p.name ILIKE ?" }
+        val nameQuery = "p.name ILIKE ?"
+        val initialsSearchString = initials.joinToString(separator = "% ", postfix = "%")
         return database.connection.use { connection ->
             connection.prepareStatement(baseQuery + nameQuery).use {
-                var parameterIndex = 1
-                it.setDate(parameterIndex++, Date.valueOf(searchQuery.birthdate))
-                initials.forEachIndexed { index, param ->
-                    if (index == 0) {
-                        it.setString(parameterIndex++, "$param%")
-                    } else {
-                        it.setString(parameterIndex++, "% $param%")
-                    }
-                }
+                it.setDate(1, Date.valueOf(searchQuery.birthdate))
+                it.setString(2, initialsSearchString)
                 it.executeQuery().toList { toPPersonOversiktStatus() }
             }.map { it.toPersonOversiktStatus() }
         }
