@@ -79,7 +79,7 @@ object PersonoversiktSearchApiSpek : Spek({
                 val newPersonOversiktStatus =
                     PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR, navn = "Fornavn Etternavn", fodselsdato = fodselsdato, latestOppfolgingstilfelle = activeOppfolgingstilfelle)
                 personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus)
-                val searchQueryDTO = SearchQueryDTO(initials = null, birthdate = fodselsdato)
+                val searchQueryDTO = SearchQueryDTO(initials = "", birthdate = fodselsdato)
 
                 with(
                     handleRequest(HttpMethod.Post, url) {

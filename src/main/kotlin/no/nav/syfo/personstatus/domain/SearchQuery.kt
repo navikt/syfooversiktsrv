@@ -10,6 +10,6 @@ data class SearchQuery(
 @JvmInline
 value class Initials(val value: String?) {
     init {
-        require(value == null || value.length > 1) { "Initials must be null or more than one characters long" }
+        require(value.isNullOrEmpty() || value.length > 1) { "Initials must be null or more than one characters long" }
     }
 }

@@ -304,18 +304,18 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
         }
 
     override fun searchPerson(searchQuery: SearchQuery): List<PersonOversiktStatus> {
-        val initials = searchQuery.initials?.value?.toList()
+        val initials = searchQuery.initials?.value?.toList() ?: emptyList()
         val baseQuery =
             "SELECT * FROM PERSON_OVERSIKT_STATUS p WHERE (p.oppfolgingstilfelle_end + INTERVAL '16 DAY' >= now() OR $AKTIV_OPPGAVE_WHERE_CLAUSE) AND p.fodselsdato = ? "
-        val nameQuery = initials?.let {
+        val nameQuery = if (initials.isNotEmpty()) {
             "AND p.name ILIKE ? "
-        } ?: ""
+        } else ""
         val orderBy = "ORDER BY name ASC"
-        val initialsSearchString = initials?.joinToString(separator = "% ", postfix = "%")
+        val initialsSearchString = initials.joinToString(separator = "% ", postfix = "%")
         return database.connection.use { connection ->
             connection.prepareStatement(baseQuery + nameQuery + orderBy).use {
                 it.setDate(1, Date.valueOf(searchQuery.birthdate))
-                if (initials != null) {
+                if (initials.isNotEmpty()) {
                     it.setString(2, initialsSearchString)
                 }
                 it.executeQuery().toList { toPPersonOversiktStatus() }
