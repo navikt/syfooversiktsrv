@@ -1,8 +1,6 @@
 package no.nav.syfo.personstatus.db
 
-import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import no.nav.syfo.personstatus.infrastructure.database.toList
-import no.nav.syfo.oppfolgingstilfelle.domain.Oppfolgingstilfelle
 import no.nav.syfo.personstatus.domain.*
 import no.nav.syfo.util.nowUTC
 import java.sql.*
@@ -130,67 +128,4 @@ fun Connection.createPersonOversiktStatus(
         this.commit()
     }
     return pPersonStatus.toPersonOversiktStatus()
-}
-
-const val queryUpdatePersonOversiktStatusOppfolgingstilfelle =
-    """
-    UPDATE PERSON_OVERSIKT_STATUS
-    SET oppfolgingstilfelle_updated_at = ?,
-    oppfolgingstilfelle_generated_at = ?,
-    oppfolgingstilfelle_start = ?,
-    oppfolgingstilfelle_end = ?,
-    oppfolgingstilfelle_bit_referanse_uuid = ?,
-    oppfolgingstilfelle_bit_referanse_inntruffet = ?,
-    sist_endret = ?,
-    antall_sykedager = ?
-    WHERE fnr = ?
-    RETURNING id
-    """
-
-fun Connection.updatePersonOversiktStatusOppfolgingstilfelle(
-    pPersonOversiktStatus: PPersonOversiktStatus,
-    oppfolgingstilfelle: Oppfolgingstilfelle,
-) {
-    this.prepareStatement(queryUpdatePersonOversiktStatusOppfolgingstilfelle).use {
-        it.setObject(1, oppfolgingstilfelle.updatedAt)
-        it.setObject(2, oppfolgingstilfelle.generatedAt)
-        it.setObject(3, oppfolgingstilfelle.oppfolgingstilfelleStart)
-        it.setObject(4, oppfolgingstilfelle.oppfolgingstilfelleEnd)
-        it.setString(5, oppfolgingstilfelle.oppfolgingstilfelleBitReferanseUuid.toString())
-        it.setObject(6, oppfolgingstilfelle.oppfolgingstilfelleBitReferanseInntruffet)
-        it.setObject(7, Timestamp.from(Instant.now()))
-        if (oppfolgingstilfelle.antallSykedager != null) {
-            it.setInt(8, oppfolgingstilfelle.antallSykedager)
-        } else it.setNull(8, Types.INTEGER)
-        it.setString(9, pPersonOversiktStatus.fnr)
-        it.execute()
-    }
-    updatePersonOppfolgingstilfelleVirksomhetList(
-        personOversiktStatusId = pPersonOversiktStatus.id,
-        personOppfolgingstilfelleVirksomhetList = oppfolgingstilfelle.virksomhetList,
-    )
-}
-
-const val queryUpdatePersonOversiktStatusNavn =
-    """
-    UPDATE PERSON_OVERSIKT_STATUS
-    SET name = ?, sist_endret = ?
-    WHERE fnr = ?
-    """
-
-fun DatabaseInterface.updatePersonOversiktStatusNavn(
-    personIdentNameMap: Map<String, String>,
-) {
-    val now = Timestamp.from(Instant.now())
-    this.connection.use { connection ->
-        connection.prepareStatement(queryUpdatePersonOversiktStatusNavn).use {
-            personIdentNameMap.forEach { (personident, navn) ->
-                it.setString(1, navn)
-                it.setObject(2, now)
-                it.setString(3, personident)
-                it.executeUpdate()
-            }
-        }
-        connection.commit()
-    }
 }
