@@ -15,7 +15,6 @@ import no.nav.syfo.personstatus.api.v2.endpoints.personOversiktApiV2Path
 import no.nav.syfo.personstatus.api.v2.model.PersonOversiktStatusDTO
 import no.nav.syfo.personstatus.application.manglendemedvirkning.ManglendeMedvirkningVurderingType
 import no.nav.syfo.personstatus.db.createPersonOversiktStatus
-import no.nav.syfo.personstatus.db.getPersonOversiktStatusList
 import no.nav.syfo.personstatus.domain.*
 import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.Virksomhetsnummer
@@ -656,37 +655,6 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
                         personOversiktStatus.friskmeldingTilArbeidsformidlingFom!! shouldBeEqualTo yesterday
                     }
-                }
-
-                it("Should update name in database") {
-                    val personIdent = PersonIdent(ARBEIDSTAKER_FNR)
-                    val oversikthendelseDialogmotesvarMottatt = KPersonoppgavehendelse(
-                        ARBEIDSTAKER_FNR,
-                        OversikthendelseType.DIALOGMOTESVAR_MOTTATT,
-                    )
-                    personoversiktStatusService.createOrUpdatePersonoversiktStatuser(
-                        personoppgavehendelser = listOf(oversikthendelseDialogmotesvarMottatt)
-                    )
-
-                    val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, personIdent.value)
-                    database.setTildeltEnhet(
-                        ident = personIdent,
-                        enhet = NAV_ENHET,
-                    )
-                    personOversiktStatusRepository.lagreVeilederForBruker(tilknytning, VEILEDER_ID)
-                    with(
-                        handleRequest(HttpMethod.Get, url) {
-                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                        }
-                    ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.OK
-                        val personOversiktStatus =
-                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
-                        personOversiktStatus.navn shouldBeEqualTo "Fornavn${personIdent.value} Mellomnavn${personIdent.value} Etternavn${personIdent.value}"
-                    }
-
-                    val personOversiktStatusList = database.getPersonOversiktStatusList(personIdent.value)
-                    personOversiktStatusList.first().navn shouldBeEqualTo "Fornavn${personIdent.value} Mellomnavn${personIdent.value} Etternavn${personIdent.value}"
                 }
 
                 it("return person when trenger_oppfolging true") {

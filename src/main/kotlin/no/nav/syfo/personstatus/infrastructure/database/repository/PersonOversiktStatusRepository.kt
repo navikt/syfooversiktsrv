@@ -328,7 +328,7 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
         oppfolgingstilfelle: Oppfolgingstilfelle,
     ) {
         database.connection.use { connection ->
-            val personstatusId = connection.prepareStatement(queryUpdatePersonOversiktStatusOppfolgingstilfelle).use {
+            val personstatusId = connection.prepareStatement(UPDATE_PERSON_OPPFOLGINGSTILFELLE).use {
                 it.setObject(1, oppfolgingstilfelle.updatedAt)
                 it.setObject(2, oppfolgingstilfelle.generatedAt)
                 it.setObject(3, oppfolgingstilfelle.oppfolgingstilfelleStart)
@@ -508,6 +508,21 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
             SET name = ?, fodselsdato = ?, sist_endret = ?
             WHERE fnr = ?
             RETURNING *
+            """
+
+        private const val UPDATE_PERSON_OPPFOLGINGSTILFELLE =
+            """
+            UPDATE PERSON_OVERSIKT_STATUS
+            SET oppfolgingstilfelle_updated_at = ?,
+            oppfolgingstilfelle_generated_at = ?,
+            oppfolgingstilfelle_start = ?,
+            oppfolgingstilfelle_end = ?,
+            oppfolgingstilfelle_bit_referanse_uuid = ?,
+            oppfolgingstilfelle_bit_referanse_inntruffet = ?,
+            sist_endret = ?,
+            antall_sykedager = ?
+            WHERE fnr = ?
+            RETURNING id
             """
     }
 }
