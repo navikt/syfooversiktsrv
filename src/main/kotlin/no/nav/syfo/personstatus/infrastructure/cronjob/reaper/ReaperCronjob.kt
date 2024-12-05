@@ -21,6 +21,14 @@ class ReaperCronjob(
         log.info("Run ReaperCronjob")
         val result = CronjobResult()
 
+        /*
+        Formålet med denne cronjob'en er å nulle ut veilederknytning for personer som ikke lengre er under
+        oppfølging. Problemet som løses er at vi ikke ønsker at personer som blir syke på nytt tar med seg
+        en veilederknytning fra et tidligere oppfølgingstilfelle (veilederen kan ha sluttet eller flyttet
+        til en annen enhet, eller personen kan ha flyttet i mellomtiden).
+        Desember 2024: Endrer slik at veilederknytningen nulles når det har gått 2 måneder (fra 3) siden siste
+        oppfølgingstilfelle-end og minst 2 måneder siden siste oppdatering.
+         */
         reaperService.getPersonerForReaper()
             .forEach { uuid ->
                 try {

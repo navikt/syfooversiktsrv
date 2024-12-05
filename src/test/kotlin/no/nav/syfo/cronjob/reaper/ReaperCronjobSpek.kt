@@ -39,13 +39,13 @@ object ReaperCronjobSpek : Spek({
                     database.dropData()
                 }
 
-                it("reset tildelt veileder for personer with tilfelle that ended three months ago") {
-                    val threeMonthsAgo = LocalDate.now().minusMonths(3).minusDays(1)
+                it("reset tildelt veileder for personer with tilfelle that ended two months ago") {
+                    val threeMonthsAgo = LocalDate.now().minusMonths(2).minusDays(1)
                     val personOversiktStatus = generatePersonOversiktStatusWithTilfelleEnd(threeMonthsAgo)
                     database.createPersonOversiktStatus(personOversiktStatus)
                     database.setSistEndret(
                         fnr = personOversiktStatus.fnr,
-                        sistEndret = Timestamp.from(OffsetDateTime.now().minusMonths(3).minusDays(1).toInstant()),
+                        sistEndret = Timestamp.from(OffsetDateTime.now().minusMonths(2).minusDays(1).toInstant()),
                     )
 
                     runBlocking {
@@ -59,13 +59,13 @@ object ReaperCronjobSpek : Spek({
                     val status = personOversiktStatuses[0]
                     status.veilederIdent shouldBeEqualTo null
                 }
-                it("does not reset tildelt veileder for personer with sist_endret less than three months ago") {
+                it("does not reset tildelt veileder for personer with sist_endret less than two months ago") {
                     val threeMonthsAgo = LocalDate.now().minusMonths(3)
                     val personOversiktStatus = generatePersonOversiktStatusWithTilfelleEnd(threeMonthsAgo)
                     database.createPersonOversiktStatus(personOversiktStatus)
                     database.setSistEndret(
                         fnr = personOversiktStatus.fnr,
-                        sistEndret = Timestamp.from(OffsetDateTime.now().minusMonths(2).toInstant()),
+                        sistEndret = Timestamp.from(OffsetDateTime.now().minusMonths(2).plusDays(1).toInstant()),
                     )
 
                     runBlocking {
@@ -80,8 +80,8 @@ object ReaperCronjobSpek : Spek({
                     status.veilederIdent shouldNotBeEqualTo null
                 }
 
-                it("don't process personer with tilfelle that ended less than three months ago") {
-                    val lessThanTwoMonthsAgo = LocalDate.now().minusMonths(3).plusDays(1)
+                it("don't process personer with tilfelle that ended less than two months ago") {
+                    val lessThanTwoMonthsAgo = LocalDate.now().minusMonths(2).plusDays(1)
                     val personOversiktStatus = generatePersonOversiktStatusWithTilfelleEnd(lessThanTwoMonthsAgo)
                     database.createPersonOversiktStatus(personOversiktStatus)
 
