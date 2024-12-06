@@ -20,7 +20,7 @@ data class OppfolgingsoppgaveDTO(
     val tekst: String?,
     val oppfolgingsgrunn: String,
     val frist: LocalDate?,
-){
+) {
     companion object {
         fun fromOppfolgingsoppgaveNewDTO(oppfolgingsoppgaveNewDTO: OppfolgingsoppgaveNewDTO): OppfolgingsoppgaveDTO =
             OppfolgingsoppgaveDTO(
