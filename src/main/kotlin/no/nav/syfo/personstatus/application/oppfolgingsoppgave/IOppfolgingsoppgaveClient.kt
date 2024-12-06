@@ -8,5 +8,5 @@ interface IOppfolgingsoppgaveClient {
         callId: String,
         token: String,
         personidenter: List<PersonIdent>,
-    ): OppfolgingsoppgaverResponseDTO?
+    ): OppfolgingsoppgaverLatestVersionResponseDTO?
 }

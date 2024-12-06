@@ -8,7 +8,7 @@ import no.nav.syfo.personstatus.application.aktivitetskrav.AktivitetskravDTO
 import no.nav.syfo.personstatus.application.arbeidsuforhet.ArbeidsuforhetvurderingDTO
 import no.nav.syfo.personstatus.application.manglendemedvirkning.ManglendeMedvirkningDTO
 import no.nav.syfo.personstatus.application.meroppfolging.SenOppfolgingKandidatDTO
-import no.nav.syfo.personstatus.application.oppfolgingsoppgave.OppfolgingsoppgaveDTO
+import no.nav.syfo.personstatus.application.oppfolgingsoppgave.OppfolgingsoppgaveLatestVersionDTO
 import no.nav.syfo.util.isBeforeOrEqual
 import no.nav.syfo.util.toLocalDateOslo
 import java.time.LocalDate
@@ -101,7 +101,7 @@ fun List<PersonOversiktStatus>.addPersonName(
 
 fun PersonOversiktStatus.toPersonOversiktStatusDTO(
     arbeidsuforhetvurdering: ArbeidsuforhetvurderingDTO?,
-    oppfolgingsoppgave: OppfolgingsoppgaveDTO?,
+    oppfolgingsoppgave: OppfolgingsoppgaveLatestVersionDTO?,
     aktivitetskravvurdering: AktivitetskravDTO?,
     manglendeMedvirkning: ManglendeMedvirkningDTO?,
     senOppfolgingKandidat: SenOppfolgingKandidatDTO?,
