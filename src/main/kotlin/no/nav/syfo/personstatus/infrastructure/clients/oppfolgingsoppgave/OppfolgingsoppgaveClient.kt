@@ -7,10 +7,8 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import net.logstash.logback.argument.StructuredArguments
+import no.nav.syfo.personstatus.application.oppfolgingsoppgave.*
 import no.nav.syfo.personstatus.domain.PersonIdent
-import no.nav.syfo.personstatus.application.oppfolgingsoppgave.IOppfolgingsoppgaveClient
-import no.nav.syfo.personstatus.application.oppfolgingsoppgave.OppfolgingsoppgaverRequestDTO
-import no.nav.syfo.personstatus.application.oppfolgingsoppgave.OppfolgingsoppgaverResponseDTO
 import no.nav.syfo.personstatus.infrastructure.clients.ClientEnvironment
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
 import no.nav.syfo.personstatus.infrastructure.clients.httpClientDefault
@@ -48,12 +46,18 @@ class OppfolgingsoppgaveClient(
                 setBody(requestDTO)
             }
             when (response.status) {
-                HttpStatusCode.OK -> response.body<OppfolgingsoppgaverResponseDTO>()
+                HttpStatusCode.OK -> {
+                    val responseDTO = response.body<OppfolgingsoppgaverNewResponseDTO>()
+                    responseDTO.oppfolgingsoppgaver
+                        .mapValues { OppfolgingsoppgaveDTO.fromOppfolgingsoppgaveNewDTO(it.value) }
+                        .run { OppfolgingsoppgaverResponseDTO(this) }
+                }
                 HttpStatusCode.NoContent -> null
                 HttpStatusCode.NotFound -> {
                     log.error("Resource not found")
                     null
                 }
+
                 else -> {
                     log.error("Unhandled status code: ${response.status}")
                     null
@@ -70,7 +74,7 @@ class OppfolgingsoppgaveClient(
     }
 
     companion object {
-        const val GET_OPPFOLGINGSOPPGAVER_API_PATH = "/api/internad/v1/huskelapp/get-oppfolgingsoppgaver"
+        const val GET_OPPFOLGINGSOPPGAVER_API_PATH = "/api/internad/v1/huskelapp/get-oppfolgingsoppgaver-new"
 
         private val log = LoggerFactory.getLogger(OppfolgingsoppgaveClient::class.java)
     }
