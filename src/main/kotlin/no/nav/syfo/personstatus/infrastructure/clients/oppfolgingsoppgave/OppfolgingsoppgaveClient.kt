@@ -29,7 +29,7 @@ class OppfolgingsoppgaveClient(
         callId: String,
         token: String,
         personidenter: List<PersonIdent>,
-    ): OppfolgingsoppgaverResponseDTO? {
+    ): OppfolgingsoppgaverLatestVersionResponseDTO? {
         val oboToken = azureAdClient.getOnBehalfOfToken(
             scopeClientId = clientEnvironment.clientId,
             token,
@@ -47,10 +47,10 @@ class OppfolgingsoppgaveClient(
             }
             when (response.status) {
                 HttpStatusCode.OK -> {
-                    val responseDTO = response.body<OppfolgingsoppgaverNewResponseDTO>()
+                    val responseDTO = response.body<OppfolgingsoppgaverResponseDTO>()
                     responseDTO.oppfolgingsoppgaver
-                        .mapValues { OppfolgingsoppgaveDTO.fromOppfolgingsoppgaveNewDTO(it.value) }
-                        .run { OppfolgingsoppgaverResponseDTO(this) }
+                        .mapValues { OppfolgingsoppgaveLatestVersionDTO.fromOppfolgingsoppgaveDTO(it.value) }
+                        .run { OppfolgingsoppgaverLatestVersionResponseDTO(this) }
                 }
                 HttpStatusCode.NoContent -> null
                 HttpStatusCode.NotFound -> {

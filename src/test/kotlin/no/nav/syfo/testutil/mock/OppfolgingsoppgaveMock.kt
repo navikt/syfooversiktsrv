@@ -15,7 +15,7 @@ import java.util.*
 fun MockRequestHandleScope.oppfolgingsoppgaveMockResponse(): HttpResponseData =
     respondOk(oppfolgingsoppgaverResponseDTO)
 
-private val oppfolgingsoppgaverResponseDTO = OppfolgingsoppgaverNewResponseDTO(
+private val oppfolgingsoppgaverResponseDTO = OppfolgingsoppgaverResponseDTO(
     oppfolgingsoppgaver = mapOf(
         ARBEIDSTAKER_FNR to generateOppfolgingsoppgave("FOLG_OPP_ETTER_NESTE_SYKMELDING"),
         ARBEIDSTAKER_2_FNR to generateOppfolgingsoppgave("VURDER_ANNEN_YTELSE"),
@@ -25,7 +25,7 @@ private val oppfolgingsoppgaverResponseDTO = OppfolgingsoppgaverNewResponseDTO(
 
 private fun generateOppfolgingsoppgave(
     oppfolgingsgrunn: String,
-): OppfolgingsoppgaveNewDTO = OppfolgingsoppgaveNewDTO(
+): OppfolgingsoppgaveDTO = OppfolgingsoppgaveDTO(
     uuid = UUID.randomUUID().toString(),
     updatedAt = LocalDateTime.now(),
     createdAt = LocalDateTime.now(),
