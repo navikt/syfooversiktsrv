@@ -2,8 +2,8 @@ package no.nav.syfo.testutil.mock
 
 import io.ktor.client.engine.mock.*
 import io.ktor.client.request.*
-import no.nav.syfo.personstatus.application.oppfolgingsoppgave.OppfolgingsoppgaveDTO
-import no.nav.syfo.personstatus.application.oppfolgingsoppgave.OppfolgingsoppgaverResponseDTO
+import no.nav.syfo.personstatus.application.oppfolgingsoppgave.*
+import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_2_FNR
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_3_FNR
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
@@ -15,7 +15,7 @@ import java.util.*
 fun MockRequestHandleScope.oppfolgingsoppgaveMockResponse(): HttpResponseData =
     respondOk(oppfolgingsoppgaverResponseDTO)
 
-private val oppfolgingsoppgaverResponseDTO = OppfolgingsoppgaverResponseDTO(
+private val oppfolgingsoppgaverResponseDTO = OppfolgingsoppgaverNewResponseDTO(
     oppfolgingsoppgaver = mapOf(
         ARBEIDSTAKER_FNR to generateOppfolgingsoppgave("FOLG_OPP_ETTER_NESTE_SYKMELDING"),
         ARBEIDSTAKER_2_FNR to generateOppfolgingsoppgave("VURDER_ANNEN_YTELSE"),
@@ -25,12 +25,22 @@ private val oppfolgingsoppgaverResponseDTO = OppfolgingsoppgaverResponseDTO(
 
 private fun generateOppfolgingsoppgave(
     oppfolgingsgrunn: String,
-): OppfolgingsoppgaveDTO = OppfolgingsoppgaveDTO(
+): OppfolgingsoppgaveNewDTO = OppfolgingsoppgaveNewDTO(
     uuid = UUID.randomUUID().toString(),
-    createdBy = VEILEDER_ID,
     updatedAt = LocalDateTime.now(),
     createdAt = LocalDateTime.now(),
-    tekst = "En tekst",
-    oppfolgingsgrunn = oppfolgingsgrunn,
-    frist = LocalDate.now().plusDays(14),
+    isActive = true,
+    personIdent = PersonIdent(ARBEIDSTAKER_FNR),
+    publishedAt = null,
+    removedBy = null,
+    versjoner = listOf(
+        OppfolgingoppgaveVersjonDTO(
+            uuid = UUID.randomUUID().toString(),
+            createdAt = LocalDateTime.now(),
+            createdBy = VEILEDER_ID,
+            tekst = "En tekst",
+            oppfolgingsgrunn = oppfolgingsgrunn,
+            frist = LocalDate.now().plusDays(14),
+        )
+    ),
 )
