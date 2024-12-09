@@ -45,6 +45,8 @@ spec:
       rules:
         - application: syfooversikt
         - application: syfomodiaperson
+        - application: modia-robot-api
+          namespace: personoversikt
     outbound:
       external:
         - host: "ereg-services-q1.dev-fss-pub.nais.io"
