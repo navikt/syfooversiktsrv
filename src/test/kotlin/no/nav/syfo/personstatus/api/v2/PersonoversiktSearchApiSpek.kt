@@ -57,7 +57,12 @@ object PersonoversiktSearchApiSpek : Spek({
 
             it("returns sykmeldt person matching search when veileder has access to person") {
                 val newPersonOversiktStatus =
-                    PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR, navn = "Fornavn Etternavn", fodselsdato = fodselsdato, latestOppfolgingstilfelle = activeOppfolgingstilfelle)
+                    PersonOversiktStatus(
+                        fnr = UserConstants.ARBEIDSTAKER_FNR,
+                        navn = "Fornavn Etternavn",
+                        fodselsdato = fodselsdato,
+                        latestOppfolgingstilfelle = activeOppfolgingstilfelle
+                    )
                 personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus)
                 val searchQueryDTO = SearchQueryDTO(initials = "FE", birthdate = fodselsdato)
 
@@ -77,7 +82,12 @@ object PersonoversiktSearchApiSpek : Spek({
 
             it("returns sykmeldt person matching search using fodselsdato when veileder has access to person") {
                 val newPersonOversiktStatus =
-                    PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR, navn = "Fornavn Etternavn", fodselsdato = fodselsdato, latestOppfolgingstilfelle = activeOppfolgingstilfelle)
+                    PersonOversiktStatus(
+                        fnr = UserConstants.ARBEIDSTAKER_FNR,
+                        navn = "Fornavn Etternavn",
+                        fodselsdato = fodselsdato,
+                        latestOppfolgingstilfelle = activeOppfolgingstilfelle
+                    )
                 personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus)
                 val searchQueryDTO = SearchQueryDTO(initials = "", birthdate = fodselsdato)
 
@@ -96,15 +106,30 @@ object PersonoversiktSearchApiSpek : Spek({
             }
             it("returns sykmeldte personer matching search using fodselsdato when veileder has access to personer") {
                 val newPersonOversiktStatus =
-                    PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR, navn = "Fornavn Etternavn", fodselsdato = fodselsdato, latestOppfolgingstilfelle = activeOppfolgingstilfelle)
+                    PersonOversiktStatus(
+                        fnr = UserConstants.ARBEIDSTAKER_FNR,
+                        navn = "Fornavn Etternavn",
+                        fodselsdato = fodselsdato,
+                        latestOppfolgingstilfelle = activeOppfolgingstilfelle
+                    )
                 val newPersonOversiktStatus2 =
-                    PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_2_FNR, navn = "Firstname Etternavn", fodselsdato = fodselsdato, latestOppfolgingstilfelle = activeOppfolgingstilfelle)
+                    PersonOversiktStatus(
+                        fnr = UserConstants.ARBEIDSTAKER_2_FNR,
+                        navn = "Firstname Etternavn",
+                        fodselsdato = fodselsdato,
+                        latestOppfolgingstilfelle = activeOppfolgingstilfelle
+                    )
                 val newPersonOversiktStatus3 =
-                    PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_NO_ACCESS, navn = "Forstname Etternavn", fodselsdato = fodselsdato, latestOppfolgingstilfelle = activeOppfolgingstilfelle)
+                    PersonOversiktStatus(
+                        fnr = UserConstants.ARBEIDSTAKER_NO_ACCESS,
+                        navn = "Forstname Etternavn",
+                        fodselsdato = fodselsdato,
+                        latestOppfolgingstilfelle = activeOppfolgingstilfelle
+                    )
                 personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus)
                 personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus2)
                 personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus3)
-                val searchQueryDTO = SearchQueryDTO(initials = null, birthdate = fodselsdato)
+                val searchQueryDTO = SearchQueryDTO(birthdate = fodselsdato)
 
                 with(
                     handleRequest(HttpMethod.Post, url) {
@@ -123,7 +148,12 @@ object PersonoversiktSearchApiSpek : Spek({
 
             it("does not return sykmeldt person not matching search when veileder has access to person") {
                 val newPersonOversiktStatus =
-                    PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR, navn = "Fornavn Etternavn", fodselsdato = fodselsdato, latestOppfolgingstilfelle = activeOppfolgingstilfelle)
+                    PersonOversiktStatus(
+                        fnr = UserConstants.ARBEIDSTAKER_FNR,
+                        navn = "Fornavn Etternavn",
+                        fodselsdato = fodselsdato,
+                        latestOppfolgingstilfelle = activeOppfolgingstilfelle
+                    )
                 personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus)
                 val searchQueryDTO = SearchQueryDTO(initials = "FN", birthdate = fodselsdato)
 
@@ -140,7 +170,12 @@ object PersonoversiktSearchApiSpek : Spek({
 
             it("returns nothing when no person matching search") {
                 val newPersonOversiktStatus =
-                    PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR, navn = "Fornavn Etternavn", fodselsdato = fodselsdato, latestOppfolgingstilfelle = activeOppfolgingstilfelle)
+                    PersonOversiktStatus(
+                        fnr = UserConstants.ARBEIDSTAKER_FNR,
+                        navn = "Fornavn Etternavn",
+                        fodselsdato = fodselsdato,
+                        latestOppfolgingstilfelle = activeOppfolgingstilfelle
+                    )
                 personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus)
                 val searchQueryDTO = SearchQueryDTO(initials = "AB", birthdate = LocalDate.now())
 
@@ -157,7 +192,12 @@ object PersonoversiktSearchApiSpek : Spek({
 
             it("returns nothing when sykmeldt person matching search but veileder has no access to person") {
                 val newPersonOversiktStatus =
-                    PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_NO_ACCESS, navn = "Fornavn Etternavn", fodselsdato = fodselsdato, latestOppfolgingstilfelle = activeOppfolgingstilfelle)
+                    PersonOversiktStatus(
+                        fnr = UserConstants.ARBEIDSTAKER_NO_ACCESS,
+                        navn = "Fornavn Etternavn",
+                        fodselsdato = fodselsdato,
+                        latestOppfolgingstilfelle = activeOppfolgingstilfelle
+                    )
                 personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus)
                 val searchQueryDTO = SearchQueryDTO(initials = "FE", birthdate = fodselsdato)
 
@@ -169,6 +209,72 @@ object PersonoversiktSearchApiSpek : Spek({
                     }
                 ) {
                     response.status() shouldBeEqualTo HttpStatusCode.NoContent
+                }
+            }
+
+            it("returns BadRequest when not legal search query") {
+                val searchQueryDTO = SearchQueryDTO(initials = "FE")
+
+                with(
+                    handleRequest(HttpMethod.Post, url) {
+                        addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                        addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        setBody(objectMapper.writeValueAsString(searchQueryDTO))
+                    }
+                ) {
+                    response.status() shouldBeEqualTo HttpStatusCode.BadRequest
+                }
+            }
+
+            it("returns BadRequest when not legal search query") {
+                val searchQueryDTO = SearchQueryDTO(initials = "FE")
+
+                with(
+                    handleRequest(HttpMethod.Post, url) {
+                        addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                        addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        setBody(objectMapper.writeValueAsString(searchQueryDTO))
+                    }
+                ) {
+                    response.status() shouldBeEqualTo HttpStatusCode.BadRequest
+                }
+            }
+
+            it("returns BadRequest when name is blank") {
+                val searchQueryDTO = SearchQueryDTO(name = "")
+                with(
+                    handleRequest(HttpMethod.Post, url) {
+                        addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                        addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        setBody(objectMapper.writeValueAsString(searchQueryDTO))
+                    }
+                ) {
+                    response.status() shouldBeEqualTo HttpStatusCode.BadRequest
+                }
+            }
+
+            it("returns BadRequest when initials is blank") {
+                val searchQueryDTO = SearchQueryDTO(name = "")
+                with(
+                    handleRequest(HttpMethod.Post, url) {
+                        addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                        addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        setBody(objectMapper.writeValueAsString(searchQueryDTO))
+                    }
+                ) {
+                    response.status() shouldBeEqualTo HttpStatusCode.BadRequest
+                }
+            }
+
+            it("returns BadRequest when all parameters is null") {
+                with(
+                    handleRequest(HttpMethod.Post, url) {
+                        addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                        addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
+                        setBody(objectMapper.writeValueAsString(SearchQueryDTO()))
+                    }
+                ) {
+                    response.status() shouldBeEqualTo HttpStatusCode.BadRequest
                 }
             }
         }

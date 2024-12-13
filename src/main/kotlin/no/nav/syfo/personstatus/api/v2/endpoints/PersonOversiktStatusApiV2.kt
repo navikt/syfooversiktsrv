@@ -43,9 +43,9 @@ fun Route.registerPersonoversiktApiV2(
                 ?: throw java.lang.IllegalArgumentException("No Authorization header supplied")
             val searchQuery = call.receive<SearchQueryDTO>().toSearchQuery()
 
-            val searchResult = personoversiktSearchService.searchSykmeldt(searchQuery = searchQuery)
+            val searchResult = personoversiktSearchService.searchSykmeldt(search = searchQuery)
             val fnrWithVeilederAccess = veilederTilgangskontrollClient.veilederPersonAccessListMedOBO(
-                personIdentNumberList = searchResult.map { it.fnr },
+                personidenter = searchResult.map { it.fnr },
                 token = token,
                 callId = callId,
             ) ?: emptyList()
@@ -94,7 +94,7 @@ fun Route.registerPersonoversiktApiV2(
 
                         val personFnrListWithVeilederAccess: List<String> =
                             veilederTilgangskontrollClient.veilederPersonAccessListMedOBO(
-                                personIdentNumberList = personOversiktStatusList.map { it.fnr },
+                                personidenter = personOversiktStatusList.map { it.fnr },
                                 token = token,
                                 callId = callId,
                             ) ?: emptyList()

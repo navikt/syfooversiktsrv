@@ -66,7 +66,7 @@ class VeilederTilgangskontrollClient(
     }
 
     suspend fun veilederPersonAccessListMedOBO(
-        personIdentNumberList: List<String>,
+        personidenter: List<String>,
         token: String,
         callId: String,
     ): List<String>? {
@@ -85,7 +85,7 @@ class VeilederTilgangskontrollClient(
                 header(NAV_CALL_ID_HEADER, callId)
                 accept(ContentType.Application.Json)
                 contentType(ContentType.Application.Json)
-                setBody(personIdentNumberList)
+                setBody(personidenter)
             }
 
             requestTimer.stop(HISTOGRAM_ISTILGANGSKONTROLL_PERSONER)
