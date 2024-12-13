@@ -303,23 +303,62 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
             Result.failure(e)
         }
 
-    override fun searchPerson(searchQuery: SearchQuery): List<PersonOversiktStatus> {
-        val initials = searchQuery.initials?.value?.toList() ?: emptyList()
-        val baseQuery =
-            "SELECT * FROM PERSON_OVERSIKT_STATUS p WHERE (p.oppfolgingstilfelle_end + INTERVAL '16 DAY' >= now() OR $AKTIV_OPPGAVE_WHERE_CLAUSE) AND p.fodselsdato = ? "
-        val nameQuery = if (initials.isNotEmpty()) {
-            "AND p.name ILIKE ? "
-        } else ""
-        val orderBy = "ORDER BY name ASC"
-        val initialsSearchString = initials.joinToString(separator = "% ", postfix = "%")
+    override fun searchPerson(search: Search): List<PersonOversiktStatus> {
+        val results = when (search) {
+            is Search.ByName -> searchByName(search)
+            is Search.ByNameAndDate -> searchByDateAndName(search)
+            is Search.ByDate -> searchByDate(search)
+            is Search.ByInitialsAndDate -> searchByInitialsAndDate(search)
+        }
+        return results.map { it.toPersonOversiktStatus() }
+    }
+
+    private fun searchByName(search: Search.ByName): List<PPersonOversiktStatus> {
+        val name = search.name.value.split(" ").joinToString(separator = "% ", postfix = "%")
+        val nameQuery = "AND p.name ILIKE ?"
+        val query = "$SEARCH_PERSON_BASE_QUERY $nameQuery $ORDER_BY_ASC"
         return database.connection.use { connection ->
-            connection.prepareStatement(baseQuery + nameQuery + orderBy).use {
-                it.setDate(1, Date.valueOf(searchQuery.birthdate))
-                if (initials.isNotEmpty()) {
-                    it.setString(2, initialsSearchString)
-                }
+            connection.prepareStatement(query).use {
+                it.setString(1, name)
                 it.executeQuery().toList { toPPersonOversiktStatus() }
-            }.map { it.toPersonOversiktStatus() }
+            }
+        }
+    }
+
+    private fun searchByDateAndName(search: Search.ByNameAndDate): List<PPersonOversiktStatus> {
+        val name = search.name.value.split(" ").joinToString(separator = "% ", postfix = "%")
+        val nameAndDateQuery = "AND p.name ILIKE ? AND p.fodselsdato = ?"
+        val query = "$SEARCH_PERSON_BASE_QUERY $nameAndDateQuery $ORDER_BY_ASC"
+        return database.connection.use { connection ->
+            connection.prepareStatement(query).use {
+                it.setString(1, name)
+                it.setDate(2, Date.valueOf(search.birthdate))
+                it.executeQuery().toList { toPPersonOversiktStatus() }
+            }
+        }
+    }
+
+    private fun searchByDate(search: Search.ByDate): List<PPersonOversiktStatus> {
+        val dateQuery = "AND p.fodselsdato = ?"
+        val query = "$SEARCH_PERSON_BASE_QUERY $dateQuery $ORDER_BY_ASC"
+        return database.connection.use { connection ->
+            connection.prepareStatement(query).use {
+                it.setDate(1, Date.valueOf(search.birthdate))
+                it.executeQuery().toList { toPPersonOversiktStatus() }
+            }
+        }
+    }
+
+    private fun searchByInitialsAndDate(search: Search.ByInitialsAndDate): List<PPersonOversiktStatus> {
+        val initials = search.initials.value.toList().joinToString(separator = "% ", postfix = "%")
+        val initialsAndDateQuery = "AND p.name ILIKE ? AND p.fodselsdato = ?"
+        val query = "$SEARCH_PERSON_BASE_QUERY $initialsAndDateQuery $ORDER_BY_ASC"
+        return database.connection.use { connection ->
+            connection.prepareStatement(query).use {
+                it.setString(1, initials)
+                it.setDate(2, Date.valueOf(search.birthdate))
+                it.executeQuery().toList { toPPersonOversiktStatus() }
+            }
         }
     }
 
@@ -524,6 +563,11 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
             WHERE fnr = ?
             RETURNING id
             """
+
+        private const val SEARCH_PERSON_BASE_QUERY =
+            "SELECT * FROM PERSON_OVERSIKT_STATUS p WHERE (p.oppfolgingstilfelle_end + INTERVAL '16 DAY' >= now() OR $AKTIV_OPPGAVE_WHERE_CLAUSE)"
+
+        private const val ORDER_BY_ASC = "ORDER BY name ASC"
     }
 }
 

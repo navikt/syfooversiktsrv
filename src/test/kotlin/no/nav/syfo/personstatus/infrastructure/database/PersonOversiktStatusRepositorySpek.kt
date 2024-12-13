@@ -1,12 +1,11 @@
 package no.nav.syfo.personstatus.infrastructure.database
 
 import io.ktor.server.testing.*
+import no.nav.syfo.personstatus.api.v2.model.SearchQueryDTO
 import no.nav.syfo.personstatus.db.createPersonOversiktStatus
 import no.nav.syfo.personstatus.db.getPersonOversiktStatusList
-import no.nav.syfo.personstatus.domain.Initials
 import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
-import no.nav.syfo.personstatus.domain.SearchQuery
 import no.nav.syfo.personstatus.infrastructure.database.repository.PersonOversiktStatusRepository
 import no.nav.syfo.testutil.ExternalMockEnvironment
 import no.nav.syfo.testutil.UserConstants
@@ -226,15 +225,17 @@ class PersonOversiktStatusRepositorySpek : Spek({
                 }
             }
 
-            describe("Person search on initials and birthdate") {
+            describe("Person search") {
                 val fodselsdato = LocalDate.of(1985, Month.MAY, 17)
 
-                fun searchPerson(initials: String, birthdate: LocalDate): List<PersonOversiktStatus> {
-                    val searchQuery = SearchQuery(
-                        initials = Initials(initials),
-                        birthdate = birthdate
-                    )
-                    return personOversiktStatusRepository.searchPerson(searchQuery)
+                fun searchPerson(initials: String? = null, name: String? = null, birthdate: LocalDate? = null): List<PersonOversiktStatus> {
+                    SearchQueryDTO(
+                        initials = initials,
+                        name = name,
+                        birthdate = birthdate,
+                    ).toSearchQuery().let {
+                        return personOversiktStatusRepository.searchPerson(it)
+                    }
                 }
 
                 it("finds relevant sykmeldt person when searching with correct initials and birthdate") {
@@ -250,11 +251,11 @@ class PersonOversiktStatusRepositorySpek : Spek({
                         it.size shouldBe 1
                         it.first().navn shouldBeEqualTo "Fornavn Mellomnavn Etternavn"
                     }
-                    searchPerson("FE", birthdate = fodselsdato).let {
+                    searchPerson(initials = "FE", birthdate = fodselsdato).let {
                         it.size shouldBe 1
                         it.first().navn shouldBeEqualTo "Fornavn Mellomnavn Etternavn"
                     }
-                    searchPerson("FM", birthdate = fodselsdato).let {
+                    searchPerson(initials = "FM", birthdate = fodselsdato).let {
                         it.size shouldBe 1
                         it.first().navn shouldBeEqualTo "Fornavn Mellomnavn Etternavn"
                     }
@@ -274,11 +275,11 @@ class PersonOversiktStatusRepositorySpek : Spek({
                         it.size shouldBe 1
                         it.first().navn shouldBeEqualTo "Fornavn Mellomnavn Etternavn"
                     }
-                    searchPerson("FE", birthdate = fodselsdato).let {
+                    searchPerson(initials = "FE", birthdate = fodselsdato).let {
                         it.size shouldBe 1
                         it.first().navn shouldBeEqualTo "Fornavn Mellomnavn Etternavn"
                     }
-                    searchPerson("FM", birthdate = fodselsdato).let {
+                    searchPerson(initials = "FM", birthdate = fodselsdato).let {
                         it.size shouldBe 1
                         it.first().navn shouldBeEqualTo "Fornavn Mellomnavn Etternavn"
                     }
@@ -293,15 +294,15 @@ class PersonOversiktStatusRepositorySpek : Spek({
                     )
                     personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus)
 
-                    searchPerson("fme", birthdate = fodselsdato).let {
+                    searchPerson(initials = "fme", birthdate = fodselsdato).let {
                         it.size shouldBe 1
                         it.first().navn shouldBeEqualTo "Fornavn Mellomnavn Etternavn"
                     }
-                    searchPerson("fe", birthdate = fodselsdato).let {
+                    searchPerson(initials = "fe", birthdate = fodselsdato).let {
                         it.size shouldBe 1
                         it.first().navn shouldBeEqualTo "Fornavn Mellomnavn Etternavn"
                     }
-                    searchPerson("fm", birthdate = fodselsdato).let {
+                    searchPerson(initials = "fm", birthdate = fodselsdato).let {
                         it.size shouldBe 1
                         it.first().navn shouldBeEqualTo "Fornavn Mellomnavn Etternavn"
                     }
@@ -340,7 +341,7 @@ class PersonOversiktStatusRepositorySpek : Spek({
                     )
                     personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus)
 
-                    searchPerson("FME", birthdate = LocalDate.now()).size shouldBe 0
+                    searchPerson(initials = "FME", birthdate = LocalDate.now()).size shouldBe 0
                 }
 
                 it("returns empty list when matching initials but person missing birthdate") {
@@ -351,7 +352,7 @@ class PersonOversiktStatusRepositorySpek : Spek({
                     )
                     personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus)
 
-                    searchPerson("FME", birthdate = fodselsdato).size shouldBe 0
+                    searchPerson(initials = "FME", birthdate = fodselsdato).size shouldBe 0
                 }
 
                 it("returns empty list when matching initials and birthdate but no active oppfolgingstilfelle or oppgave") {
@@ -363,7 +364,7 @@ class PersonOversiktStatusRepositorySpek : Spek({
                     )
                     personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus)
 
-                    searchPerson("FME", birthdate = fodselsdato).size shouldBe 0
+                    searchPerson(initials = "FME", birthdate = fodselsdato).size shouldBe 0
                 }
 
                 it("returns several persons when relevant") {
@@ -384,7 +385,7 @@ class PersonOversiktStatusRepositorySpek : Spek({
                         )
                     )
 
-                    searchPerson("FME", birthdate = fodselsdato).let {
+                    searchPerson(initials = "FME", birthdate = fodselsdato).let {
                         it.size shouldBe 2
                         it.first().navn shouldBeEqualTo "Fornavn Mellomnavn Etternavn"
                         it[1].navn shouldBeEqualTo "Frank Mellomnavnsen Etternavnsen"
@@ -409,15 +410,99 @@ class PersonOversiktStatusRepositorySpek : Spek({
                         )
                     )
 
-                    searchPerson("FE", birthdate = fodselsdato).let {
+                    searchPerson(initials = "FE", birthdate = fodselsdato).let {
                         it.size shouldBe 2
                         it.first().navn shouldBeEqualTo "Fornavn Evensen Melonsen"
                         it[1].navn shouldBeEqualTo "Frank Melonsen Evensen"
                     }
-                    searchPerson("FM", birthdate = fodselsdato).let {
+                    searchPerson(initials = "FM", birthdate = fodselsdato).let {
                         it.size shouldBe 2
                         it.first().navn shouldBeEqualTo "Fornavn Evensen Melonsen"
                         it[1].navn shouldBeEqualTo "Frank Melonsen Evensen"
+                    }
+                }
+
+                it("returns person with matching firstname and surname") {
+                    personOversiktStatusRepository.createPersonOversiktStatus(
+                        PersonOversiktStatus(
+                            fnr = UserConstants.ARBEIDSTAKER_FNR,
+                            fodselsdato = fodselsdato,
+                            navn = "Fornavn Etternavnsen",
+                            latestOppfolgingstilfelle = activeOppfolgingstilfelle,
+                        )
+                    )
+
+                    searchPerson(name = "Fornavn Etternavnsen").let {
+                        it.size shouldBe 1
+                        it.first().navn shouldBeEqualTo "Fornavn Etternavnsen"
+                    }
+                }
+
+                it("returns person with matching firstname and several surnames") {
+                    personOversiktStatusRepository.createPersonOversiktStatus(
+                        PersonOversiktStatus(
+                            fnr = UserConstants.ARBEIDSTAKER_FNR,
+                            fodselsdato = fodselsdato,
+                            navn = "Fornavn Mellomnavnsen Etternavnsen",
+                            latestOppfolgingstilfelle = activeOppfolgingstilfelle,
+                        )
+                    )
+
+                    searchPerson(name = "Fornavn Mellomnavnsen Etternavnsen").let {
+                        it.size shouldBe 1
+                        it.first().navn shouldBeEqualTo "Fornavn Mellomnavnsen Etternavnsen"
+                    }
+                }
+
+                it("returns person with matching firstname and part of surnames") {
+                    personOversiktStatusRepository.createPersonOversiktStatus(
+                        PersonOversiktStatus(
+                            fnr = UserConstants.ARBEIDSTAKER_FNR,
+                            fodselsdato = fodselsdato,
+                            navn = "Fornavn Mellomnavnsen Etternavnsen",
+                            latestOppfolgingstilfelle = activeOppfolgingstilfelle,
+                        )
+                    )
+
+                    searchPerson(name = "Fornavn Mellomnavnsen").let {
+                        it.size shouldBe 1
+                        it.first().navn shouldBeEqualTo "Fornavn Mellomnavnsen Etternavnsen"
+                    }
+                    searchPerson(name = "Fornavn Etternavnsen").let {
+                        it.size shouldBe 1
+                        it.first().navn shouldBeEqualTo "Fornavn Mellomnavnsen Etternavnsen"
+                    }
+                }
+
+                it("returns person with matching firstname and several incomplete surnames") {
+                    personOversiktStatusRepository.createPersonOversiktStatus(
+                        PersonOversiktStatus(
+                            fnr = UserConstants.ARBEIDSTAKER_FNR,
+                            fodselsdato = fodselsdato,
+                            navn = "Fornavn Mellomnavnsen Etternavnsen",
+                            latestOppfolgingstilfelle = activeOppfolgingstilfelle,
+                        )
+                    )
+
+                    searchPerson(name = "Fornavn Mell Ette").let {
+                        it.size shouldBe 1
+                        it.first().navn shouldBeEqualTo "Fornavn Mellomnavnsen Etternavnsen"
+                    }
+                }
+
+                it("returns person with matching incomplete firstname") {
+                    personOversiktStatusRepository.createPersonOversiktStatus(
+                        PersonOversiktStatus(
+                            fnr = UserConstants.ARBEIDSTAKER_FNR,
+                            fodselsdato = fodselsdato,
+                            navn = "Fornavn Mellomnavnsen Etternavnsen",
+                            latestOppfolgingstilfelle = activeOppfolgingstilfelle,
+                        )
+                    )
+
+                    searchPerson(name = "For Etternavnsen").let {
+                        it.size shouldBe 1
+                        it.first().navn shouldBeEqualTo "Fornavn Mellomnavnsen Etternavnsen"
                     }
                 }
             }
