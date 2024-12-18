@@ -13,7 +13,7 @@ import no.nav.syfo.personstatus.application.manglendemedvirkning.ManglendeMedvir
 import no.nav.syfo.personstatus.application.meroppfolging.IMeroppfolgingClient
 import no.nav.syfo.personstatus.application.meroppfolging.SenOppfolgingKandidaterResponseDTO
 import no.nav.syfo.personstatus.application.oppfolgingsoppgave.IOppfolgingsoppgaveClient
-import no.nav.syfo.personstatus.application.oppfolgingsoppgave.OppfolgingsoppgaverResponseDTO
+import no.nav.syfo.personstatus.application.oppfolgingsoppgave.OppfolgingsoppgaverLatestVersionResponseDTO
 import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import org.slf4j.LoggerFactory
@@ -129,7 +129,7 @@ class PersonoversiktOppgaverService(
         callId: String,
         token: String,
         personStatuser: List<PersonOversiktStatus>,
-    ): Deferred<OppfolgingsoppgaverResponseDTO?> =
+    ): Deferred<OppfolgingsoppgaverLatestVersionResponseDTO?> =
         CoroutineScope(Dispatchers.IO).async {
             val personidenterWithOppfolgingsoppgave = personStatuser
                 .filter { it.isAktivOppfolgingsoppgave }
