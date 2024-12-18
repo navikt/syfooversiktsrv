@@ -4,7 +4,7 @@ import no.nav.syfo.oppfolgingstilfelle.domain.Oppfolgingstilfelle
 import no.nav.syfo.personstatus.api.v2.model.VeilederTildelingHistorikkDTO
 import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
-import no.nav.syfo.personstatus.domain.SearchQuery
+import no.nav.syfo.personstatus.domain.Search
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
 
 interface IPersonOversiktStatusRepository {
@@ -38,7 +38,7 @@ interface IPersonOversiktStatusRepository {
 
     fun updatePersonstatusesWithNavnAndFodselsdato(personer: List<PersonOversiktStatus>): List<Result<PersonOversiktStatus>>
 
-    fun searchPerson(searchQuery: SearchQuery): List<PersonOversiktStatus>
+    fun searchPerson(search: Search): List<PersonOversiktStatus>
 
     fun updatePersonOversiktStatusOppfolgingstilfelle(
         personstatus: PersonOversiktStatus,
