@@ -19,78 +19,73 @@ import java.time.OffsetDateTime
 import java.util.*
 
 object ReaperCronjobSpek : Spek({
+    val externalMockEnvironment = ExternalMockEnvironment.instance
+    val database = externalMockEnvironment.database
 
-    with(TestApplicationEngine()) {
-        start()
+    val reaperService = ReaperService(
+        database = database,
+    )
+    val reaperCronjob = ReaperCronjob(
+        reaperService = reaperService,
+    )
 
-        val externalMockEnvironment = ExternalMockEnvironment.instance
-        val database = externalMockEnvironment.database
+    describe(ReaperCronjobSpek::class.java.simpleName) {
+        describe("Successful processing") {
+            afterEachTest {
+                database.dropData()
+            }
 
-        val reaperService = ReaperService(
-            database = database,
-        )
-        val reaperCronjob = ReaperCronjob(
-            reaperService = reaperService,
-        )
+            it("reset tildelt veileder for personer with tilfelle that ended two months ago") {
+                val threeMonthsAgo = LocalDate.now().minusMonths(2).minusDays(1)
+                val personOversiktStatus = generatePersonOversiktStatusWithTilfelleEnd(threeMonthsAgo)
+                database.createPersonOversiktStatus(personOversiktStatus)
+                database.setSistEndret(
+                    fnr = personOversiktStatus.fnr,
+                    sistEndret = Timestamp.from(OffsetDateTime.now().minusMonths(2).minusDays(1).toInstant()),
+                )
 
-        describe(ReaperCronjobSpek::class.java.simpleName) {
-            describe("Successful processing") {
-                afterEachTest {
-                    database.dropData()
+                runBlocking {
+                    val result = reaperCronjob.runJob()
+
+                    result.failed shouldBeEqualTo 0
+                    result.updated shouldBeEqualTo 1
                 }
 
-                it("reset tildelt veileder for personer with tilfelle that ended two months ago") {
-                    val threeMonthsAgo = LocalDate.now().minusMonths(2).minusDays(1)
-                    val personOversiktStatus = generatePersonOversiktStatusWithTilfelleEnd(threeMonthsAgo)
-                    database.createPersonOversiktStatus(personOversiktStatus)
-                    database.setSistEndret(
-                        fnr = personOversiktStatus.fnr,
-                        sistEndret = Timestamp.from(OffsetDateTime.now().minusMonths(2).minusDays(1).toInstant()),
-                    )
+                val personOversiktStatuses = database.connection.getPersonOversiktStatusList(personOversiktStatus.fnr)
+                val status = personOversiktStatuses[0]
+                status.veilederIdent shouldBeEqualTo null
+            }
+            it("does not reset tildelt veileder for personer with sist_endret less than two months ago") {
+                val threeMonthsAgo = LocalDate.now().minusMonths(3)
+                val personOversiktStatus = generatePersonOversiktStatusWithTilfelleEnd(threeMonthsAgo)
+                database.createPersonOversiktStatus(personOversiktStatus)
+                database.setSistEndret(
+                    fnr = personOversiktStatus.fnr,
+                    sistEndret = Timestamp.from(OffsetDateTime.now().minusMonths(2).plusDays(1).toInstant()),
+                )
 
-                    runBlocking {
-                        val result = reaperCronjob.runJob()
+                runBlocking {
+                    val result = reaperCronjob.runJob()
 
-                        result.failed shouldBeEqualTo 0
-                        result.updated shouldBeEqualTo 1
-                    }
-
-                    val personOversiktStatuses = database.connection.getPersonOversiktStatusList(personOversiktStatus.fnr)
-                    val status = personOversiktStatuses[0]
-                    status.veilederIdent shouldBeEqualTo null
-                }
-                it("does not reset tildelt veileder for personer with sist_endret less than two months ago") {
-                    val threeMonthsAgo = LocalDate.now().minusMonths(3)
-                    val personOversiktStatus = generatePersonOversiktStatusWithTilfelleEnd(threeMonthsAgo)
-                    database.createPersonOversiktStatus(personOversiktStatus)
-                    database.setSistEndret(
-                        fnr = personOversiktStatus.fnr,
-                        sistEndret = Timestamp.from(OffsetDateTime.now().minusMonths(2).plusDays(1).toInstant()),
-                    )
-
-                    runBlocking {
-                        val result = reaperCronjob.runJob()
-
-                        result.failed shouldBeEqualTo 0
-                        result.updated shouldBeEqualTo 0
-                    }
-
-                    val personOversiktStatuses = database.connection.getPersonOversiktStatusList(personOversiktStatus.fnr)
-                    val status = personOversiktStatuses[0]
-                    status.veilederIdent shouldNotBeEqualTo null
+                    result.failed shouldBeEqualTo 0
+                    result.updated shouldBeEqualTo 0
                 }
 
-                it("don't process personer with tilfelle that ended less than two months ago") {
-                    val lessThanTwoMonthsAgo = LocalDate.now().minusMonths(2).plusDays(1)
-                    val personOversiktStatus = generatePersonOversiktStatusWithTilfelleEnd(lessThanTwoMonthsAgo)
-                    database.createPersonOversiktStatus(personOversiktStatus)
+                val personOversiktStatuses = database.connection.getPersonOversiktStatusList(personOversiktStatus.fnr)
+                val status = personOversiktStatuses[0]
+                status.veilederIdent shouldNotBeEqualTo null
+            }
 
-                    runBlocking {
-                        val result = reaperCronjob.runJob()
+            it("don't process personer with tilfelle that ended less than two months ago") {
+                val lessThanTwoMonthsAgo = LocalDate.now().minusMonths(2).plusDays(1)
+                val personOversiktStatus = generatePersonOversiktStatusWithTilfelleEnd(lessThanTwoMonthsAgo)
+                database.createPersonOversiktStatus(personOversiktStatus)
 
-                        result.failed shouldBeEqualTo 0
-                        result.updated shouldBeEqualTo 0
-                    }
+                runBlocking {
+                    val result = reaperCronjob.runJob()
+
+                    result.failed shouldBeEqualTo 0
+                    result.updated shouldBeEqualTo 0
                 }
             }
         }

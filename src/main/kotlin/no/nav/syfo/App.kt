@@ -101,15 +101,23 @@ fun main() {
     lateinit var personoversiktStatusService: PersonoversiktStatusService
     lateinit var oppfolgingstilfelleService: OppfolgingstilfelleService
 
-    val applicationEngineEnvironment = applicationEngineEnvironment {
+    val applicationEnvironment = applicationEnvironment {
         log = logger
         config = HoconApplicationConfig(ConfigFactory.load())
+    }
 
-        connector {
-            port = applicationPort
-        }
-
-        module {
+    val server = embeddedServer(
+        Netty,
+        environment = applicationEnvironment,
+        configure = {
+            connector {
+                port = applicationPort
+            }
+            connectionGroupSize = 8
+            workerGroupSize = 8
+            callGroupSize = 16
+        },
+        module = {
             databaseModule(
                 databaseEnvironment = environment.database,
             )
@@ -144,39 +152,29 @@ fun main() {
                 personBehandlendeEnhetService = personBehandlendeEnhetService,
                 personoversiktStatusRepository = personoversiktStatusRepository,
             )
+            monitor.subscribe(ApplicationStarted) {
+                applicationState.ready = true
+                logger.info("Application is ready, running Java VM ${Runtime.version()}")
+                launchKafkaModule(
+                    applicationState = applicationState,
+                    environment = environment,
+                    azureAdClient = azureAdClient,
+                    personoversiktStatusService = personoversiktStatusService,
+                    personBehandlendeEnhetService = personBehandlendeEnhetService,
+                    oppfolgingstilfelleService = oppfolgingstilfelleService,
+                )
+                launchCronjobModule(
+                    applicationState = applicationState,
+                    database = database,
+                    environment = environment,
+                    redisStore = redisStore,
+                    azureAdClient = azureAdClient,
+                    personBehandlendeEnhetService = personBehandlendeEnhetService,
+                    personoversiktStatusService = personoversiktStatusService,
+                )
+            }
         }
-    }
-
-    val server = embeddedServer(
-        environment = applicationEngineEnvironment,
-        factory = Netty,
-    ) {
-        connectionGroupSize = 8
-        workerGroupSize = 8
-        callGroupSize = 16
-    }
-
-    applicationEngineEnvironment.monitor.subscribe(ApplicationStarted) {
-        applicationState.ready = true
-        logger.info("Application is ready, running Java VM ${Runtime.version()}")
-        launchKafkaModule(
-            applicationState = applicationState,
-            environment = environment,
-            azureAdClient = azureAdClient,
-            personoversiktStatusService = personoversiktStatusService,
-            personBehandlendeEnhetService = personBehandlendeEnhetService,
-            oppfolgingstilfelleService = oppfolgingstilfelleService,
-        )
-        launchCronjobModule(
-            applicationState = applicationState,
-            database = database,
-            environment = environment,
-            redisStore = redisStore,
-            azureAdClient = azureAdClient,
-            personBehandlendeEnhetService = personBehandlendeEnhetService,
-            personoversiktStatusService = personoversiktStatusService,
-        )
-    }
+    )
 
     Runtime.getRuntime().addShutdownHook(
         Thread {

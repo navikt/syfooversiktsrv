@@ -1,6 +1,10 @@
 package no.nav.syfo.testutil
 
+import io.ktor.client.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.serialization.jackson.*
 import io.ktor.server.application.*
+import io.ktor.server.testing.*
 import no.nav.syfo.personstatus.api.v2.apiModule
 import no.nav.syfo.personstatus.application.PersonBehandlendeEnhetService
 import no.nav.syfo.personstatus.application.PersonoversiktOppgaverService
@@ -13,6 +17,7 @@ import no.nav.syfo.personstatus.infrastructure.clients.meroppfolging.MerOppfolgi
 import no.nav.syfo.personstatus.infrastructure.clients.oppfolgingsoppgave.OppfolgingsoppgaveClient
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.PdlClient
 import no.nav.syfo.personstatus.infrastructure.clients.veiledertilgang.VeilederTilgangskontrollClient
+import no.nav.syfo.util.configure
 
 fun Application.testApiModule(
     externalMockEnvironment: ExternalMockEnvironment,
@@ -88,3 +93,18 @@ fun Application.testApiModule(
         personoversiktStatusRepository = personoversiktRepository,
     )
 }
+
+fun ApplicationTestBuilder.setupApiAndClient(): HttpClient {
+    application {
+        testApiModule(
+            externalMockEnvironment = ExternalMockEnvironment.instance,
+        )
+    }
+    val client = createClient {
+        install(ContentNegotiation) {
+            jackson { configure() }
+        }
+    }
+    return client
+}
+
