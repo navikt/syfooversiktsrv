@@ -1,6 +1,5 @@
 package no.nav.syfo.frisktilarbeid.kafka
 
-import io.ktor.server.testing.*
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.verify
@@ -23,144 +22,140 @@ import java.time.Duration
 import java.time.LocalDate
 
 class KafkaFriskTilArbeidServiceSpek : Spek({
-    with(TestApplicationEngine()) {
-        start()
+    val externalMockEnvironment = ExternalMockEnvironment.instance
+    val database = externalMockEnvironment.database
 
-        val externalMockEnvironment = ExternalMockEnvironment.instance
-        val database = externalMockEnvironment.database
+    val kafkaFriskTilArbeidService = TestKafkaModule.friskTilArbeidVedtakConsumer
 
-        val kafkaFriskTilArbeidService = TestKafkaModule.friskTilArbeidVedtakConsumer
+    val topicPartition = friskTilArbeidTopicPartition()
+    val vedtak = generateKafkaFriskTilArbeidVedtak(
+        personIdent = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),
+        fom = LocalDate.now().plusDays(1),
+    )
+    val kafkaFriskTilArbeidConsumerRecord = friskTilArbeidConsumerRecord(
+        vedtakStatusRecord = vedtak,
+    )
 
-        val topicPartition = friskTilArbeidTopicPartition()
-        val vedtak = generateKafkaFriskTilArbeidVedtak(
-            personIdent = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),
-            fom = LocalDate.now().plusDays(1),
-        )
-        val kafkaFriskTilArbeidConsumerRecord = friskTilArbeidConsumerRecord(
-            vedtakStatusRecord = vedtak,
-        )
+    val kafkaFriskTilArbeidFerdigConsumerRecord = friskTilArbeidConsumerRecord(
+        vedtakStatusRecord = vedtak.copy(status = Status.FERDIG_BEHANDLET),
+    )
 
-        val kafkaFriskTilArbeidFerdigConsumerRecord = friskTilArbeidConsumerRecord(
-            vedtakStatusRecord = vedtak.copy(status = Status.FERDIG_BEHANDLET),
-        )
+    beforeEachTest {
+        database.dropData()
 
-        beforeEachTest {
-            database.dropData()
+        clearMocks(kafkaConsumerFriskTilArbeid)
+        every { kafkaConsumerFriskTilArbeid.commitSync() } returns Unit
+    }
 
+    describe("${FriskTilArbeidVedtakConsumer::class.java.simpleName}: pollAndProcessRecords") {
+        it("creates new PersonOversiktStatus if no PersonOversiktStatus exists for personident") {
+            every { kafkaConsumerFriskTilArbeid.poll(any<Duration>()) } returns ConsumerRecords(
+                mapOf(
+                    topicPartition to listOf(
+                        kafkaFriskTilArbeidConsumerRecord,
+                    )
+                )
+            )
+
+            runBlocking {
+                kafkaFriskTilArbeidService.pollAndProcessRecords(kafkaConsumer = kafkaConsumerFriskTilArbeid)
+            }
+
+            verify(exactly = 1) {
+                kafkaConsumerFriskTilArbeid.commitSync()
+            }
+
+            val pPersonOversiktStatusList =
+                database.connection.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
+
+            pPersonOversiktStatusList.size shouldBeEqualTo 1
+
+            val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+
+            pPersonOversiktStatus.fnr shouldBeEqualTo vedtak.personident
+            pPersonOversiktStatus.friskmeldingTilArbeidsformidlingFom shouldBeEqualTo vedtak.fom
+
+            pPersonOversiktStatus.enhet.shouldBeNull()
+            pPersonOversiktStatus.veilederIdent.shouldBeNull()
+        }
+        it("updates existing PersonOversikStatus when PersonOversiktStatus exists for personident") {
+            every { kafkaConsumerFriskTilArbeid.poll(any<Duration>()) } returns ConsumerRecords(
+                mapOf(
+                    topicPartition to listOf(
+                        kafkaFriskTilArbeidConsumerRecord,
+                    )
+                )
+            )
+
+            val kafkaOppfolgingstilfellePerson = generateKafkaOppfolgingstilfellePerson()
+            val kafkaOppfolgingstilfelle = kafkaOppfolgingstilfellePerson.oppfolgingstilfelleList.first()
+            database.createPersonOversiktStatus(
+                personOversiktStatus = kafkaOppfolgingstilfellePerson.toPersonOversiktStatus(kafkaOppfolgingstilfelle)
+            )
+
+            runBlocking {
+                kafkaFriskTilArbeidService.pollAndProcessRecords(kafkaConsumer = kafkaConsumerFriskTilArbeid)
+            }
+
+            verify(exactly = 1) {
+                kafkaConsumerFriskTilArbeid.commitSync()
+            }
+
+            val pPersonOversiktStatusList =
+                database.connection.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
+
+            pPersonOversiktStatusList.size shouldBeEqualTo 1
+            val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+            pPersonOversiktStatus.fnr shouldBeEqualTo vedtak.personident
+            pPersonOversiktStatus.friskmeldingTilArbeidsformidlingFom shouldBeEqualTo vedtak.fom
+        }
+        it("updates existing PersonOversikStatus when FERDIGSTILT") {
+            every { kafkaConsumerFriskTilArbeid.poll(any<Duration>()) } returns ConsumerRecords(
+                mapOf(
+                    topicPartition to listOf(
+                        kafkaFriskTilArbeidConsumerRecord,
+                    )
+                )
+            )
+            runBlocking {
+                kafkaFriskTilArbeidService.pollAndProcessRecords(kafkaConsumer = kafkaConsumerFriskTilArbeid)
+            }
             clearMocks(kafkaConsumerFriskTilArbeid)
             every { kafkaConsumerFriskTilArbeid.commitSync() } returns Unit
-        }
 
-        describe("${FriskTilArbeidVedtakConsumer::class.java.simpleName}: pollAndProcessRecords") {
-            it("creates new PersonOversiktStatus if no PersonOversiktStatus exists for personident") {
-                every { kafkaConsumerFriskTilArbeid.poll(any<Duration>()) } returns ConsumerRecords(
-                    mapOf(
-                        topicPartition to listOf(
-                            kafkaFriskTilArbeidConsumerRecord,
-                        )
+            val pPersonOversiktStatusListBefore =
+                database.connection.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
+
+            pPersonOversiktStatusListBefore.size shouldBeEqualTo 1
+
+            val pPersonOversiktStatusBefore = pPersonOversiktStatusListBefore.first()
+
+            pPersonOversiktStatusBefore.fnr shouldBeEqualTo vedtak.personident
+            pPersonOversiktStatusBefore.friskmeldingTilArbeidsformidlingFom shouldBeEqualTo vedtak.fom
+
+            every { kafkaConsumerFriskTilArbeid.poll(any<Duration>()) } returns ConsumerRecords(
+                mapOf(
+                    topicPartition to listOf(
+                        kafkaFriskTilArbeidFerdigConsumerRecord,
                     )
                 )
+            )
 
-                runBlocking {
-                    kafkaFriskTilArbeidService.pollAndProcessRecords(kafkaConsumer = kafkaConsumerFriskTilArbeid)
-                }
-
-                verify(exactly = 1) {
-                    kafkaConsumerFriskTilArbeid.commitSync()
-                }
-
-                val pPersonOversiktStatusList =
-                    database.connection.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
-
-                pPersonOversiktStatusList.size shouldBeEqualTo 1
-
-                val pPersonOversiktStatus = pPersonOversiktStatusList.first()
-
-                pPersonOversiktStatus.fnr shouldBeEqualTo vedtak.personident
-                pPersonOversiktStatus.friskmeldingTilArbeidsformidlingFom shouldBeEqualTo vedtak.fom
-
-                pPersonOversiktStatus.enhet.shouldBeNull()
-                pPersonOversiktStatus.veilederIdent.shouldBeNull()
+            runBlocking {
+                kafkaFriskTilArbeidService.pollAndProcessRecords(kafkaConsumer = kafkaConsumerFriskTilArbeid)
             }
-            it("updates existing PersonOversikStatus when PersonOversiktStatus exists for personident") {
-                every { kafkaConsumerFriskTilArbeid.poll(any<Duration>()) } returns ConsumerRecords(
-                    mapOf(
-                        topicPartition to listOf(
-                            kafkaFriskTilArbeidConsumerRecord,
-                        )
-                    )
-                )
 
-                val kafkaOppfolgingstilfellePerson = generateKafkaOppfolgingstilfellePerson()
-                val kafkaOppfolgingstilfelle = kafkaOppfolgingstilfellePerson.oppfolgingstilfelleList.first()
-                database.createPersonOversiktStatus(
-                    personOversiktStatus = kafkaOppfolgingstilfellePerson.toPersonOversiktStatus(kafkaOppfolgingstilfelle)
-                )
-
-                runBlocking {
-                    kafkaFriskTilArbeidService.pollAndProcessRecords(kafkaConsumer = kafkaConsumerFriskTilArbeid)
-                }
-
-                verify(exactly = 1) {
-                    kafkaConsumerFriskTilArbeid.commitSync()
-                }
-
-                val pPersonOversiktStatusList =
-                    database.connection.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
-
-                pPersonOversiktStatusList.size shouldBeEqualTo 1
-                val pPersonOversiktStatus = pPersonOversiktStatusList.first()
-                pPersonOversiktStatus.fnr shouldBeEqualTo vedtak.personident
-                pPersonOversiktStatus.friskmeldingTilArbeidsformidlingFom shouldBeEqualTo vedtak.fom
+            verify(exactly = 1) {
+                kafkaConsumerFriskTilArbeid.commitSync()
             }
-            it("updates existing PersonOversikStatus when FERDIGSTILT") {
-                every { kafkaConsumerFriskTilArbeid.poll(any<Duration>()) } returns ConsumerRecords(
-                    mapOf(
-                        topicPartition to listOf(
-                            kafkaFriskTilArbeidConsumerRecord,
-                        )
-                    )
-                )
-                runBlocking {
-                    kafkaFriskTilArbeidService.pollAndProcessRecords(kafkaConsumer = kafkaConsumerFriskTilArbeid)
-                }
-                clearMocks(kafkaConsumerFriskTilArbeid)
-                every { kafkaConsumerFriskTilArbeid.commitSync() } returns Unit
 
-                val pPersonOversiktStatusListBefore =
-                    database.connection.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
+            val pPersonOversiktStatusList =
+                database.connection.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
 
-                pPersonOversiktStatusListBefore.size shouldBeEqualTo 1
-
-                val pPersonOversiktStatusBefore = pPersonOversiktStatusListBefore.first()
-
-                pPersonOversiktStatusBefore.fnr shouldBeEqualTo vedtak.personident
-                pPersonOversiktStatusBefore.friskmeldingTilArbeidsformidlingFom shouldBeEqualTo vedtak.fom
-
-                every { kafkaConsumerFriskTilArbeid.poll(any<Duration>()) } returns ConsumerRecords(
-                    mapOf(
-                        topicPartition to listOf(
-                            kafkaFriskTilArbeidFerdigConsumerRecord,
-                        )
-                    )
-                )
-
-                runBlocking {
-                    kafkaFriskTilArbeidService.pollAndProcessRecords(kafkaConsumer = kafkaConsumerFriskTilArbeid)
-                }
-
-                verify(exactly = 1) {
-                    kafkaConsumerFriskTilArbeid.commitSync()
-                }
-
-                val pPersonOversiktStatusList =
-                    database.connection.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
-
-                pPersonOversiktStatusList.size shouldBeEqualTo 1
-                val pPersonOversiktStatus = pPersonOversiktStatusList.first()
-                pPersonOversiktStatus.fnr shouldBeEqualTo vedtak.personident
-                pPersonOversiktStatus.friskmeldingTilArbeidsformidlingFom shouldBe null
-            }
+            pPersonOversiktStatusList.size shouldBeEqualTo 1
+            val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+            pPersonOversiktStatus.fnr shouldBeEqualTo vedtak.personident
+            pPersonOversiktStatus.friskmeldingTilArbeidsformidlingFom shouldBe null
         }
     }
 })

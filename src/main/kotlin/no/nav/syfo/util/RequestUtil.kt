@@ -2,7 +2,7 @@ package no.nav.syfo.util
 
 import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.util.pipeline.*
+import io.ktor.server.routing.*
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.personstatus.domain.PersonIdent
 import java.util.*
@@ -10,7 +10,8 @@ import java.util.*
 const val NAV_PERSONIDENT_HEADER = "nav-personident"
 
 const val NAV_CALL_ID_HEADER = "Nav-Call-Id"
-fun PipelineContext<out Unit, ApplicationCall>.getCallId(): String {
+
+fun RoutingContext.getCallId(): String {
     return this.call.getCallId()
 }
 
@@ -31,6 +32,6 @@ fun ApplicationCall.getConsumerId(): String {
     return this.request.headers[NAV_CONSUMER_ID_HEADER].toString()
 }
 
-fun PipelineContext<out Unit, ApplicationCall>.getBearerHeader(): String? {
+fun RoutingContext.getBearerHeader(): String? {
     return this.call.request.headers[HttpHeaders.Authorization]?.removePrefix("Bearer ")
 }

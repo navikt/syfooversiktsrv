@@ -1,6 +1,5 @@
 package no.nav.syfo.dialogmotestatusendring.kafka
 
-import io.ktor.server.testing.*
 import io.mockk.*
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendring
@@ -16,178 +15,174 @@ import org.spekframework.spek2.style.specification.describe
 import java.time.Duration
 
 class KafkaDialogmoteStatusendringServiceSpek : Spek({
-    with(TestApplicationEngine()) {
-        start()
+    val externalMockEnvironment = ExternalMockEnvironment.instance
+    val database = externalMockEnvironment.database
 
-        val externalMockEnvironment = ExternalMockEnvironment.instance
-        val database = externalMockEnvironment.database
+    val kafkaDialogmoteStatusendringService = TestKafkaModule.kafkaDialogmoteStatusendringService
+    val mockKafkaConsumerDialogmoteStatusendring = TestKafkaModule.kafkaConsumerDialogmoteStatusendring
 
-        val kafkaDialogmoteStatusendringService = TestKafkaModule.kafkaDialogmoteStatusendringService
-        val mockKafkaConsumerDialogmoteStatusendring = TestKafkaModule.kafkaConsumerDialogmoteStatusendring
+    val dialogmoteStatusendringTopicPartition = dialogmoteStatusendringTopicPartition()
+    val kafkaDialogmoteStatusendringToday = generateKafkaDialogmoteStatusendring(
+        personIdent = UserConstants.ARBEIDSTAKER_FNR,
+        type = DialogmoteStatusendringType.INNKALT,
+        endringsTidspunkt = nowUTC(),
+    )
+    val kafkaDialogmoteStatusendringLastYear = generateKafkaDialogmoteStatusendring(
+        personIdent = UserConstants.ARBEIDSTAKER_FNR,
+        type = DialogmoteStatusendringType.AVLYST,
+        endringsTidspunkt = nowUTC().minusYears(1),
+    )
+    val kafkaDialogmoteStatusendringTodayConsumerRecord = dialogmoteStatusendringConsumerRecord(
+        kafkaDialogmoteStatusendring = kafkaDialogmoteStatusendringToday,
+    )
+    val kafkaDialogmoteStatusendringLastYearConsumerRecord = dialogmoteStatusendringConsumerRecord(
+        kafkaDialogmoteStatusendring = kafkaDialogmoteStatusendringLastYear,
+    )
 
-        val dialogmoteStatusendringTopicPartition = dialogmoteStatusendringTopicPartition()
-        val kafkaDialogmoteStatusendringToday = generateKafkaDialogmoteStatusendring(
-            personIdent = UserConstants.ARBEIDSTAKER_FNR,
-            type = DialogmoteStatusendringType.INNKALT,
-            endringsTidspunkt = nowUTC(),
-        )
-        val kafkaDialogmoteStatusendringLastYear = generateKafkaDialogmoteStatusendring(
-            personIdent = UserConstants.ARBEIDSTAKER_FNR,
-            type = DialogmoteStatusendringType.AVLYST,
-            endringsTidspunkt = nowUTC().minusYears(1),
-        )
-        val kafkaDialogmoteStatusendringTodayConsumerRecord = dialogmoteStatusendringConsumerRecord(
-            kafkaDialogmoteStatusendring = kafkaDialogmoteStatusendringToday,
-        )
-        val kafkaDialogmoteStatusendringLastYearConsumerRecord = dialogmoteStatusendringConsumerRecord(
-            kafkaDialogmoteStatusendring = kafkaDialogmoteStatusendringLastYear,
-        )
+    beforeEachTest {
+        database.dropData()
 
-        beforeEachTest {
-            database.dropData()
+        clearMocks(mockKafkaConsumerDialogmoteStatusendring)
+        every { mockKafkaConsumerDialogmoteStatusendring.commitSync() } returns Unit
+    }
 
-            clearMocks(mockKafkaConsumerDialogmoteStatusendring)
-            every { mockKafkaConsumerDialogmoteStatusendring.commitSync() } returns Unit
+    describe("${KafkaDialogmoteStatusendringService::class.java.simpleName}: pollAndProcessRecords") {
+        it("creates new PersonOversiktStatus if no PersonOversiktStatus exists for personident") {
+            every { mockKafkaConsumerDialogmoteStatusendring.poll(any<Duration>()) } returns ConsumerRecords(
+                mapOf(
+                    dialogmoteStatusendringTopicPartition to listOf(
+                        kafkaDialogmoteStatusendringTodayConsumerRecord,
+                    )
+                )
+            )
+
+            runBlocking {
+                kafkaDialogmoteStatusendringService.pollAndProcessRecords(kafkaConsumer = mockKafkaConsumerDialogmoteStatusendring)
+            }
+
+            verify(exactly = 1) {
+                mockKafkaConsumerDialogmoteStatusendring.commitSync()
+            }
+
+            val pPersonOversiktStatusList =
+                database.connection.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
+
+            pPersonOversiktStatusList.size shouldBeEqualTo 1
+
+            val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+
+            pPersonOversiktStatus.fnr shouldBeEqualTo kafkaDialogmoteStatusendringToday.getPersonIdent()
+            pPersonOversiktStatus.motestatus shouldBeEqualTo kafkaDialogmoteStatusendringToday.getStatusEndringType()
+            pPersonOversiktStatus.motestatusGeneratedAt.shouldNotBeNull()
+
+            pPersonOversiktStatus.dialogmotekandidat.shouldBeNull()
+            pPersonOversiktStatus.enhet.shouldBeNull()
+            pPersonOversiktStatus.veilederIdent.shouldBeNull()
+            pPersonOversiktStatus.motebehovUbehandlet.shouldBeNull()
+            pPersonOversiktStatus.oppfolgingsplanLPSBistandUbehandlet.shouldBeNull()
         }
-
-        describe("${KafkaDialogmoteStatusendringService::class.java.simpleName}: pollAndProcessRecords") {
-            it("creates new PersonOversiktStatus if no PersonOversiktStatus exists for personident") {
-                every { mockKafkaConsumerDialogmoteStatusendring.poll(any<Duration>()) } returns ConsumerRecords(
-                    mapOf(
-                        dialogmoteStatusendringTopicPartition to listOf(
-                            kafkaDialogmoteStatusendringTodayConsumerRecord,
-                        )
+        it("updates existing PersonOversikStatus when PersonOversiktStatus without motestatus exists for personident") {
+            every { mockKafkaConsumerDialogmoteStatusendring.poll(any<Duration>()) } returns ConsumerRecords(
+                mapOf(
+                    dialogmoteStatusendringTopicPartition to listOf(
+                        kafkaDialogmoteStatusendringTodayConsumerRecord,
                     )
                 )
+            )
 
-                runBlocking {
-                    kafkaDialogmoteStatusendringService.pollAndProcessRecords(kafkaConsumer = mockKafkaConsumerDialogmoteStatusendring)
-                }
+            val kafkaOppfolgingstilfellePerson = generateKafkaOppfolgingstilfellePerson()
+            val kafkaOppfolgingstilfelle = kafkaOppfolgingstilfellePerson.oppfolgingstilfelleList.first()
+            database.createPersonOversiktStatus(
+                personOversiktStatus = kafkaOppfolgingstilfellePerson.toPersonOversiktStatus(kafkaOppfolgingstilfelle)
+            )
 
-                verify(exactly = 1) {
-                    mockKafkaConsumerDialogmoteStatusendring.commitSync()
-                }
-
-                val pPersonOversiktStatusList =
-                    database.connection.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
-
-                pPersonOversiktStatusList.size shouldBeEqualTo 1
-
-                val pPersonOversiktStatus = pPersonOversiktStatusList.first()
-
-                pPersonOversiktStatus.fnr shouldBeEqualTo kafkaDialogmoteStatusendringToday.getPersonIdent()
-                pPersonOversiktStatus.motestatus shouldBeEqualTo kafkaDialogmoteStatusendringToday.getStatusEndringType()
-                pPersonOversiktStatus.motestatusGeneratedAt.shouldNotBeNull()
-
-                pPersonOversiktStatus.dialogmotekandidat.shouldBeNull()
-                pPersonOversiktStatus.enhet.shouldBeNull()
-                pPersonOversiktStatus.veilederIdent.shouldBeNull()
-                pPersonOversiktStatus.motebehovUbehandlet.shouldBeNull()
-                pPersonOversiktStatus.oppfolgingsplanLPSBistandUbehandlet.shouldBeNull()
+            runBlocking {
+                kafkaDialogmoteStatusendringService.pollAndProcessRecords(kafkaConsumer = mockKafkaConsumerDialogmoteStatusendring)
             }
-            it("updates existing PersonOversikStatus when PersonOversiktStatus without motestatus exists for personident") {
-                every { mockKafkaConsumerDialogmoteStatusendring.poll(any<Duration>()) } returns ConsumerRecords(
-                    mapOf(
-                        dialogmoteStatusendringTopicPartition to listOf(
-                            kafkaDialogmoteStatusendringTodayConsumerRecord,
-                        )
+
+            verify(exactly = 1) {
+                mockKafkaConsumerDialogmoteStatusendring.commitSync()
+            }
+
+            val pPersonOversiktStatusList =
+                database.connection.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
+
+            pPersonOversiktStatusList.size shouldBeEqualTo 1
+            val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+            pPersonOversiktStatus.oppfolgingstilfelleGeneratedAt.shouldNotBeNull()
+            pPersonOversiktStatus.oppfolgingstilfelleBitReferanseUuid.shouldNotBeNull()
+
+            pPersonOversiktStatus.fnr shouldBeEqualTo kafkaDialogmoteStatusendringToday.getPersonIdent()
+            pPersonOversiktStatus.motestatus shouldBeEqualTo kafkaDialogmoteStatusendringToday.getStatusEndringType()
+            pPersonOversiktStatus.motestatusGeneratedAt.shouldNotBeNull()
+        }
+        it("updates PersonOversiktStatus if received motestatus-endring created after existing PersonOversiktStatus-motestatus") {
+            every { mockKafkaConsumerDialogmoteStatusendring.poll(any<Duration>()) } returns ConsumerRecords(
+                mapOf(
+                    dialogmoteStatusendringTopicPartition to listOf(
+                        kafkaDialogmoteStatusendringTodayConsumerRecord,
                     )
                 )
+            )
 
-                val kafkaOppfolgingstilfellePerson = generateKafkaOppfolgingstilfellePerson()
-                val kafkaOppfolgingstilfelle = kafkaOppfolgingstilfellePerson.oppfolgingstilfelleList.first()
-                database.createPersonOversiktStatus(
-                    personOversiktStatus = kafkaOppfolgingstilfellePerson.toPersonOversiktStatus(kafkaOppfolgingstilfelle)
-                )
+            val existingPersonOversiktStatus = DialogmoteStatusendring.create(
+                kafkaDialogmoteStatusEndring = kafkaDialogmoteStatusendringLastYear
+            ).toPersonOversiktStatus()
+            database.createPersonOversiktStatus(
+                personOversiktStatus = existingPersonOversiktStatus
+            )
 
-                runBlocking {
-                    kafkaDialogmoteStatusendringService.pollAndProcessRecords(kafkaConsumer = mockKafkaConsumerDialogmoteStatusendring)
-                }
-
-                verify(exactly = 1) {
-                    mockKafkaConsumerDialogmoteStatusendring.commitSync()
-                }
-
-                val pPersonOversiktStatusList =
-                    database.connection.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
-
-                pPersonOversiktStatusList.size shouldBeEqualTo 1
-                val pPersonOversiktStatus = pPersonOversiktStatusList.first()
-                pPersonOversiktStatus.oppfolgingstilfelleGeneratedAt.shouldNotBeNull()
-                pPersonOversiktStatus.oppfolgingstilfelleBitReferanseUuid.shouldNotBeNull()
-
-                pPersonOversiktStatus.fnr shouldBeEqualTo kafkaDialogmoteStatusendringToday.getPersonIdent()
-                pPersonOversiktStatus.motestatus shouldBeEqualTo kafkaDialogmoteStatusendringToday.getStatusEndringType()
-                pPersonOversiktStatus.motestatusGeneratedAt.shouldNotBeNull()
+            runBlocking {
+                kafkaDialogmoteStatusendringService.pollAndProcessRecords(kafkaConsumer = mockKafkaConsumerDialogmoteStatusendring)
             }
-            it("updates PersonOversiktStatus if received motestatus-endring created after existing PersonOversiktStatus-motestatus") {
-                every { mockKafkaConsumerDialogmoteStatusendring.poll(any<Duration>()) } returns ConsumerRecords(
-                    mapOf(
-                        dialogmoteStatusendringTopicPartition to listOf(
-                            kafkaDialogmoteStatusendringTodayConsumerRecord,
-                        )
+
+            verify(exactly = 1) {
+                mockKafkaConsumerDialogmoteStatusendring.commitSync()
+            }
+
+            val pPersonOversiktStatusList =
+                database.connection.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
+
+            pPersonOversiktStatusList.size shouldBeEqualTo 1
+            val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+
+            pPersonOversiktStatus.fnr shouldBeEqualTo kafkaDialogmoteStatusendringToday.getPersonIdent()
+            pPersonOversiktStatus.motestatus shouldBeEqualTo kafkaDialogmoteStatusendringToday.getStatusEndringType()
+            pPersonOversiktStatus.motestatusGeneratedAt.shouldNotBeNull()
+        }
+        it("do not update PersonOversiktStatus if received motestatus-endring created before existing PersonOversiktStatus-motestatus") {
+            every { mockKafkaConsumerDialogmoteStatusendring.poll(any<Duration>()) } returns ConsumerRecords(
+                mapOf(
+                    dialogmoteStatusendringTopicPartition to listOf(
+                        kafkaDialogmoteStatusendringLastYearConsumerRecord,
                     )
                 )
+            )
 
-                val existingPersonOversiktStatus = DialogmoteStatusendring.create(
-                    kafkaDialogmoteStatusEndring = kafkaDialogmoteStatusendringLastYear
-                ).toPersonOversiktStatus()
-                database.createPersonOversiktStatus(
-                    personOversiktStatus = existingPersonOversiktStatus
-                )
+            val existingPersonOversiktStatus = DialogmoteStatusendring.create(
+                kafkaDialogmoteStatusEndring = kafkaDialogmoteStatusendringToday
+            ).toPersonOversiktStatus()
+            database.createPersonOversiktStatus(
+                personOversiktStatus = existingPersonOversiktStatus
+            )
 
-                runBlocking {
-                    kafkaDialogmoteStatusendringService.pollAndProcessRecords(kafkaConsumer = mockKafkaConsumerDialogmoteStatusendring)
-                }
-
-                verify(exactly = 1) {
-                    mockKafkaConsumerDialogmoteStatusendring.commitSync()
-                }
-
-                val pPersonOversiktStatusList =
-                    database.connection.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
-
-                pPersonOversiktStatusList.size shouldBeEqualTo 1
-                val pPersonOversiktStatus = pPersonOversiktStatusList.first()
-
-                pPersonOversiktStatus.fnr shouldBeEqualTo kafkaDialogmoteStatusendringToday.getPersonIdent()
-                pPersonOversiktStatus.motestatus shouldBeEqualTo kafkaDialogmoteStatusendringToday.getStatusEndringType()
-                pPersonOversiktStatus.motestatusGeneratedAt.shouldNotBeNull()
+            runBlocking {
+                kafkaDialogmoteStatusendringService.pollAndProcessRecords(kafkaConsumer = mockKafkaConsumerDialogmoteStatusendring)
             }
-            it("do not update PersonOversiktStatus if received motestatus-endring created before existing PersonOversiktStatus-motestatus") {
-                every { mockKafkaConsumerDialogmoteStatusendring.poll(any<Duration>()) } returns ConsumerRecords(
-                    mapOf(
-                        dialogmoteStatusendringTopicPartition to listOf(
-                            kafkaDialogmoteStatusendringLastYearConsumerRecord,
-                        )
-                    )
-                )
 
-                val existingPersonOversiktStatus = DialogmoteStatusendring.create(
-                    kafkaDialogmoteStatusEndring = kafkaDialogmoteStatusendringToday
-                ).toPersonOversiktStatus()
-                database.createPersonOversiktStatus(
-                    personOversiktStatus = existingPersonOversiktStatus
-                )
-
-                runBlocking {
-                    kafkaDialogmoteStatusendringService.pollAndProcessRecords(kafkaConsumer = mockKafkaConsumerDialogmoteStatusendring)
-                }
-
-                verify(exactly = 1) {
-                    mockKafkaConsumerDialogmoteStatusendring.commitSync()
-                }
-
-                val pPersonOversiktStatusList =
-                    database.connection.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
-
-                pPersonOversiktStatusList.size shouldBeEqualTo 1
-                val pPersonOversiktStatus = pPersonOversiktStatusList.first()
-
-                pPersonOversiktStatus.fnr shouldBeEqualTo kafkaDialogmoteStatusendringToday.getPersonIdent()
-                pPersonOversiktStatus.motestatus shouldBeEqualTo kafkaDialogmoteStatusendringToday.getStatusEndringType()
-                pPersonOversiktStatus.motestatusGeneratedAt.shouldNotBeNull()
+            verify(exactly = 1) {
+                mockKafkaConsumerDialogmoteStatusendring.commitSync()
             }
+
+            val pPersonOversiktStatusList =
+                database.connection.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
+
+            pPersonOversiktStatusList.size shouldBeEqualTo 1
+            val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+
+            pPersonOversiktStatus.fnr shouldBeEqualTo kafkaDialogmoteStatusendringToday.getPersonIdent()
+            pPersonOversiktStatus.motestatus shouldBeEqualTo kafkaDialogmoteStatusendringToday.getStatusEndringType()
+            pPersonOversiktStatus.motestatusGeneratedAt.shouldNotBeNull()
         }
     }
 })

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import io.ktor.util.*
+import io.ktor.utils.io.*
 import io.mockk.clearMocks
 import io.mockk.every
 import kotlinx.coroutines.runBlocking

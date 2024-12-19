@@ -19,7 +19,6 @@ import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import java.time.OffsetDateTime
 
-@InternalAPI
 object DialogmotekandidatPersonoversiktStatusApiV2Spek : Spek({
     val objectMapper: ObjectMapper = configuredJacksonMapper()
 

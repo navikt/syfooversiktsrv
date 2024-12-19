@@ -67,12 +67,3 @@ fun createPersonoversiktStatusWithTilfelle(database: TestDatabase) {
         personOversiktStatus = kafkaOppfolgingstilfellePerson.toPersonOversiktStatus(kafkaOppfolgingstilfelle)
     )
 }
-
-fun setupExternalMockEnvironment(application: Application): ExternalMockEnvironment {
-    val externalMockEnvironment = ExternalMockEnvironment.instance
-
-    application.testApiModule(
-        externalMockEnvironment = externalMockEnvironment
-    )
-    return externalMockEnvironment
-}
