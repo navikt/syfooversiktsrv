@@ -17,7 +17,6 @@ import org.spekframework.spek2.style.specification.describe
 import java.time.OffsetDateTime
 
 object DialogmotekandidatPersonoversiktStatusApiV2Spek : Spek({
-
     describe("Get dialogmotekandidater from personoversiktstatus") {
 
         val externalMockEnvironment = ExternalMockEnvironment.instance
@@ -48,6 +47,7 @@ object DialogmotekandidatPersonoversiktStatusApiV2Spek : Spek({
                     response.status shouldBeEqualTo HttpStatusCode.NoContent
                 }
             }
+
             it("return NoContent for a person with a tilfelle, who is kandidat, but it's historic") {
                 testApplication {
                     val client = setupApiAndClient()
@@ -60,6 +60,7 @@ object DialogmotekandidatPersonoversiktStatusApiV2Spek : Spek({
                     response.status shouldBeEqualTo HttpStatusCode.NoContent
                 }
             }
+
             it("return NoContent for a person with a tilfelle, who is kandidat, but the delay of 7 days has NOT passed") {
                 testApplication {
                     val client = setupApiAndClient()
@@ -72,6 +73,7 @@ object DialogmotekandidatPersonoversiktStatusApiV2Spek : Spek({
                     response.status shouldBeEqualTo HttpStatusCode.NoContent
                 }
             }
+
             it("returns kandidat if they have a tilfelle, is kandidat, and a delay of 7 days has passed") {
                 testApplication {
                     val client = setupApiAndClient()
@@ -82,7 +84,6 @@ object DialogmotekandidatPersonoversiktStatusApiV2Spek : Spek({
                         bearerAuth(validToken)
                     }
                     response.status shouldBeEqualTo HttpStatusCode.OK
-
                     val personOversiktStatus = response.body<List<PersonOversiktStatusDTO>>().first()
                     personOversiktStatus.shouldNotBeNull()
                     personOversiktStatus.veilederIdent shouldBeEqualTo null
@@ -95,6 +96,7 @@ object DialogmotekandidatPersonoversiktStatusApiV2Spek : Spek({
                     personOversiktStatus.aktivitetskravvurdering.shouldBeNull()
                 }
             }
+
             it("returns person who is kandidat if they have a tilfelle, is kandidat, and a cancelled dm2") {
                 testApplication {
                     val client = setupApiAndClient()
@@ -106,7 +108,6 @@ object DialogmotekandidatPersonoversiktStatusApiV2Spek : Spek({
                         bearerAuth(validToken)
                     }
                     response.status shouldBeEqualTo HttpStatusCode.OK
-
                     val personOversiktStatus = response.body<List<PersonOversiktStatusDTO>>().first()
                     personOversiktStatus.shouldNotBeNull()
                     personOversiktStatus.veilederIdent shouldBeEqualTo null

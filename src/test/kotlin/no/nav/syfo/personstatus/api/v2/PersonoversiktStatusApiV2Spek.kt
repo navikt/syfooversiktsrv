@@ -1,8 +1,11 @@
 package no.nav.syfo.personstatus.api.v2
 
+import io.ktor.client.*
 import io.ktor.client.call.*
+import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.http.*
+import io.ktor.serialization.jackson.*
 import io.ktor.server.testing.*
 import io.mockk.clearMocks
 import io.mockk.every
@@ -36,13 +39,11 @@ import java.time.*
 import java.util.*
 
 object PersonoversiktStatusApiV2Spek : Spek({
-
     describe("PersonoversiktApi") {
 
         val externalMockEnvironment = ExternalMockEnvironment.instance
         val database = externalMockEnvironment.database
         val personOversiktStatusRepository = externalMockEnvironment.personOversiktStatusRepository
-
         val internalMockEnvironment = InternalMockEnvironment.instance
 
         val personOppfolgingstilfelleVirksomhetnavnCronjob =
@@ -369,7 +370,6 @@ object PersonoversiktStatusApiV2Spek : Spek({
 
                     val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR)
                     personOversiktStatusRepository.lagreVeilederForBruker(tilknytning, VEILEDER_ID)
-
                     val response = client.get(url) {
                         bearerAuth(validToken)
                     }
@@ -423,7 +423,6 @@ object PersonoversiktStatusApiV2Spek : Spek({
 
                     val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR)
                     personOversiktStatusRepository.lagreVeilederForBruker(tilknytning, VEILEDER_ID)
-
                     val response = client.get(url) {
                         bearerAuth(validToken)
                     }
@@ -462,7 +461,6 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         ident = PersonIdent(ARBEIDSTAKER_FNR),
                         enhet = NAV_ENHET,
                     )
-
                     val response = client.get(url) {
                         bearerAuth(validToken)
                     }
@@ -511,7 +509,6 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo false
                     personOversiktStatus.dialogmotekandidat.shouldBeNull()
                     personOversiktStatus.motestatus.shouldBeNull()
-
                     personOversiktStatus.latestOppfolgingstilfelle.shouldBeNull()
                 }
             }
@@ -599,7 +596,6 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         setTildeltEnhet(personident, NAV_ENHET)
                         setFriskmeldingTilArbeidsformidlingFom(personident, today)
                     }
-
                     val response = client.get(url) {
                         bearerAuth(validToken)
                     }
@@ -875,10 +871,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         val newPersonOversiktStatus = PersonOversiktStatus(fnr = ARBEIDSTAKER_FNR)
                             .copy(isAktivManglendeMedvirkningVurdering = true)
                         database.connection.use { connection ->
-                            connection.createPersonOversiktStatus(
-                                commit = true,
-                                personOversiktStatus = newPersonOversiktStatus
-                            )
+                            connection.createPersonOversiktStatus(commit = true, personOversiktStatus = newPersonOversiktStatus)
                         }
                         database.setTildeltEnhet(
                             ident = PersonIdent(ARBEIDSTAKER_FNR),

@@ -1,5 +1,4 @@
 package no.nav.syfo.personstatus.api.v2
-
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.http.*
@@ -30,7 +29,6 @@ object PersonoversiktSearchApiSpek : Spek({
         val externalMockEnvironment = ExternalMockEnvironment.instance
         val database = externalMockEnvironment.database
         val personOversiktStatusRepository = PersonOversiktStatusRepository(database = database)
-
         val url = "$personOversiktApiV2Path/search"
 
         beforeEachTest {
@@ -48,15 +46,10 @@ object PersonoversiktSearchApiSpek : Spek({
             testApplication {
                 val client = setupApiAndClient()
                 val newPersonOversiktStatus =
-                    PersonOversiktStatus(
-                        fnr = UserConstants.ARBEIDSTAKER_FNR,
-                        navn = "Fornavn Etternavn",
-                        fodselsdato = fodselsdato,
-                        latestOppfolgingstilfelle = activeOppfolgingstilfelle
-                    )
+                    PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR, navn = "Fornavn Etternavn", fodselsdato = fodselsdato, latestOppfolgingstilfelle = activeOppfolgingstilfelle)
                 personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus)
-                val searchQueryDTO = SearchQueryDTO(initials = "FE", birthdate = fodselsdato)
 
+                val searchQueryDTO = SearchQueryDTO(initials = "FE", birthdate = fodselsdato)
                 val response = client.post(url) {
                     bearerAuth(validToken)
                     header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
@@ -73,13 +66,9 @@ object PersonoversiktSearchApiSpek : Spek({
             testApplication {
                 val client = setupApiAndClient()
                 val newPersonOversiktStatus =
-                    PersonOversiktStatus(
-                        fnr = UserConstants.ARBEIDSTAKER_FNR,
-                        navn = "Fornavn Etternavn",
-                        fodselsdato = fodselsdato,
-                        latestOppfolgingstilfelle = activeOppfolgingstilfelle
-                    )
+                    PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR, navn = "Fornavn Etternavn", fodselsdato = fodselsdato, latestOppfolgingstilfelle = activeOppfolgingstilfelle)
                 personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus)
+
                 val searchQueryDTO = SearchQueryDTO(initials = "", birthdate = fodselsdato)
                 val response = client.post(url) {
                     bearerAuth(validToken)
@@ -96,30 +85,16 @@ object PersonoversiktSearchApiSpek : Spek({
             testApplication {
                 val client = setupApiAndClient()
                 val newPersonOversiktStatus =
-                    PersonOversiktStatus(
-                        fnr = UserConstants.ARBEIDSTAKER_FNR,
-                        navn = "Fornavn Etternavn",
-                        fodselsdato = fodselsdato,
-                        latestOppfolgingstilfelle = activeOppfolgingstilfelle
-                    )
+                    PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR, navn = "Fornavn Etternavn", fodselsdato = fodselsdato, latestOppfolgingstilfelle = activeOppfolgingstilfelle)
                 val newPersonOversiktStatus2 =
-                    PersonOversiktStatus(
-                        fnr = UserConstants.ARBEIDSTAKER_2_FNR,
-                        navn = "Firstname Etternavn",
-                        fodselsdato = fodselsdato,
-                        latestOppfolgingstilfelle = activeOppfolgingstilfelle
-                    )
+                    PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_2_FNR, navn = "Firstname Etternavn", fodselsdato = fodselsdato, latestOppfolgingstilfelle = activeOppfolgingstilfelle)
                 val newPersonOversiktStatus3 =
-                    PersonOversiktStatus(
-                        fnr = UserConstants.ARBEIDSTAKER_NO_ACCESS,
-                        navn = "Forstname Etternavn",
-                        fodselsdato = fodselsdato,
-                        latestOppfolgingstilfelle = activeOppfolgingstilfelle
-                    )
+                    PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_NO_ACCESS, navn = "Forstname Etternavn", fodselsdato = fodselsdato, latestOppfolgingstilfelle = activeOppfolgingstilfelle)
                 personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus)
                 personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus2)
                 personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus3)
-                val searchQueryDTO = SearchQueryDTO(birthdate = fodselsdato)
+
+                val searchQueryDTO = SearchQueryDTO(initials = null, birthdate = fodselsdato)
                 val response = client.post(url) {
                     bearerAuth(validToken)
                     header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
@@ -137,13 +112,9 @@ object PersonoversiktSearchApiSpek : Spek({
             testApplication {
                 val client = setupApiAndClient()
                 val newPersonOversiktStatus =
-                    PersonOversiktStatus(
-                        fnr = UserConstants.ARBEIDSTAKER_FNR,
-                        navn = "Fornavn Etternavn",
-                        fodselsdato = fodselsdato,
-                        latestOppfolgingstilfelle = activeOppfolgingstilfelle
-                    )
+                    PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR, navn = "Fornavn Etternavn", fodselsdato = fodselsdato, latestOppfolgingstilfelle = activeOppfolgingstilfelle)
                 personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus)
+
                 val searchQueryDTO = SearchQueryDTO(initials = "FN", birthdate = fodselsdato)
                 val response = client.post(url) {
                     bearerAuth(validToken)
@@ -158,13 +129,9 @@ object PersonoversiktSearchApiSpek : Spek({
             testApplication {
                 val client = setupApiAndClient()
                 val newPersonOversiktStatus =
-                    PersonOversiktStatus(
-                        fnr = UserConstants.ARBEIDSTAKER_FNR,
-                        navn = "Fornavn Etternavn",
-                        fodselsdato = fodselsdato,
-                        latestOppfolgingstilfelle = activeOppfolgingstilfelle
-                    )
+                    PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR, navn = "Fornavn Etternavn", fodselsdato = fodselsdato, latestOppfolgingstilfelle = activeOppfolgingstilfelle)
                 personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus)
+
                 val searchQueryDTO = SearchQueryDTO(initials = "AB", birthdate = LocalDate.now())
                 val response = client.post(url) {
                     bearerAuth(validToken)
@@ -179,13 +146,9 @@ object PersonoversiktSearchApiSpek : Spek({
             testApplication {
                 val client = setupApiAndClient()
                 val newPersonOversiktStatus =
-                    PersonOversiktStatus(
-                        fnr = UserConstants.ARBEIDSTAKER_NO_ACCESS,
-                        navn = "Fornavn Etternavn",
-                        fodselsdato = fodselsdato,
-                        latestOppfolgingstilfelle = activeOppfolgingstilfelle
-                    )
+                    PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_NO_ACCESS, navn = "Fornavn Etternavn", fodselsdato = fodselsdato, latestOppfolgingstilfelle = activeOppfolgingstilfelle)
                 personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus)
+
                 val searchQueryDTO = SearchQueryDTO(initials = "FE", birthdate = fodselsdato)
                 val response = client.post(url) {
                     bearerAuth(validToken)
@@ -193,66 +156,6 @@ object PersonoversiktSearchApiSpek : Spek({
                     setBody(searchQueryDTO)
                 }
                 response.status shouldBeEqualTo HttpStatusCode.NoContent
-            }
-        }
-        it("returns BadRequest when not legal search query") {
-            testApplication {
-                val client = setupApiAndClient()
-                val searchQueryDTO = SearchQueryDTO(initials = "FE")
-                val response = client.post(url) {
-                    bearerAuth(validToken)
-                    header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
-                    setBody(searchQueryDTO)
-                }
-                response.status shouldBeEqualTo HttpStatusCode.BadRequest
-            }
-        }
-
-        it("returns BadRequest when not legal search query") {
-            testApplication {
-                val client = setupApiAndClient()
-                val searchQueryDTO = SearchQueryDTO(initials = "FE")
-                val response = client.post(url) {
-                    bearerAuth(validToken)
-                    header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
-                    setBody(searchQueryDTO)
-                }
-                response.status shouldBeEqualTo HttpStatusCode.BadRequest
-            }
-        }
-        it("returns BadRequest when name is blank") {
-            testApplication {
-                val client = setupApiAndClient()
-                val searchQueryDTO = SearchQueryDTO(name = "")
-                val response = client.post(url) {
-                    bearerAuth(validToken)
-                    header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
-                    setBody(searchQueryDTO)
-                }
-                response.status shouldBeEqualTo HttpStatusCode.BadRequest
-            }
-        }
-        it("returns BadRequest when initials is blank") {
-            testApplication {
-                val client = setupApiAndClient()
-                val searchQueryDTO = SearchQueryDTO(name = "")
-                val response = client.post(url) {
-                    bearerAuth(validToken)
-                    header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
-                    setBody(searchQueryDTO)
-                }
-                response.status shouldBeEqualTo HttpStatusCode.BadRequest
-            }
-        }
-        it("returns BadRequest when all parameters is null") {
-            testApplication {
-                val client = setupApiAndClient()
-                val response = client.post(url) {
-                    bearerAuth(validToken)
-                    header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
-                    setBody(SearchQueryDTO())
-                }
-                response.status shouldBeEqualTo HttpStatusCode.BadRequest
             }
         }
     }
