@@ -1,6 +1,5 @@
 package no.nav.syfo.cronjob.reaper
 
-import io.ktor.server.testing.*
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.personstatus.db.getPersonOversiktStatusList
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
