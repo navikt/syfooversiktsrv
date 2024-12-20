@@ -1,10 +1,8 @@
 package no.nav.syfo.personstatus.api.v2
 
 import io.ktor.client.call.*
-import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import io.ktor.serialization.jackson.*
 import io.ktor.server.testing.*
 import io.mockk.clearMocks
 import io.mockk.every

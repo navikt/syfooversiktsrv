@@ -1,6 +1,5 @@
 package no.nav.syfo.cronjob.preloadcache
 
-import io.ktor.server.testing.*
 import io.mockk.*
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.personstatus.infrastructure.clients.veiledertilgang.VeilederTilgangskontrollClient

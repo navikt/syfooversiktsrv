@@ -1,6 +1,5 @@
 package no.nav.syfo.testutil.database
 
-import io.ktor.server.application.*
 import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendring
 import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendringType
 import no.nav.syfo.personstatus.domain.PersonIdent
