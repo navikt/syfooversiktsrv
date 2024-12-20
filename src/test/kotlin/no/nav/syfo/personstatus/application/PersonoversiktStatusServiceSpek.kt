@@ -20,7 +20,6 @@ class PersonoversiktStatusServiceSpek : Spek({
         val externalMockEnvironment = ExternalMockEnvironment.instance
         val database = externalMockEnvironment.database
         val personOversiktStatusRepository = externalMockEnvironment.personOversiktStatusRepository
-
         val personoversiktStatusService = externalMockEnvironment.personoversiktStatusService
 
         beforeEachTest { database.dropData() }

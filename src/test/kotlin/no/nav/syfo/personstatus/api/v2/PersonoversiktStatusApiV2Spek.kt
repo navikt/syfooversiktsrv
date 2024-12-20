@@ -1,6 +1,5 @@
 package no.nav.syfo.personstatus.api.v2
 
-import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
