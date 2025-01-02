@@ -1,6 +1,5 @@
 package no.nav.syfo.testutil.database
 
-import io.ktor.server.application.*
 import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendring
 import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendringType
 import no.nav.syfo.personstatus.domain.PersonIdent
@@ -66,13 +65,4 @@ fun createPersonoversiktStatusWithTilfelle(database: TestDatabase) {
     database.createPersonOversiktStatus(
         personOversiktStatus = kafkaOppfolgingstilfellePerson.toPersonOversiktStatus(kafkaOppfolgingstilfelle)
     )
-}
-
-fun setupExternalMockEnvironment(application: Application): ExternalMockEnvironment {
-    val externalMockEnvironment = ExternalMockEnvironment.instance
-
-    application.testApiModule(
-        externalMockEnvironment = externalMockEnvironment
-    )
-    return externalMockEnvironment
 }

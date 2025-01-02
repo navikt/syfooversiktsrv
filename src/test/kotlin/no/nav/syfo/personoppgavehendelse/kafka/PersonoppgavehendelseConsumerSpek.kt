@@ -1,6 +1,5 @@
 package no.nav.syfo.personoppgavehendelse.kafka
 
-import io.ktor.util.*
 import io.mockk.every
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.personstatus.domain.*
@@ -14,7 +13,6 @@ import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import java.time.Duration
 
-@InternalAPI
 object PersonoppgavehendelseServiceSpek : Spek({
 
     describe("Add personoppgavehendelser in syfooversikt") {

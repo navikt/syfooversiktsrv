@@ -1,6 +1,5 @@
 package no.nav.syfo.cronjob.preloadcache
 
-import io.ktor.server.testing.*
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.personstatus.infrastructure.clients.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
@@ -13,75 +12,70 @@ import org.spekframework.spek2.style.specification.describe
 import java.time.*
 
 object PreloadCacheCronjobSpek : Spek({
+    val externalMockEnvironment = ExternalMockEnvironment.instance
+    val database = externalMockEnvironment.database
+    val azureAdClient = AzureAdClient(
+        azureEnvironment = externalMockEnvironment.environment.azure,
+        redisStore = externalMockEnvironment.redisStore,
+        httpClient = externalMockEnvironment.mockHttpClient
+    )
 
-    with(TestApplicationEngine()) {
-        start()
-
-        val externalMockEnvironment = ExternalMockEnvironment.instance
-        val database = externalMockEnvironment.database
-        val azureAdClient = AzureAdClient(
-            azureEnvironment = externalMockEnvironment.environment.azure,
-            redisStore = externalMockEnvironment.redisStore,
+    val preloadCacheCronjob = PreloadCacheCronjob(
+        database = database,
+        tilgangskontrollClient = VeilederTilgangskontrollClient(
+            azureAdClient = azureAdClient,
+            istilgangskontrollEnv = externalMockEnvironment.environment.clients.istilgangskontroll,
             httpClient = externalMockEnvironment.mockHttpClient
-        )
+        ),
+    )
 
-        val preloadCacheCronjob = PreloadCacheCronjob(
-            database = database,
-            tilgangskontrollClient = VeilederTilgangskontrollClient(
-                azureAdClient = azureAdClient,
-                istilgangskontrollEnv = externalMockEnvironment.environment.clients.istilgangskontroll,
-                httpClient = externalMockEnvironment.mockHttpClient
-            ),
-        )
+    describe(PreloadCacheCronjobSpek::class.java.simpleName) {
+        describe("Successful processing") {
+            afterEachTest {
+                database.dropData()
+            }
 
-        describe(PreloadCacheCronjobSpek::class.java.simpleName) {
-            describe("Successful processing") {
-                afterEachTest {
-                    database.dropData()
+            it("Initial run when restart before 6") {
+                val initalDelay = preloadCacheCronjob.calculateInitialDelay(
+                    LocalDateTime.of(LocalDate.now(), LocalTime.of(4, 0))
+                )
+                initalDelay shouldBeEqualTo 2 * 60
+            }
+            it("Initial run when restart after 6") {
+                val initalDelay = preloadCacheCronjob.calculateInitialDelay(
+                    LocalDateTime.of(LocalDate.now(), LocalTime.of(7, 0))
+                )
+                initalDelay shouldBeEqualTo 23 * 60
+            }
+            it("should cache persons in enhetens oversikt") {
+                database.createPersonOversiktStatus(generatePersonOversiktStatus())
+
+                runBlocking {
+                    val result = preloadCacheCronjob.runJob()
+
+                    result.failed shouldBeEqualTo 0
+                    result.updated shouldBeEqualTo 1
                 }
-
-                it("Initial run when restart before 6") {
-                    val initalDelay = preloadCacheCronjob.calculateInitialDelay(
-                        LocalDateTime.of(LocalDate.now(), LocalTime.of(4, 0))
+            }
+            it("should tolerate errors when caching persons in enhetens oversikt") {
+                database.createPersonOversiktStatus(
+                    generatePersonOversiktStatus(
+                        fnr = UserConstants.ARBEIDSTAKER_4_FNR_WITH_ERROR,
+                        enhet = UserConstants.NAV_ENHET,
                     )
-                    initalDelay shouldBeEqualTo 2 * 60
-                }
-                it("Initial run when restart after 6") {
-                    val initalDelay = preloadCacheCronjob.calculateInitialDelay(
-                        LocalDateTime.of(LocalDate.now(), LocalTime.of(7, 0))
+                )
+                database.createPersonOversiktStatus(
+                    generatePersonOversiktStatus(
+                        fnr = UserConstants.ARBEIDSTAKER_FNR,
+                        enhet = UserConstants.NAV_ENHET_2,
                     )
-                    initalDelay shouldBeEqualTo 23 * 60
-                }
-                it("should cache persons in enhetens oversikt") {
-                    database.createPersonOversiktStatus(generatePersonOversiktStatus())
+                )
 
-                    runBlocking {
-                        val result = preloadCacheCronjob.runJob()
+                runBlocking {
+                    val result = preloadCacheCronjob.runJob()
 
-                        result.failed shouldBeEqualTo 0
-                        result.updated shouldBeEqualTo 1
-                    }
-                }
-                it("should tolerate errors when caching persons in enhetens oversikt") {
-                    database.createPersonOversiktStatus(
-                        generatePersonOversiktStatus(
-                            fnr = UserConstants.ARBEIDSTAKER_4_FNR_WITH_ERROR,
-                            enhet = UserConstants.NAV_ENHET,
-                        )
-                    )
-                    database.createPersonOversiktStatus(
-                        generatePersonOversiktStatus(
-                            fnr = UserConstants.ARBEIDSTAKER_FNR,
-                            enhet = UserConstants.NAV_ENHET_2,
-                        )
-                    )
-
-                    runBlocking {
-                        val result = preloadCacheCronjob.runJob()
-
-                        result.failed shouldBeEqualTo 1
-                        result.updated shouldBeEqualTo 1
-                    }
+                    result.failed shouldBeEqualTo 1
+                    result.updated shouldBeEqualTo 1
                 }
             }
         }

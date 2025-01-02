@@ -1,6 +1,5 @@
 package no.nav.syfo.pdlpersonhendelse
 
-import io.ktor.server.testing.*
 import kotlinx.coroutines.*
 import no.nav.syfo.personstatus.db.createPersonOversiktStatus
 import no.nav.syfo.personstatus.db.getPersonOversiktStatusList
@@ -16,72 +15,67 @@ import org.spekframework.spek2.style.specification.describe
 object PersonhendelseServiceSpek : Spek({
 
     describe(PersonhendelseServiceSpek::class.java.simpleName) {
+        val externalMockEnvironment = ExternalMockEnvironment.instance
+        val database = externalMockEnvironment.database
 
-        with(TestApplicationEngine()) {
-            start()
+        val pdlPersonhendelseService = PdlPersonhendelseService(
+            database = database,
+        )
 
-            val externalMockEnvironment = ExternalMockEnvironment.instance
-            val database = externalMockEnvironment.database
+        beforeEachTest {
+            database.dropData()
+        }
 
-            val pdlPersonhendelseService = PdlPersonhendelseService(
-                database = database,
-            )
+        describe("Happy path") {
+            it("Skal sette navn til NULL når person har fått nytt navn") {
+                val kafkaPersonhendelse = generateKafkaPersonhendelse()
+                val ident = kafkaPersonhendelse.personidenter.first()
 
-            beforeEachTest {
-                database.dropData()
+                val newPersonOversiktStatus = PersonOversiktStatus(
+                    fnr = ident
+                ).copy(
+                    navn = "Testnavn"
+                )
+                database.connection.use { connection ->
+                    connection.createPersonOversiktStatus(
+                        commit = true,
+                        personOversiktStatus = newPersonOversiktStatus,
+                    )
+                }
+
+                runBlocking {
+                    pdlPersonhendelseService.handlePersonhendelse(kafkaPersonhendelse)
+                }
+
+                val updatedPersonOversiktStatus = database.getPersonOversiktStatusList(ident)
+                updatedPersonOversiktStatus.size shouldBeEqualTo 1
+                updatedPersonOversiktStatus.first().navn shouldBeEqualTo null
             }
 
-            describe("Happy path") {
-                it("Skal sette navn til NULL når person har fått nytt navn") {
-                    val kafkaPersonhendelse = generateKafkaPersonhendelse()
-                    val ident = kafkaPersonhendelse.personidenter.first()
+            it("Skal håndtere ugyldige personidenter") {
+                val kafkaPersonhendelse = generateKafkaPersonhendelse()
+                kafkaPersonhendelse.put("personidenter", listOf("123"))
+                val ident = kafkaPersonhendelse.personidenter.first()
 
-                    val newPersonOversiktStatus = PersonOversiktStatus(
-                        fnr = ident
-                    ).copy(
-                        navn = "Testnavn"
+                val newPersonOversiktStatus = PersonOversiktStatus(
+                    fnr = ident
+                ).copy(
+                    navn = "Testnavn"
+                )
+                database.connection.use { connection ->
+                    connection.createPersonOversiktStatus(
+                        commit = true,
+                        personOversiktStatus = newPersonOversiktStatus,
                     )
-                    database.connection.use { connection ->
-                        connection.createPersonOversiktStatus(
-                            commit = true,
-                            personOversiktStatus = newPersonOversiktStatus,
-                        )
-                    }
-
-                    runBlocking {
-                        pdlPersonhendelseService.handlePersonhendelse(kafkaPersonhendelse)
-                    }
-
-                    val updatedPersonOversiktStatus = database.getPersonOversiktStatusList(ident)
-                    updatedPersonOversiktStatus.size shouldBeEqualTo 1
-                    updatedPersonOversiktStatus.first().navn shouldBeEqualTo null
                 }
 
-                it("Skal håndtere ugyldige personidenter") {
-                    val kafkaPersonhendelse = generateKafkaPersonhendelse()
-                    kafkaPersonhendelse.put("personidenter", listOf("123"))
-                    val ident = kafkaPersonhendelse.personidenter.first()
-
-                    val newPersonOversiktStatus = PersonOversiktStatus(
-                        fnr = ident
-                    ).copy(
-                        navn = "Testnavn"
-                    )
-                    database.connection.use { connection ->
-                        connection.createPersonOversiktStatus(
-                            commit = true,
-                            personOversiktStatus = newPersonOversiktStatus,
-                        )
-                    }
-
-                    runBlocking {
-                        pdlPersonhendelseService.handlePersonhendelse(kafkaPersonhendelse)
-                    }
-
-                    val updatedPersonOversiktStatus = database.getPersonOversiktStatusList(ident)
-                    updatedPersonOversiktStatus.size shouldBeEqualTo 1
-                    updatedPersonOversiktStatus.first().navn shouldNotBeEqualTo null
+                runBlocking {
+                    pdlPersonhendelseService.handlePersonhendelse(kafkaPersonhendelse)
                 }
+
+                val updatedPersonOversiktStatus = database.getPersonOversiktStatusList(ident)
+                updatedPersonOversiktStatus.size shouldBeEqualTo 1
+                updatedPersonOversiktStatus.first().navn shouldNotBeEqualTo null
             }
         }
     }

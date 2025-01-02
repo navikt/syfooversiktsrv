@@ -1,10 +1,9 @@
 package no.nav.syfo.personstatus.api.v2
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
+import io.ktor.client.call.*
+import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
-import io.ktor.util.*
 import io.mockk.clearMocks
 import io.mockk.every
 import kotlinx.coroutines.runBlocking
@@ -36,140 +35,132 @@ import org.spekframework.spek2.style.specification.describe
 import java.time.*
 import java.util.*
 
-@InternalAPI
 object PersonoversiktStatusApiV2Spek : Spek({
-    val objectMapper: ObjectMapper = configuredJacksonMapper()
-
     describe("PersonoversiktApi") {
 
-        with(TestApplicationEngine()) {
-            start()
+        val externalMockEnvironment = ExternalMockEnvironment.instance
+        val database = externalMockEnvironment.database
+        val personOversiktStatusRepository = externalMockEnvironment.personOversiktStatusRepository
+        val internalMockEnvironment = InternalMockEnvironment.instance
 
-            val externalMockEnvironment = ExternalMockEnvironment.instance
-            val database = externalMockEnvironment.database
-            val personOversiktStatusRepository = externalMockEnvironment.personOversiktStatusRepository
+        val personOppfolgingstilfelleVirksomhetnavnCronjob =
+            internalMockEnvironment.personOppfolgingstilfelleVirksomhetnavnCronjob
 
-            application.testApiModule(
-                externalMockEnvironment = externalMockEnvironment
+        val personoversiktStatusService = internalMockEnvironment.personoversiktStatusService
+        val oppfolgingstilfelleConsumer = TestKafkaModule.oppfolgingstilfelleConsumer
+
+        val personIdentDefault = PersonIdent(ARBEIDSTAKER_FNR)
+
+        val mockKafkaConsumerOppfolgingstilfellePerson =
+            TestKafkaModule.kafkaConsumerOppfolgingstilfellePerson
+
+        val oppfolgingstilfellePersonTopicPartition = oppfolgingstilfellePersonTopicPartition()
+        val kafkaOppfolgingstilfellePersonRelevant = generateKafkaOppfolgingstilfellePerson(
+            personIdent = personIdentDefault,
+            virksomhetsnummerList = listOf(
+                UserConstants.VIRKSOMHETSNUMMER_DEFAULT,
+                Virksomhetsnummer(VIRKSOMHETSNUMMER_2),
             )
-            val internalMockEnvironment = InternalMockEnvironment.instance
+        )
+        val kafkaOppfolgingstilfellePersonRecordRelevant = oppfolgingstilfellePersonConsumerRecord(
+            oppfolgingstilfellePersonRecord = kafkaOppfolgingstilfellePersonRelevant,
+        )
 
-            val personOppfolgingstilfelleVirksomhetnavnCronjob =
-                internalMockEnvironment.personOppfolgingstilfelleVirksomhetnavnCronjob
-
-            val personoversiktStatusService = internalMockEnvironment.personoversiktStatusService
-            val oppfolgingstilfelleConsumer = TestKafkaModule.oppfolgingstilfelleConsumer
-
-            val personIdentDefault = PersonIdent(ARBEIDSTAKER_FNR)
-
-            val mockKafkaConsumerOppfolgingstilfellePerson =
-                TestKafkaModule.kafkaConsumerOppfolgingstilfellePerson
-
-            val oppfolgingstilfellePersonTopicPartition = oppfolgingstilfellePersonTopicPartition()
-            val kafkaOppfolgingstilfellePersonRelevant = generateKafkaOppfolgingstilfellePerson(
-                personIdent = personIdentDefault,
-                virksomhetsnummerList = listOf(
-                    UserConstants.VIRKSOMHETSNUMMER_DEFAULT,
-                    Virksomhetsnummer(VIRKSOMHETSNUMMER_2),
-                )
-            )
-            val kafkaOppfolgingstilfellePersonRecordRelevant = oppfolgingstilfellePersonConsumerRecord(
-                oppfolgingstilfellePersonRecord = kafkaOppfolgingstilfellePersonRelevant,
-            )
-
-            val mockKafkaConsumerDialogmotekandidatEndring =
-                TestKafkaModule.kafkaConsumerDialogmotekandidatEndring
-            val dialogmoteKandidatTopicPartition = dialogmotekandidatEndringTopicPartition()
-            val kafkaDialogmotekandidatEndringStoppunktDelayPassed = generateKafkaDialogmotekandidatEndringStoppunkt(
-                personIdent = ARBEIDSTAKER_FNR,
-                createdAt = nowUTC().minusDays(7)
-            )
-            val kafkaDialogmotekandidatEndringStoppunktConsumerDelayPassedRecord =
-                dialogmotekandidatEndringConsumerRecord(
-                    kafkaDialogmotekandidatEndring = kafkaDialogmotekandidatEndringStoppunktDelayPassed,
-                )
-
-            val mockKafkaConsumerDialogmoteStatusendring = TestKafkaModule.kafkaConsumerDialogmoteStatusendring
-            val dialogmoteStatusendringTopicPartition = dialogmoteStatusendringTopicPartition()
-            val kafkaDialogmoteStatusendring = generateKafkaDialogmoteStatusendring(
-                personIdent = ARBEIDSTAKER_FNR,
-                type = DialogmoteStatusendringType.INNKALT,
-                endringsTidspunkt = nowUTC()
-            )
-            val kafkaDialogmoteStatusendringConsumerRecord = dialogmoteStatusendringConsumerRecord(
-                kafkaDialogmoteStatusendring = kafkaDialogmoteStatusendring
+        val mockKafkaConsumerDialogmotekandidatEndring =
+            TestKafkaModule.kafkaConsumerDialogmotekandidatEndring
+        val dialogmoteKandidatTopicPartition = dialogmotekandidatEndringTopicPartition()
+        val kafkaDialogmotekandidatEndringStoppunktDelayPassed = generateKafkaDialogmotekandidatEndringStoppunkt(
+            personIdent = ARBEIDSTAKER_FNR,
+            createdAt = nowUTC().minusDays(7)
+        )
+        val kafkaDialogmotekandidatEndringStoppunktConsumerDelayPassedRecord =
+            dialogmotekandidatEndringConsumerRecord(
+                kafkaDialogmotekandidatEndring = kafkaDialogmotekandidatEndringStoppunktDelayPassed,
             )
 
-            beforeEachTest {
-                database.dropData()
+        val mockKafkaConsumerDialogmoteStatusendring = TestKafkaModule.kafkaConsumerDialogmoteStatusendring
+        val dialogmoteStatusendringTopicPartition = dialogmoteStatusendringTopicPartition()
+        val kafkaDialogmoteStatusendring = generateKafkaDialogmoteStatusendring(
+            personIdent = ARBEIDSTAKER_FNR,
+            type = DialogmoteStatusendringType.INNKALT,
+            endringsTidspunkt = nowUTC()
+        )
+        val kafkaDialogmoteStatusendringConsumerRecord = dialogmoteStatusendringConsumerRecord(
+            kafkaDialogmoteStatusendring = kafkaDialogmoteStatusendring
+        )
 
-                clearMocks(mockKafkaConsumerOppfolgingstilfellePerson)
-                every { mockKafkaConsumerOppfolgingstilfellePerson.commitSync() } returns Unit
-                every { mockKafkaConsumerOppfolgingstilfellePerson.poll(any<Duration>()) } returns ConsumerRecords(
-                    mapOf(
-                        oppfolgingstilfellePersonTopicPartition to listOf(
-                            kafkaOppfolgingstilfellePersonRecordRelevant,
-                        )
+        beforeEachTest {
+            database.dropData()
+
+            clearMocks(mockKafkaConsumerOppfolgingstilfellePerson)
+            every { mockKafkaConsumerOppfolgingstilfellePerson.commitSync() } returns Unit
+            every { mockKafkaConsumerOppfolgingstilfellePerson.poll(any<Duration>()) } returns ConsumerRecords(
+                mapOf(
+                    oppfolgingstilfellePersonTopicPartition to listOf(
+                        kafkaOppfolgingstilfellePersonRecordRelevant,
                     )
                 )
-                clearMocks(mockKafkaConsumerDialogmotekandidatEndring)
-                every { mockKafkaConsumerDialogmotekandidatEndring.commitSync() } returns Unit
-                every { mockKafkaConsumerDialogmotekandidatEndring.poll(any<Duration>()) } returns ConsumerRecords(
-                    mapOf(
-                        dialogmoteKandidatTopicPartition to listOf(
-                            kafkaDialogmotekandidatEndringStoppunktConsumerDelayPassedRecord,
-                        )
+            )
+            clearMocks(mockKafkaConsumerDialogmotekandidatEndring)
+            every { mockKafkaConsumerDialogmotekandidatEndring.commitSync() } returns Unit
+            every { mockKafkaConsumerDialogmotekandidatEndring.poll(any<Duration>()) } returns ConsumerRecords(
+                mapOf(
+                    dialogmoteKandidatTopicPartition to listOf(
+                        kafkaDialogmotekandidatEndringStoppunktConsumerDelayPassedRecord,
                     )
                 )
-                clearMocks(mockKafkaConsumerDialogmoteStatusendring)
-                every { mockKafkaConsumerDialogmoteStatusendring.commitSync() } returns Unit
-                every { mockKafkaConsumerDialogmoteStatusendring.poll(any<Duration>()) } returns ConsumerRecords(
-                    mapOf(
-                        dialogmoteStatusendringTopicPartition to listOf(
-                            kafkaDialogmoteStatusendringConsumerRecord,
-                        )
+            )
+            clearMocks(mockKafkaConsumerDialogmoteStatusendring)
+            every { mockKafkaConsumerDialogmoteStatusendring.commitSync() } returns Unit
+            every { mockKafkaConsumerDialogmoteStatusendring.poll(any<Duration>()) } returns ConsumerRecords(
+                mapOf(
+                    dialogmoteStatusendringTopicPartition to listOf(
+                        kafkaDialogmoteStatusendringConsumerRecord,
                     )
                 )
+            )
+        }
+
+        val validToken = generateJWT(
+            audience = externalMockEnvironment.environment.azure.appClientId,
+            issuer = externalMockEnvironment.wellKnownVeilederV2.issuer,
+            navIdent = VEILEDER_ID,
+        )
+
+        describe("Hent personoversikt for enhet") {
+            val url = "$personOversiktApiV2Path/enhet/$NAV_ENHET"
+
+            it("skal returnere status NoContent om det ikke er noen personer som er tilknyttet enhet") {
+                testApplication {
+                    val client = setupApiAndClient()
+                    val response = client.get(url) {
+                        bearerAuth(validToken)
+                    }
+                    response.status shouldBeEqualTo HttpStatusCode.NoContent
+                }
             }
 
-            val validToken = generateJWT(
-                audience = externalMockEnvironment.environment.azure.appClientId,
-                issuer = externalMockEnvironment.wellKnownVeilederV2.issuer,
-                navIdent = VEILEDER_ID,
-            )
-
-            describe("Hent personoversikt for enhet") {
-                val url = "$personOversiktApiV2Path/enhet/$NAV_ENHET"
-
-                it("skal returnere status NoContent om det ikke er noen personer som er tilknyttet enhet") {
-                    with(
-                        handleRequest(HttpMethod.Get, url) {
-                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                        }
-                    ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.NoContent
-                    }
+            it("skal returnere status Unauthorized om token mangler") {
+                testApplication {
+                    val client = setupApiAndClient()
+                    val response = client.get(url) {}
+                    response.status shouldBeEqualTo HttpStatusCode.Unauthorized
                 }
+            }
 
-                it("skal returnere status Unauthorized om token mangler") {
-                    with(
-                        handleRequest(HttpMethod.Get, url)
-                    ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.Unauthorized
+            it("skal returnere status BadRequest om enhet ugyldig") {
+                testApplication {
+                    val client = setupApiAndClient()
+                    val response = client.get("$personOversiktApiV2Path/enhet/12345") {
+                        bearerAuth(validToken)
                     }
+                    response.status shouldBeEqualTo HttpStatusCode.BadRequest
                 }
+            }
 
-                it("skal returnere status BadRequest om enhet ugyldig") {
-                    with(
-                        handleRequest(HttpMethod.Get, "$personOversiktApiV2Path/enhet/12345") {
-                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                        }
-                    ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.BadRequest
-                    }
-                }
-
-                it("skal returnere NoContent med ubehandlet motebehovsvar og ikke har oppfolgingstilfelle") {
+            it("skal returnere NoContent med ubehandlet motebehovsvar og ikke har oppfolgingstilfelle") {
+                testApplication {
+                    val client = setupApiAndClient()
                     val oversiktHendelse = KPersonoppgavehendelse(
                         ARBEIDSTAKER_FNR,
                         OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT,
@@ -186,16 +177,16 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR)
                     personOversiktStatusRepository.lagreVeilederForBruker(tilknytning, VEILEDER_ID)
 
-                    with(
-                        handleRequest(HttpMethod.Get, url) {
-                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                        }
-                    ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.NoContent
+                    val response = client.get(url) {
+                        bearerAuth(validToken)
                     }
+                    response.status shouldBeEqualTo HttpStatusCode.NoContent
                 }
+            }
 
-                it("skal returnere NoContent, om alle personer i personoversikt er behandlet og ikke har oppfolgingstilfelle") {
+            it("skal returnere NoContent, om alle personer i personoversikt er behandlet og ikke har oppfolgingstilfelle") {
+                testApplication {
+                    val client = setupApiAndClient()
                     val oversiktHendelse = KPersonoppgavehendelse(
                         ARBEIDSTAKER_FNR,
                         OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT,
@@ -219,16 +210,16 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR)
                     personOversiktStatusRepository.lagreVeilederForBruker(tilknytning, VEILEDER_ID)
 
-                    with(
-                        handleRequest(HttpMethod.Get, url) {
-                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                        }
-                    ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.NoContent
+                    val response = client.get(url) {
+                        bearerAuth(validToken)
                     }
+                    response.status shouldBeEqualTo HttpStatusCode.NoContent
                 }
+            }
 
-                it("should return NoContent, if there is a person with a relevant active Oppfolgingstilfelle, but neither MOTEBEHOV_SVAR_MOTTATT nor DIALOGMOTEKANDIDAT") {
+            it("should return NoContent, if there is a person with a relevant active Oppfolgingstilfelle, but neither MOTEBEHOV_SVAR_MOTTATT nor DIALOGMOTEKANDIDAT") {
+                testApplication {
+                    val client = setupApiAndClient()
                     runBlocking {
                         oppfolgingstilfelleConsumer.pollAndProcessRecords(kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson)
                     }
@@ -240,16 +231,16 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         enhet = NAV_ENHET,
                     )
 
-                    with(
-                        handleRequest(HttpMethod.Get, url) {
-                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                        }
-                    ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.NoContent
+                    val response = client.get(url) {
+                        bearerAuth(validToken)
                     }
+                    response.status shouldBeEqualTo HttpStatusCode.NoContent
                 }
+            }
 
-                it("should return list of PersonOversiktStatus, if MOTEBEHOV_SVAR_MOTTATT and OPPFOLGINGSPLANLPS_BISTAND_MOTTATT and DIALOGMOTESVAR_MOTTATT, and there is a person with a relevant active Oppfolgingstilfelle") {
+            it("should return list of PersonOversiktStatus, if MOTEBEHOV_SVAR_MOTTATT and OPPFOLGINGSPLANLPS_BISTAND_MOTTATT and DIALOGMOTESVAR_MOTTATT, and there is a person with a relevant active Oppfolgingstilfelle") {
+                testApplication {
+                    val client = setupApiAndClient()
                     runBlocking {
                         oppfolgingstilfelleConsumer.pollAndProcessRecords(kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson)
                     }
@@ -281,34 +272,33 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         enhet = NAV_ENHET,
                     )
 
-                    with(
-                        handleRequest(HttpMethod.Get, url) {
-                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                        }
-                    ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.OK
-                        val personOversiktStatus =
-                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first {
-                                it.fnr == ARBEIDSTAKER_FNR
-                            }
-                        personOversiktStatus.veilederIdent shouldBeEqualTo null
-                        personOversiktStatus.fnr shouldBeEqualTo ARBEIDSTAKER_FNR
-                        personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
-                        personOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
-                        personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
-                        personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo true
-                        personOversiktStatus.dialogmotekandidat.shouldBeNull()
-                        personOversiktStatus.motestatus.shouldBeNull()
-
-                        personOversiktStatus.latestOppfolgingstilfelle.shouldNotBeNull()
-                        checkPersonOppfolgingstilfelleDTO(
-                            personOppfolgingstilfelleDTO = personOversiktStatus.latestOppfolgingstilfelle,
-                            oppfolgingstilfellePersonRecord = kafkaOppfolgingstilfellePersonRelevant,
-                        )
+                    val response = client.get(url) {
+                        bearerAuth(validToken)
                     }
-                }
+                    response.status shouldBeEqualTo HttpStatusCode.OK
+                    val personOversiktStatus = response.body<List<PersonOversiktStatusDTO>>().first {
+                        it.fnr == ARBEIDSTAKER_FNR
+                    }
+                    personOversiktStatus.veilederIdent shouldBeEqualTo null
+                    personOversiktStatus.fnr shouldBeEqualTo ARBEIDSTAKER_FNR
+                    personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
+                    personOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
+                    personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
+                    personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo true
+                    personOversiktStatus.dialogmotekandidat.shouldBeNull()
+                    personOversiktStatus.motestatus.shouldBeNull()
 
-                it("should return list of PersonOversiktStatus, if MOTEBEHOV_SVAR_MOTTATT and if there is a person with 2 relevant active Oppfolgingstilfelle with different virksomhetsnummer") {
+                    personOversiktStatus.latestOppfolgingstilfelle.shouldNotBeNull()
+                    checkPersonOppfolgingstilfelleDTO(
+                        personOppfolgingstilfelleDTO = personOversiktStatus.latestOppfolgingstilfelle,
+                        oppfolgingstilfellePersonRecord = kafkaOppfolgingstilfellePersonRelevant,
+                    )
+                }
+            }
+
+            it("should return list of PersonOversiktStatus, if MOTEBEHOV_SVAR_MOTTATT and if there is a person with 2 relevant active Oppfolgingstilfelle with different virksomhetsnummer") {
+                testApplication {
+                    val client = setupApiAndClient()
                     runBlocking {
                         oppfolgingstilfelleConsumer.pollAndProcessRecords(kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson)
                     }
@@ -328,34 +318,32 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         ident = PersonIdent(ARBEIDSTAKER_FNR),
                         enhet = NAV_ENHET,
                     )
-
-                    with(
-                        handleRequest(HttpMethod.Get, url) {
-                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                        }
-                    ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.OK
-                        val personOversiktStatus =
-                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
-                        personOversiktStatus.veilederIdent shouldBeEqualTo null
-                        personOversiktStatus.fnr shouldBeEqualTo oversiktHendelse.personident
-                        personOversiktStatus.navn shouldBeEqualTo getIdentName()
-                        personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
-                        personOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
-                        personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo null
-                        personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo false
-                        personOversiktStatus.dialogmotekandidat.shouldBeNull()
-                        personOversiktStatus.motestatus.shouldBeNull()
-
-                        personOversiktStatus.latestOppfolgingstilfelle.shouldNotBeNull()
-                        checkPersonOppfolgingstilfelleDTO(
-                            personOppfolgingstilfelleDTO = personOversiktStatus.latestOppfolgingstilfelle,
-                            oppfolgingstilfellePersonRecord = kafkaOppfolgingstilfellePersonRelevant,
-                        )
+                    val response = client.get(url) {
+                        bearerAuth(validToken)
                     }
-                }
+                    response.status shouldBeEqualTo HttpStatusCode.OK
+                    val personOversiktStatus = response.body<List<PersonOversiktStatusDTO>>().first()
+                    personOversiktStatus.veilederIdent shouldBeEqualTo null
+                    personOversiktStatus.fnr shouldBeEqualTo oversiktHendelse.personident
+                    personOversiktStatus.navn shouldBeEqualTo getIdentName()
+                    personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
+                    personOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
+                    personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo null
+                    personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo false
+                    personOversiktStatus.dialogmotekandidat.shouldBeNull()
+                    personOversiktStatus.motestatus.shouldBeNull()
 
-                it("should return Person, with MOTEBEHOV_SVAR_MOTTATT, and then receives Oppfolgingstilfelle and the OPPFOLGINGSPLANLPS_BISTAND_MOTTATT") {
+                    personOversiktStatus.latestOppfolgingstilfelle.shouldNotBeNull()
+                    checkPersonOppfolgingstilfelleDTO(
+                        personOppfolgingstilfelleDTO = personOversiktStatus.latestOppfolgingstilfelle,
+                        oppfolgingstilfellePersonRecord = kafkaOppfolgingstilfellePersonRelevant,
+                    )
+                }
+            }
+
+            it("should return Person, with MOTEBEHOV_SVAR_MOTTATT, and then receives Oppfolgingstilfelle and the OPPFOLGINGSPLANLPS_BISTAND_MOTTATT") {
+                testApplication {
+                    val client = setupApiAndClient()
                     val oversiktHendelse = KPersonoppgavehendelse(
                         ARBEIDSTAKER_FNR,
                         OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT,
@@ -379,34 +367,32 @@ object PersonoversiktStatusApiV2Spek : Spek({
 
                     val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR)
                     personOversiktStatusRepository.lagreVeilederForBruker(tilknytning, VEILEDER_ID)
-
-                    with(
-                        handleRequest(HttpMethod.Get, url) {
-                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                        }
-                    ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.OK
-                        val personOversiktStatus =
-                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
-                        personOversiktStatus.veilederIdent shouldBeEqualTo tilknytning.veilederIdent
-                        personOversiktStatus.fnr shouldBeEqualTo oversiktHendelse.personident
-                        personOversiktStatus.navn shouldBeEqualTo getIdentName()
-                        personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
-                        personOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
-                        personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
-                        personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo false
-                        personOversiktStatus.dialogmotekandidat.shouldBeNull()
-                        personOversiktStatus.motestatus.shouldBeNull()
-
-                        personOversiktStatus.latestOppfolgingstilfelle.shouldNotBeNull()
-                        checkPersonOppfolgingstilfelleDTO(
-                            personOppfolgingstilfelleDTO = personOversiktStatus.latestOppfolgingstilfelle,
-                            oppfolgingstilfellePersonRecord = kafkaOppfolgingstilfellePersonRelevant,
-                        )
+                    val response = client.get(url) {
+                        bearerAuth(validToken)
                     }
-                }
+                    response.status shouldBeEqualTo HttpStatusCode.OK
+                    val personOversiktStatus = response.body<List<PersonOversiktStatusDTO>>().first()
+                    personOversiktStatus.veilederIdent shouldBeEqualTo tilknytning.veilederIdent
+                    personOversiktStatus.fnr shouldBeEqualTo oversiktHendelse.personident
+                    personOversiktStatus.navn shouldBeEqualTo getIdentName()
+                    personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
+                    personOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
+                    personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
+                    personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo false
+                    personOversiktStatus.dialogmotekandidat.shouldBeNull()
+                    personOversiktStatus.motestatus.shouldBeNull()
 
-                it("should return Person, receives Oppfolgingstilfelle, and then MOTEBEHOV_SVAR_MOTTATT and OPPFOLGINGSPLANLPS_BISTAND_MOTTATT") {
+                    personOversiktStatus.latestOppfolgingstilfelle.shouldNotBeNull()
+                    checkPersonOppfolgingstilfelleDTO(
+                        personOppfolgingstilfelleDTO = personOversiktStatus.latestOppfolgingstilfelle,
+                        oppfolgingstilfellePersonRecord = kafkaOppfolgingstilfellePersonRelevant,
+                    )
+                }
+            }
+
+            it("should return Person, receives Oppfolgingstilfelle, and then MOTEBEHOV_SVAR_MOTTATT and OPPFOLGINGSPLANLPS_BISTAND_MOTTATT") {
+                testApplication {
+                    val client = setupApiAndClient()
                     runBlocking {
                         oppfolgingstilfelleConsumer.pollAndProcessRecords(kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson)
                     }
@@ -434,34 +420,32 @@ object PersonoversiktStatusApiV2Spek : Spek({
 
                     val tilknytning = VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR)
                     personOversiktStatusRepository.lagreVeilederForBruker(tilknytning, VEILEDER_ID)
-
-                    with(
-                        handleRequest(HttpMethod.Get, url) {
-                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                        }
-                    ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.OK
-                        val personOversiktStatus =
-                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
-                        personOversiktStatus.veilederIdent shouldBeEqualTo tilknytning.veilederIdent
-                        personOversiktStatus.fnr shouldBeEqualTo oversiktHendelse.personident
-                        personOversiktStatus.navn shouldBeEqualTo getIdentName()
-                        personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
-                        personOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
-                        personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
-                        personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo false
-                        personOversiktStatus.dialogmotekandidat.shouldBeNull()
-                        personOversiktStatus.motestatus.shouldBeNull()
-
-                        personOversiktStatus.latestOppfolgingstilfelle.shouldNotBeNull()
-                        checkPersonOppfolgingstilfelleDTO(
-                            personOppfolgingstilfelleDTO = personOversiktStatus.latestOppfolgingstilfelle,
-                            oppfolgingstilfellePersonRecord = kafkaOppfolgingstilfellePersonRelevant,
-                        )
+                    val response = client.get(url) {
+                        bearerAuth(validToken)
                     }
-                }
+                    response.status shouldBeEqualTo HttpStatusCode.OK
+                    val personOversiktStatus = response.body<List<PersonOversiktStatusDTO>>().first()
+                    personOversiktStatus.veilederIdent shouldBeEqualTo tilknytning.veilederIdent
+                    personOversiktStatus.fnr shouldBeEqualTo oversiktHendelse.personident
+                    personOversiktStatus.navn shouldBeEqualTo getIdentName()
+                    personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
+                    personOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
+                    personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
+                    personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo false
+                    personOversiktStatus.dialogmotekandidat.shouldBeNull()
+                    personOversiktStatus.motestatus.shouldBeNull()
 
-                it("should return Person, no Oppfolgingstilfelle, and then OPPFOLGINGSPLANLPS_BISTAND_MOTTATT") {
+                    personOversiktStatus.latestOppfolgingstilfelle.shouldNotBeNull()
+                    checkPersonOppfolgingstilfelleDTO(
+                        personOppfolgingstilfelleDTO = personOversiktStatus.latestOppfolgingstilfelle,
+                        oppfolgingstilfellePersonRecord = kafkaOppfolgingstilfellePersonRelevant,
+                    )
+                }
+            }
+
+            it("should return Person, no Oppfolgingstilfelle, and then OPPFOLGINGSPLANLPS_BISTAND_MOTTATT") {
+                testApplication {
+                    val client = setupApiAndClient()
                     val oversiktHendelseOPLPSBistandMottatt = KPersonoppgavehendelse(
                         ARBEIDSTAKER_FNR,
                         OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT,
@@ -474,30 +458,28 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         ident = PersonIdent(ARBEIDSTAKER_FNR),
                         enhet = NAV_ENHET,
                     )
-
-                    with(
-                        handleRequest(HttpMethod.Get, url) {
-                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                        }
-                    ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.OK
-                        val personOversiktStatus =
-                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
-                        personOversiktStatus.veilederIdent shouldBeEqualTo null
-                        personOversiktStatus.fnr shouldBeEqualTo oversiktHendelseOPLPSBistandMottatt.personident
-                        personOversiktStatus.navn shouldBeEqualTo getIdentName()
-                        personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
-                        personOversiktStatus.motebehovUbehandlet shouldBeEqualTo null
-                        personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
-                        personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo false
-                        personOversiktStatus.dialogmotekandidat.shouldBeNull()
-                        personOversiktStatus.motestatus.shouldBeNull()
-
-                        personOversiktStatus.latestOppfolgingstilfelle.shouldBeNull()
+                    val response = client.get(url) {
+                        bearerAuth(validToken)
                     }
-                }
+                    response.status shouldBeEqualTo HttpStatusCode.OK
+                    val personOversiktStatus = response.body<List<PersonOversiktStatusDTO>>().first()
+                    personOversiktStatus.veilederIdent shouldBeEqualTo null
+                    personOversiktStatus.fnr shouldBeEqualTo oversiktHendelseOPLPSBistandMottatt.personident
+                    personOversiktStatus.navn shouldBeEqualTo getIdentName()
+                    personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
+                    personOversiktStatus.motebehovUbehandlet shouldBeEqualTo null
+                    personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
+                    personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo false
+                    personOversiktStatus.dialogmotekandidat.shouldBeNull()
+                    personOversiktStatus.motestatus.shouldBeNull()
 
-                it("should return Person with no Oppfolgingstilfelle and no Navn for OPPFOLGINGSPLANLPS_BISTAND_MOTTATT") {
+                    personOversiktStatus.latestOppfolgingstilfelle.shouldBeNull()
+                }
+            }
+
+            it("should return Person with no Oppfolgingstilfelle and no Navn for OPPFOLGINGSPLANLPS_BISTAND_MOTTATT") {
+                testApplication {
+                    val client = setupApiAndClient()
                     val oversiktHendelseOPLPSBistandMottatt = KPersonoppgavehendelse(
                         ARBEIDSTAKER_NO_NAME_FNR,
                         OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT,
@@ -510,30 +492,27 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         ident = PersonIdent(ARBEIDSTAKER_NO_NAME_FNR),
                         enhet = NAV_ENHET,
                     )
-
-                    with(
-                        handleRequest(HttpMethod.Get, url) {
-                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                        }
-                    ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.OK
-                        val personOversiktStatus =
-                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
-                        personOversiktStatus.veilederIdent shouldBeEqualTo null
-                        personOversiktStatus.fnr shouldBeEqualTo oversiktHendelseOPLPSBistandMottatt.personident
-                        personOversiktStatus.navn shouldBeEqualTo ""
-                        personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
-                        personOversiktStatus.motebehovUbehandlet shouldBeEqualTo null
-                        personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
-                        personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo false
-                        personOversiktStatus.dialogmotekandidat.shouldBeNull()
-                        personOversiktStatus.motestatus.shouldBeNull()
-
-                        personOversiktStatus.latestOppfolgingstilfelle.shouldBeNull()
+                    val response = client.get(url) {
+                        bearerAuth(validToken)
                     }
+                    response.status shouldBeEqualTo HttpStatusCode.OK
+                    val personOversiktStatus = response.body<List<PersonOversiktStatusDTO>>().first()
+                    personOversiktStatus.veilederIdent shouldBeEqualTo null
+                    personOversiktStatus.fnr shouldBeEqualTo oversiktHendelseOPLPSBistandMottatt.personident
+                    personOversiktStatus.navn shouldBeEqualTo ""
+                    personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
+                    personOversiktStatus.motebehovUbehandlet shouldBeEqualTo null
+                    personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
+                    personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo false
+                    personOversiktStatus.dialogmotekandidat.shouldBeNull()
+                    personOversiktStatus.motestatus.shouldBeNull()
+                    personOversiktStatus.latestOppfolgingstilfelle.shouldBeNull()
                 }
+            }
 
-                it("should not return Person if OversikthendelseType for Behandling is received without existing Person") {
+            it("should not return Person if OversikthendelseType for Behandling is received without existing Person") {
+                testApplication {
+                    val client = setupApiAndClient()
                     val oversiktHendelseMotebehovSvarBehandlet = KPersonoppgavehendelse(
                         ARBEIDSTAKER_FNR,
                         OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET,
@@ -553,17 +532,16 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         ident = PersonIdent(ARBEIDSTAKER_FNR),
                         enhet = NAV_ENHET,
                     )
-
-                    with(
-                        handleRequest(HttpMethod.Get, url) {
-                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                        }
-                    ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.NoContent
+                    val response = client.get(url) {
+                        bearerAuth(validToken)
                     }
+                    response.status shouldBeEqualTo HttpStatusCode.NoContent
                 }
+            }
 
-                it("return person with dialogmotesvar_ubehandlet true") {
+            it("return person with dialogmotesvar_ubehandlet true") {
+                testApplication {
+                    val client = setupApiAndClient()
                     val oversikthendelseDialogmotesvarMottatt = KPersonoppgavehendelse(
                         ARBEIDSTAKER_FNR,
                         OversikthendelseType.DIALOGMOTESVAR_MOTTATT,
@@ -575,22 +553,19 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         ident = PersonIdent(ARBEIDSTAKER_FNR),
                         enhet = NAV_ENHET,
                     )
-
-                    with(
-                        handleRequest(HttpMethod.Get, url) {
-                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                        }
-                    ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.OK
-
-                        val personOversiktStatus =
-                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
-                        personOversiktStatus.fnr shouldBeEqualTo oversikthendelseDialogmotesvarMottatt.personident
-                        personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
-                        personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo true
+                    val response = client.get(url) {
+                        bearerAuth(validToken)
                     }
+                    response.status shouldBeEqualTo HttpStatusCode.OK
+                    val personOversiktStatus = response.body<List<PersonOversiktStatusDTO>>().first()
+                    personOversiktStatus.fnr shouldBeEqualTo oversikthendelseDialogmotesvarMottatt.personident
+                    personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
+                    personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo true
                 }
-                it("return person with friskmelding til arbeidsformidling starting tomorrow") {
+            }
+            it("return person with friskmelding til arbeidsformidling starting tomorrow") {
+                testApplication {
+                    val client = setupApiAndClient()
                     val personident = PersonIdent(ARBEIDSTAKER_FNR)
                     val tomorrow = LocalDate.now().plusDays(1)
                     with(database) {
@@ -598,22 +573,19 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         setTildeltEnhet(personident, NAV_ENHET)
                         setFriskmeldingTilArbeidsformidlingFom(personident, tomorrow)
                     }
-
-                    with(
-                        handleRequest(HttpMethod.Get, url) {
-                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                        }
-                    ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.OK
-
-                        val personOversiktStatus =
-                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
-                        personOversiktStatus.fnr shouldBeEqualTo personident.value
-                        personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
-                        personOversiktStatus.friskmeldingTilArbeidsformidlingFom!! shouldBeEqualTo tomorrow
+                    val response = client.get(url) {
+                        bearerAuth(validToken)
                     }
+                    response.status shouldBeEqualTo HttpStatusCode.OK
+                    val personOversiktStatus = response.body<List<PersonOversiktStatusDTO>>().first()
+                    personOversiktStatus.fnr shouldBeEqualTo personident.value
+                    personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
+                    personOversiktStatus.friskmeldingTilArbeidsformidlingFom!! shouldBeEqualTo tomorrow
                 }
-                it("return person with friskmelding til arbeidsformidling starting today") {
+            }
+            it("return person with friskmelding til arbeidsformidling starting today") {
+                testApplication {
+                    val client = setupApiAndClient()
                     val personident = PersonIdent(ARBEIDSTAKER_FNR)
                     val today = LocalDate.now()
                     with(database) {
@@ -621,22 +593,19 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         setTildeltEnhet(personident, NAV_ENHET)
                         setFriskmeldingTilArbeidsformidlingFom(personident, today)
                     }
-
-                    with(
-                        handleRequest(HttpMethod.Get, url) {
-                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                        }
-                    ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.OK
-
-                        val personOversiktStatus =
-                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
-                        personOversiktStatus.fnr shouldBeEqualTo personident.value
-                        personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
-                        personOversiktStatus.friskmeldingTilArbeidsformidlingFom!! shouldBeEqualTo today
+                    val response = client.get(url) {
+                        bearerAuth(validToken)
                     }
+                    response.status shouldBeEqualTo HttpStatusCode.OK
+                    val personOversiktStatus = response.body<List<PersonOversiktStatusDTO>>().first()
+                    personOversiktStatus.fnr shouldBeEqualTo personident.value
+                    personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
+                    personOversiktStatus.friskmeldingTilArbeidsformidlingFom!! shouldBeEqualTo today
                 }
-                it("return person with friskmelding til arbeidsformidling starting yesterday") {
+            }
+            it("return person with friskmelding til arbeidsformidling starting yesterday") {
+                testApplication {
+                    val client = setupApiAndClient()
                     val personident = PersonIdent(ARBEIDSTAKER_FNR)
                     val yesterday = LocalDate.now().minusDays(1)
                     with(database) {
@@ -644,20 +613,20 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         setTildeltEnhet(personident, NAV_ENHET)
                         setFriskmeldingTilArbeidsformidlingFom(personident, yesterday)
                     }
-                    with(
-                        handleRequest(HttpMethod.Get, url) {
-                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                        }
-                    ) {
-                        val personOversiktStatus =
-                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
-                        personOversiktStatus.fnr shouldBeEqualTo personident.value
-                        personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
-                        personOversiktStatus.friskmeldingTilArbeidsformidlingFom!! shouldBeEqualTo yesterday
+                    val response = client.get(url) {
+                        bearerAuth(validToken)
                     }
+                    response.status shouldBeEqualTo HttpStatusCode.OK
+                    val personOversiktStatus = response.body<List<PersonOversiktStatusDTO>>().first()
+                    personOversiktStatus.fnr shouldBeEqualTo personident.value
+                    personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
+                    personOversiktStatus.friskmeldingTilArbeidsformidlingFom!! shouldBeEqualTo yesterday
                 }
+            }
 
-                it("return person when trenger_oppfolging true") {
+            it("return person when trenger_oppfolging true") {
+                testApplication {
+                    val client = setupApiAndClient()
                     val personident = ARBEIDSTAKER_FNR
                     val personoversiktStatus = PersonOversiktStatus(
                         fnr = personident,
@@ -669,26 +638,23 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         ident = PersonIdent(ARBEIDSTAKER_FNR),
                         enhet = NAV_ENHET,
                     )
-
-                    with(
-                        handleRequest(HttpMethod.Get, url) {
-                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                        }
-                    ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.OK
-
-                        val personOversiktStatus =
-                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
-                        personOversiktStatus.fnr shouldBeEqualTo personident
-                        personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
-                        personOversiktStatus.oppfolgingsoppgave shouldNotBe null
-                        personOversiktStatus.oppfolgingsoppgave?.oppfolgingsgrunn shouldBeEqualTo "FOLG_OPP_ETTER_NESTE_SYKMELDING"
-                        personOversiktStatus.oppfolgingsoppgave?.tekst shouldBeEqualTo "En tekst"
-                        personOversiktStatus.oppfolgingsoppgave?.frist shouldNotBe null
+                    val response = client.get(url) {
+                        bearerAuth(validToken)
                     }
+                    response.status shouldBeEqualTo HttpStatusCode.OK
+                    val personOversiktStatus = response.body<List<PersonOversiktStatusDTO>>().first()
+                    personOversiktStatus.fnr shouldBeEqualTo personident
+                    personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
+                    personOversiktStatus.oppfolgingsoppgave shouldNotBe null
+                    personOversiktStatus.oppfolgingsoppgave?.oppfolgingsgrunn shouldBeEqualTo "FOLG_OPP_ETTER_NESTE_SYKMELDING"
+                    personOversiktStatus.oppfolgingsoppgave?.tekst shouldBeEqualTo "En tekst"
+                    personOversiktStatus.oppfolgingsoppgave?.frist shouldNotBe null
                 }
+            }
 
-                it("return no person when trenger_oppfolging false") {
+            it("return no person when trenger_oppfolging false") {
+                testApplication {
+                    val client = setupApiAndClient()
                     val personident = ARBEIDSTAKER_FNR
                     val personoversiktStatus = PersonOversiktStatus(
                         fnr = personident,
@@ -700,17 +666,16 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         ident = PersonIdent(ARBEIDSTAKER_FNR),
                         enhet = NAV_ENHET,
                     )
-
-                    with(
-                        handleRequest(HttpMethod.Get, url) {
-                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                        }
-                    ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.NoContent
+                    val response = client.get(url) {
+                        bearerAuth(validToken)
                     }
+                    response.status shouldBeEqualTo HttpStatusCode.NoContent
                 }
+            }
 
-                it("return person with behandler_ber_om_bistand_ubehandlet true when oppgave mottatt") {
+            it("return person with behandler_ber_om_bistand_ubehandlet true when oppgave mottatt") {
+                testApplication {
+                    val client = setupApiAndClient()
                     val personoversiktStatus = PersonOversiktStatus(
                         fnr = ARBEIDSTAKER_FNR
                     ).applyHendelse(OversikthendelseType.BEHANDLER_BER_OM_BISTAND_MOTTATT)
@@ -721,23 +686,20 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         ident = PersonIdent(ARBEIDSTAKER_FNR),
                         enhet = NAV_ENHET,
                     )
-
-                    with(
-                        handleRequest(HttpMethod.Get, url) {
-                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                        }
-                    ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.OK
-
-                        val personOversiktStatus =
-                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
-                        personOversiktStatus.fnr shouldBeEqualTo ARBEIDSTAKER_FNR
-                        personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
-                        personOversiktStatus.behandlerBerOmBistandUbehandlet shouldBeEqualTo true
+                    val response = client.get(url) {
+                        bearerAuth(validToken)
                     }
+                    response.status shouldBeEqualTo HttpStatusCode.OK
+                    val personOversiktStatus = response.body<List<PersonOversiktStatusDTO>>().first()
+                    personOversiktStatus.fnr shouldBeEqualTo ARBEIDSTAKER_FNR
+                    personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
+                    personOversiktStatus.behandlerBerOmBistandUbehandlet shouldBeEqualTo true
                 }
+            }
 
-                it("return no person when behandler_ber_om_bistand-oppgave behandlet") {
+            it("return no person when behandler_ber_om_bistand-oppgave behandlet") {
+                testApplication {
+                    val client = setupApiAndClient()
                     val personoversiktStatus = PersonOversiktStatus(
                         fnr = ARBEIDSTAKER_FNR
                     ).applyHendelse(OversikthendelseType.BEHANDLER_BER_OM_BISTAND_BEHANDLET)
@@ -748,17 +710,16 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         ident = PersonIdent(ARBEIDSTAKER_FNR),
                         enhet = NAV_ENHET,
                     )
-
-                    with(
-                        handleRequest(HttpMethod.Get, url) {
-                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                        }
-                    ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.NoContent
+                    val response = client.get(url) {
+                        bearerAuth(validToken)
                     }
+                    response.status shouldBeEqualTo HttpStatusCode.NoContent
                 }
+            }
 
-                it("return person with correct varighetUker based on antallSykedager") {
+            it("return person with correct varighetUker based on antallSykedager") {
+                testApplication {
+                    val client = setupApiAndClient()
                     val oppfolgingstilfelle = generateOppfolgingstilfelle(
                         start = LocalDate.now().minusDays(30),
                         end = LocalDate.now().minusDays(1),
@@ -777,22 +738,19 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         ident = PersonIdent(ARBEIDSTAKER_FNR),
                         enhet = NAV_ENHET,
                     )
-
-                    with(
-                        handleRequest(HttpMethod.Get, url) {
-                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                        }
-                    ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.OK
-
-                        val personOversiktStatus =
-                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
-                        personOversiktStatus.fnr shouldBeEqualTo ARBEIDSTAKER_FNR
-                        personOversiktStatus.latestOppfolgingstilfelle?.varighetUker shouldBeEqualTo 2
+                    val response = client.get(url) {
+                        bearerAuth(validToken)
                     }
+                    response.status shouldBeEqualTo HttpStatusCode.OK
+                    val personOversiktStatus = response.body<List<PersonOversiktStatusDTO>>().first()
+                    personOversiktStatus.fnr shouldBeEqualTo ARBEIDSTAKER_FNR
+                    personOversiktStatus.latestOppfolgingstilfelle?.varighetUker shouldBeEqualTo 2
                 }
+            }
 
-                it("return person with correct virksomhetslist") {
+            it("return person with correct virksomhetslist") {
+                testApplication {
+                    val client = setupApiAndClient()
                     val virksomhetList = listOf(
                         PersonOppfolgingstilfelleVirksomhet(
                             uuid = UUID.randomUUID(),
@@ -825,23 +783,20 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         ident = PersonIdent(ARBEIDSTAKER_FNR),
                         enhet = NAV_ENHET,
                     )
-
-                    with(
-                        handleRequest(HttpMethod.Get, url) {
-                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                        }
-                    ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.OK
-
-                        val personOversiktStatus =
-                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
-                        personOversiktStatus.fnr shouldBeEqualTo ARBEIDSTAKER_FNR
-                        personOversiktStatus.latestOppfolgingstilfelle?.virksomhetList?.get(0)?.virksomhetsnavn shouldBeEqualTo "Virksomhet AS"
-                        personOversiktStatus.latestOppfolgingstilfelle?.virksomhetList?.get(1)?.virksomhetsnavn shouldBeEqualTo null
+                    val response = client.get(url) {
+                        bearerAuth(validToken)
                     }
+                    response.status shouldBeEqualTo HttpStatusCode.OK
+                    val personOversiktStatus = response.body<List<PersonOversiktStatusDTO>>().first()
+                    personOversiktStatus.fnr shouldBeEqualTo ARBEIDSTAKER_FNR
+                    personOversiktStatus.latestOppfolgingstilfelle?.virksomhetList?.get(0)?.virksomhetsnavn shouldBeEqualTo "Virksomhet AS"
+                    personOversiktStatus.latestOppfolgingstilfelle?.virksomhetList?.get(1)?.virksomhetsnavn shouldBeEqualTo null
                 }
+            }
 
-                it("return person when isAktivSenOppfolgingKandidat true") {
+            it("return person when isAktivSenOppfolgingKandidat true") {
+                testApplication {
+                    val client = setupApiAndClient()
                     val personident = ARBEIDSTAKER_FNR
                     val personoversiktStatus = PersonOversiktStatus(
                         fnr = personident,
@@ -853,23 +808,20 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         ident = PersonIdent(ARBEIDSTAKER_FNR),
                         enhet = NAV_ENHET,
                     )
-
-                    with(
-                        handleRequest(HttpMethod.Get, url) {
-                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                        }
-                    ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.OK
-
-                        val personOversiktStatus =
-                            objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
-                        personOversiktStatus.fnr shouldBeEqualTo personident
-                        personOversiktStatus.enhet shouldBeEqualTo NAV_ENHET
-                        personOversiktStatus.senOppfolgingKandidat shouldNotBe null
+                    val response = client.get(url) {
+                        bearerAuth(validToken)
                     }
+                    response.status shouldBeEqualTo HttpStatusCode.OK
+                    val personOversiktStatus = response.body<List<PersonOversiktStatusDTO>>().first()
+                    personOversiktStatus.fnr shouldBeEqualTo personident
+                    personOversiktStatus.enhet shouldBeEqualTo NAV_ENHET
+                    personOversiktStatus.senOppfolgingKandidat shouldNotBe null
                 }
+            }
 
-                it("return no person when isAktivSenOppfolgingKandidat false") {
+            it("return no person when isAktivSenOppfolgingKandidat false") {
+                testApplication {
+                    val client = setupApiAndClient()
                     val personident = ARBEIDSTAKER_FNR
                     val personoversiktStatus = PersonOversiktStatus(fnr = personident)
 
@@ -878,18 +830,17 @@ object PersonoversiktStatusApiV2Spek : Spek({
                         ident = PersonIdent(ARBEIDSTAKER_FNR),
                         enhet = NAV_ENHET,
                     )
-
-                    with(
-                        handleRequest(HttpMethod.Get, url) {
-                            addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                        }
-                    ) {
-                        response.status() shouldBeEqualTo HttpStatusCode.NoContent
+                    val response = client.get(url) {
+                        bearerAuth(validToken)
                     }
+                    response.status shouldBeEqualTo HttpStatusCode.NoContent
                 }
+            }
 
-                describe("arbeidsuforhetvurdering") {
-                    it("returns person with active arbeidsuforhetvurdering") {
+            describe("arbeidsuforhetvurdering") {
+                it("returns person with active arbeidsuforhetvurdering") {
+                    testApplication {
+                        val client = setupApiAndClient()
                         val newPersonOversiktStatus = PersonOversiktStatus(fnr = ARBEIDSTAKER_FNR)
                             .copy(isAktivArbeidsuforhetvurdering = true)
                         database.connection.use { connection ->
@@ -899,25 +850,23 @@ object PersonoversiktStatusApiV2Spek : Spek({
                             ident = PersonIdent(ARBEIDSTAKER_FNR),
                             enhet = NAV_ENHET,
                         )
-
-                        with(
-                            handleRequest(HttpMethod.Get, url) { addHeader(HttpHeaders.Authorization, bearerHeader(validToken)) }
-                        ) {
-
-                            response.status() shouldBeEqualTo HttpStatusCode.OK
-
-                            val personOversiktStatus =
-                                objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
-                            personOversiktStatus.fnr shouldBeEqualTo ARBEIDSTAKER_FNR
-                            personOversiktStatus.arbeidsuforhetvurdering shouldNotBe null
-                            personOversiktStatus.arbeidsuforhetvurdering?.varsel shouldNotBe null
-                            personOversiktStatus.arbeidsuforhetvurdering?.createdAt shouldBeEqualTo latestVurdering
+                        val response = client.get(url) {
+                            bearerAuth(validToken)
                         }
+                        response.status shouldBeEqualTo HttpStatusCode.OK
+                        val personOversiktStatus = response.body<List<PersonOversiktStatusDTO>>().first()
+                        personOversiktStatus.fnr shouldBeEqualTo ARBEIDSTAKER_FNR
+                        personOversiktStatus.arbeidsuforhetvurdering shouldNotBe null
+                        personOversiktStatus.arbeidsuforhetvurdering?.varsel shouldNotBe null
+                        personOversiktStatus.arbeidsuforhetvurdering?.createdAt shouldBeEqualTo latestVurdering
                     }
                 }
+            }
 
-                describe("manglendemedvirkning") {
-                    it("returns person with active manglendemedvirkning") {
+            describe("manglendemedvirkning") {
+                it("returns person with active manglendemedvirkning") {
+                    testApplication {
+                        val client = setupApiAndClient()
                         val newPersonOversiktStatus = PersonOversiktStatus(fnr = ARBEIDSTAKER_FNR)
                             .copy(isAktivManglendeMedvirkningVurdering = true)
                         database.connection.use { connection ->
@@ -927,27 +876,25 @@ object PersonoversiktStatusApiV2Spek : Spek({
                             ident = PersonIdent(ARBEIDSTAKER_FNR),
                             enhet = NAV_ENHET,
                         )
-
-                        with(
-                            handleRequest(HttpMethod.Get, url) { addHeader(HttpHeaders.Authorization, bearerHeader(validToken)) }
-                        ) {
-
-                            response.status() shouldBeEqualTo HttpStatusCode.OK
-
-                            val personOversiktStatus =
-                                objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
-                            personOversiktStatus.fnr shouldBeEqualTo ARBEIDSTAKER_FNR
-                            personOversiktStatus.manglendeMedvirkning shouldNotBe null
-                            personOversiktStatus.manglendeMedvirkning?.varsel shouldNotBe null
-                            personOversiktStatus.manglendeMedvirkning?.vurderingType shouldBeEqualTo ManglendeMedvirkningVurderingType.FORHANDSVARSEL
-                            personOversiktStatus.manglendeMedvirkning?.begrunnelse shouldBeEqualTo "begrunnelse"
-                            personOversiktStatus.manglendeMedvirkning?.veilederident shouldBeEqualTo VEILEDER_ID
+                        val response = client.get(url) {
+                            bearerAuth(validToken)
                         }
+                        response.status shouldBeEqualTo HttpStatusCode.OK
+                        val personOversiktStatus = response.body<List<PersonOversiktStatusDTO>>().first()
+                        personOversiktStatus.fnr shouldBeEqualTo ARBEIDSTAKER_FNR
+                        personOversiktStatus.manglendeMedvirkning shouldNotBe null
+                        personOversiktStatus.manglendeMedvirkning?.varsel shouldNotBe null
+                        personOversiktStatus.manglendeMedvirkning?.vurderingType shouldBeEqualTo ManglendeMedvirkningVurderingType.FORHANDSVARSEL
+                        personOversiktStatus.manglendeMedvirkning?.begrunnelse shouldBeEqualTo "begrunnelse"
+                        personOversiktStatus.manglendeMedvirkning?.veilederident shouldBeEqualTo VEILEDER_ID
                     }
                 }
+            }
 
-                describe("aktivitetskrav") {
-                    it("return person when isAktivAktivitetskravvurdering true") {
+            describe("aktivitetskrav") {
+                it("return person when isAktivAktivitetskravvurdering true") {
+                    testApplication {
+                        val client = setupApiAndClient()
                         val personident = ARBEIDSTAKER_FNR
                         val personoversiktStatus = PersonOversiktStatus(
                             fnr = personident,
@@ -959,23 +906,20 @@ object PersonoversiktStatusApiV2Spek : Spek({
                             ident = PersonIdent(ARBEIDSTAKER_FNR),
                             enhet = NAV_ENHET,
                         )
-
-                        with(
-                            handleRequest(HttpMethod.Get, url) {
-                                addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                            }
-                        ) {
-                            response.status() shouldBeEqualTo HttpStatusCode.OK
-
-                            val personOversiktStatus =
-                                objectMapper.readValue<List<PersonOversiktStatusDTO>>(response.content!!).first()
-                            personOversiktStatus.fnr shouldBeEqualTo personident
-                            personOversiktStatus.enhet shouldBeEqualTo NAV_ENHET
-                            personOversiktStatus.aktivitetskravvurdering shouldNotBe null
+                        val response = client.get(url) {
+                            bearerAuth(validToken)
                         }
+                        response.status shouldBeEqualTo HttpStatusCode.OK
+                        val personOversiktStatus = response.body<List<PersonOversiktStatusDTO>>().first()
+                        personOversiktStatus.fnr shouldBeEqualTo personident
+                        personOversiktStatus.enhet shouldBeEqualTo NAV_ENHET
+                        personOversiktStatus.aktivitetskravvurdering shouldNotBe null
                     }
+                }
 
-                    it("return no person when isAktivAktivitetskravvurdering false") {
+                it("return no person when isAktivAktivitetskravvurdering false") {
+                    testApplication {
+                        val client = setupApiAndClient()
                         val personident = ARBEIDSTAKER_FNR
                         val personoversiktStatus = PersonOversiktStatus(fnr = personident)
 
@@ -984,14 +928,10 @@ object PersonoversiktStatusApiV2Spek : Spek({
                             ident = PersonIdent(ARBEIDSTAKER_FNR),
                             enhet = NAV_ENHET,
                         )
-
-                        with(
-                            handleRequest(HttpMethod.Get, url) {
-                                addHeader(HttpHeaders.Authorization, bearerHeader(validToken))
-                            }
-                        ) {
-                            response.status() shouldBeEqualTo HttpStatusCode.NoContent
+                        val response = client.get(url) {
+                            bearerAuth(validToken)
                         }
+                        response.status shouldBeEqualTo HttpStatusCode.NoContent
                     }
                 }
             }
