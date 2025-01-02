@@ -4,7 +4,7 @@ import no.nav.syfo.personstatus.application.aktivitetskrav.AktivitetskravDTO
 import no.nav.syfo.personstatus.application.arbeidsuforhet.ArbeidsuforhetvurderingDTO
 import no.nav.syfo.personstatus.application.manglendemedvirkning.ManglendeMedvirkningDTO
 import no.nav.syfo.personstatus.application.meroppfolging.SenOppfolgingKandidatDTO
-import no.nav.syfo.personstatus.application.oppfolgingsoppgave.OppfolgingsoppgaveDTO
+import no.nav.syfo.personstatus.application.oppfolgingsoppgave.OppfolgingsoppgaveLatestVersionDTO
 import java.time.LocalDate
 
 data class PersonOversiktStatusDTO(
@@ -23,7 +23,7 @@ data class PersonOversiktStatusDTO(
     val behandlerBerOmBistandUbehandlet: Boolean,
     val arbeidsuforhetvurdering: ArbeidsuforhetvurderingDTO?,
     val friskmeldingTilArbeidsformidlingFom: LocalDate?,
-    val oppfolgingsoppgave: OppfolgingsoppgaveDTO?,
+    val oppfolgingsoppgave: OppfolgingsoppgaveLatestVersionDTO?,
     val senOppfolgingKandidat: SenOppfolgingKandidatDTO?,
     val aktivitetskravvurdering: AktivitetskravDTO?,
     val manglendeMedvirkning: ManglendeMedvirkningDTO?,

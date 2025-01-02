@@ -2,8 +2,8 @@ package no.nav.syfo.testutil.mock
 
 import io.ktor.client.engine.mock.*
 import io.ktor.client.request.*
-import no.nav.syfo.personstatus.application.oppfolgingsoppgave.OppfolgingsoppgaveDTO
-import no.nav.syfo.personstatus.application.oppfolgingsoppgave.OppfolgingsoppgaverResponseDTO
+import no.nav.syfo.personstatus.application.oppfolgingsoppgave.*
+import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_2_FNR
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_3_FNR
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
@@ -27,10 +27,20 @@ private fun generateOppfolgingsoppgave(
     oppfolgingsgrunn: String,
 ): OppfolgingsoppgaveDTO = OppfolgingsoppgaveDTO(
     uuid = UUID.randomUUID().toString(),
-    createdBy = VEILEDER_ID,
     updatedAt = LocalDateTime.now(),
     createdAt = LocalDateTime.now(),
-    tekst = "En tekst",
-    oppfolgingsgrunn = oppfolgingsgrunn,
-    frist = LocalDate.now().plusDays(14),
+    isActive = true,
+    personIdent = PersonIdent(ARBEIDSTAKER_FNR),
+    publishedAt = null,
+    removedBy = null,
+    versjoner = listOf(
+        OppfolgingoppgaveVersjonDTO(
+            uuid = UUID.randomUUID().toString(),
+            createdAt = LocalDateTime.now(),
+            createdBy = VEILEDER_ID,
+            tekst = "En tekst",
+            oppfolgingsgrunn = oppfolgingsgrunn,
+            frist = LocalDate.now().plusDays(14),
+        )
+    ),
 )
