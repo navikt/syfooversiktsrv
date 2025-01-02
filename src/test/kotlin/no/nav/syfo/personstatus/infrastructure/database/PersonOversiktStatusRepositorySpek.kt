@@ -5,7 +5,7 @@ import no.nav.syfo.personstatus.db.getPersonOversiktStatusList
 import no.nav.syfo.personstatus.domain.Initials
 import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
-import no.nav.syfo.personstatus.domain.SearchQuery
+import no.nav.syfo.personstatus.domain.Search
 import no.nav.syfo.personstatus.infrastructure.database.repository.PersonOversiktStatusRepository
 import no.nav.syfo.testutil.ExternalMockEnvironment
 import no.nav.syfo.testutil.UserConstants
@@ -227,11 +227,9 @@ class PersonOversiktStatusRepositorySpek : Spek({
             val fodselsdato = LocalDate.of(1985, Month.MAY, 17)
 
             fun searchPerson(initials: String, birthdate: LocalDate): List<PersonOversiktStatus> {
-                val searchQuery = SearchQuery(
-                    initials = Initials(initials),
-                    birthdate = birthdate
+                return personOversiktStatusRepository.searchPerson(
+                    search = Search.ByInitialsAndDate(Initials(initials), birthdate)
                 )
-                return personOversiktStatusRepository.searchPerson(searchQuery)
             }
 
             it("finds relevant sykmeldt person when searching with correct initials and birthdate") {
