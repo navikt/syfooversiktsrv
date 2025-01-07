@@ -1,4 +1,4 @@
-package no.nav.syfo.personstatus.db
+package no.nav.syfo.personstatus.infrastructure.database.queries
 
 import no.nav.syfo.personstatus.infrastructure.database.toList
 import no.nav.syfo.oppfolgingstilfelle.domain.PersonOppfolgingstilfelleVirksomhet
@@ -8,6 +8,14 @@ import java.sql.Connection
 import java.sql.ResultSet
 import java.time.OffsetDateTime
 import java.util.*
+import kotlin.collections.filter
+import kotlin.collections.forEach
+import kotlin.collections.groupBy
+import kotlin.collections.intersect
+import kotlin.collections.map
+import kotlin.collections.toTypedArray
+import kotlin.jvm.java
+import kotlin.use
 
 const val queryCreatePersonOppfolgingstilfelleVirksomhet =
     """

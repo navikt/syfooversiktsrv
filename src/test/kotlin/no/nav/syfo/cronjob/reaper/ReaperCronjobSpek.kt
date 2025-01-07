@@ -1,11 +1,11 @@
 package no.nav.syfo.cronjob.reaper
 
 import kotlinx.coroutines.runBlocking
-import no.nav.syfo.personstatus.db.getPersonOversiktStatusList
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.personstatus.domain.toPersonOversiktStatus
 import no.nav.syfo.personstatus.infrastructure.cronjob.reaper.ReaperCronjob
 import no.nav.syfo.personstatus.infrastructure.cronjob.reaper.ReaperService
+import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.generator.generatePPersonOversiktStatus
 import org.amshove.kluent.shouldBeEqualTo

@@ -3,8 +3,10 @@ package no.nav.syfo.dialogmotestatusendring.kafka
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import no.nav.syfo.dialogmote.avro.KDialogmoteStatusEndring
 import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendring
+import no.nav.syfo.personstatus.infrastructure.database.queries.createPersonOversiktStatus
 import no.nav.syfo.personstatus.infrastructure.kafka.KafkaConsumerService
-import no.nav.syfo.personstatus.db.*
+import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList
+import no.nav.syfo.personstatus.infrastructure.database.queries.updatePersonOversiktStatusMotestatus
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.slf4j.LoggerFactory

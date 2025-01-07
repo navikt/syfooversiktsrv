@@ -3,8 +3,9 @@ package no.nav.syfo.aktivitetskravvurdering.kafka
 import io.mockk.*
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.aktivitetskravvurdering.domain.AktivitetskravStatus
-import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
+import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList
+import no.nav.syfo.personstatus.infrastructure.database.queries.createPersonOversiktStatus
 import no.nav.syfo.personstatus.infrastructure.kafka.mockPollConsumerRecords
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.generator.*

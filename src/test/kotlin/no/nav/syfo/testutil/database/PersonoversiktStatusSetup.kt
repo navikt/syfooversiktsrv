@@ -4,7 +4,8 @@ import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendring
 import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendringType
 import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.Virksomhetsnummer
-import no.nav.syfo.personstatus.db.*
+import no.nav.syfo.personstatus.infrastructure.database.queries.updatePersonOversiktStatusKandidat
+import no.nav.syfo.personstatus.infrastructure.database.queries.updatePersonOversiktStatusMotestatus
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.generator.*
 import java.time.OffsetDateTime

@@ -6,10 +6,11 @@ import kotlinx.coroutines.runBlocking
 import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.Virksomhetsnummer
 import no.nav.syfo.personoppgavehendelse.kafka.KPersonoppgavehendelse
-import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.OversikthendelseType
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.personstatus.domain.applyHendelse
+import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOppfolgingstilfelleVirksomhetList
+import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER

@@ -13,7 +13,7 @@ import no.nav.syfo.personoppgavehendelse.kafka.KPersonoppgavehendelse
 import no.nav.syfo.personstatus.api.v2.endpoints.personOversiktApiV2Path
 import no.nav.syfo.personstatus.api.v2.model.PersonOversiktStatusDTO
 import no.nav.syfo.personstatus.application.manglendemedvirkning.ManglendeMedvirkningVurderingType
-import no.nav.syfo.personstatus.db.createPersonOversiktStatus
+import no.nav.syfo.personstatus.infrastructure.database.queries.createPersonOversiktStatus
 import no.nav.syfo.personstatus.domain.*
 import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.Virksomhetsnummer

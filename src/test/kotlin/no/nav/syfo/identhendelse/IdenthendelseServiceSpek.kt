@@ -3,10 +3,10 @@ package no.nav.syfo.identhendelse
 import kotlinx.coroutines.*
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.PdlClient
 import no.nav.syfo.personstatus.domain.PersonIdent
-import no.nav.syfo.personstatus.db.createPersonOversiktStatus
-import no.nav.syfo.personstatus.db.getPersonOversiktStatusList
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
+import no.nav.syfo.personstatus.infrastructure.database.queries.createPersonOversiktStatus
+import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList
 import no.nav.syfo.testutil.ExternalMockEnvironment
 import no.nav.syfo.testutil.UserConstants
 import no.nav.syfo.testutil.dropData

@@ -1,10 +1,10 @@
 package no.nav.syfo.frisktilarbeid.kafka
 
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
+import no.nav.syfo.personstatus.infrastructure.database.queries.createPersonOversiktStatus
+import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList
+import no.nav.syfo.personstatus.infrastructure.database.queries.updatePersonOversiktStatusFriskmeldtTilArbeid
 import no.nav.syfo.personstatus.infrastructure.kafka.KafkaConsumerService
-import no.nav.syfo.personstatus.db.createPersonOversiktStatus
-import no.nav.syfo.personstatus.db.getPersonOversiktStatusList
-import no.nav.syfo.personstatus.db.updatePersonOversiktStatusFriskmeldtTilArbeid
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.slf4j.LoggerFactory

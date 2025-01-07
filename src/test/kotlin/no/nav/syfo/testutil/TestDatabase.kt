@@ -2,7 +2,7 @@ package no.nav.syfo.testutil
 
 import io.zonky.test.db.postgres.embedded.EmbeddedPostgres
 import no.nav.syfo.personstatus.domain.PersonIdent
-import no.nav.syfo.personstatus.db.createPersonOversiktStatus
+import no.nav.syfo.personstatus.infrastructure.database.queries.createPersonOversiktStatus
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import org.flywaydb.core.Flyway

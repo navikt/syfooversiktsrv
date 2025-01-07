@@ -4,7 +4,7 @@ import io.mockk.*
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendring
 import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendringType
-import no.nav.syfo.personstatus.db.*
+import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.generator.*
 import no.nav.syfo.util.nowUTC
