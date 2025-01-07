@@ -2,10 +2,13 @@ package no.nav.syfo.aktivitetskravvurdering.kafka
 
 import io.mockk.*
 import kotlinx.coroutines.runBlocking
-import no.nav.syfo.aktivitetskravvurdering.domain.AktivitetskravStatus
+import no.nav.syfo.personstatus.application.aktivitetskrav.AktivitetskravStatus
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList
 import no.nav.syfo.personstatus.infrastructure.database.queries.createPersonOversiktStatus
+import no.nav.syfo.personstatus.infrastructure.kafka.aktivitetskrav.AKTIVITETSKRAV_VURDERING_TOPIC
+import no.nav.syfo.personstatus.infrastructure.kafka.aktivitetskrav.AktivitetskravVurderingConsumer
+import no.nav.syfo.personstatus.infrastructure.kafka.aktivitetskrav.AktivitetskravVurderingRecord
 import no.nav.syfo.personstatus.infrastructure.kafka.mockPollConsumerRecords
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.generator.*

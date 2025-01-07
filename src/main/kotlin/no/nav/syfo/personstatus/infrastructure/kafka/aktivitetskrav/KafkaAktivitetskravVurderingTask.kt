@@ -1,4 +1,4 @@
-package no.nav.syfo.aktivitetskravvurdering.kafka
+package no.nav.syfo.personstatus.infrastructure.kafka.aktivitetskrav
 
 import no.nav.syfo.ApplicationState
 import no.nav.syfo.personstatus.application.PersonoversiktStatusService
@@ -8,7 +8,10 @@ import no.nav.syfo.personstatus.infrastructure.kafka.launchKafkaTask
 import no.nav.syfo.util.configuredJacksonMapper
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.Deserializer
-import java.util.*
+import java.util.Properties
+import kotlin.apply
+import kotlin.collections.set
+import kotlin.jvm.java
 
 const val AKTIVITETSKRAV_VURDERING_TOPIC = "teamsykefravr.aktivitetskrav-vurdering"
 

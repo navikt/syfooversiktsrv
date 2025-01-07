@@ -1,6 +1,6 @@
 package no.nav.syfo.personstatus.infrastructure.kafka
 
-import no.nav.syfo.aktivitetskravvurdering.kafka.launchKafkaTaskAktivitetskravVurdering
+import no.nav.syfo.personstatus.infrastructure.kafka.aktivitetskrav.launchKafkaTaskAktivitetskravVurdering
 import no.nav.syfo.ApplicationState
 import no.nav.syfo.Environment
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
