@@ -9,8 +9,8 @@ import no.nav.syfo.personstatus.api.v2.endpoints.personTildelingApiV2Path
 import no.nav.syfo.personstatus.api.v2.model.VeilederBrukerKnytningDTO
 import no.nav.syfo.personstatus.api.v2.model.VeilederTildelingHistorikkDTO
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
-import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.PersonIdent
+import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_2_FNR
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR

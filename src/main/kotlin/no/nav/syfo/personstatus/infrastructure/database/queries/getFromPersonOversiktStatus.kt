@@ -1,4 +1,4 @@
-package no.nav.syfo.personstatus.db
+package no.nav.syfo.personstatus.infrastructure.database.queries
 
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import no.nav.syfo.personstatus.infrastructure.database.toList

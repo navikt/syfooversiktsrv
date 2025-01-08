@@ -6,9 +6,9 @@ import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import no.nav.syfo.personstatus.infrastructure.clients.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.personstatus.infrastructure.cronjob.Cronjob
 import no.nav.syfo.personstatus.infrastructure.cronjob.CronjobResult
-import no.nav.syfo.personstatus.db.hentUbehandledePersonerTilknyttetEnhet
 import no.nav.syfo.personstatus.domain.hasActiveOppgave
 import no.nav.syfo.personstatus.domain.toPersonOversiktStatus
+import no.nav.syfo.personstatus.infrastructure.database.queries.hentUbehandledePersonerTilknyttetEnhet
 import org.slf4j.LoggerFactory
 import java.time.*
 

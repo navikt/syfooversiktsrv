@@ -3,9 +3,10 @@ package no.nav.syfo.personstatus.infrastructure.database.repository
 import no.nav.syfo.oppfolgingstilfelle.domain.Oppfolgingstilfelle
 import no.nav.syfo.personstatus.api.v2.model.VeilederTildelingHistorikkDTO
 import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
-import no.nav.syfo.personstatus.db.*
 import no.nav.syfo.personstatus.domain.*
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
+import no.nav.syfo.personstatus.infrastructure.database.queries.createPersonOversiktStatus
+import no.nav.syfo.personstatus.infrastructure.database.queries.updatePersonOppfolgingstilfelleVirksomhetList
 import no.nav.syfo.personstatus.infrastructure.database.toList
 import no.nav.syfo.util.nowUTC
 import java.lang.RuntimeException

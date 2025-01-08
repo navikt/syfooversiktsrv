@@ -6,11 +6,11 @@ import kotlinx.coroutines.runBlocking
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import no.nav.syfo.personstatus.application.PersonBehandlendeEnhetService
 import no.nav.syfo.personstatus.domain.PersonIdent
+import no.nav.syfo.personstatus.infrastructure.database.queries.createPersonOversiktStatus
 import no.nav.syfo.oppfolgingsoppgave.domain.Oppfolgingsoppgave
 import no.nav.syfo.oppfolgingsoppgave.kafka.COUNT_KAFKA_CONSUMER_TRENGER_OPPFOLGING_READ
-import no.nav.syfo.personstatus.db.createPersonOversiktStatus
-import no.nav.syfo.personstatus.db.getPersonOversiktStatusList
-import no.nav.syfo.personstatus.db.updateOppfolgingsoppgave
+import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList
+import no.nav.syfo.personstatus.infrastructure.database.queries.updateOppfolgingsoppgave
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 

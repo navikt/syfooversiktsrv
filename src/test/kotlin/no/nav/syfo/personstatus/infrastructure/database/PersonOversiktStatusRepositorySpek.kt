@@ -1,10 +1,10 @@
 package no.nav.syfo.personstatus.infrastructure.database
 
 import no.nav.syfo.personstatus.api.v2.model.SearchQueryDTO
-import no.nav.syfo.personstatus.db.createPersonOversiktStatus
-import no.nav.syfo.personstatus.db.getPersonOversiktStatusList
 import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
+import no.nav.syfo.personstatus.infrastructure.database.queries.createPersonOversiktStatus
+import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList
 import no.nav.syfo.personstatus.infrastructure.database.repository.PersonOversiktStatusRepository
 import no.nav.syfo.testutil.ExternalMockEnvironment
 import no.nav.syfo.testutil.UserConstants

@@ -2,8 +2,8 @@ package no.nav.syfo.personstatus.infrastructure.cronjob.reaper
 
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import no.nav.syfo.personstatus.infrastructure.database.toList
-import no.nav.syfo.personstatus.db.toPPersonOversiktStatus
 import no.nav.syfo.personstatus.domain.PPersonOversiktStatus
+import no.nav.syfo.personstatus.infrastructure.database.queries.toPPersonOversiktStatus
 import java.util.UUID
 
 const val queryGetPersonerWithOutdatedVeiledertildeling =

@@ -9,8 +9,8 @@ import no.nav.syfo.identhendelse.database.updatePersonOversiktStatusVeileder
 import no.nav.syfo.identhendelse.kafka.KafkaIdenthendelseDTO
 import no.nav.syfo.personstatus.application.IPdlClient
 import no.nav.syfo.personstatus.infrastructure.COUNT_KAFKA_CONSUMER_PDL_AKTOR_UPDATES
-import no.nav.syfo.personstatus.db.getPersonOversiktStatusList
 import no.nav.syfo.personstatus.domain.PPersonOversiktStatus
+import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
