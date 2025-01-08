@@ -1,8 +1,8 @@
 package no.nav.syfo.testutil.generator
 
-import no.nav.syfo.aktivitetskravvurdering.domain.AktivitetskravStatus
-import no.nav.syfo.aktivitetskravvurdering.kafka.AKTIVITETSKRAV_VURDERING_TOPIC
-import no.nav.syfo.aktivitetskravvurdering.kafka.AktivitetskravVurderingRecord
+import no.nav.syfo.personstatus.application.aktivitetskrav.AktivitetskravStatus
+import no.nav.syfo.personstatus.infrastructure.kafka.aktivitetskrav.AKTIVITETSKRAV_VURDERING_TOPIC
+import no.nav.syfo.personstatus.infrastructure.kafka.aktivitetskrav.AktivitetskravVurderingRecord
 import no.nav.syfo.testutil.UserConstants
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.TopicPartition
