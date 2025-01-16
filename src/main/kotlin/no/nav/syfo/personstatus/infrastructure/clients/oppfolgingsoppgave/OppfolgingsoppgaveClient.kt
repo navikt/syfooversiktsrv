@@ -74,7 +74,7 @@ class OppfolgingsoppgaveClient(
     }
 
     companion object {
-        const val GET_OPPFOLGINGSOPPGAVER_API_PATH = "/api/internad/v1/huskelapp/get-oppfolgingsoppgaver-new"
+        const val GET_OPPFOLGINGSOPPGAVER_API_PATH = "/api/internad/v1/huskelapp/get-oppfolgingsoppgaver"
 
         private val log = LoggerFactory.getLogger(OppfolgingsoppgaveClient::class.java)
     }
