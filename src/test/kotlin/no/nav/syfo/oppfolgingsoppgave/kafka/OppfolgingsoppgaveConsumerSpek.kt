@@ -4,10 +4,12 @@ import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import no.nav.syfo.oppfolgingsoppgave.OppfolgingsoppgaveService
 import kotlinx.coroutines.runBlocking
+import no.nav.syfo.personstatus.application.oppfolgingsoppgave.OppfolgingsoppgaveRecord
+import no.nav.syfo.personstatus.application.oppfolgingsoppgave.OppfolgingsoppgaveService
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList
+import no.nav.syfo.personstatus.infrastructure.kafka.oppfolgingsoppgave.OppfolgingsoppgaveConsumer
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.generator.generateKafkaHuskelapp
 import no.nav.syfo.testutil.generator.huskelappConsumerRecord

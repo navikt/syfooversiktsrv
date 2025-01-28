@@ -1,10 +1,13 @@
-package no.nav.syfo.oppfolgingsoppgave.kafka
+package no.nav.syfo.personstatus.infrastructure.kafka.oppfolgingsoppgave
 
-import no.nav.syfo.oppfolgingsoppgave.OppfolgingsoppgaveService
+import no.nav.syfo.personstatus.application.oppfolgingsoppgave.OppfolgingsoppgaveRecord
+import no.nav.syfo.personstatus.application.oppfolgingsoppgave.OppfolgingsoppgaveService
 import no.nav.syfo.personstatus.infrastructure.kafka.KafkaConsumerService
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import java.time.Duration
+import kotlin.collections.map
+import kotlin.collections.requireNoNulls
 
 class OppfolgingsoppgaveConsumer(
     private val oppfolgingsoppgaveService: OppfolgingsoppgaveService,
@@ -25,7 +28,7 @@ class OppfolgingsoppgaveConsumer(
     ) {
         val validRecords = consumerRecords.requireNoNulls()
         oppfolgingsoppgaveService.processOppfolgingsoppgave(
-            records = validRecords.map { it.value().toOppfolgingsoppgave() }
+            records = validRecords.map { it.value() }
         )
     }
 }

@@ -1,6 +1,5 @@
-package no.nav.syfo.oppfolgingsoppgave.kafka
+package no.nav.syfo.personstatus.application.oppfolgingsoppgave
 
-import no.nav.syfo.oppfolgingsoppgave.domain.Oppfolgingsoppgave
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -15,11 +14,4 @@ data class OppfolgingsoppgaveRecord(
     val isActive: Boolean,
     val createdAt: OffsetDateTime,
     val updatedAt: OffsetDateTime,
-) {
-    fun toOppfolgingsoppgave() = Oppfolgingsoppgave.create(
-        uuid = uuid,
-        personIdent = personIdent,
-        isActive = isActive,
-        frist = frist,
-    )
-}
+)
