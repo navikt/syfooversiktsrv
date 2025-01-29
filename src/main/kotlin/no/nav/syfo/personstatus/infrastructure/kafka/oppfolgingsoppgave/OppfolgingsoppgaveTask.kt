@@ -1,16 +1,20 @@
-package no.nav.syfo.oppfolgingsoppgave.kafka
+package no.nav.syfo.personstatus.infrastructure.kafka.oppfolgingsoppgave
 
 import no.nav.syfo.ApplicationState
 import no.nav.syfo.personstatus.infrastructure.database.database
 import no.nav.syfo.personstatus.infrastructure.kafka.KafkaEnvironment
 import no.nav.syfo.personstatus.infrastructure.kafka.kafkaAivenConsumerConfig
 import no.nav.syfo.personstatus.application.PersonBehandlendeEnhetService
-import no.nav.syfo.oppfolgingsoppgave.OppfolgingsoppgaveService
+import no.nav.syfo.personstatus.application.oppfolgingsoppgave.OppfolgingsoppgaveRecord
+import no.nav.syfo.personstatus.application.oppfolgingsoppgave.OppfolgingsoppgaveService
 import no.nav.syfo.personstatus.infrastructure.kafka.launchKafkaTask
 import no.nav.syfo.util.configuredJacksonMapper
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.Deserializer
-import java.util.*
+import java.util.Properties
+import kotlin.apply
+import kotlin.collections.set
+import kotlin.jvm.java
 
 const val HUSKELAPP_TOPIC =
     "teamsykefravr.huskelapp"

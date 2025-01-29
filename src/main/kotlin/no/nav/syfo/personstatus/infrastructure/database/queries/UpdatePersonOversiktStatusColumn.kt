@@ -3,7 +3,7 @@ package no.nav.syfo.personstatus.infrastructure.database.queries
 import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendring
 import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.PPersonOversiktStatus
-import no.nav.syfo.oppfolgingsoppgave.domain.Oppfolgingsoppgave
+import no.nav.syfo.personstatus.application.oppfolgingsoppgave.OppfolgingsoppgaveRecord
 import java.sql.Connection
 import java.sql.Timestamp
 import java.time.Instant
@@ -208,12 +208,12 @@ const val queryUpdatePersonOversiktStatusOppfolgingsoppgave =
     """
 
 fun Connection.updateOppfolgingsoppgave(
-    oppfolgingsoppgave: Oppfolgingsoppgave,
+    oppfolgingsoppgave: OppfolgingsoppgaveRecord,
 ) {
     this.prepareStatement(queryUpdatePersonOversiktStatusOppfolgingsoppgave).use {
         it.setBoolean(1, oppfolgingsoppgave.isActive)
         it.setObject(2, Timestamp.from(Instant.now()))
-        it.setString(3, oppfolgingsoppgave.personIdent.value)
+        it.setString(3, oppfolgingsoppgave.personIdent)
         it.execute()
     }
 }
