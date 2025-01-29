@@ -32,6 +32,10 @@ interface IPersonOversiktStatusRepository {
 
     fun getPersonerWithOppgaveAndOldEnhet(): List<Pair<PersonIdent, String?>>
 
+    fun getPersonerWithVeilederTildelingAndOldOppfolgingstilfelle(): List<PersonOversiktStatus>
+
+    fun removeTildeltVeileder(personIdent: PersonIdent)
+
     fun updatePersonTildeltEnhetAndRemoveTildeltVeileder(personIdent: PersonIdent, enhetId: String)
 
     fun updatePersonTildeltEnhetUpdatedAt(personIdent: PersonIdent)

@@ -248,6 +248,23 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
             }
         }
 
+    override fun getPersonerWithVeilederTildelingAndOldOppfolgingstilfelle(): List<PersonOversiktStatus> =
+        database.connection.use { connection ->
+            connection.prepareStatement(GET_PERSONER_WITH_VEILEDERTILDELING_AND_OLD_OPPFOLGINGSTILFELLE).use {
+                it.executeQuery().toList { toPPersonOversiktStatus() }
+            }
+        }.map { it.toPersonOversiktStatus() }
+
+    override fun removeTildeltVeileder(personIdent: PersonIdent) {
+        database.connection.use { connection ->
+            connection.prepareStatement(REMOVE_TILDELT_VEILEDER).use {
+                it.setString(1, personIdent.value)
+                it.execute()
+            }
+            connection.commit()
+        }
+    }
+
     override fun updatePersonTildeltEnhetAndRemoveTildeltVeileder(personIdent: PersonIdent, enhetId: String) {
         val now = nowUTC()
         database.connection.use { connection ->
@@ -532,6 +549,23 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
             UPDATE PERSON_OVERSIKT_STATUS
             SET tildelt_enhet_updated_at = ?, sist_endret = ?
             WHERE fnr = ?
+            """
+
+        private const val REMOVE_TILDELT_VEILEDER =
+            """
+            UPDATE person_oversikt_status
+            SET tildelt_veileder = NULL
+            WHERE fnr = ?
+            """
+
+        private const val GET_PERSONER_WITH_VEILEDERTILDELING_AND_OLD_OPPFOLGINGSTILFELLE =
+            """
+            SELECT *
+            FROM person_oversikt_status
+            WHERE tildelt_veileder IS NOT NULL
+            AND oppfolgingstilfelle_end + INTERVAL '2 MONTH' < now()
+            AND (sist_endret IS NULL OR sist_endret + INTERVAL '2 MONTH' < now())
+            LIMIT 2000;
             """
 
         private const val GET_PERSON_STATUSES_WITHOUT_NAVN_OR_FODSELSDATO =

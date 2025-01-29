@@ -160,6 +160,12 @@ class PersonoversiktStatusService(
         return personoversiktStatusRepository.updatePersonstatusesWithNavnAndFodselsdato(editedPersonStatuser)
     }
 
+    fun getPersonerWithVeilederTildelingAndOldOppfolgingstilfelle(): List<PersonOversiktStatus> =
+        personoversiktStatusRepository.getPersonerWithVeilederTildelingAndOldOppfolgingstilfelle()
+
+    fun removeTildeltVeileder(personIdent: PersonIdent) =
+        personoversiktStatusRepository.removeTildeltVeileder(personIdent)
+
     private fun createOrUpdatePersonOversiktStatus(
         connection: Connection,
         personident: PersonIdent,

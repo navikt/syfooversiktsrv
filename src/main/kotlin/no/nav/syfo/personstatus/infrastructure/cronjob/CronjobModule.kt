@@ -14,7 +14,6 @@ import no.nav.syfo.personstatus.application.PersonBehandlendeEnhetService
 import no.nav.syfo.personstatus.infrastructure.cronjob.leaderelection.LeaderPodClient
 import no.nav.syfo.personstatus.infrastructure.cronjob.preloadcache.PreloadCacheCronjob
 import no.nav.syfo.personstatus.infrastructure.cronjob.reaper.ReaperCronjob
-import no.nav.syfo.personstatus.infrastructure.cronjob.reaper.ReaperService
 import no.nav.syfo.personstatus.infrastructure.cronjob.virksomhetsnavn.PersonOppfolgingstilfelleVirksomhetnavnCronjob
 import no.nav.syfo.personstatus.infrastructure.cronjob.virksomhetsnavn.PersonOppfolgingstilfelleVirksomhetsnavnService
 
@@ -48,11 +47,8 @@ fun launchCronjobModule(
         personoversiktStatusService = personoversiktStatusService,
     )
 
-    val reaperService = ReaperService(
-        database = database,
-    )
     val reaperCronjob = ReaperCronjob(
-        reaperService = reaperService,
+        personOversiktStatusService = personoversiktStatusService,
     )
 
     val tilgangskontrollClient = VeilederTilgangskontrollClient(
