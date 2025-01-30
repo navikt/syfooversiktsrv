@@ -1,12 +1,14 @@
 package no.nav.syfo.personstatus.infrastructure.cronjob.reaper
 
 import net.logstash.logback.argument.StructuredArguments
+import no.nav.syfo.personstatus.application.PersonoversiktStatusService
+import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.infrastructure.cronjob.Cronjob
 import no.nav.syfo.personstatus.infrastructure.cronjob.CronjobResult
 import org.slf4j.LoggerFactory
 
 class ReaperCronjob(
-    private val reaperService: ReaperService,
+    private val personOversiktStatusService: PersonoversiktStatusService,
 ) : Cronjob {
     private val log = LoggerFactory.getLogger(ReaperCronjob::class.java)
 
@@ -29,15 +31,15 @@ class ReaperCronjob(
         Desember 2024: Endrer slik at veilederknytningen nulles når det har gått 2 måneder (fra 3) siden siste
         oppfølgingstilfelle-end og minst 2 måneder siden siste oppdatering.
          */
-        reaperService.getPersonerForReaper()
-            .forEach { uuid ->
+        personOversiktStatusService.getPersonerWithVeilederTildelingAndOldOppfolgingstilfelle()
+            .forEach {
                 try {
-                    reaperService.reap(uuid)
+                    personOversiktStatusService.removeTildeltVeileder(PersonIdent(it.fnr))
                     result.updated++
                     COUNT_CRONJOB_REAPER_UPDATE.increment()
                 } catch (ex: Exception) {
                     log.error(
-                        "Exception caught while attempting to reap oppgave with uuid $uuid",
+                        "Exception caught while attempting to remove tildelt veileder",
                         ex
                     )
                     result.failed++

@@ -4,7 +4,6 @@ import kotlinx.coroutines.runBlocking
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.personstatus.domain.toPersonOversiktStatus
 import no.nav.syfo.personstatus.infrastructure.cronjob.reaper.ReaperCronjob
-import no.nav.syfo.personstatus.infrastructure.cronjob.reaper.ReaperService
 import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.generator.generatePPersonOversiktStatus
@@ -20,12 +19,10 @@ import java.util.*
 object ReaperCronjobSpek : Spek({
     val externalMockEnvironment = ExternalMockEnvironment.instance
     val database = externalMockEnvironment.database
+    val personoversiktStatusService = externalMockEnvironment.personoversiktStatusService
 
-    val reaperService = ReaperService(
-        database = database,
-    )
     val reaperCronjob = ReaperCronjob(
-        reaperService = reaperService,
+        personOversiktStatusService = personoversiktStatusService,
     )
 
     describe(ReaperCronjobSpek::class.java.simpleName) {
