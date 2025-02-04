@@ -79,7 +79,7 @@ class OppfolgingstilfelleService(
             veilederIdent = veilederIdent,
         ).fold(
             onSuccess = { veileder ->
-                if (veileder == null || veileder.enabled == false) {
+                if (veileder == null || !veileder.enabled) {
                     log.warn("Tildelt veileder $veilederIdent not found or not enabled")
                     COUNT_KAFKA_CONSUMER_OPPFOLGINGSTILFELLE_PERSON_TILDELT_VEILEDER_NOT_FOUND_OR_NOT_ENABLED.increment()
                 }
