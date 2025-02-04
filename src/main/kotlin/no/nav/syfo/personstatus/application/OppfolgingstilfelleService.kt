@@ -41,9 +41,9 @@ class OppfolgingstilfelleService(
     private suspend fun createPersonWithNameAndFodselsdato(personStatus: PersonOversiktStatus) {
         pdlClient.getPerson(PersonIdent(personStatus.fnr))
             .map {
-                val editedPersonStatues =
+                val editedPersonStatus =
                     personStatus.updatePersonDetails(navn = it.fullName(), fodselsdato = it.fodselsdato())
-                personOversiktStatusRepository.createPersonOversiktStatus(editedPersonStatues)
+                personOversiktStatusRepository.createPersonOversiktStatus(editedPersonStatus)
             }.onFailure { throwable ->
                 log.error("Failed to get person from PDL: ${throwable.message}. Creating person without name and fodselsdato")
                 personOversiktStatusRepository.createPersonOversiktStatus(personStatus)
