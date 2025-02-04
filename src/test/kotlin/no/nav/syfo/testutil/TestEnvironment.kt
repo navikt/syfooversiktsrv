@@ -84,6 +84,10 @@ fun testEnvironment(
             baseUrl = "ismeroppfolgingUrl",
             clientId = "dev-gcp.teamsykefravr.ismeroppfolging",
         ),
+        syfoveileder = ClientEnvironment(
+            clientId = "dev-gcp.teamsykefravr.syfoveileder",
+            baseUrl = "syfoveilederUrl",
+        ),
     ),
     redisConfig = RedisConfig(
         redisUri = URI("http://localhost:6379"),

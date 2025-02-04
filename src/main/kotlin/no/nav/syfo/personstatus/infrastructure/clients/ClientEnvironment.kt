@@ -10,6 +10,7 @@ data class ClientsEnvironment(
     val istilgangskontroll: ClientEnvironment,
     val ishuskelapp: ClientEnvironment,
     val ismeroppfolging: ClientEnvironment,
+    val syfoveileder: ClientEnvironment,
 )
 
 data class ClientEnvironment(

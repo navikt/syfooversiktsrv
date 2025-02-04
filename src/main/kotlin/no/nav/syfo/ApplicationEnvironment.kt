@@ -56,6 +56,10 @@ data class Environment(
             baseUrl = getEnvVar("SYFOBEHANDLENDEENHET_URL"),
             clientId = getEnvVar("SYFOBEHANDLENDEENHET_CLIENT_ID"),
         ),
+        syfoveileder = ClientEnvironment(
+            clientId = getEnvVar("SYFOVEILEDER_CLIENT_ID"),
+            baseUrl = getEnvVar("SYFOVEILEDER_URL"),
+        ),
         arbeidsuforhetvurdering = ClientEnvironment(
             baseUrl = getEnvVar("ARBEIDSUFORHETVURDERING_URL"),
             clientId = getEnvVar("ARBEIDSUFORHETVURDERING_CLIENT_ID"),

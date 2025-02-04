@@ -60,6 +60,7 @@ spec:
         - application: istilgangskontroll
         - application: ishuskelapp
         - application: ismeroppfolging
+        - application: syfoveileder
   azure:
     application:
       allowAllUsers: true
@@ -97,6 +98,10 @@ spec:
       value: "prod-gcp.teamsykefravr.syfobehandlendeenhet"
     - name: SYFOBEHANDLENDEENHET_URL
       value: "http://syfobehandlendeenhet"
+    - name: SYFOVEILEDER_CLIENT_ID
+      value: "prod-gcp.teamsykefravr.syfoveileder"
+    - name: SYFOVEILEDER_URL
+      value: "http://syfoveileder"
     - name: ARBEIDSUFORHETVURDERING_CLIENT_ID
       value: "prod-gcp.teamsykefravr.isarbeidsuforhet"
     - name: ARBEIDSUFORHETVURDERING_URL
