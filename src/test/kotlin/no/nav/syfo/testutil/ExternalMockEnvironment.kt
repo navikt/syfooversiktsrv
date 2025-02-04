@@ -6,6 +6,7 @@ import no.nav.syfo.personstatus.application.OppfolgingstilfelleService
 import no.nav.syfo.personstatus.application.PersonoversiktStatusService
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.PdlClient
+import no.nav.syfo.personstatus.infrastructure.clients.veileder.VeilederClient
 import no.nav.syfo.personstatus.infrastructure.database.repository.PersonOversiktStatusRepository
 import no.nav.syfo.testutil.mock.*
 import redis.clients.jedis.DefaultJedisClientConfig
@@ -34,13 +35,19 @@ class ExternalMockEnvironment private constructor() {
 
     val personOversiktStatusRepository = PersonOversiktStatusRepository(database = database)
 
-    val pdlClient = PdlClient(
-        azureAdClient = AzureAdClient(
-            azureEnvironment = environment.azure,
-            redisStore = redisStore,
-            httpClient = mockHttpClient,
-        ),
+    private val azureAdClient = AzureAdClient(
+        azureEnvironment = environment.azure,
+        redisStore = redisStore,
+        httpClient = mockHttpClient,
+    )
+    private val pdlClient = PdlClient(
+        azureAdClient = azureAdClient,
         clientEnvironment = environment.clients.pdl,
+        httpClient = mockHttpClient
+    )
+    private val veilederClient = VeilederClient(
+        azureAdClient = azureAdClient,
+        clientEnvironment = environment.clients.syfoveileder,
         httpClient = mockHttpClient
     )
 
@@ -52,6 +59,7 @@ class ExternalMockEnvironment private constructor() {
     val oppfolgingstilfelleService = OppfolgingstilfelleService(
         pdlClient = pdlClient,
         personOversiktStatusRepository = personOversiktStatusRepository,
+        veilederClient = veilederClient
     )
 
     companion object {

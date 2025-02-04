@@ -21,6 +21,7 @@ import no.nav.syfo.personstatus.infrastructure.clients.oppfolgingsoppgave.Oppfol
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.PdlClient
 import no.nav.syfo.personstatus.infrastructure.clients.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.personstatus.application.PersonBehandlendeEnhetService
+import no.nav.syfo.personstatus.infrastructure.clients.veileder.VeilederClient
 import no.nav.syfo.personstatus.infrastructure.cronjob.launchCronjobModule
 import no.nav.syfo.personstatus.infrastructure.database.database
 import no.nav.syfo.personstatus.infrastructure.database.databaseModule
@@ -96,6 +97,10 @@ fun main() {
         azureAdClient = azureAdClient,
         istilgangskontrollEnv = environment.clients.istilgangskontroll,
     )
+    val veilederClient = VeilederClient(
+        azureAdClient = azureAdClient,
+        clientEnvironment = environment.clients.syfoveileder,
+    )
 
     lateinit var personBehandlendeEnhetService: PersonBehandlendeEnhetService
     lateinit var personoversiktStatusService: PersonoversiktStatusService
@@ -125,6 +130,7 @@ fun main() {
             oppfolgingstilfelleService = OppfolgingstilfelleService(
                 pdlClient = pdlClient,
                 personOversiktStatusRepository = personoversiktStatusRepository,
+                veilederClient = veilederClient,
             )
             personoversiktStatusService = PersonoversiktStatusService(
                 database = database,
