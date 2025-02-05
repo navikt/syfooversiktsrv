@@ -17,7 +17,8 @@ class OppfolgingstilfelleService(
     private val veilederClient: VeilederClient,
 ) {
     suspend fun upsertPersonOversiktStatus(personStatus: PersonOversiktStatus, newPersonOppfolgingsTilfelle: Oppfolgingstilfelle) {
-        val existingPerson: PersonOversiktStatus? = personOversiktStatusRepository.getPersonOversiktStatus(PersonIdent(personStatus.fnr))
+        val personident = PersonIdent(personStatus.fnr)
+        val existingPerson: PersonOversiktStatus? = personOversiktStatusRepository.getPersonOversiktStatus(personident)
         if (existingPerson == null) {
             createPersonWithNameAndFodselsdato(personStatus)
         } else {
@@ -33,7 +34,7 @@ class OppfolgingstilfelleService(
                 )
             }
             if (existingPerson.veilederIdent != null) {
-                checkTildeltVeileder(existingPerson.veilederIdent)
+                removeTildeltVeilederIfNotFoundOrEnabled(veilederIdent = existingPerson.veilederIdent, personIdent = personident)
             }
         }
     }
@@ -73,7 +74,7 @@ class OppfolgingstilfelleService(
         }
     }
 
-    private suspend fun checkTildeltVeileder(veilederIdent: String) {
+    private suspend fun removeTildeltVeilederIfNotFoundOrEnabled(veilederIdent: String, personIdent: PersonIdent) {
         veilederClient.getVeileder(
             callId = UUID.randomUUID().toString(),
             veilederIdent = veilederIdent,
@@ -82,6 +83,7 @@ class OppfolgingstilfelleService(
                 if (veileder == null || !veileder.enabled) {
                     log.warn("Tildelt veileder $veilederIdent not found or not enabled")
                     COUNT_KAFKA_CONSUMER_OPPFOLGINGSTILFELLE_PERSON_TILDELT_VEILEDER_NOT_FOUND_OR_NOT_ENABLED.increment()
+                    personOversiktStatusRepository.removeTildeltVeileder(personIdent = personIdent)
                 }
             },
             onFailure = {

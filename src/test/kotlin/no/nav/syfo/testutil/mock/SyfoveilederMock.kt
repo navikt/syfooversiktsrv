@@ -13,6 +13,9 @@ fun MockRequestHandleScope.veilederMockResponse(requestData: HttpRequestData): H
         requestUrl.endsWith(UserConstants.VEILEDER_ID) -> respondOk(
             VeilederDTO(enabled = true, ident = UserConstants.VEILEDER_ID)
         )
+        requestUrl.endsWith(UserConstants.VEILEDER_ID_NOT_ENABLED) -> respondOk(
+            VeilederDTO(enabled = false, ident = UserConstants.VEILEDER_ID_NOT_ENABLED)
+        )
         requestUrl.endsWith(UserConstants.VEILEDER_ID_2) -> respondError(status = HttpStatusCode.NotFound)
         requestUrl.endsWith(UserConstants.VEILEDER_ID_WITH_ERROR) -> respondError(status = HttpStatusCode.InternalServerError)
         else -> error("Unhandled path $requestUrl")
