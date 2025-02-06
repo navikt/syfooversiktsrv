@@ -21,6 +21,7 @@ import no.nav.syfo.testutil.generator.*
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldNotBe
+import org.amshove.kluent.shouldNotBeNull
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.spekframework.spek2.Spek
@@ -785,6 +786,94 @@ object OppfolgingstilfelleConsumerSpek : Spek({
                     oppfolgingstilfellePersonRecord = recordValue,
                 )
             }
+        }
+
+        it("updates oppfolgingstilfelle and removes tildelt veileder from existing PersonOversiktStatus when tildelt veileder not found") {
+            mockConsumer(oppfolgingstilfellePersonConsumerRecordRelevant)
+
+            personOversiktStatusRepository.createPersonOversiktStatus(
+                PersonOversiktStatus(
+                    fnr = personIdentDefault.value,
+                    veilederIdent = UserConstants.VEILEDER_ID_2,
+                )
+            )
+
+            runBlocking {
+                oppfolgingstilfelleConsumer.pollAndProcessRecords(
+                    kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
+                )
+            }
+
+            val personOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(personIdentDefault)!!
+
+            personOversiktStatus.latestOppfolgingstilfelle.shouldNotBeNull()
+            personOversiktStatus.veilederIdent.shouldBeNull()
+        }
+
+        it("updates oppfolgingstilfelle and removes tildelt veileder from existing PersonOversiktStatus when tildelt veileder not enabled") {
+            mockConsumer(oppfolgingstilfellePersonConsumerRecordRelevant)
+
+            personOversiktStatusRepository.createPersonOversiktStatus(
+                PersonOversiktStatus(
+                    fnr = personIdentDefault.value,
+                    veilederIdent = UserConstants.VEILEDER_ID_NOT_ENABLED,
+                )
+            )
+
+            runBlocking {
+                oppfolgingstilfelleConsumer.pollAndProcessRecords(
+                    kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
+                )
+            }
+
+            val personOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(personIdentDefault)!!
+
+            personOversiktStatus.latestOppfolgingstilfelle.shouldNotBeNull()
+            personOversiktStatus.veilederIdent.shouldBeNull()
+        }
+
+        it("updates oppfolgingstilfelle and does not remove tildelt veileder from existing PersonOversiktStatus when tildelt veileder found and enabled") {
+            mockConsumer(oppfolgingstilfellePersonConsumerRecordRelevant)
+
+            personOversiktStatusRepository.createPersonOversiktStatus(
+                PersonOversiktStatus(
+                    fnr = personIdentDefault.value,
+                    veilederIdent = UserConstants.VEILEDER_ID,
+                )
+            )
+
+            runBlocking {
+                oppfolgingstilfelleConsumer.pollAndProcessRecords(
+                    kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
+                )
+            }
+
+            val personOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(personIdentDefault)!!
+
+            personOversiktStatus.latestOppfolgingstilfelle.shouldNotBeNull()
+            personOversiktStatus.veilederIdent shouldBeEqualTo UserConstants.VEILEDER_ID
+        }
+
+        it("updates oppfolgingstilfelle and does not remove tildelt veileder from existing PersonOversiktStatus when request to get tildelt veileder fails") {
+            mockConsumer(oppfolgingstilfellePersonConsumerRecordRelevant)
+
+            personOversiktStatusRepository.createPersonOversiktStatus(
+                PersonOversiktStatus(
+                    fnr = personIdentDefault.value,
+                    veilederIdent = UserConstants.VEILEDER_ID_WITH_ERROR,
+                )
+            )
+
+            runBlocking {
+                oppfolgingstilfelleConsumer.pollAndProcessRecords(
+                    kafkaConsumer = mockKafkaConsumerOppfolgingstilfellePerson,
+                )
+            }
+
+            val personOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(personIdentDefault)!!
+
+            personOversiktStatus.latestOppfolgingstilfelle.shouldNotBeNull()
+            personOversiktStatus.veilederIdent shouldBeEqualTo UserConstants.VEILEDER_ID_WITH_ERROR
         }
     }
 })
