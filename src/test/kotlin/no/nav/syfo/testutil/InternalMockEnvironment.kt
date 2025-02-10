@@ -15,11 +15,11 @@ class InternalMockEnvironment private constructor() {
     private val externalMockEnvironment: ExternalMockEnvironment = ExternalMockEnvironment.instance
     private val database = externalMockEnvironment.database
     private val environment = externalMockEnvironment.environment
-    private val redisStore = externalMockEnvironment.redisStore
+    private val redisStore = externalMockEnvironment.valkeyStore
 
     private val azureAdClient = AzureAdClient(
         azureEnvironment = environment.azure,
-        redisStore = redisStore,
+        valkeyStore = redisStore,
         httpClient = externalMockEnvironment.mockHttpClient
     )
     private val pdlClient = PdlClient(
@@ -34,7 +34,7 @@ class InternalMockEnvironment private constructor() {
     )
     private val eregClient = EregClient(
         clientEnvironment = environment.clients.ereg,
-        redisStore = redisStore,
+        valkeyStore = redisStore,
         httpClient = externalMockEnvironment.mockHttpClient
     )
 

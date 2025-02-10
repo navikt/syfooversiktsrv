@@ -14,7 +14,7 @@ object VeilederClientSpek : Spek({
     val externalMockEnvironment = ExternalMockEnvironment.instance
     val azureAdClient = AzureAdClient(
         azureEnvironment = externalMockEnvironment.environment.azure,
-        redisStore = externalMockEnvironment.redisStore,
+        valkeyStore = externalMockEnvironment.valkeyStore,
         httpClient = externalMockEnvironment.mockHttpClient
     )
     val veilederClient = VeilederClient(

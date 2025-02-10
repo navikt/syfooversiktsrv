@@ -24,7 +24,7 @@ fun Application.testApiModule(
 ) {
     val azureAdClient = AzureAdClient(
         azureEnvironment = externalMockEnvironment.environment.azure,
-        redisStore = externalMockEnvironment.redisStore,
+        valkeyStore = externalMockEnvironment.valkeyStore,
         httpClient = externalMockEnvironment.mockHttpClient
     )
 

@@ -5,7 +5,7 @@ import io.ktor.server.application.*
 import io.ktor.server.config.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
-import no.nav.syfo.application.cache.RedisStore
+import no.nav.syfo.application.cache.ValkeyStore
 import no.nav.syfo.personstatus.application.PersonoversiktStatusService
 import no.nav.syfo.personstatus.api.v2.apiModule
 import no.nav.syfo.personstatus.api.v2.auth.getWellKnown
@@ -46,23 +46,23 @@ fun main() {
         wellKnownUrl = environment.azure.appWellKnownUrl,
     )
 
-    val redisConfig = environment.redisConfig
-    val redisStore = RedisStore(
+    val valkeyConfig = environment.valkeyConfig
+    val valkeyStore = ValkeyStore(
         JedisPool(
             JedisPoolConfig(),
-            HostAndPort(redisConfig.host, redisConfig.port),
+            HostAndPort(valkeyConfig.host, valkeyConfig.port),
             DefaultJedisClientConfig.builder()
-                .ssl(redisConfig.ssl)
-                .user(redisConfig.redisUsername)
-                .password(redisConfig.redisPassword)
-                .database(redisConfig.redisDB)
+                .ssl(valkeyConfig.ssl)
+                .user(valkeyConfig.valkeyUsername)
+                .password(valkeyConfig.valkeyPassword)
+                .database(valkeyConfig.valkeyDB)
                 .build()
         )
     )
 
     val azureAdClient = AzureAdClient(
         azureEnvironment = environment.azure,
-        redisStore = redisStore,
+        valkeyStore = valkeyStore,
     )
 
     val pdlClient = PdlClient(
@@ -173,7 +173,7 @@ fun main() {
                     applicationState = applicationState,
                     database = database,
                     environment = environment,
-                    redisStore = redisStore,
+                    valkeyStore = valkeyStore,
                     azureAdClient = azureAdClient,
                     personBehandlendeEnhetService = personBehandlendeEnhetService,
                     personoversiktStatusService = personoversiktStatusService,

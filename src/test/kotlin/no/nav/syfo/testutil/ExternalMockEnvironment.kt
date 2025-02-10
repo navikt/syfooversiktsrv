@@ -1,7 +1,7 @@
 package no.nav.syfo.testutil
 
 import no.nav.syfo.ApplicationState
-import no.nav.syfo.application.cache.RedisStore
+import no.nav.syfo.application.cache.ValkeyStore
 import no.nav.syfo.personstatus.application.OppfolgingstilfelleService
 import no.nav.syfo.personstatus.application.PersonoversiktStatusService
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
@@ -18,14 +18,14 @@ class ExternalMockEnvironment private constructor() {
     val applicationState: ApplicationState = testAppState()
     val database = TestDatabase()
     val environment = testEnvironment()
-    val redisConfig = environment.redisConfig
-    var redisStore = RedisStore(
+    val redisConfig = environment.valkeyConfig
+    var valkeyStore = ValkeyStore(
         JedisPool(
             JedisPoolConfig(),
             HostAndPort(redisConfig.host, redisConfig.port),
             DefaultJedisClientConfig.builder()
                 .ssl(redisConfig.ssl)
-                .password(redisConfig.redisPassword)
+                .password(redisConfig.valkeyPassword)
                 .build()
         )
     )
@@ -37,7 +37,7 @@ class ExternalMockEnvironment private constructor() {
 
     private val azureAdClient = AzureAdClient(
         azureEnvironment = environment.azure,
-        redisStore = redisStore,
+        valkeyStore = valkeyStore,
         httpClient = mockHttpClient,
     )
     private val pdlClient = PdlClient(
