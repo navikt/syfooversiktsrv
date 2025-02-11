@@ -6,7 +6,7 @@ import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import net.logstash.logback.argument.StructuredArguments
-import no.nav.syfo.application.cache.RedisStore
+import no.nav.syfo.application.cache.ValkeyStore
 import no.nav.syfo.personstatus.infrastructure.clients.ClientEnvironment
 import no.nav.syfo.personstatus.infrastructure.clients.httpClientDefault
 import no.nav.syfo.personstatus.domain.Virksomhetsnummer
@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory
 
 class EregClient(
     clientEnvironment: ClientEnvironment,
-    private val redisStore: RedisStore,
+    private val valkeyStore: ValkeyStore,
     private val httpClient: HttpClient = httpClientDefault(),
 ) {
 
@@ -26,7 +26,7 @@ class EregClient(
         virksomhetsnummer: Virksomhetsnummer,
     ): EregVirksomhetsnavn? {
         val cacheKey = "$CACHE_EREG_VIRKSOMHETSNAVN_KEY_PREFIX${virksomhetsnummer.value}"
-        val cachedResponse: EregVirksomhetsnavn? = redisStore.getObject(key = cacheKey)
+        val cachedResponse: EregVirksomhetsnavn? = valkeyStore.getObject(key = cacheKey)
 
         if (cachedResponse != null) {
             return cachedResponse
@@ -39,7 +39,7 @@ class EregClient(
                 }.body<EregOrganisasjonResponse>()
                 COUNT_CALL_EREG_ORGANISASJON_SUCCESS.increment()
                 val eregVirksomhetsnavn = response.toEregVirksomhetsnavn()
-                redisStore.setObject(
+                valkeyStore.setObject(
                     key = cacheKey,
                     value = eregVirksomhetsnavn,
                     expireSeconds = CACHE_EREG_VIRKSOMHETSNAVN_TIME_TO_LIVE_SECONDS,

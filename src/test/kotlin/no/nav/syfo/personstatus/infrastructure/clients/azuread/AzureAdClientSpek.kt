@@ -5,7 +5,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
-import no.nav.syfo.application.cache.RedisStore
+import no.nav.syfo.application.cache.ValkeyStore
 import no.nav.syfo.testutil.ExternalMockEnvironment
 import no.nav.syfo.testutil.UserConstants.VEILEDER_ID
 import no.nav.syfo.testutil.UserConstants.VEILEDER_IDENT_NO_AZURE_AD_TOKEN
@@ -16,17 +16,17 @@ import java.time.LocalDateTime
 
 object AzureAdClientSpek : Spek({
     val externalMockEnvironment = ExternalMockEnvironment.instance
-    val redisStoreMock = mockk<RedisStore>(relaxed = true)
+    val valkeyStoreMock = mockk<ValkeyStore>(relaxed = true)
     val oneHourInSeconds = 1 * 60 * 60L
 
     val azureAdClient = AzureAdClient(
         azureEnvironment = externalMockEnvironment.environment.azure,
-        redisStore = redisStoreMock,
+        valkeyStore = valkeyStoreMock,
         httpClient = externalMockEnvironment.mockHttpClient
     )
 
     describe("AzureAdClient") {
-        afterEachTest { clearMocks(redisStoreMock) }
+        afterEachTest { clearMocks(valkeyStoreMock) }
 
         val validToken = generateJWT(
             audience = externalMockEnvironment.environment.azure.appClientId,
@@ -39,7 +39,7 @@ object AzureAdClientSpek : Spek({
                 val huskelappClientId = externalMockEnvironment.environment.clients.ishuskelapp.clientId
                 val cacheKey =
                     "${AzureAdClient.CACHE_AZUREAD_TOKEN_OBO_KEY_PREFIX}$huskelappClientId-$VEILEDER_ID"
-                every { redisStoreMock.getObject<AzureAdToken?>(key = cacheKey) } returns null
+                every { valkeyStoreMock.getObject<AzureAdToken?>(key = cacheKey) } returns null
 
                 runBlocking {
                     azureAdClient.getOnBehalfOfToken(
@@ -48,9 +48,9 @@ object AzureAdClientSpek : Spek({
                     )
                 }
 
-                verify(exactly = 1) { redisStoreMock.getObject<AzureAdToken?>(key = cacheKey) }
+                verify(exactly = 1) { valkeyStoreMock.getObject<AzureAdToken?>(key = cacheKey) }
                 verify(exactly = 1) {
-                    redisStoreMock.setObject<Any>(
+                    valkeyStoreMock.setObject<Any>(
                         key = cacheKey,
                         value = any(),
                         expireSeconds = oneHourInSeconds,
@@ -63,7 +63,7 @@ object AzureAdClientSpek : Spek({
                 val cacheKey =
                     "${AzureAdClient.CACHE_AZUREAD_TOKEN_OBO_KEY_PREFIX}$huskelappClientId-$VEILEDER_ID"
                 every {
-                    redisStoreMock.getObject<AzureAdToken?>(key = cacheKey)
+                    valkeyStoreMock.getObject<AzureAdToken?>(key = cacheKey)
                 } returns AzureAdToken(
                     accessToken = "123",
                     expires = LocalDateTime.now().plusHours(1),
@@ -76,8 +76,8 @@ object AzureAdClientSpek : Spek({
                     )
                 }
 
-                verify(exactly = 1) { redisStoreMock.getObject<AzureAdToken?>(key = cacheKey) }
-                verify(exactly = 0) { redisStoreMock.setObject<Any>(any(), any(), any()) }
+                verify(exactly = 1) { valkeyStoreMock.getObject<AzureAdToken?>(key = cacheKey) }
+                verify(exactly = 0) { valkeyStoreMock.setObject<Any>(any(), any(), any()) }
             }
 
             it("Does not store cache when azureAd return null") {
@@ -89,7 +89,7 @@ object AzureAdClientSpek : Spek({
                 val huskelappClientId = externalMockEnvironment.environment.clients.ishuskelapp.clientId
                 val cacheKey =
                     "${AzureAdClient.CACHE_AZUREAD_TOKEN_OBO_KEY_PREFIX}$huskelappClientId-$VEILEDER_IDENT_NO_AZURE_AD_TOKEN"
-                every { redisStoreMock.getObject<AzureAdToken?>(key = cacheKey) } returns null
+                every { valkeyStoreMock.getObject<AzureAdToken?>(key = cacheKey) } returns null
 
                 runBlocking {
                     azureAdClient.getOnBehalfOfToken(
@@ -98,8 +98,8 @@ object AzureAdClientSpek : Spek({
                     )
                 }
 
-                verify(exactly = 1) { redisStoreMock.getObject<AzureAdToken?>(key = cacheKey) }
-                verify(exactly = 0) { redisStoreMock.setObject<Any>(any(), any(), any()) }
+                verify(exactly = 1) { valkeyStoreMock.getObject<AzureAdToken?>(key = cacheKey) }
+                verify(exactly = 0) { valkeyStoreMock.setObject<Any>(any(), any(), any()) }
             }
         }
 
@@ -107,7 +107,7 @@ object AzureAdClientSpek : Spek({
             it("Returns system-token from AzureAD and stores in cache") {
                 val pdlClientId = externalMockEnvironment.environment.clients.pdl.clientId
                 val cacheKey = "${AzureAdClient.CACHE_AZUREAD_TOKEN_SYSTEM_KEY_PREFIX}$pdlClientId"
-                every { redisStoreMock.getObject<AzureAdToken?>(any()) } returns null
+                every { valkeyStoreMock.getObject<AzureAdToken?>(any()) } returns null
 
                 runBlocking {
                     azureAdClient.getSystemToken(
@@ -115,9 +115,9 @@ object AzureAdClientSpek : Spek({
                     )
                 }
 
-                verify(exactly = 1) { redisStoreMock.getObject<AzureAdToken?>(key = cacheKey) }
+                verify(exactly = 1) { valkeyStoreMock.getObject<AzureAdToken?>(key = cacheKey) }
                 verify(exactly = 1) {
-                    redisStoreMock.setObject<Any>(
+                    valkeyStoreMock.setObject<Any>(
                         key = cacheKey,
                         value = any(),
                         expireSeconds = oneHourInSeconds,
@@ -129,7 +129,7 @@ object AzureAdClientSpek : Spek({
                 val pdlClientId = externalMockEnvironment.environment.clients.pdl.clientId
                 val cacheKey = "${AzureAdClient.CACHE_AZUREAD_TOKEN_SYSTEM_KEY_PREFIX}$pdlClientId"
                 every {
-                    redisStoreMock.getObject<AzureAdToken?>(key = cacheKey)
+                    valkeyStoreMock.getObject<AzureAdToken?>(key = cacheKey)
                 } returns AzureAdToken(
                     accessToken = "123",
                     expires = LocalDateTime.now().plusHours(1),
@@ -141,8 +141,8 @@ object AzureAdClientSpek : Spek({
                     )
                 }
 
-                verify(exactly = 1) { redisStoreMock.getObject<AzureAdToken?>(key = cacheKey) }
-                verify(exactly = 0) { redisStoreMock.setObject<Any>(any(), any(), any()) }
+                verify(exactly = 1) { valkeyStoreMock.getObject<AzureAdToken?>(key = cacheKey) }
+                verify(exactly = 0) { valkeyStoreMock.setObject<Any>(any(), any(), any()) }
             }
         }
     }

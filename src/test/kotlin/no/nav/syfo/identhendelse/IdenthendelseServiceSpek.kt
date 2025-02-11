@@ -25,7 +25,7 @@ object IdenthendelseServiceSpek : Spek({
         val pdlClient = PdlClient(
             azureAdClient = AzureAdClient(
                 azureEnvironment = externalMockEnvironment.environment.azure,
-                redisStore = externalMockEnvironment.redisStore,
+                valkeyStore = externalMockEnvironment.valkeyStore,
                 httpClient = externalMockEnvironment.mockHttpClient
             ),
             clientEnvironment = externalMockEnvironment.environment.clients.pdl,
