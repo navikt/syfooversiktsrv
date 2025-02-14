@@ -23,7 +23,7 @@ data class AktivitetskravvurderingDTO(
     val status: AktivitetskravStatus,
     val frist: LocalDate?,
     val varsel: AktivitetskravVarselDTO?,
-    val arsaker: List<Arsak>
+    val arsaker: List<Arsak>,
 )
 
 data class AktivitetskravVarselDTO(
@@ -39,7 +39,7 @@ enum class AktivitetskravStatus {
     OPPFYLT,
     AUTOMATISK_OPPFYLT,
     FORHANDSVARSEL,
-    STANS,
+    INNSTILLING_OM_STANS,
     IKKE_OPPFYLT,
     IKKE_AKTUELL,
     LUKKET,
