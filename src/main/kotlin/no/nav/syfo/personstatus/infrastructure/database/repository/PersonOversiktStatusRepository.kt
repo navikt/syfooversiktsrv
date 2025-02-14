@@ -6,6 +6,7 @@ import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
 import no.nav.syfo.personstatus.domain.*
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import no.nav.syfo.personstatus.infrastructure.database.queries.createPersonOversiktStatus
+import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOppfolgingstilfelleVirksomhetMap
 import no.nav.syfo.personstatus.infrastructure.database.queries.updatePersonOppfolgingstilfelleVirksomhetList
 import no.nav.syfo.personstatus.infrastructure.database.toList
 import no.nav.syfo.util.nowUTC
@@ -328,7 +329,14 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
             is Search.ByDate -> searchByDate(search)
             is Search.ByInitialsAndDate -> searchByInitialsAndDate(search)
         }
-        return results.map { it.toPersonOversiktStatus() }
+        val personOppfolgingstilfelleVirksomhetMap = database.connection.use { connection ->
+            connection.getPersonOppfolgingstilfelleVirksomhetMap(pPersonOversikStatusIds = results.map { it.id })
+        }
+
+        return results.map {
+            val personOppfolgingstilfelleVirksomhetList = personOppfolgingstilfelleVirksomhetMap[it.id]?.toPersonOppfolgingstilfelleVirksomhet() ?: emptyList()
+            it.toPersonOversiktStatus(personOppfolgingstilfelleVirksomhetList = personOppfolgingstilfelleVirksomhetList)
+        }
     }
 
     private fun searchByName(search: Search.ByName): List<PPersonOversiktStatus> {

@@ -8,7 +8,6 @@ import io.mockk.clearMocks
 import io.mockk.every
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendringType
-import no.nav.syfo.oppfolgingstilfelle.domain.PersonOppfolgingstilfelleVirksomhet
 import no.nav.syfo.personoppgavehendelse.kafka.KPersonoppgavehendelse
 import no.nav.syfo.personstatus.api.v2.endpoints.personOversiktApiV2Path
 import no.nav.syfo.personstatus.api.v2.model.PersonOversiktStatusDTO
@@ -752,18 +751,14 @@ object PersonoversiktStatusApiV2Spek : Spek({
                 testApplication {
                     val client = setupApiAndClient()
                     val virksomhetList = listOf(
-                        PersonOppfolgingstilfelleVirksomhet(
-                            uuid = UUID.randomUUID(),
-                            createdAt = OffsetDateTime.now(),
+                        generateOppfolgingstilfelleVirksomhet(
                             virksomhetsnummer = Virksomhetsnummer("123456789"),
                             virksomhetsnavn = "Virksomhet AS",
                         ),
-                        PersonOppfolgingstilfelleVirksomhet(
-                            uuid = UUID.randomUUID(),
-                            createdAt = OffsetDateTime.now(),
+                        generateOppfolgingstilfelleVirksomhet(
                             virksomhetsnummer = Virksomhetsnummer("123456000"),
                             virksomhetsnavn = null,
-                        )
+                        ),
                     )
                     val oppfolgingstilfelle = generateOppfolgingstilfelle(
                         start = LocalDate.now().minusDays(30),
