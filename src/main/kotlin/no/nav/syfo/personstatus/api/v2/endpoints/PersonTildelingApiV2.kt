@@ -122,6 +122,10 @@ fun Route.registerPersonTildelingApiV2(
                     personoversiktStatusService.getPersonstatus(personident)?.let {
                         call.respond(VeilederBrukerKnytningDTO.fromPersonstatus(it))
                     } ?: call.respond(HttpStatusCode.NoContent)
+                } else if (tilgang == null) {
+                    val uuid = personoversiktStatusService.getPersonstatus(personident)?.uuid
+                    log.warn("Tilgangskontroll returnerte null for uuid=$uuid, {}", callIdArgument(getCallId()))
+                    call.respond(HttpStatusCode.Forbidden)
                 } else {
                     call.respond(HttpStatusCode.Forbidden)
                 }
@@ -144,6 +148,10 @@ fun Route.registerPersonTildelingApiV2(
                 )
                 if (tilgang?.erGodkjent == true) {
                     call.respond(personTildelingService.getVeilederTilknytningHistorikk(personident))
+                } else if (tilgang == null) {
+                    val uuid = personoversiktStatusService.getPersonstatus(personident)?.uuid
+                    log.warn("Tilgangskontroll returnerte null for uuid=$uuid, {}", callIdArgument(getCallId()))
+                    call.respond(HttpStatusCode.Forbidden)
                 } else {
                     call.respond(HttpStatusCode.Forbidden)
                 }

@@ -13,10 +13,12 @@ import no.nav.syfo.util.isBeforeOrEqual
 import no.nav.syfo.util.toLocalDateOslo
 import java.time.LocalDate
 import java.time.OffsetDateTime
+import java.util.UUID
 
 data class PersonOversiktStatus(
     val veilederIdent: String? = null,
     val fnr: String,
+    val uuid: UUID? = null,
     val fodselsdato: LocalDate? = null,
     val navn: String? = null,
     val enhet: String? = null,
