@@ -45,6 +45,7 @@ fun PPersonOversiktStatus.toPersonOversiktStatus(
     personOppfolgingstilfelleVirksomhetList: List<PersonOppfolgingstilfelleVirksomhet> = emptyList(),
 ) = PersonOversiktStatus(
     fnr = fnr,
+    uuid = uuid,
     fodselsdato = fodselsdato,
     navn = navn,
     enhet = enhet,
