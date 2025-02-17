@@ -7,11 +7,14 @@ import no.nav.syfo.personstatus.api.v2.endpoints.personOversiktApiV2Path
 import no.nav.syfo.personstatus.api.v2.model.PersonOversiktStatusDTO
 import no.nav.syfo.personstatus.api.v2.model.SearchQueryDTO
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
+import no.nav.syfo.personstatus.domain.Virksomhetsnummer
 import no.nav.syfo.personstatus.infrastructure.database.repository.PersonOversiktStatusRepository
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.VEILEDER_ID
 import no.nav.syfo.testutil.generator.generateOppfolgingstilfelle
+import no.nav.syfo.testutil.generator.generateOppfolgingstilfelleVirksomhet
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldNotBeNull
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import java.time.LocalDate
@@ -19,10 +22,19 @@ import java.time.Month
 
 object PersonoversiktSearchApiSpek : Spek({
 
-    val activeOppfolgingstilfelle = generateOppfolgingstilfelle(
+    fun createActiveOppfolgingstilfelle(
+        virksomhetsnummer: Virksomhetsnummer = Virksomhetsnummer("123456789"),
+        virksomhetsnavn: String = "Virksomhet AS"
+    ) = generateOppfolgingstilfelle(
         start = LocalDate.now().minusWeeks(15),
         end = LocalDate.now().plusWeeks(1),
         antallSykedager = null,
+        virksomhetList = listOf(
+            generateOppfolgingstilfelleVirksomhet(
+                virksomhetsnummer = virksomhetsnummer,
+                virksomhetsnavn = virksomhetsnavn,
+            ),
+        )
     )
 
     describe("PersonoversiktSearchApi") {
@@ -50,7 +62,7 @@ object PersonoversiktSearchApiSpek : Spek({
                         fnr = UserConstants.ARBEIDSTAKER_FNR,
                         navn = "Fornavn Etternavn",
                         fodselsdato = fodselsdato,
-                        latestOppfolgingstilfelle = activeOppfolgingstilfelle,
+                        latestOppfolgingstilfelle = createActiveOppfolgingstilfelle(),
                     )
                 personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus)
 
@@ -63,7 +75,13 @@ object PersonoversiktSearchApiSpek : Spek({
                 response.status shouldBeEqualTo HttpStatusCode.OK
                 val personer = response.body<List<PersonOversiktStatusDTO>>()
                 personer.size shouldBeEqualTo 1
-                personer.first().fnr shouldBeEqualTo UserConstants.ARBEIDSTAKER_FNR
+                val person = personer.first()
+                person.fnr shouldBeEqualTo UserConstants.ARBEIDSTAKER_FNR
+                person.latestOppfolgingstilfelle.shouldNotBeNull()
+                val oppfolgingstilfelleVirksomhet = person.latestOppfolgingstilfelle?.virksomhetList?.first()
+                oppfolgingstilfelleVirksomhet.shouldNotBeNull()
+                oppfolgingstilfelleVirksomhet.virksomhetsnummer shouldBeEqualTo "123456789"
+                oppfolgingstilfelleVirksomhet.virksomhetsnavn shouldBeEqualTo "Virksomhet AS"
             }
         }
 
@@ -75,7 +93,7 @@ object PersonoversiktSearchApiSpek : Spek({
                         fnr = UserConstants.ARBEIDSTAKER_FNR,
                         navn = "Fornavn Etternavn",
                         fodselsdato = fodselsdato,
-                        latestOppfolgingstilfelle = activeOppfolgingstilfelle,
+                        latestOppfolgingstilfelle = createActiveOppfolgingstilfelle(),
                     )
                 personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus)
 
@@ -99,21 +117,24 @@ object PersonoversiktSearchApiSpek : Spek({
                         fnr = UserConstants.ARBEIDSTAKER_FNR,
                         navn = "Fornavn Etternavn",
                         fodselsdato = fodselsdato,
-                        latestOppfolgingstilfelle = activeOppfolgingstilfelle,
+                        latestOppfolgingstilfelle = createActiveOppfolgingstilfelle(),
                     )
                 val newPersonOversiktStatus2 =
                     PersonOversiktStatus(
                         fnr = UserConstants.ARBEIDSTAKER_2_FNR,
                         navn = "Firstname Etternavn",
                         fodselsdato = fodselsdato,
-                        latestOppfolgingstilfelle = activeOppfolgingstilfelle,
+                        latestOppfolgingstilfelle = createActiveOppfolgingstilfelle(
+                            virksomhetsnummer = Virksomhetsnummer("987654321"),
+                            virksomhetsnavn = "Annen Virksomhet AS"
+                        ),
                     )
                 val newPersonOversiktStatus3 =
                     PersonOversiktStatus(
                         fnr = UserConstants.ARBEIDSTAKER_NO_ACCESS,
                         navn = "Forstname Etternavn",
                         fodselsdato = fodselsdato,
-                        latestOppfolgingstilfelle = activeOppfolgingstilfelle,
+                        latestOppfolgingstilfelle = createActiveOppfolgingstilfelle(),
                     )
                 personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus)
                 personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus2)
@@ -128,8 +149,16 @@ object PersonoversiktSearchApiSpek : Spek({
                 response.status shouldBeEqualTo HttpStatusCode.OK
                 val personer = response.body<List<PersonOversiktStatusDTO>>()
                 personer.size shouldBeEqualTo 2
-                personer[0].fnr shouldBeEqualTo UserConstants.ARBEIDSTAKER_2_FNR
-                personer[1].fnr shouldBeEqualTo UserConstants.ARBEIDSTAKER_FNR
+
+                val person = personer[0]
+                person.fnr shouldBeEqualTo UserConstants.ARBEIDSTAKER_2_FNR
+                person.latestOppfolgingstilfelle?.virksomhetList?.first()?.virksomhetsnummer shouldBeEqualTo "987654321"
+                person.latestOppfolgingstilfelle?.virksomhetList?.first()?.virksomhetsnavn shouldBeEqualTo "Annen Virksomhet AS"
+
+                val annenPerson = personer[1]
+                annenPerson.fnr shouldBeEqualTo UserConstants.ARBEIDSTAKER_FNR
+                annenPerson.latestOppfolgingstilfelle?.virksomhetList?.first()?.virksomhetsnummer shouldBeEqualTo "123456789"
+                annenPerson.latestOppfolgingstilfelle?.virksomhetList?.first()?.virksomhetsnavn shouldBeEqualTo "Virksomhet AS"
             }
         }
 
@@ -141,7 +170,7 @@ object PersonoversiktSearchApiSpek : Spek({
                         fnr = UserConstants.ARBEIDSTAKER_FNR,
                         navn = "Fornavn Etternavn",
                         fodselsdato = fodselsdato,
-                        latestOppfolgingstilfelle = activeOppfolgingstilfelle,
+                        latestOppfolgingstilfelle = createActiveOppfolgingstilfelle(),
                     )
                 personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus)
 
@@ -163,7 +192,7 @@ object PersonoversiktSearchApiSpek : Spek({
                         fnr = UserConstants.ARBEIDSTAKER_FNR,
                         navn = "Fornavn Etternavn",
                         fodselsdato = fodselsdato,
-                        latestOppfolgingstilfelle = activeOppfolgingstilfelle,
+                        latestOppfolgingstilfelle = createActiveOppfolgingstilfelle(),
                     )
                 personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus)
 
@@ -185,7 +214,7 @@ object PersonoversiktSearchApiSpek : Spek({
                         fnr = UserConstants.ARBEIDSTAKER_NO_ACCESS,
                         navn = "Fornavn Etternavn",
                         fodselsdato = fodselsdato,
-                        latestOppfolgingstilfelle = activeOppfolgingstilfelle,
+                        latestOppfolgingstilfelle = createActiveOppfolgingstilfelle(),
                     )
                 personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus)
 

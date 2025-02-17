@@ -2,6 +2,7 @@ package no.nav.syfo.testutil.generator
 
 import no.nav.syfo.oppfolgingstilfelle.domain.Oppfolgingstilfelle
 import no.nav.syfo.oppfolgingstilfelle.domain.PersonOppfolgingstilfelleVirksomhet
+import no.nav.syfo.personstatus.domain.Virksomhetsnummer
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.*
@@ -20,4 +21,11 @@ fun generateOppfolgingstilfelle(
     oppfolgingstilfelleBitReferanseInntruffet = OffsetDateTime.now(),
     oppfolgingstilfelleBitReferanseUuid = UUID.randomUUID(),
     virksomhetList = virksomhetList,
+)
+
+fun generateOppfolgingstilfelleVirksomhet(virksomhetsnummer: Virksomhetsnummer, virksomhetsnavn: String?) = PersonOppfolgingstilfelleVirksomhet(
+    uuid = UUID.randomUUID(),
+    createdAt = OffsetDateTime.now(),
+    virksomhetsnummer = virksomhetsnummer,
+    virksomhetsnavn = virksomhetsnavn,
 )
