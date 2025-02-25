@@ -12,8 +12,8 @@ fun kafkaIdenthendelseConsumerConfig(
 ): Properties {
     return Properties().apply {
         putAll(kafkaAivenConsumerConfig(kafkaEnvironment))
+        this[ConsumerConfig.GROUP_ID_CONFIG] = "syfooversiktsrv-v2"
         this[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = KafkaAvroDeserializer::class.java.canonicalName
-        this[ConsumerConfig.MAX_POLL_RECORDS_CONFIG] = "1"
 
         this[KafkaAvroDeserializerConfig.SCHEMA_REGISTRY_URL_CONFIG] = kafkaEnvironment.aivenSchemaRegistryUrl
         this[KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG] = false
