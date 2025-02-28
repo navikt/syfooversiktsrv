@@ -39,8 +39,6 @@ class IdenthendelseService(
                         COUNT_KAFKA_CONSUMER_PDL_AKTOR_UPDATES.increment(numberOfUpdatedIdenter.toDouble())
                     }
                 }
-            } else {
-                log.warn("Mangler gyldig ident fra PDL")
             }
         }
     }
