@@ -57,7 +57,7 @@ object ReaperCronjobSpek : Spek({
                 database.createPersonOversiktStatus(personOversiktStatus)
                 database.setSistEndret(
                     fnr = personOversiktStatus.fnr,
-                    sistEndret = Timestamp.from(OffsetDateTime.now().minusMonths(2).plusDays(1).toInstant()),
+                    sistEndret = Timestamp.from(OffsetDateTime.now().minusMonths(2).plusDays(4).toInstant()),
                 )
 
                 runBlocking {
