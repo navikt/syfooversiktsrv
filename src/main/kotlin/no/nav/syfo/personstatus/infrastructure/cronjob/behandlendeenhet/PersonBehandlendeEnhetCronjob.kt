@@ -22,13 +22,9 @@ class PersonBehandlendeEnhetCronjob(
         val result = CronjobResult()
 
         personBehandlendeEnhetService.getPersonerToCheckForUpdatedEnhet()
-            .forEach { personIdentTildeltEnhetPair ->
+            .forEach { personident ->
                 try {
-                    val (personIdent, tildeltEnhet) = personIdentTildeltEnhetPair
-                    personBehandlendeEnhetService.updateBehandlendeEnhet(
-                        personIdent = personIdent,
-                        tildeltEnhet = tildeltEnhet,
-                    )
+                    personBehandlendeEnhetService.updateBehandlendeEnhet(personIdent = personident)
                     result.updated++
                     COUNT_CRONJOB_PERSON_BEHANDLENDE_ENHET_UPDATE.increment()
                 } catch (ex: Exception) {

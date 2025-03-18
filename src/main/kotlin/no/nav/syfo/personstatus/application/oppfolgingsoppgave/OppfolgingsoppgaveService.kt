@@ -14,7 +14,6 @@ import no.nav.syfo.personstatus.infrastructure.database.queries.updateOppfolging
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import kotlin.collections.filter
-import kotlin.collections.first
 import kotlin.collections.firstOrNull
 import kotlin.collections.forEach
 import kotlin.jvm.java
@@ -27,10 +26,7 @@ class OppfolgingsoppgaveService(
     fun processOppfolgingsoppgave(records: List<OppfolgingsoppgaveRecord>) {
         createOrUpdatePersonOversiktStatus(records)
         records.filter { it.isActive }.forEach {
-            val personOversiktStatus = database.getPersonOversiktStatusList(
-                fnr = it.personIdent,
-            ).first()
-            updateBehandlendeEnhet(PersonIdent(it.personIdent), personOversiktStatus.enhet)
+            updateBehandlendeEnhet(PersonIdent(it.personIdent))
         }
     }
 
@@ -61,17 +57,11 @@ class OppfolgingsoppgaveService(
         }
     }
 
-    private fun updateBehandlendeEnhet(
-        personIdent: PersonIdent,
-        existingEnhet: String?,
-    ) {
+    private fun updateBehandlendeEnhet(personIdent: PersonIdent) {
         try {
             runBlocking {
                 launch(Dispatchers.IO) {
-                    personBehandlendeEnhetService.updateBehandlendeEnhet(
-                        personIdent = personIdent,
-                        tildeltEnhet = existingEnhet
-                    )
+                    personBehandlendeEnhetService.updateBehandlendeEnhet(personIdent = personIdent)
                     log.info("Updated Behandlende Enhet of person after received active oppfolgingsoppgave")
                 }
             }
