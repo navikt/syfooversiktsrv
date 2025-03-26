@@ -7,7 +7,7 @@ import no.nav.syfo.personstatus.infrastructure.clients.behandlendeenhet.Behandle
 import no.nav.syfo.testutil.UserConstants
 import no.nav.syfo.util.NAV_PERSONIDENT_HEADER
 
-fun behandlendeEnhetDTO() =
+val behandlendeEnhetDTO =
     BehandlendeEnhetDTO(
         enhetId = UserConstants.NAV_ENHET,
         navn = "Navkontor",
@@ -25,7 +25,7 @@ fun MockRequestHandleScope.getBehandlendeEnhetResponse(request: HttpRequestData)
             )
         }
         else -> {
-            respondOk(behandlendeEnhetDTO())
+            respondOk(behandlendeEnhetDTO)
         }
     }
 }

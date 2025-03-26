@@ -93,7 +93,7 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                     val pPersonOversiktStatus = pPersonOversiktStatusList.first()
 
                     pPersonOversiktStatus.enhet shouldNotBeEqualTo firstEnhet
-                    pPersonOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
+                    pPersonOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO.enhetId
                     pPersonOversiktStatus.tildeltEnhetUpdatedAt.shouldNotBeNull()
                     pPersonOversiktStatus.tildeltEnhetUpdatedAt!!.toInstant()
                         .toEpochMilli() shouldBeGreaterThan tildeltEnhetUpdatedAtBeforeUpdate.toInstant()
@@ -171,7 +171,7 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
 
                     val pPersonOversiktStatus = pPersonOversiktStatusList.first()
 
-                    pPersonOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO().enhetId
+                    pPersonOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO.enhetId
                     pPersonOversiktStatus.tildeltEnhetUpdatedAt.shouldNotBeNull()
                     pPersonOversiktStatus.tildeltEnhetUpdatedAt shouldNotBeEqualTo tildeltEnhetUpdatedAtBeforeUpdate
                     pPersonOversiktStatus.veilederIdent.shouldBeNull()

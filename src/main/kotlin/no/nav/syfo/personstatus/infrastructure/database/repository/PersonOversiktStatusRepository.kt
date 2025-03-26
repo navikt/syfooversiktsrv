@@ -237,15 +237,10 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
             }
         }
 
-    override fun getPersonerWithOppgaveAndOldEnhet(): List<Pair<PersonIdent, String?>> =
+    override fun getPersonerWithOppgaveAndOldEnhet(): List<PersonIdent> =
         database.connection.use { connection ->
             connection.prepareStatement(GET_PERSONER_WITH_OPPGAVE_AND_OLD_ENHET).use {
-                it.executeQuery().toList {
-                    Pair(
-                        PersonIdent(getString("fnr")),
-                        getString("tildelt_enhet"),
-                    )
-                }
+                it.executeQuery().toList { PersonIdent(getString("fnr")) }
             }
         }
 
@@ -334,7 +329,8 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
         }
 
         return results.map {
-            val personOppfolgingstilfelleVirksomhetList = personOppfolgingstilfelleVirksomhetMap[it.id]?.toPersonOppfolgingstilfelleVirksomhet() ?: emptyList()
+            val personOppfolgingstilfelleVirksomhetList =
+                personOppfolgingstilfelleVirksomhetMap[it.id]?.toPersonOppfolgingstilfelleVirksomhet() ?: emptyList()
             it.toPersonOversiktStatus(personOppfolgingstilfelleVirksomhetList = personOppfolgingstilfelleVirksomhetList)
         }
     }
@@ -537,7 +533,7 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
 
         private const val GET_PERSONER_WITH_OPPGAVE_AND_OLD_ENHET =
             """
-            SELECT fnr, tildelt_enhet
+            SELECT fnr
             FROM PERSON_OVERSIKT_STATUS
             WHERE $AKTIV_OPPGAVE_WHERE_CLAUSE    
             AND (tildelt_enhet_updated_at IS NULL OR tildelt_enhet_updated_at <= NOW() - INTERVAL '24 HOURS')

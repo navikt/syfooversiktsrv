@@ -30,7 +30,7 @@ interface IPersonOversiktStatusRepository {
 
     fun getVeilederTilknytningHistorikk(personident: PersonIdent): List<VeilederTildelingHistorikkDTO>
 
-    fun getPersonerWithOppgaveAndOldEnhet(): List<Pair<PersonIdent, String?>>
+    fun getPersonerWithOppgaveAndOldEnhet(): List<PersonIdent>
 
     fun getPersonerWithVeilederTildelingAndOldOppfolgingstilfelle(): List<PersonOversiktStatus>
 
