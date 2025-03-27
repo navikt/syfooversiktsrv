@@ -1,12 +1,10 @@
 package no.nav.syfo.personstatus.infrastructure.kafka.oppfolgingsoppgave
 
 import no.nav.syfo.ApplicationState
-import no.nav.syfo.personstatus.infrastructure.database.database
-import no.nav.syfo.personstatus.infrastructure.kafka.KafkaEnvironment
-import no.nav.syfo.personstatus.infrastructure.kafka.kafkaAivenConsumerConfig
-import no.nav.syfo.personstatus.application.PersonBehandlendeEnhetService
 import no.nav.syfo.personstatus.application.oppfolgingsoppgave.OppfolgingsoppgaveRecord
 import no.nav.syfo.personstatus.application.oppfolgingsoppgave.OppfolgingsoppgaveService
+import no.nav.syfo.personstatus.infrastructure.kafka.KafkaEnvironment
+import no.nav.syfo.personstatus.infrastructure.kafka.kafkaAivenConsumerConfig
 import no.nav.syfo.personstatus.infrastructure.kafka.launchKafkaTask
 import no.nav.syfo.util.configuredJacksonMapper
 import org.apache.kafka.clients.consumer.ConsumerConfig
@@ -22,12 +20,8 @@ const val HUSKELAPP_TOPIC =
 fun launchOppfolgingsoppgaveConsumer(
     applicationState: ApplicationState,
     kafkaEnvironment: KafkaEnvironment,
-    personBehandlendeEnhetService: PersonBehandlendeEnhetService,
+    oppfolgingsoppgaveService: OppfolgingsoppgaveService,
 ) {
-    val oppfolgingsoppgaveService = OppfolgingsoppgaveService(
-        database = database,
-        personBehandlendeEnhetService = personBehandlendeEnhetService,
-    )
     val oppfolgingsoppgaveConsumer = OppfolgingsoppgaveConsumer(
         oppfolgingsoppgaveService = oppfolgingsoppgaveService,
     )

@@ -14,6 +14,7 @@ import no.nav.syfo.pdlpersonhendelse.kafka.launchKafkaTaskPersonhendelse
 import no.nav.syfo.personoppgavehendelse.kafka.launchKafkaTaskPersonoppgavehendelse
 import no.nav.syfo.personstatus.application.PersonoversiktStatusService
 import no.nav.syfo.personstatus.application.OppfolgingstilfelleService
+import no.nav.syfo.personstatus.application.oppfolgingsoppgave.OppfolgingsoppgaveService
 import no.nav.syfo.personstatus.infrastructure.kafka.behandlendeenhet.BehandlendeEnhetConsumer
 import no.nav.syfo.personstatus.infrastructure.kafka.manglendemedvirkning.ManglendeMedvirkningVurderingConsumer
 import no.nav.syfo.personstatus.infrastructure.kafka.meroppfolging.SenOppfolgingKandidatStatusConsumer
@@ -26,6 +27,7 @@ fun launchKafkaModule(
     personoversiktStatusService: PersonoversiktStatusService,
     personBehandlendeEnhetService: PersonBehandlendeEnhetService,
     oppfolgingstilfelleService: OppfolgingstilfelleService,
+    oppfolgingsoppgaveService: OppfolgingsoppgaveService,
 ) {
     launchKafkaTaskPersonoppgavehendelse(
         applicationState = applicationState,
@@ -66,7 +68,7 @@ fun launchKafkaModule(
     launchOppfolgingsoppgaveConsumer(
         applicationState = applicationState,
         kafkaEnvironment = environment.kafka,
-        personBehandlendeEnhetService = personBehandlendeEnhetService,
+        oppfolgingsoppgaveService = oppfolgingsoppgaveService,
     )
     launchKafkaTaskFriskTilArbeidVedtak(
         applicationState = applicationState,

@@ -48,4 +48,6 @@ interface IPersonOversiktStatusRepository {
         personstatus: PersonOversiktStatus,
         oppfolgingstilfelle: Oppfolgingstilfelle,
     )
+
+    fun updateOppfolgingsoppgave(personIdent: PersonIdent, isActive: Boolean): Result<Int>
 }
