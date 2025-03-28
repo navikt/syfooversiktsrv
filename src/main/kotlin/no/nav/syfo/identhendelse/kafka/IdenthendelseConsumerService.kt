@@ -1,10 +1,9 @@
 package no.nav.syfo.identhendelse.kafka
 
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
 import no.nav.syfo.identhendelse.IdenthendelseService
-import no.nav.syfo.personstatus.infrastructure.kafka.KafkaConsumerService
 import no.nav.syfo.personstatus.infrastructure.COUNT_KAFKA_CONSUMER_PDL_AKTOR_TOMBSTONE
+import no.nav.syfo.personstatus.infrastructure.kafka.KafkaConsumerService
 import org.apache.avro.generic.GenericData
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.KafkaConsumer
@@ -19,25 +18,23 @@ class IdenthendelseConsumerService(
     override val pollDurationInMillis: Long = 1000
 
     override suspend fun pollAndProcessRecords(kafkaConsumer: KafkaConsumer<String, GenericRecord>) {
-        runBlocking {
-            try {
-                val records = kafkaConsumer.poll(Duration.ofMillis(pollDurationInMillis))
-                if (records.count() > 0) {
-                    records.forEach { record ->
-                        if (record.value() != null) {
-                            identhendelseService.handleIdenthendelse(record.value().toKafkaIdenthendelseDTO())
-                        } else {
-                            log.warn("Identhendelse: Value of ConsumerRecord from topic $PDL_AKTOR_TOPIC is null, probably due to a tombstone. Contact the owner of the topic if an error is suspected")
-                            COUNT_KAFKA_CONSUMER_PDL_AKTOR_TOMBSTONE.increment()
-                        }
+        try {
+            val records = kafkaConsumer.poll(Duration.ofMillis(pollDurationInMillis))
+            if (records.count() > 0) {
+                records.forEach { record ->
+                    if (record.value() != null) {
+                        identhendelseService.handleIdenthendelse(record.value().toKafkaIdenthendelseDTO())
+                    } else {
+                        log.warn("Identhendelse: Value of ConsumerRecord from topic $PDL_AKTOR_TOPIC is null, probably due to a tombstone. Contact the owner of the topic if an error is suspected")
+                        COUNT_KAFKA_CONSUMER_PDL_AKTOR_TOMBSTONE.increment()
                     }
-                    kafkaConsumer.commitSync()
                 }
-            } catch (ex: Exception) {
-                log.warn("Error running kafka consumer for pdl-aktor, unsubscribing and waiting $DELAY_ON_ERROR_SECONDS seconds for retry")
-                kafkaConsumer.unsubscribe()
-                delay(DELAY_ON_ERROR_SECONDS.seconds)
+                kafkaConsumer.commitSync()
             }
+        } catch (ex: Exception) {
+            log.warn("Error running kafka consumer for pdl-aktor, unsubscribing and waiting $DELAY_ON_ERROR_SECONDS seconds for retry")
+            kafkaConsumer.unsubscribe()
+            delay(DELAY_ON_ERROR_SECONDS.seconds)
         }
     }
 

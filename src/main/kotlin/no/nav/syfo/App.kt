@@ -21,6 +21,7 @@ import no.nav.syfo.personstatus.infrastructure.clients.oppfolgingsoppgave.Oppfol
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.PdlClient
 import no.nav.syfo.personstatus.infrastructure.clients.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.personstatus.application.PersonBehandlendeEnhetService
+import no.nav.syfo.personstatus.application.oppfolgingsoppgave.OppfolgingsoppgaveService
 import no.nav.syfo.personstatus.infrastructure.clients.veileder.VeilederClient
 import no.nav.syfo.personstatus.infrastructure.cronjob.launchCronjobModule
 import no.nav.syfo.personstatus.infrastructure.database.database
@@ -105,6 +106,7 @@ fun main() {
     lateinit var personBehandlendeEnhetService: PersonBehandlendeEnhetService
     lateinit var personoversiktStatusService: PersonoversiktStatusService
     lateinit var oppfolgingstilfelleService: OppfolgingstilfelleService
+    lateinit var oppfolgingsoppgaveService: OppfolgingsoppgaveService
 
     val applicationEnvironment = applicationEnvironment {
         log = logger
@@ -141,6 +143,10 @@ fun main() {
                 personoversiktStatusRepository = personoversiktStatusRepository,
                 behandlendeEnhetClient = behandlendeEnhetClient,
             )
+            oppfolgingsoppgaveService = OppfolgingsoppgaveService(
+                personBehandlendeEnhetService = personBehandlendeEnhetService,
+                personOversiktStatusRepository = personoversiktStatusRepository,
+            )
             apiModule(
                 applicationState = applicationState,
                 database = database,
@@ -168,6 +174,7 @@ fun main() {
                     personoversiktStatusService = personoversiktStatusService,
                     personBehandlendeEnhetService = personBehandlendeEnhetService,
                     oppfolgingstilfelleService = oppfolgingstilfelleService,
+                    oppfolgingsoppgaveService = oppfolgingsoppgaveService,
                 )
                 launchCronjobModule(
                     applicationState = applicationState,

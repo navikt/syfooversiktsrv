@@ -29,8 +29,8 @@ class OppfolgingsoppgaveConsumerSpek : Spek({
 
     val kafkaConsumerMock = mockk<KafkaConsumer<String, OppfolgingsoppgaveRecord>>()
     val oppfolgingsoppgaveService = OppfolgingsoppgaveService(
-        database = database,
-        personBehandlendeEnhetService = internalMockEnvironment.personBehandlendeEnhetService
+        personBehandlendeEnhetService = internalMockEnvironment.personBehandlendeEnhetService,
+        personOversiktStatusRepository = externalMockEnvironment.personOversiktStatusRepository,
     )
     val oppfolgingsoppgaveConsumer = OppfolgingsoppgaveConsumer(oppfolgingsoppgaveService)
 
@@ -52,7 +52,7 @@ class OppfolgingsoppgaveConsumerSpek : Spek({
                     kafkaConsumerMock = kafkaConsumerMock,
                 )
 
-                runBlocking { oppfolgingsoppgaveConsumer.pollAndProcessRecords(kafkaConsumer = kafkaConsumerMock) }
+                runBlocking { oppfolgingsoppgaveConsumer.pollAndProcessRecords(consumer = kafkaConsumerMock) }
 
                 verify(exactly = 1) {
                     kafkaConsumerMock.commitSync()
@@ -73,7 +73,7 @@ class OppfolgingsoppgaveConsumerSpek : Spek({
                 )
 
                 runBlocking {
-                    oppfolgingsoppgaveConsumer.pollAndProcessRecords(kafkaConsumer = kafkaConsumerMock)
+                    oppfolgingsoppgaveConsumer.pollAndProcessRecords(consumer = kafkaConsumerMock)
                 }
 
                 verify(exactly = 1) {
@@ -95,7 +95,7 @@ class OppfolgingsoppgaveConsumerSpek : Spek({
                 )
 
                 runBlocking {
-                    oppfolgingsoppgaveConsumer.pollAndProcessRecords(kafkaConsumer = kafkaConsumerMock)
+                    oppfolgingsoppgaveConsumer.pollAndProcessRecords(consumer = kafkaConsumerMock)
                 }
 
                 verify(exactly = 1) {
@@ -116,7 +116,7 @@ class OppfolgingsoppgaveConsumerSpek : Spek({
                 )
 
                 runBlocking {
-                    oppfolgingsoppgaveConsumer.pollAndProcessRecords(kafkaConsumer = kafkaConsumerMock)
+                    oppfolgingsoppgaveConsumer.pollAndProcessRecords(consumer = kafkaConsumerMock)
                 }
 
                 verify(exactly = 1) {
@@ -138,7 +138,7 @@ class OppfolgingsoppgaveConsumerSpek : Spek({
                 )
 
                 runBlocking {
-                    oppfolgingsoppgaveConsumer.pollAndProcessRecords(kafkaConsumer = kafkaConsumerMock)
+                    oppfolgingsoppgaveConsumer.pollAndProcessRecords(consumer = kafkaConsumerMock)
                 }
 
                 verify(exactly = 1) {
@@ -165,7 +165,7 @@ class OppfolgingsoppgaveConsumerSpek : Spek({
                 )
 
                 runBlocking {
-                    oppfolgingsoppgaveConsumer.pollAndProcessRecords(kafkaConsumer = kafkaConsumerMock)
+                    oppfolgingsoppgaveConsumer.pollAndProcessRecords(consumer = kafkaConsumerMock)
                 }
 
                 verify(exactly = 1) {
@@ -194,7 +194,7 @@ class OppfolgingsoppgaveConsumerSpek : Spek({
                 )
 
                 runBlocking {
-                    oppfolgingsoppgaveConsumer.pollAndProcessRecords(kafkaConsumer = kafkaConsumerMock)
+                    oppfolgingsoppgaveConsumer.pollAndProcessRecords(consumer = kafkaConsumerMock)
                 }
 
                 verify(exactly = 1) {
@@ -223,7 +223,7 @@ class OppfolgingsoppgaveConsumerSpek : Spek({
                 )
 
                 runBlocking {
-                    oppfolgingsoppgaveConsumer.pollAndProcessRecords(kafkaConsumer = kafkaConsumerMock)
+                    oppfolgingsoppgaveConsumer.pollAndProcessRecords(consumer = kafkaConsumerMock)
                 }
 
                 verify(exactly = 1) {

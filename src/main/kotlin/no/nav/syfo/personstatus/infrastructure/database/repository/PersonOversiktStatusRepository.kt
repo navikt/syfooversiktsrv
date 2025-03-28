@@ -411,6 +411,28 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
         }
     }
 
+    override fun updateOppfolgingsoppgave(personIdent: PersonIdent, isActiveOppfolgingsoppgave: Boolean): Result<Int> {
+        return try {
+            database.connection.use { connection ->
+                val rowsAffected = connection.prepareStatement(UPDATE_PERSON_OPPFOLGINGSOPPGAVE).use {
+                    it.setBoolean(1, isActiveOppfolgingsoppgave)
+                    it.setTimestamp(2, Timestamp.from(Instant.now()))
+                    it.setString(3, personIdent.value)
+                    it.executeUpdate()
+                }
+                if (rowsAffected == 1) {
+                    connection.commit()
+                    Result.success(rowsAffected)
+                } else {
+                    connection.rollback()
+                    Result.failure(RuntimeException("updateOppfolgingsoppgave failed, expected single row to be updated."))
+                }
+            }
+        } catch (e: SQLException) {
+            Result.failure(e)
+        }
+    }
+
     companion object {
         private const val GET_PERSON_OVERSIKT_STATUS =
             """
@@ -601,6 +623,13 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
             antall_sykedager = ?
             WHERE fnr = ?
             RETURNING id
+            """
+
+        private const val UPDATE_PERSON_OPPFOLGINGSOPPGAVE =
+            """
+                UPDATE PERSON_OVERSIKT_STATUS
+                SET trenger_oppfolging = ?, sist_endret = ?
+                WHERE fnr = ?
             """
 
         private const val SEARCH_PERSON_BASE_QUERY =

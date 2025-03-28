@@ -17,6 +17,7 @@ const val queryGetPersonOversiktStatusList =
     WHERE fnr = ?
     """
 
+@Deprecated("Use getPersonOversiktStatus in PersonOversiktStatusRepository")
 fun Connection.getPersonOversiktStatusList(
     fnr: String,
 ): List<PPersonOversiktStatus> =
@@ -25,6 +26,7 @@ fun Connection.getPersonOversiktStatusList(
         it.executeQuery().toList { toPPersonOversiktStatus() }
     }
 
+@Deprecated("Use getPersonOversiktStatus in PersonOversiktStatusRepository")
 fun DatabaseInterface.getPersonOversiktStatusList(
     fnr: String,
 ): List<PPersonOversiktStatus> {
