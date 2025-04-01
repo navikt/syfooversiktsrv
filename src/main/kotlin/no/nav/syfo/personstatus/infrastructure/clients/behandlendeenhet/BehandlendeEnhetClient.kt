@@ -26,12 +26,12 @@ class BehandlendeEnhetClient(
         personIdent: PersonIdent,
     ): BehandlendeEnhetDTO? {
         val url = behandlendeEnhetUrl
-        val oboToken = azureAdClient.getSystemToken(
+        val systemToken = azureAdClient.getSystemToken(
             scopeClientId = clientEnvironment.clientId,
-        )?.accessToken ?: throw RuntimeException("Failed to request access to Enhet: Failed to get OBO token")
+        )?.accessToken ?: throw RuntimeException("Failed to request access to Enhet: Failed to get token")
         return try {
             val response: HttpResponse = httpClient.get(url) {
-                header(HttpHeaders.Authorization, bearerHeader(oboToken))
+                header(HttpHeaders.Authorization, bearerHeader(systemToken))
                 header(NAV_CALL_ID_HEADER, callId)
                 header(NAV_PERSONIDENT_HEADER, personIdent.value)
                 accept(ContentType.Application.Json)
@@ -41,6 +41,30 @@ class BehandlendeEnhetClient(
             } else {
                 COUNT_CALL_BEHANDLENDEENHET_SUCCESS.increment()
                 response.body()
+            }
+        } catch (e: ClientRequestException) {
+            handleUnexpectedResponseException(e.response, callId)
+            throw e
+        } catch (e: ServerResponseException) {
+            handleUnexpectedResponseException(e.response, callId)
+            throw e
+        }
+    }
+
+    suspend fun unsetOppfolgingsenhet(
+        callId: String,
+        personIdent: PersonIdent,
+    ) {
+        val url = behandlendeEnhetUrl
+        val systemToken = azureAdClient.getSystemToken(
+            scopeClientId = clientEnvironment.clientId,
+        )?.accessToken ?: throw RuntimeException("Failed to unset Enhet: Failed to get token")
+        try {
+            httpClient.post(url) {
+                header(HttpHeaders.Authorization, bearerHeader(systemToken))
+                header(NAV_CALL_ID_HEADER, callId)
+                header(NAV_PERSONIDENT_HEADER, personIdent.value)
+                accept(ContentType.Application.Json)
             }
         } catch (e: ClientRequestException) {
             handleUnexpectedResponseException(e.response, callId)

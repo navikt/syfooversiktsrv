@@ -1,8 +1,13 @@
 package no.nav.syfo.cronjob.reaper
 
+import io.mockk.clearMocks
+import io.mockk.coVerify
+import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
+import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.personstatus.domain.toPersonOversiktStatus
+import no.nav.syfo.personstatus.infrastructure.clients.behandlendeenhet.BehandlendeEnhetClient
 import no.nav.syfo.personstatus.infrastructure.cronjob.reaper.ReaperCronjob
 import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList
 import no.nav.syfo.testutil.*
@@ -20,15 +25,17 @@ object ReaperCronjobSpek : Spek({
     val externalMockEnvironment = ExternalMockEnvironment.instance
     val database = externalMockEnvironment.database
     val personoversiktStatusService = externalMockEnvironment.personoversiktStatusService
-
+    val behandlendeEnhetClient = mockk<BehandlendeEnhetClient>(relaxed = true)
     val reaperCronjob = ReaperCronjob(
         personOversiktStatusService = personoversiktStatusService,
+        behandlendeEnhetClient = behandlendeEnhetClient,
     )
 
     describe(ReaperCronjobSpek::class.java.simpleName) {
         describe("Successful processing") {
             afterEachTest {
                 database.dropData()
+                clearMocks(behandlendeEnhetClient)
             }
 
             it("reset tildelt veileder for personer with tilfelle that ended two months ago") {
@@ -50,6 +57,9 @@ object ReaperCronjobSpek : Spek({
                 val personOversiktStatuses = database.connection.getPersonOversiktStatusList(personOversiktStatus.fnr)
                 val status = personOversiktStatuses[0]
                 status.veilederIdent shouldBeEqualTo null
+                coVerify(exactly = 1) {
+                    behandlendeEnhetClient.unsetOppfolgingsenhet(any(), PersonIdent(personOversiktStatus.fnr))
+                }
             }
             it("does not reset tildelt veileder for personer with sist_endret less than two months ago") {
                 val threeMonthsAgo = LocalDate.now().minusMonths(3)
@@ -70,6 +80,9 @@ object ReaperCronjobSpek : Spek({
                 val personOversiktStatuses = database.connection.getPersonOversiktStatusList(personOversiktStatus.fnr)
                 val status = personOversiktStatuses[0]
                 status.veilederIdent shouldNotBeEqualTo null
+                coVerify(exactly = 0) {
+                    behandlendeEnhetClient.unsetOppfolgingsenhet(any(), any())
+                }
             }
 
             it("don't process personer with tilfelle that ended less than two months ago") {
@@ -82,6 +95,9 @@ object ReaperCronjobSpek : Spek({
 
                     result.failed shouldBeEqualTo 0
                     result.updated shouldBeEqualTo 0
+                    coVerify(exactly = 0) {
+                        behandlendeEnhetClient.unsetOppfolgingsenhet(any(), any())
+                    }
                 }
             }
         }

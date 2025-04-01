@@ -11,6 +11,7 @@ import no.nav.syfo.personstatus.infrastructure.clients.ereg.EregClient
 import no.nav.syfo.personstatus.infrastructure.clients.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.personstatus.infrastructure.cronjob.behandlendeenhet.PersonBehandlendeEnhetCronjob
 import no.nav.syfo.personstatus.application.PersonBehandlendeEnhetService
+import no.nav.syfo.personstatus.infrastructure.clients.behandlendeenhet.BehandlendeEnhetClient
 import no.nav.syfo.personstatus.infrastructure.cronjob.leaderelection.LeaderPodClient
 import no.nav.syfo.personstatus.infrastructure.cronjob.preloadcache.PreloadCacheCronjob
 import no.nav.syfo.personstatus.infrastructure.cronjob.reaper.ReaperCronjob
@@ -29,6 +30,10 @@ fun launchCronjobModule(
     val eregClient = EregClient(
         clientEnvironment = environment.clients.ereg,
         valkeyStore = valkeyStore,
+    )
+    val behandlendeEnhetClient = BehandlendeEnhetClient(
+        azureAdClient = azureAdClient,
+        clientEnvironment = environment.clients.syfobehandlendeenhet,
     )
     val personOppfolgingstilfelleVirksomhetsnavnService = PersonOppfolgingstilfelleVirksomhetsnavnService(
         database = database,
@@ -49,6 +54,7 @@ fun launchCronjobModule(
 
     val reaperCronjob = ReaperCronjob(
         personOversiktStatusService = personoversiktStatusService,
+        behandlendeEnhetClient = behandlendeEnhetClient,
     )
 
     val tilgangskontrollClient = VeilederTilgangskontrollClient(

@@ -1,14 +1,18 @@
 package no.nav.syfo.personstatus.infrastructure.cronjob.reaper
 
+import kotlinx.coroutines.runBlocking
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.personstatus.application.PersonoversiktStatusService
 import no.nav.syfo.personstatus.domain.PersonIdent
+import no.nav.syfo.personstatus.infrastructure.clients.behandlendeenhet.BehandlendeEnhetClient
 import no.nav.syfo.personstatus.infrastructure.cronjob.Cronjob
 import no.nav.syfo.personstatus.infrastructure.cronjob.CronjobResult
 import org.slf4j.LoggerFactory
+import java.util.*
 
 class ReaperCronjob(
     private val personOversiktStatusService: PersonoversiktStatusService,
+    private val behandlendeEnhetClient: BehandlendeEnhetClient,
 ) : Cronjob {
     private val log = LoggerFactory.getLogger(ReaperCronjob::class.java)
 
@@ -30,16 +34,23 @@ class ReaperCronjob(
         til en annen enhet, eller personen kan ha flyttet i mellomtiden).
         Desember 2024: Endrer slik at veilederknytningen nulles når det har gått 2 måneder (fra 3) siden siste
         oppfølgingstilfelle-end og minst 2 måneder siden siste oppdatering.
+        Mars 2025: Utvider til også å nulle oppfølgingsenhet
          */
         personOversiktStatusService.getPersonerWithVeilederTildelingAndOldOppfolgingstilfelle()
             .forEach {
                 try {
                     personOversiktStatusService.removeTildeltVeileder(PersonIdent(it.fnr))
+                    runBlocking {
+                        behandlendeEnhetClient.unsetOppfolgingsenhet(
+                            callId = UUID.randomUUID().toString(),
+                            personIdent = PersonIdent(it.fnr),
+                        )
+                    }
                     result.updated++
                     COUNT_CRONJOB_REAPER_UPDATE.increment()
                 } catch (ex: Exception) {
                     log.error(
-                        "Exception caught while attempting to remove tildelt veileder",
+                        "Exception caught while attempting to remove tildelt veileder and oppfolgingsenhet",
                         ex
                     )
                     result.failed++
