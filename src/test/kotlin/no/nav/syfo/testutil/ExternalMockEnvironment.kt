@@ -37,7 +37,7 @@ class ExternalMockEnvironment private constructor() {
 
     val personOversiktStatusRepository = PersonOversiktStatusRepository(database = database)
 
-    val azureAdClient = AzureAdClient(
+    private val azureAdClient = AzureAdClient(
         azureEnvironment = environment.azure,
         valkeyStore = valkeyStore,
         httpClient = mockHttpClient,
