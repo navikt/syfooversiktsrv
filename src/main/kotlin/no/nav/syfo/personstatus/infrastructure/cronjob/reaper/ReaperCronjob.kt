@@ -1,6 +1,5 @@
 package no.nav.syfo.personstatus.infrastructure.cronjob.reaper
 
-import kotlinx.coroutines.runBlocking
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.personstatus.application.PersonoversiktStatusService
 import no.nav.syfo.personstatus.domain.PersonIdent
@@ -9,7 +8,6 @@ import no.nav.syfo.personstatus.infrastructure.cronjob.Cronjob
 import no.nav.syfo.personstatus.infrastructure.cronjob.CronjobResult
 import org.slf4j.LoggerFactory
 import java.util.*
-
 
 /**
 * Formålet med denne cronjob'en er å nulle ut veilederknytning for personer som ikke lengre er under
