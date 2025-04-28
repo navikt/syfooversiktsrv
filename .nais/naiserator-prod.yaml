@@ -44,6 +44,7 @@ spec:
   accessPolicy:
     inbound:
       rules:
+        - application: syfobehandlendeenhet
         - application: syfooversikt
         - application: syfomodiaperson
         - application: modia-robot-api

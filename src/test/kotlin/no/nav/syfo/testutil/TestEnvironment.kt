@@ -3,11 +3,13 @@ package no.nav.syfo.testutil
 import no.nav.syfo.ApplicationState
 import no.nav.syfo.Environment
 import no.nav.syfo.application.cache.ValkeyConfig
+import no.nav.syfo.personstatus.api.v2.access.PreAuthorizedClient
 import no.nav.syfo.personstatus.infrastructure.clients.ClientEnvironment
 import no.nav.syfo.personstatus.infrastructure.clients.ClientsEnvironment
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureEnvironment
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseEnvironment
 import no.nav.syfo.personstatus.infrastructure.kafka.KafkaEnvironment
+import no.nav.syfo.util.configuredJacksonMapper
 import java.net.URI
 
 fun testEnvironment(
@@ -28,6 +30,7 @@ fun testEnvironment(
         appClientSecret = "appClientSecret",
         appWellKnownUrl = "appWellKnownUrl",
         openidConfigTokenEndpoint = azureTokenEndpoint,
+        azureAppPreAuthorizedApps = configuredJacksonMapper().writeValueAsString(testAzureAppPreAuthorizedApps),
     ),
     database = DatabaseEnvironment(
         host = "localhost",
@@ -102,4 +105,13 @@ fun testEnvironment(
 fun testAppState() = ApplicationState(
     alive = true,
     ready = true,
+)
+
+const val testSyfobehandlendeenhetClientId = "syfobehandlendeenhet-client-id"
+
+val testAzureAppPreAuthorizedApps = listOf(
+    PreAuthorizedClient(
+        name = "dev-gcp:teamsykefravr:syfobehandlendeenhet",
+        clientId = testSyfobehandlendeenhetClientId,
+    ),
 )

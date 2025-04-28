@@ -8,6 +8,7 @@ import no.nav.syfo.personstatus.infrastructure.kafka.KafkaEnvironment
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureEnvironment
 import java.lang.RuntimeException
 import java.net.URI
+import kotlin.String
 import kotlin.text.toLong
 
 const val NAIS_DATABASE_ENV_PREFIX = "NAIS_DATABASE_SYFOOVERSIKTSRV_SYFOOVERSIKTSRV_DB"
@@ -20,6 +21,7 @@ data class Environment(
         appClientSecret = getEnvVar("AZURE_APP_CLIENT_SECRET"),
         appWellKnownUrl = getEnvVar("AZURE_APP_WELL_KNOWN_URL"),
         openidConfigTokenEndpoint = getEnvVar("AZURE_OPENID_CONFIG_TOKEN_ENDPOINT"),
+        azureAppPreAuthorizedApps = getEnvVar("AZURE_APP_PRE_AUTHORIZED_APPS"),
     ),
 
     val database: DatabaseEnvironment = DatabaseEnvironment(
@@ -93,6 +95,11 @@ data class Environment(
     ),
 
     val cronjobBehandlendeEnhetIntervalDelayMinutes: Long = getEnvVar("CRONJOB_BEHANDLENDE_ENHET_INTERVAL_DELAY_MINUTES").toLong(),
+    val syfobehandlendeenhetApplicationName: String = "syfobehandlendeenhet",
+    val systemAPIAuthorizedConsumerApplicationNameList: List<String> = listOf(
+        syfobehandlendeenhetApplicationName,
+    ),
+
 )
 
 fun getEnvVar(varName: String, defaultValue: String? = null) =
