@@ -18,6 +18,7 @@ import io.ktor.server.response.respond
 import io.ktor.util.cio.ChannelWriteException
 import io.micrometer.core.instrument.distribution.DistributionStatisticConfig
 import net.logstash.logback.argument.StructuredArguments
+import no.nav.syfo.personstatus.api.v2.access.ForbiddenAccessSystemConsumer
 import no.nav.syfo.personstatus.infrastructure.METRICS_REGISTRY
 import no.nav.syfo.util.*
 import no.nav.syfo.util.configure
@@ -113,6 +114,9 @@ fun Application.installStatusPages() {
                 }
                 is IllegalArgumentException -> {
                     HttpStatusCode.BadRequest
+                }
+                is ForbiddenAccessSystemConsumer -> {
+                    HttpStatusCode.Forbidden
                 }
                 else -> {
                     isUnexpectedException = true

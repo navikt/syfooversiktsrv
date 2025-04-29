@@ -5,4 +5,5 @@ data class AzureEnvironment(
     val appClientSecret: String,
     val appWellKnownUrl: String,
     val openidConfigTokenEndpoint: String,
+    val azureAppPreAuthorizedApps: String,
 )

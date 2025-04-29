@@ -5,6 +5,7 @@ import io.ktor.server.auth.authenticate
 import io.ktor.server.routing.routing
 import no.nav.syfo.ApplicationState
 import no.nav.syfo.Environment
+import no.nav.syfo.personstatus.api.v2.access.APIConsumerAccessService
 import no.nav.syfo.personstatus.api.v2.auth.installCallId
 import no.nav.syfo.personstatus.api.v2.auth.installContentNegotiation
 import no.nav.syfo.personstatus.api.v2.auth.installJwtAuthentication
@@ -21,6 +22,7 @@ import no.nav.syfo.personstatus.api.v2.auth.JwtIssuerType
 import no.nav.syfo.personstatus.api.v2.auth.WellKnown
 import no.nav.syfo.personstatus.api.v2.endpoints.registerPersonTildelingApiV2
 import no.nav.syfo.personstatus.api.v2.endpoints.registerPersonoversiktApiV2
+import no.nav.syfo.personstatus.api.v2.endpoints.registerPersonoversiktSystemApi
 import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
 import no.nav.syfo.personstatus.application.PersonTildelingService
 import no.nav.syfo.personstatus.application.PersonoversiktSearchService
@@ -46,7 +48,7 @@ fun Application.apiModule(
         jwtIssuerList = listOf(
             JwtIssuer(
                 acceptedAudienceList = listOf(environment.azure.appClientId),
-                jwtIssuerType = JwtIssuerType.VEILEDER_V2,
+                jwtIssuerType = JwtIssuerType.INTERNAL_AZUREAD,
                 wellKnown = wellKnownVeilederV2,
             )
         )
@@ -59,6 +61,9 @@ fun Application.apiModule(
     val personoversiktSearchService = PersonoversiktSearchService(
         personoversiktStatusRepository = personoversiktStatusRepository,
     )
+    val apiConsumerAccessService = APIConsumerAccessService(
+        azureAppPreAuthorizedApps = environment.azure.azureAppPreAuthorizedApps,
+    )
 
     routing {
         registerPodApi(
@@ -66,7 +71,7 @@ fun Application.apiModule(
             database = database,
         )
         registerPrometheusApi()
-        authenticate(JwtIssuerType.VEILEDER_V2.name) {
+        authenticate(JwtIssuerType.INTERNAL_AZUREAD.name) {
             registerPersonoversiktApiV2(
                 veilederTilgangskontrollClient = tilgangskontrollClient,
                 personoversiktStatusService = personoversiktStatusService,
@@ -74,6 +79,11 @@ fun Application.apiModule(
                 personoversiktSearchService = personoversiktSearchService,
             )
             registerPersonTildelingApiV2(tilgangskontrollClient, personTildelingService, personoversiktStatusService)
+            registerPersonoversiktSystemApi(
+                apiConsumerAccessService = apiConsumerAccessService,
+                personoversiktStatusService = personoversiktStatusService,
+                authorizedApplicationNames = environment.systemAPIAuthorizedConsumerApplicationNameList,
+            )
         }
     }
 }

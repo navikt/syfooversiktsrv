@@ -7,5 +7,5 @@ data class JwtIssuer(
 )
 
 enum class JwtIssuerType {
-    VEILEDER_V2,
+    INTERNAL_AZUREAD,
 }
