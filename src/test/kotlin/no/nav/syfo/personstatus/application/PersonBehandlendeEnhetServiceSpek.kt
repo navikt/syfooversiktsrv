@@ -35,7 +35,7 @@ class PersonBehandlendeEnhetServiceSpek : Spek({
 
                 val personOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(PersonIdent(ARBEIDSTAKER_FNR))
                 personOversiktStatus shouldNotBe null
-                personOversiktStatus!!.enhet shouldBeEqualTo behandlendeEnhetDTO.enhetId
+                personOversiktStatus!!.enhet shouldBeEqualTo behandlendeEnhetDTO.oppfolgingsenhet.enhetId
             }
 
             it("correctly updates enhet when other enhet is already assigned") {
@@ -49,7 +49,7 @@ class PersonBehandlendeEnhetServiceSpek : Spek({
 
                 val personOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(PersonIdent(ARBEIDSTAKER_FNR))
                 personOversiktStatus shouldNotBe null
-                personOversiktStatus!!.enhet shouldBeEqualTo behandlendeEnhetDTO.enhetId
+                personOversiktStatus!!.enhet shouldBeEqualTo behandlendeEnhetDTO.oppfolgingsenhet.enhetId
             }
         }
     }

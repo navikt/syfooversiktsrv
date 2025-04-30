@@ -280,7 +280,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     }
                     personOversiktStatus.veilederIdent shouldBeEqualTo null
                     personOversiktStatus.fnr shouldBeEqualTo ARBEIDSTAKER_FNR
-                    personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO.enhetId
+                    personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO.oppfolgingsenhet.enhetId
                     personOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
                     personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
                     personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo true
@@ -325,7 +325,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     personOversiktStatus.veilederIdent shouldBeEqualTo null
                     personOversiktStatus.fnr shouldBeEqualTo oversiktHendelse.personident
                     personOversiktStatus.navn shouldBeEqualTo getIdentName()
-                    personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO.enhetId
+                    personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO.oppfolgingsenhet.enhetId
                     personOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
                     personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo null
                     personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo false
@@ -374,7 +374,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     personOversiktStatus.veilederIdent shouldBeEqualTo tilknytning.veilederIdent
                     personOversiktStatus.fnr shouldBeEqualTo oversiktHendelse.personident
                     personOversiktStatus.navn shouldBeEqualTo getIdentName()
-                    personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO.enhetId
+                    personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO.oppfolgingsenhet.enhetId
                     personOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
                     personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
                     personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo false
@@ -427,7 +427,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     personOversiktStatus.veilederIdent shouldBeEqualTo tilknytning.veilederIdent
                     personOversiktStatus.fnr shouldBeEqualTo oversiktHendelse.personident
                     personOversiktStatus.navn shouldBeEqualTo getIdentName()
-                    personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO.enhetId
+                    personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO.oppfolgingsenhet.enhetId
                     personOversiktStatus.motebehovUbehandlet shouldBeEqualTo true
                     personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
                     personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo false
@@ -465,7 +465,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     personOversiktStatus.veilederIdent shouldBeEqualTo null
                     personOversiktStatus.fnr shouldBeEqualTo oversiktHendelseOPLPSBistandMottatt.personident
                     personOversiktStatus.navn shouldBeEqualTo getIdentName()
-                    personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO.enhetId
+                    personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO.oppfolgingsenhet.enhetId
                     personOversiktStatus.motebehovUbehandlet shouldBeEqualTo null
                     personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
                     personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo false
@@ -499,7 +499,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     personOversiktStatus.veilederIdent shouldBeEqualTo null
                     personOversiktStatus.fnr shouldBeEqualTo oversiktHendelseOPLPSBistandMottatt.personident
                     personOversiktStatus.navn shouldBeEqualTo ""
-                    personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO.enhetId
+                    personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO.oppfolgingsenhet.enhetId
                     personOversiktStatus.motebehovUbehandlet shouldBeEqualTo null
                     personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet shouldBeEqualTo true
                     personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo false
@@ -558,7 +558,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     response.status shouldBeEqualTo HttpStatusCode.OK
                     val personOversiktStatus = response.body<List<PersonOversiktStatusDTO>>().first()
                     personOversiktStatus.fnr shouldBeEqualTo oversikthendelseDialogmotesvarMottatt.personident
-                    personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO.enhetId
+                    personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO.oppfolgingsenhet.enhetId
                     personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo true
                 }
             }
@@ -578,7 +578,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     response.status shouldBeEqualTo HttpStatusCode.OK
                     val personOversiktStatus = response.body<List<PersonOversiktStatusDTO>>().first()
                     personOversiktStatus.fnr shouldBeEqualTo personident.value
-                    personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO.enhetId
+                    personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO.oppfolgingsenhet.enhetId
                     personOversiktStatus.friskmeldingTilArbeidsformidlingFom!! shouldBeEqualTo tomorrow
                 }
             }
@@ -598,7 +598,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     response.status shouldBeEqualTo HttpStatusCode.OK
                     val personOversiktStatus = response.body<List<PersonOversiktStatusDTO>>().first()
                     personOversiktStatus.fnr shouldBeEqualTo personident.value
-                    personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO.enhetId
+                    personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO.oppfolgingsenhet.enhetId
                     personOversiktStatus.friskmeldingTilArbeidsformidlingFom!! shouldBeEqualTo today
                 }
             }
@@ -618,7 +618,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     response.status shouldBeEqualTo HttpStatusCode.OK
                     val personOversiktStatus = response.body<List<PersonOversiktStatusDTO>>().first()
                     personOversiktStatus.fnr shouldBeEqualTo personident.value
-                    personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO.enhetId
+                    personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO.oppfolgingsenhet.enhetId
                     personOversiktStatus.friskmeldingTilArbeidsformidlingFom!! shouldBeEqualTo yesterday
                 }
             }
@@ -643,7 +643,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     response.status shouldBeEqualTo HttpStatusCode.OK
                     val personOversiktStatus = response.body<List<PersonOversiktStatusDTO>>().first()
                     personOversiktStatus.fnr shouldBeEqualTo personident
-                    personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO.enhetId
+                    personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO.oppfolgingsenhet.enhetId
                     personOversiktStatus.oppfolgingsoppgave shouldNotBe null
                     personOversiktStatus.oppfolgingsoppgave?.oppfolgingsgrunn shouldBeEqualTo "FOLG_OPP_ETTER_NESTE_SYKMELDING"
                     personOversiktStatus.oppfolgingsoppgave?.tekst shouldBeEqualTo "En tekst"
@@ -691,7 +691,7 @@ object PersonoversiktStatusApiV2Spek : Spek({
                     response.status shouldBeEqualTo HttpStatusCode.OK
                     val personOversiktStatus = response.body<List<PersonOversiktStatusDTO>>().first()
                     personOversiktStatus.fnr shouldBeEqualTo ARBEIDSTAKER_FNR
-                    personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO.enhetId
+                    personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO.oppfolgingsenhet.enhetId
                     personOversiktStatus.behandlerBerOmBistandUbehandlet shouldBeEqualTo true
                 }
             }
