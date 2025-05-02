@@ -17,12 +17,12 @@ class PersonBehandlendeEnhetService(
             personIdent = personIdent,
         )
         val tildeltEnhet = personoversiktStatusRepository.getPersonOversiktStatus(personIdent)?.enhet
-        val isEnhetUpdate = behandlendeEnhet != null && behandlendeEnhet.enhetId != tildeltEnhet
+        val isEnhetChanged = behandlendeEnhet.oppfolgingsenhet.enhetId != tildeltEnhet
 
-        if (isEnhetUpdate) {
+        if (isEnhetChanged) {
             personoversiktStatusRepository.updatePersonTildeltEnhetAndRemoveTildeltVeileder(
                 personIdent = personIdent,
-                enhetId = behandlendeEnhet.enhetId,
+                enhetId = behandlendeEnhet.oppfolgingsenhet.enhetId,
             )
         } else {
             personoversiktStatusRepository.updatePersonTildeltEnhetUpdatedAt(

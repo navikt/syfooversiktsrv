@@ -6,7 +6,6 @@ import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_ENHET_ERROR_PERSONIDENT
-import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_ENHET_NOT_FOUND_PERSONIDENT
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testutil.UserConstants.NAV_ENHET_2
 import no.nav.syfo.testutil.mock.behandlendeEnhetDTO
@@ -93,7 +92,7 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                     val pPersonOversiktStatus = pPersonOversiktStatusList.first()
 
                     pPersonOversiktStatus.enhet shouldNotBeEqualTo firstEnhet
-                    pPersonOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO.enhetId
+                    pPersonOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO.oppfolgingsenhet.enhetId
                     pPersonOversiktStatus.tildeltEnhetUpdatedAt.shouldNotBeNull()
                     pPersonOversiktStatus.tildeltEnhetUpdatedAt!!.toInstant()
                         .toEpochMilli() shouldBeGreaterThan tildeltEnhetUpdatedAtBeforeUpdate.toInstant()
@@ -171,68 +170,9 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
 
                     val pPersonOversiktStatus = pPersonOversiktStatusList.first()
 
-                    pPersonOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO.enhetId
+                    pPersonOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO.oppfolgingsenhet.enhetId
                     pPersonOversiktStatus.tildeltEnhetUpdatedAt.shouldNotBeNull()
                     pPersonOversiktStatus.tildeltEnhetUpdatedAt shouldNotBeEqualTo tildeltEnhetUpdatedAtBeforeUpdate
-                    pPersonOversiktStatus.veilederIdent.shouldBeNull()
-                }
-
-                runBlocking {
-                    val result = personBehandlendeEnhetCronjob.runJob()
-
-                    result.failed shouldBeEqualTo 0
-                    result.updated shouldBeEqualTo 0
-                }
-            }
-
-            it("should update tildeltEnhetUpdatedAt, but not tildeltEnhet, of existing PersonOversiktStatus with ubehandlet oppgave if BehandlendeEnhet is not found") {
-                val personIdent = ARBEIDSTAKER_ENHET_NOT_FOUND_PERSONIDENT
-                personOversiktStatusRepository.createPersonOversiktStatus(
-                    PersonOversiktStatus(
-                        fnr = personIdent.value,
-                        oppfolgingsplanLPSBistandUbehandlet = true,
-                    )
-                )
-
-                database.connection.use { connection ->
-                    val pPersonOversiktStatusList = connection.getPersonOversiktStatusList(
-                        fnr = personIdent.value,
-                    )
-
-                    pPersonOversiktStatusList.size shouldBeEqualTo 1
-
-                    val pPersonOversiktStatus = pPersonOversiktStatusList.first()
-                    pPersonOversiktStatus.enhet.shouldBeNull()
-                    pPersonOversiktStatus.tildeltEnhetUpdatedAt.shouldBeNull()
-                    pPersonOversiktStatus.veilederIdent.shouldBeNull()
-                }
-
-                val tildeltEnhetUpdatedAtBeforeUpdate = nowUTC().minusDays(2)
-                database.updateTildeltEnhetUpdatedAt(
-                    ident = personIdent,
-                    time = tildeltEnhetUpdatedAtBeforeUpdate,
-                )
-
-                runBlocking {
-                    val result = personBehandlendeEnhetCronjob.runJob()
-
-                    result.failed shouldBeEqualTo 0
-                    result.updated shouldBeEqualTo 1
-                }
-
-                database.connection.use { connection ->
-                    val pPersonOversiktStatusList = connection.getPersonOversiktStatusList(
-                        fnr = personIdent.value,
-                    )
-
-                    pPersonOversiktStatusList.size shouldBeEqualTo 1
-
-                    val pPersonOversiktStatus = pPersonOversiktStatusList.first()
-                    pPersonOversiktStatus.enhet.shouldBeNull()
-                    pPersonOversiktStatus.tildeltEnhetUpdatedAt.shouldNotBeNull()
-                    pPersonOversiktStatus.tildeltEnhetUpdatedAt!!.toInstant()
-                        .toEpochMilli() shouldBeGreaterThan tildeltEnhetUpdatedAtBeforeUpdate!!.toInstant()
-                        .toEpochMilli()
                     pPersonOversiktStatus.veilederIdent.shouldBeNull()
                 }
 
