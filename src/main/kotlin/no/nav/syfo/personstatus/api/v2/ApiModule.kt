@@ -27,6 +27,7 @@ import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
 import no.nav.syfo.personstatus.application.PersonTildelingService
 import no.nav.syfo.personstatus.application.PersonoversiktSearchService
 import no.nav.syfo.personstatus.application.PersonBehandlendeEnhetService
+import no.nav.syfo.personstatus.infrastructure.clients.veileder.VeilederClient
 
 fun Application.apiModule(
     applicationState: ApplicationState,
@@ -35,6 +36,7 @@ fun Application.apiModule(
     wellKnownVeilederV2: WellKnown,
     personoversiktStatusService: PersonoversiktStatusService,
     tilgangskontrollClient: VeilederTilgangskontrollClient,
+    veilederClient: VeilederClient,
     personoversiktOppgaverService: PersonoversiktOppgaverService,
     personBehandlendeEnhetService: PersonBehandlendeEnhetService,
     personoversiktStatusRepository: IPersonOversiktStatusRepository,
@@ -57,6 +59,7 @@ fun Application.apiModule(
     val personTildelingService = PersonTildelingService(
         personoversiktStatusRepository = personoversiktStatusRepository,
         personBehandlendeEnhetService = personBehandlendeEnhetService,
+        veilederClient = veilederClient,
     )
     val personoversiktSearchService = PersonoversiktSearchService(
         personoversiktStatusRepository = personoversiktStatusRepository,

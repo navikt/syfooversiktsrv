@@ -1,7 +1,6 @@
 package no.nav.syfo.testutil
 
 import no.nav.syfo.personstatus.application.PersonBehandlendeEnhetService
-import no.nav.syfo.personstatus.application.PersonTildelingService
 import no.nav.syfo.personstatus.application.PersonoversiktStatusService
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
 import no.nav.syfo.personstatus.infrastructure.clients.behandlendeenhet.BehandlendeEnhetClient
@@ -59,10 +58,6 @@ class InternalMockEnvironment private constructor() {
         database = database,
         pdlClient = pdlClient,
         personoversiktStatusRepository = personoversiktRepository,
-    )
-    val personTildelingService = PersonTildelingService(
-        personoversiktStatusRepository = personoversiktRepository,
-        personBehandlendeEnhetService = personBehandlendeEnhetService,
     )
 
     companion object {

@@ -50,6 +50,7 @@ class ExternalMockEnvironment private constructor() {
     private val veilederClient = VeilederClient(
         azureAdClient = azureAdClient,
         clientEnvironment = environment.clients.syfoveileder,
+        valkeyStore = valkeyStore,
         httpClient = mockHttpClient
     )
 
