@@ -24,7 +24,7 @@ class BehandlendeEnhetClient(
     suspend fun getEnhet(
         callId: String,
         personIdent: PersonIdent,
-    ): BehandlendeEnhetResponseDTO {
+    ): BehandlendeEnhetResponseDTO? {
         val url = behandlendeEnhetUrl
         val systemToken = azureAdClient.getSystemToken(
             scopeClientId = clientEnvironment.clientId,
@@ -36,8 +36,12 @@ class BehandlendeEnhetClient(
                 header(NAV_PERSONIDENT_HEADER, personIdent.value)
                 accept(ContentType.Application.Json)
             }
-            COUNT_CALL_BEHANDLENDEENHET_SUCCESS.increment()
-            response.body()
+            if (response.status == HttpStatusCode.NoContent) {
+                return null
+            } else {
+                COUNT_CALL_BEHANDLENDEENHET_SUCCESS.increment()
+                response.body()
+            }
         } catch (e: ClientRequestException) {
             handleUnexpectedResponseException(e.response, callId)
             throw e
