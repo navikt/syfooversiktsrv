@@ -24,6 +24,7 @@ fun MockRequestHandleScope.getBehandlendeEnhetResponse(request: HttpRequestData)
     val personident = request.headers[NAV_PERSONIDENT_HEADER]
     return when (personident) {
         UserConstants.ARBEIDSTAKER_ENHET_ERROR_PERSONIDENT.value -> respondError(status = HttpStatusCode.InternalServerError)
+        UserConstants.ARBEIDSTAKER_ENHET_NOT_FOUND_PERSONIDENT.value -> respondError(status = HttpStatusCode.NoContent)
         else -> {
             respondOk(behandlendeEnhetDTO)
         }
