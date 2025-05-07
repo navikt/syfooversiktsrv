@@ -12,24 +12,27 @@ class PersonBehandlendeEnhetService(
         personoversiktStatusRepository.getPersonerWithOppgaveAndOldEnhet()
 
     suspend fun updateBehandlendeEnhet(personIdent: PersonIdent): String? {
-        val behandlendeEnhet = behandlendeEnhetClient.getEnhet(
+        val behandlendeEnhetResponseDTO = behandlendeEnhetClient.getEnhet(
             callId = UUID.randomUUID().toString(),
             personIdent = personIdent,
-        )?.oppfolgingsenhet?.enhetId
+        )
 
-        val tildeltEnhet = personoversiktStatusRepository.getPersonOversiktStatus(personIdent)?.enhet
+        val behandlendeEnhetId = behandlendeEnhetResponseDTO?.oppfolgingsenhet?.enhetId
+            ?: behandlendeEnhetResponseDTO?.geografiskEnhet?.enhetId
 
-        val isEnhetChanged = behandlendeEnhet != tildeltEnhet
-        if (isEnhetChanged && behandlendeEnhet != null) {
+        val tildeltEnhetId = personoversiktStatusRepository.getPersonOversiktStatus(personIdent)?.enhet
+
+        val isEnhetChanged = behandlendeEnhetId != tildeltEnhetId
+        if (isEnhetChanged && behandlendeEnhetId != null) {
             personoversiktStatusRepository.updatePersonTildeltEnhetAndRemoveTildeltVeileder(
                 personIdent = personIdent,
-                enhetId = behandlendeEnhet,
+                enhetId = behandlendeEnhetId,
             )
         } else {
             personoversiktStatusRepository.updatePersonTildeltEnhetUpdatedAt(
                 personIdent = personIdent,
             )
         }
-        return behandlendeEnhet
+        return behandlendeEnhetId
     }
 }
