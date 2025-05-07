@@ -11,23 +11,25 @@ class PersonBehandlendeEnhetService(
     fun getPersonerToCheckForUpdatedEnhet(): List<PersonIdent> =
         personoversiktStatusRepository.getPersonerWithOppgaveAndOldEnhet()
 
-    suspend fun updateBehandlendeEnhet(personIdent: PersonIdent) {
+    suspend fun updateBehandlendeEnhet(personIdent: PersonIdent): String? {
         val behandlendeEnhet = behandlendeEnhetClient.getEnhet(
             callId = UUID.randomUUID().toString(),
             personIdent = personIdent,
-        )
-        val tildeltEnhet = personoversiktStatusRepository.getPersonOversiktStatus(personIdent)?.enhet
-        val isEnhetChanged = behandlendeEnhet?.oppfolgingsenhet?.enhetId != tildeltEnhet
+        )?.oppfolgingsenhet?.enhetId
 
+        val tildeltEnhet = personoversiktStatusRepository.getPersonOversiktStatus(personIdent)?.enhet
+
+        val isEnhetChanged = behandlendeEnhet != tildeltEnhet
         if (isEnhetChanged && behandlendeEnhet != null) {
             personoversiktStatusRepository.updatePersonTildeltEnhetAndRemoveTildeltVeileder(
                 personIdent = personIdent,
-                enhetId = behandlendeEnhet.oppfolgingsenhet.enhetId,
+                enhetId = behandlendeEnhet,
             )
         } else {
             personoversiktStatusRepository.updatePersonTildeltEnhetUpdatedAt(
                 personIdent = personIdent,
             )
         }
+        return behandlendeEnhet
     }
 }

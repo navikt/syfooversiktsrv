@@ -20,6 +20,7 @@ object VeilederClientSpek : Spek({
     val veilederClient = VeilederClient(
         azureAdClient = azureAdClient,
         clientEnvironment = externalMockEnvironment.environment.clients.syfoveileder,
+        valkeyStore = externalMockEnvironment.valkeyStore,
         httpClient = externalMockEnvironment.mockHttpClient
     )
 

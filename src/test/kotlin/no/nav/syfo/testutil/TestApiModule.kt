@@ -16,6 +16,7 @@ import no.nav.syfo.personstatus.infrastructure.clients.manglendemedvirkning.Mang
 import no.nav.syfo.personstatus.infrastructure.clients.meroppfolging.MerOppfolgingClient
 import no.nav.syfo.personstatus.infrastructure.clients.oppfolgingsoppgave.OppfolgingsoppgaveClient
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.PdlClient
+import no.nav.syfo.personstatus.infrastructure.clients.veileder.VeilederClient
 import no.nav.syfo.personstatus.infrastructure.clients.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.util.configure
 
@@ -63,6 +64,12 @@ fun Application.testApiModule(
         istilgangskontrollEnv = externalMockEnvironment.environment.clients.istilgangskontroll,
         httpClient = externalMockEnvironment.mockHttpClient
     )
+    val veilederClient = VeilederClient(
+        azureAdClient = azureAdClient,
+        clientEnvironment = externalMockEnvironment.environment.clients.syfoveileder,
+        valkeyStore = externalMockEnvironment.valkeyStore,
+        httpClient = externalMockEnvironment.mockHttpClient,
+    )
     val behandlendeEnhetClient = BehandlendeEnhetClient(
         azureAdClient = azureAdClient,
         clientEnvironment = externalMockEnvironment.environment.clients.syfobehandlendeenhet,
@@ -91,6 +98,7 @@ fun Application.testApiModule(
         ),
         personBehandlendeEnhetService = personBehandlendeEnhetService,
         personoversiktStatusRepository = personoversiktRepository,
+        veilederClient = veilederClient,
     )
 }
 

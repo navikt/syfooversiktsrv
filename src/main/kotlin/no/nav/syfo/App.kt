@@ -101,6 +101,7 @@ fun main() {
     val veilederClient = VeilederClient(
         azureAdClient = azureAdClient,
         clientEnvironment = environment.clients.syfoveileder,
+        valkeyStore = valkeyStore,
     )
 
     lateinit var personBehandlendeEnhetService: PersonBehandlendeEnhetService
@@ -163,6 +164,7 @@ fun main() {
                 ),
                 personBehandlendeEnhetService = personBehandlendeEnhetService,
                 personoversiktStatusRepository = personoversiktStatusRepository,
+                veilederClient = veilederClient,
             )
             monitor.subscribe(ApplicationStarted) {
                 applicationState.ready = true

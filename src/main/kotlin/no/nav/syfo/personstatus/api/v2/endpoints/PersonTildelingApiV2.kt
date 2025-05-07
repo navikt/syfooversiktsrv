@@ -64,6 +64,8 @@ fun Route.registerPersonTildelingApiV2(
                     personTildelingService.lagreKnytningMellomVeilederOgBruker(
                         veilederBrukerKnytninger = veilederBrukerKnytninger,
                         tildeltAv = tildeltAv,
+                        token = token,
+                        callId = callId,
                     )
 
                     COUNT_PERSONTILDELING_TILDELT.increment(veilederBrukerKnytninger.size.toDouble())
@@ -93,6 +95,8 @@ fun Route.registerPersonTildelingApiV2(
                     personTildelingService.lagreKnytningMellomVeilederOgBruker(
                         veilederBrukerKnytninger = listOf(veilederBrukerKnytning),
                         tildeltAv = getNAVIdentFromToken(token),
+                        token = token,
+                        callId = callId,
                     )
                     call.respond(HttpStatusCode.OK)
                 } else {
