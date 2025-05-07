@@ -32,12 +32,13 @@ class PersonTildelingService(
                 personoversiktStatus.enhet
             } ?: throw IllegalStateException("Enhet for arbeidstaker er null")
 
-            val veiledereForEnhet = veilederClient.getVeiledereForEnhet(
+            val veiledereForArbeidstakerEnhet = veilederClient.getVeiledereForEnhet(
                 callId = callId,
                 enhetId = arbeidstakerEnhet,
                 token = token,
             )
-            if (!veiledereForEnhet.filter { it.enabled }.map { it.ident }.contains(veilederBrukerKnytning.veilederIdent)) {
+            val isVeilederInArbeidstakerEnhet = veiledereForArbeidstakerEnhet.any { it.enabled && it.ident == veilederBrukerKnytning.veilederIdent }
+            if (!isVeilederInArbeidstakerEnhet) {
                 val message = "Kan ikke tildele veileder ${veilederBrukerKnytning.veilederIdent} som ikke er tilknyttet enhet $arbeidstakerEnhet. "
                 log.warn("$message Tildelt av $tildeltAv, PersonOversiktStatus uuid: ${personoversiktStatus.uuid}")
                 throw IllegalStateException(message)
