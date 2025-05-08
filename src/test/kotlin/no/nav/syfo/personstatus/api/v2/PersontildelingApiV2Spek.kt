@@ -203,7 +203,8 @@ object PersontildelingApiV2Spek : Spek({
                                 )
                             )
                         }
-                        response.status shouldBeEqualTo HttpStatusCode.InternalServerError
+                        // TODO: Endre til InternalServerError når valideringen endres tilbake
+                        response.status shouldBeEqualTo HttpStatusCode.OK
                     }
                 }
                 it("returns OK when request for person som ikke finnes i oversikten is successful") {
