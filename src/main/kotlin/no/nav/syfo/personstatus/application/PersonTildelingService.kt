@@ -41,13 +41,13 @@ class PersonTildelingService(
             if (!isVeilederInArbeidstakerEnhet) {
                 val message = "Kan ikke tildele veileder ${veilederBrukerKnytning.veilederIdent} som ikke er tilknyttet enhet $arbeidstakerEnhet. "
                 log.warn("$message Tildelt av $tildeltAv, PersonOversiktStatus uuid: ${personoversiktStatus.uuid}")
-                throw IllegalStateException(message)
-            } else {
-                personoversiktStatusRepository.lagreVeilederForBruker(
-                    veilederBrukerKnytning = veilederBrukerKnytning,
-                    tildeltAv = tildeltAv,
-                )
+                // throw IllegalStateException(message)
             }
+            // TODO: Flytt inn i else-blokken når vi har fått rullet ut vo-ruting til alle
+            personoversiktStatusRepository.lagreVeilederForBruker(
+                veilederBrukerKnytning = veilederBrukerKnytning,
+                tildeltAv = tildeltAv,
+            )
         }
     }
 
