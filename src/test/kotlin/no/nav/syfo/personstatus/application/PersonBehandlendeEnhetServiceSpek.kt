@@ -37,7 +37,7 @@ class PersonBehandlendeEnhetServiceSpek : Spek({
 
                 val personOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(PersonIdent(ARBEIDSTAKER_FNR))
                 personOversiktStatus shouldNotBe null
-                personOversiktStatus!!.enhet shouldBeEqualTo behandlendeEnhetDTO.oppfolgingsenhet.enhetId
+                personOversiktStatus!!.enhet shouldBeEqualTo behandlendeEnhetDTO.geografiskEnhet.enhetId
             }
 
             it("correctly updates enhet when other enhet is already assigned") {
@@ -51,7 +51,7 @@ class PersonBehandlendeEnhetServiceSpek : Spek({
 
                 val personOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(PersonIdent(ARBEIDSTAKER_FNR))
                 personOversiktStatus shouldNotBe null
-                personOversiktStatus!!.enhet shouldBeEqualTo behandlendeEnhetDTO.oppfolgingsenhet.enhetId
+                personOversiktStatus!!.enhet shouldBeEqualTo behandlendeEnhetDTO.geografiskEnhet.enhetId
             }
 
             it("dont update enhet when call to syfobehandlendeenhet returns no content") {
@@ -65,7 +65,7 @@ class PersonBehandlendeEnhetServiceSpek : Spek({
 
                 val personOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(PersonIdent(ARBEIDSTAKER_ENHET_NOT_FOUND_PERSONIDENT.value))
                 personOversiktStatus shouldNotBe null
-                personOversiktStatus!!.enhet shouldNotBeEqualTo behandlendeEnhetDTO.oppfolgingsenhet.enhetId
+                personOversiktStatus!!.enhet shouldNotBeEqualTo behandlendeEnhetDTO.geografiskEnhet.enhetId
                 personOversiktStatus.enhet shouldBeEqualTo "0314"
             }
         }

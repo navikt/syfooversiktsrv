@@ -58,7 +58,7 @@ object BehandlerdialogPersonoversiktStatusApiV2Spek : Spek({
                 response.status shouldBeEqualTo HttpStatusCode.OK
                 val personOversiktStatus = response.body<List<PersonOversiktStatusDTO>>().first()
                 personOversiktStatus.fnr shouldBeEqualTo oversikthendelseBehandlerdialogSvarMottatt.personident
-                personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO.oppfolgingsenhet.enhetId
+                personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO.geografiskEnhet.enhetId
                 personOversiktStatus.behandlerdialogUbehandlet shouldBeEqualTo true
             }
         }
@@ -87,7 +87,7 @@ object BehandlerdialogPersonoversiktStatusApiV2Spek : Spek({
 
                 val personOversiktStatus = response.body<List<PersonOversiktStatusDTO>>().first()
                 personOversiktStatus.fnr shouldBeEqualTo oversikthendelseBehandlerdialogUbesvartMottatt.personident
-                personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO.oppfolgingsenhet.enhetId
+                personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO.geografiskEnhet.enhetId
                 personOversiktStatus.behandlerdialogUbehandlet shouldBeEqualTo true
             }
         }
@@ -122,7 +122,7 @@ object BehandlerdialogPersonoversiktStatusApiV2Spek : Spek({
 
                 val personOversiktStatus = response.body<List<PersonOversiktStatusDTO>>().first()
                 personOversiktStatus.fnr shouldBeEqualTo oversikthendelseBehandlerdialogSvarMottatt.personident
-                personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO.oppfolgingsenhet.enhetId
+                personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO.geografiskEnhet.enhetId
                 personOversiktStatus.behandlerdialogUbehandlet shouldBeEqualTo true
             }
         }
@@ -151,7 +151,7 @@ object BehandlerdialogPersonoversiktStatusApiV2Spek : Spek({
 
                 val personOversiktStatus = response.body<List<PersonOversiktStatusDTO>>().first()
                 personOversiktStatus.fnr shouldBeEqualTo oversikthendelseBehandlerdialogAvvistMottatt.personident
-                personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO.oppfolgingsenhet.enhetId
+                personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO.geografiskEnhet.enhetId
                 personOversiktStatus.behandlerdialogUbehandlet shouldBeEqualTo true
             }
         }

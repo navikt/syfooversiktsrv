@@ -7,8 +7,11 @@ import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversik
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_ENHET_ERROR_PERSONIDENT
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
+import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_WITH_OPPFOLGINGSENHET
+import no.nav.syfo.testutil.UserConstants.NAV_ENHET
 import no.nav.syfo.testutil.UserConstants.NAV_ENHET_2
 import no.nav.syfo.testutil.mock.behandlendeEnhetDTO
+import no.nav.syfo.testutil.mock.behandlendeEnhetDTOWithOppfolgingsenhet
 import no.nav.syfo.util.nowUTC
 import org.amshove.kluent.*
 import org.spekframework.spek2.Spek
@@ -92,7 +95,7 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
                     val pPersonOversiktStatus = pPersonOversiktStatusList.first()
 
                     pPersonOversiktStatus.enhet shouldNotBeEqualTo firstEnhet
-                    pPersonOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO.oppfolgingsenhet.enhetId
+                    pPersonOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO.geografiskEnhet.enhetId
                     pPersonOversiktStatus.tildeltEnhetUpdatedAt.shouldNotBeNull()
                     pPersonOversiktStatus.tildeltEnhetUpdatedAt!!.toInstant()
                         .toEpochMilli() shouldBeGreaterThan tildeltEnhetUpdatedAtBeforeUpdate.toInstant()
@@ -105,6 +108,42 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
 
                     result.failed shouldBeEqualTo 0
                     result.updated shouldBeEqualTo 0
+                }
+            }
+
+            it("should update Enhet and remove Veileder of existing PersonOversiktStatus with other Enhet and ubehandlet oppgave for person with oppfolgingsenhet") {
+                personOversiktStatusRepository.createPersonOversiktStatus(
+                    PersonOversiktStatus(
+                        fnr = ARBEIDSTAKER_WITH_OPPFOLGINGSENHET.value,
+                        motebehovUbehandlet = true,
+                        enhet = NAV_ENHET,
+                        veilederIdent = UserConstants.VEILEDER_ID,
+                    )
+                )
+                val tildeltEnhetUpdatedAtBeforeUpdate = nowUTC().minusDays(2)
+                database.updateTildeltEnhetUpdatedAt(
+                    ident = ARBEIDSTAKER_WITH_OPPFOLGINGSENHET,
+                    time = tildeltEnhetUpdatedAtBeforeUpdate,
+                )
+
+                runBlocking {
+                    val result = personBehandlendeEnhetCronjob.runJob()
+
+                    result.failed shouldBeEqualTo 0
+                    result.updated shouldBeEqualTo 1
+                }
+
+                database.connection.use { connection ->
+                    val pPersonOversiktStatusList = connection.getPersonOversiktStatusList(
+                        fnr = ARBEIDSTAKER_WITH_OPPFOLGINGSENHET.value,
+                    )
+
+                    pPersonOversiktStatusList.size shouldBeEqualTo 1
+
+                    val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+                    pPersonOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTOWithOppfolgingsenhet.oppfolgingsenhetDTO!!.enhet.enhetId
+                    pPersonOversiktStatus.tildeltEnhetUpdatedAt.shouldNotBeNull()
+                    pPersonOversiktStatus.veilederIdent.shouldBeNull()
                 }
             }
 
@@ -170,7 +209,7 @@ object PersonBehandlendeEnhetCronjobSpek : Spek({
 
                     val pPersonOversiktStatus = pPersonOversiktStatusList.first()
 
-                    pPersonOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO.oppfolgingsenhet.enhetId
+                    pPersonOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO.geografiskEnhet.enhetId
                     pPersonOversiktStatus.tildeltEnhetUpdatedAt.shouldNotBeNull()
                     pPersonOversiktStatus.tildeltEnhetUpdatedAt shouldNotBeEqualTo tildeltEnhetUpdatedAtBeforeUpdate
                     pPersonOversiktStatus.veilederIdent.shouldBeNull()

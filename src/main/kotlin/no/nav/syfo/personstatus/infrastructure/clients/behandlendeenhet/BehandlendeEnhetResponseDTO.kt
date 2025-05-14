@@ -1,10 +1,17 @@
 package no.nav.syfo.personstatus.infrastructure.clients.behandlendeenhet
 
 import java.io.Serializable
+import java.time.LocalDateTime
 
 data class BehandlendeEnhetResponseDTO(
     val geografiskEnhet: Enhet,
-    val oppfolgingsenhet: Enhet,
+    val oppfolgingsenhetDTO: OppfolgingsenhetDTO?,
+) : Serializable
+
+data class OppfolgingsenhetDTO(
+    val enhet: Enhet,
+    val createdAt: LocalDateTime,
+    val veilederident: String,
 ) : Serializable
 
 data class Enhet(
