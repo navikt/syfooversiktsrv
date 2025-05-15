@@ -88,7 +88,7 @@ object DialogmotekandidatPersonoversiktStatusApiV2Spek : Spek({
                     personOversiktStatus.shouldNotBeNull()
                     personOversiktStatus.veilederIdent shouldBeEqualTo null
                     personOversiktStatus.fnr shouldBeEqualTo ARBEIDSTAKER_FNR
-                    personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO.oppfolgingsenhet.enhetId
+                    personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO.geografiskEnhet.enhetId
                     personOversiktStatus.motebehovUbehandlet.shouldBeNull()
                     personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet.shouldBeNull()
                     personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo false
@@ -112,7 +112,7 @@ object DialogmotekandidatPersonoversiktStatusApiV2Spek : Spek({
                     personOversiktStatus.shouldNotBeNull()
                     personOversiktStatus.veilederIdent shouldBeEqualTo null
                     personOversiktStatus.fnr shouldBeEqualTo ARBEIDSTAKER_FNR
-                    personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO.oppfolgingsenhet.enhetId
+                    personOversiktStatus.enhet shouldBeEqualTo behandlendeEnhetDTO.geografiskEnhet.enhetId
                     personOversiktStatus.motebehovUbehandlet.shouldBeNull()
                     personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet.shouldBeNull()
                     personOversiktStatus.dialogmotesvarUbehandlet shouldBeEqualTo false

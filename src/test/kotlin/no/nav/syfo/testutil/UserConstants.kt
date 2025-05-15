@@ -18,6 +18,7 @@ object UserConstants {
     val ARBEIDSTAKER_NO_NAME_FNR = ARBEIDSTAKER_FNR.replace("2", "1")
     val ARBEIDSTAKER_ENHET_ERROR_PERSONIDENT = PersonIdent(ARBEIDSTAKER_FNR.replace("2", "3"))
     val ARBEIDSTAKER_ENHET_NOT_FOUND_PERSONIDENT = PersonIdent(ARBEIDSTAKER_FNR.replace("2", "4"))
+    val ARBEIDSTAKER_WITH_OPPFOLGINGSENHET = PersonIdent("12345678926")
 
     const val NAV_ENHET = "0330"
     const val NAV_ENHET_2 = "0331"

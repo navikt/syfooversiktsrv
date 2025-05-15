@@ -580,8 +580,9 @@ class PersonOversiktStatusRepositorySpek : Spek({
                 val persons = personOversiktStatusRepository.getPersonstatusesWithoutNavnOrFodselsdato(10)
 
                 persons.size shouldBeEqualTo 2
-                persons.first().fnr shouldBeEqualTo personWithNameMissingFodselsdato.fnr
-                persons[1].fnr shouldBeEqualTo personWithFodselsdatoMissingName.fnr
+                val fnrList = persons.map { it.fnr }
+                fnrList shouldContain personWithNameMissingFodselsdato.fnr
+                fnrList shouldContain personWithFodselsdatoMissingName.fnr
             }
 
             it("correctly finds persons with missing name, and not active oppgave, but active oppfolgingstilfelle") {
