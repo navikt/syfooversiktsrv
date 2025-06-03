@@ -96,10 +96,11 @@ data class Environment(
 
     val cronjobBehandlendeEnhetIntervalDelayMinutes: Long = getEnvVar("CRONJOB_BEHANDLENDE_ENHET_INTERVAL_DELAY_MINUTES").toLong(),
     val syfobehandlendeenhetApplicationName: String = "syfobehandlendeenhet",
+    val oppgaveApplicationNameTeamAAP: String = "oppgave",
     val systemAPIAuthorizedConsumerApplicationNameList: List<String> = listOf(
         syfobehandlendeenhetApplicationName,
+        oppgaveApplicationNameTeamAAP,
     ),
-
 )
 
 fun getEnvVar(varName: String, defaultValue: String? = null) =
