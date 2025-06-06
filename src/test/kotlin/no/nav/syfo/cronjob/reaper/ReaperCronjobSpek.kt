@@ -9,7 +9,7 @@ import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.personstatus.domain.toPersonOversiktStatus
 import no.nav.syfo.personstatus.infrastructure.clients.behandlendeenhet.BehandlendeEnhetClient
 import no.nav.syfo.personstatus.infrastructure.cronjob.reaper.ReaperCronjob
-import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList
+import no.nav.syfo.personstatus.infrastructure.database.repository.PersonOversiktStatusRepository
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.generator.generatePPersonOversiktStatus
 import org.amshove.kluent.shouldBeEqualTo
@@ -24,6 +24,7 @@ import java.util.*
 object ReaperCronjobSpek : Spek({
     val externalMockEnvironment = ExternalMockEnvironment.instance
     val database = externalMockEnvironment.database
+    val personoversiktRepository = PersonOversiktStatusRepository(database)
     val personoversiktStatusService = externalMockEnvironment.personoversiktStatusService
     val behandlendeEnhetClient = mockk<BehandlendeEnhetClient>(relaxed = true)
     val reaperCronjob = ReaperCronjob(
@@ -54,9 +55,9 @@ object ReaperCronjobSpek : Spek({
                     result.updated shouldBeEqualTo 1
                 }
 
-                val personOversiktStatuses = database.connection.getPersonOversiktStatusList(personOversiktStatus.fnr)
-                val status = personOversiktStatuses[0]
+                val status = personoversiktRepository.getPersonOversiktStatus(PersonIdent(personOversiktStatus.fnr))!!
                 status.veilederIdent shouldBeEqualTo null
+                status.enhet shouldBeEqualTo null
                 coVerify(exactly = 1) {
                     behandlendeEnhetClient.unsetOppfolgingsenhet(any(), PersonIdent(personOversiktStatus.fnr))
                 }
@@ -77,9 +78,9 @@ object ReaperCronjobSpek : Spek({
                     result.updated shouldBeEqualTo 0
                 }
 
-                val personOversiktStatuses = database.connection.getPersonOversiktStatusList(personOversiktStatus.fnr)
-                val status = personOversiktStatuses[0]
+                val status = personoversiktRepository.getPersonOversiktStatus(PersonIdent(personOversiktStatus.fnr))!!
                 status.veilederIdent shouldNotBeEqualTo null
+                status.enhet shouldNotBeEqualTo null
                 coVerify(exactly = 0) {
                     behandlendeEnhetClient.unsetOppfolgingsenhet(any(), any())
                 }
@@ -106,6 +107,7 @@ object ReaperCronjobSpek : Spek({
 
 fun generatePersonOversiktStatusWithTilfelleEnd(tilfelleEnd: LocalDate): PersonOversiktStatus =
     generatePPersonOversiktStatus().copy(
+        enhet = UserConstants.NAV_ENHET,
         veilederIdent = "Z999999",
         oppfolgingstilfelleUpdatedAt = OffsetDateTime.now(),
         oppfolgingstilfelleGeneratedAt = OffsetDateTime.now(),
