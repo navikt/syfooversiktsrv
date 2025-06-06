@@ -36,6 +36,8 @@ interface IPersonOversiktStatusRepository {
 
     fun removeTildeltVeileder(personIdent: PersonIdent)
 
+    fun removeTildeltEnhet(personIdent: PersonIdent)
+
     fun updatePersonTildeltEnhetAndRemoveTildeltVeileder(personIdent: PersonIdent, enhetId: String)
 
     fun updatePersonTildeltEnhetUpdatedAt(personIdent: PersonIdent)

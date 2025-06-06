@@ -261,6 +261,16 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
         }
     }
 
+    override fun removeTildeltEnhet(personIdent: PersonIdent) {
+        database.connection.use { connection ->
+            connection.prepareStatement(REMOVE_TILDELT_ENHET).use {
+                it.setString(1, personIdent.value)
+                it.execute()
+            }
+            connection.commit()
+        }
+    }
+
     override fun updatePersonTildeltEnhetAndRemoveTildeltVeileder(personIdent: PersonIdent, enhetId: String) {
         val now = nowUTC()
         database.connection.use { connection ->
@@ -584,14 +594,21 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
             WHERE fnr = ?
             """
 
+        private const val REMOVE_TILDELT_ENHET =
+            """
+            UPDATE person_oversikt_status
+            SET tildelt_enhet = NULL
+            WHERE fnr = ?
+            """
+
         private const val GET_PERSONER_WITH_VEILEDERTILDELING_AND_OLD_OPPFOLGINGSTILFELLE =
             """
             SELECT *
             FROM person_oversikt_status
-            WHERE tildelt_veileder IS NOT NULL
+            WHERE (tildelt_veileder IS NOT NULL OR tildelt_enhet IS NOT NULL)
             AND oppfolgingstilfelle_end + INTERVAL '2 MONTH' < now()
             AND (sist_endret IS NULL OR sist_endret + INTERVAL '2 MONTH' < now())
-            LIMIT 2000;
+            LIMIT 8000;
             """
 
         private const val GET_PERSON_STATUSES_WITHOUT_NAVN_OR_FODSELSDATO =

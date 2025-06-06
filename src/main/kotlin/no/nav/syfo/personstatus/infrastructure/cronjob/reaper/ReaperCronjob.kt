@@ -25,7 +25,7 @@ class ReaperCronjob(
     private val log = LoggerFactory.getLogger(ReaperCronjob::class.java)
 
     override val initialDelayMinutes: Long = 2
-    override val intervalDelayMinutes: Long = 60L * 24
+    override val intervalDelayMinutes: Long = 60L * 1
 
     override suspend fun run() {
         runJob()
@@ -35,13 +35,15 @@ class ReaperCronjob(
         log.info("Run ReaperCronjob")
         val result = CronjobResult()
 
-        personOversiktStatusService.getPersonerWithVeilederTildelingAndOldOppfolgingstilfelle()
+        personOversiktStatusService.getPersonerWithVeilederOrEnhetTildelingAndOldOppfolgingstilfelle()
             .forEach {
                 try {
-                    personOversiktStatusService.removeTildeltVeileder(PersonIdent(it.fnr))
+                    val personident = PersonIdent(it.fnr)
+                    personOversiktStatusService.removeTildeltVeileder(personident)
+                    personOversiktStatusService.removeTildeltEnhet(personident)
                     behandlendeEnhetClient.unsetOppfolgingsenhet(
                         callId = UUID.randomUUID().toString(),
-                        personIdent = PersonIdent(it.fnr),
+                        personIdent = personident,
                     )
                     result.updated++
                     COUNT_CRONJOB_REAPER_UPDATE.increment()
