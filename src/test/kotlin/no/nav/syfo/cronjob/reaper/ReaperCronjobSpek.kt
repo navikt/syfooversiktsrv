@@ -39,7 +39,7 @@ object ReaperCronjobSpek : Spek({
                 clearMocks(behandlendeEnhetClient)
             }
 
-            it("reset tildelt veileder for personer with tilfelle that ended two months ago") {
+            it("reset tildelt veileder and enhet for personer with tilfelle that ended two months ago") {
                 val threeMonthsAgo = LocalDate.now().minusMonths(2).minusDays(1)
                 val personOversiktStatus = generatePersonOversiktStatusWithTilfelleEnd(threeMonthsAgo)
                 database.createPersonOversiktStatus(personOversiktStatus)
@@ -62,7 +62,7 @@ object ReaperCronjobSpek : Spek({
                     behandlendeEnhetClient.unsetOppfolgingsenhet(any(), PersonIdent(personOversiktStatus.fnr))
                 }
             }
-            it("does not reset tildelt veileder for personer with sist_endret less than two months ago") {
+            it("does not reset tildelt veileder or enhet for personer with sist_endret less than two months ago") {
                 val threeMonthsAgo = LocalDate.now().minusMonths(3)
                 val personOversiktStatus = generatePersonOversiktStatusWithTilfelleEnd(threeMonthsAgo)
                 database.createPersonOversiktStatus(personOversiktStatus)
