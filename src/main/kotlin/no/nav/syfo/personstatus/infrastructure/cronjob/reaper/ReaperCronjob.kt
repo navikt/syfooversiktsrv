@@ -39,12 +39,14 @@ class ReaperCronjob(
             .forEach {
                 try {
                     val personident = PersonIdent(it.fnr)
-                    personOversiktStatusService.removeTildeltVeileder(personident)
                     personOversiktStatusService.removeTildeltEnhet(personident)
-                    behandlendeEnhetClient.unsetOppfolgingsenhet(
-                        callId = UUID.randomUUID().toString(),
-                        personIdent = personident,
-                    )
+                    if (it.veilederIdent != null) {
+                        personOversiktStatusService.removeTildeltVeileder(personident)
+                        behandlendeEnhetClient.unsetOppfolgingsenhet(
+                            callId = UUID.randomUUID().toString(),
+                            personIdent = personident,
+                        )
+                    }
                     result.updated++
                     COUNT_CRONJOB_REAPER_UPDATE.increment()
                 } catch (ex: Exception) {
