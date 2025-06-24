@@ -20,7 +20,6 @@ val micrometerRegistry = "1.12.13"
 val nimbusjosejwt = "10.0.2"
 val postgresEmbedded = "2.1.0"
 val postgres = "42.7.5"
-val spek = "2.0.19"
 
 plugins {
     kotlin("jvm") version "2.1.0"
@@ -106,11 +105,19 @@ dependencies {
     testImplementation("io.ktor:ktor-client-mock:$ktor")
     testImplementation("io.mockk:mockk:$mockk")
     testImplementation("org.amshove.kluent:kluent:$kluent")
-    testImplementation("org.spekframework.spek2:spek-dsl-jvm:$spek") {
-        exclude(group = "org.jetbrains.kotlin")
-    }
-    testRuntimeOnly("org.spekframework.spek2:spek-runner-junit5:$spek") {
-        exclude(group = "org.jetbrains.kotlin")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
+    testImplementation("org.junit.platform:junit-platform-launcher:1.10.2")
+    testImplementation("org.junit.platform:junit-platform-engine:1.10.2")
+}
+
+configurations.all {
+    resolutionStrategy.eachDependency {
+        if (requested.group == "org.junit.platform") {
+            useVersion("1.10.2")
+        }
+        if (requested.group == "org.junit.jupiter") {
+            useVersion("5.10.2")
+        }
     }
 }
 
@@ -140,9 +147,7 @@ tasks {
     }
 
     test {
-        useJUnitPlatform {
-            includeEngines("spek2")
-        }
+        useJUnitPlatform()
         testLogging.showStandardStreams = true
     }
 }
