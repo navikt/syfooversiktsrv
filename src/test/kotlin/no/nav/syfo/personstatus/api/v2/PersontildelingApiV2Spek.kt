@@ -58,6 +58,7 @@ class PersontildelingApiV2Test {
     @Nested
     inner class SkalLagreVeiledertilknytninger {
         private val url = "$baseUrl/registrer"
+
         @Test
         fun `skal lagre liste med veiledertilknytninger`() {
             testApplication {
