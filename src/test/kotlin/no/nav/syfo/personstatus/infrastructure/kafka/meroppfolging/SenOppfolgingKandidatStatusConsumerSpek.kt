@@ -15,31 +15,32 @@ import no.nav.syfo.testutil.dropData
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.apache.kafka.clients.consumer.KafkaConsumer
-import org.spekframework.spek2.Spek
-import org.spekframework.spek2.style.specification.describe
+import org.junit.jupiter.api.*
 import java.time.OffsetDateTime
 import java.util.*
 
-class SenOppfolgingKandidatStatusConsumerSpek : Spek({
-    val externalMockEnvironment = ExternalMockEnvironment.instance
-    val database = externalMockEnvironment.database
-    val kafkaConsumer = mockk<KafkaConsumer<String, KandidatStatusRecord>>()
-    val personoversiktStatusService = externalMockEnvironment.personoversiktStatusService
-
-    val senOppfolgingKandidatStatusConsumer = SenOppfolgingKandidatStatusConsumer(
+class SenOppfolgingKandidatStatusConsumerTest {
+    private val externalMockEnvironment = ExternalMockEnvironment.instance
+    private val database = externalMockEnvironment.database
+    private val kafkaConsumer = mockk<KafkaConsumer<String, KandidatStatusRecord>>()
+    private val personoversiktStatusService = externalMockEnvironment.personoversiktStatusService
+    private val senOppfolgingKandidatStatusConsumer = SenOppfolgingKandidatStatusConsumer(
         personoversiktStatusService = personoversiktStatusService,
     )
 
-    beforeEachTest {
+    @BeforeEach
+    fun setup() {
         every { kafkaConsumer.commitSync() } returns Unit
     }
 
-    afterEachTest {
+    @AfterEach
+    fun teardown() {
         database.dropData()
         clearMocks(kafkaConsumer)
     }
 
-    describe("pollAndProcessRecords") {
+    @Test
+    fun `consumes sen oppfolging kandidat status and creates personoversikt status`() {
         val kandidatStatusRecord = KandidatStatusRecord(
             uuid = UUID.randomUUID(),
             createdAt = OffsetDateTime.now(),
@@ -49,77 +50,86 @@ class SenOppfolgingKandidatStatusConsumerSpek : Spek({
                 isActive = true,
             ),
         )
-        it("consumes sen oppfolging kandidat status and creates personoversikt status") {
-            kafkaConsumer.mockPollConsumerRecords(
-                recordValue = kandidatStatusRecord,
-                topic = SenOppfolgingKandidatStatusConsumer.SEN_OPPFOLGING_KANDIDAT_STATUS_TOPIC,
-            )
+        kafkaConsumer.mockPollConsumerRecords(
+            recordValue = kandidatStatusRecord,
+            topic = SenOppfolgingKandidatStatusConsumer.SEN_OPPFOLGING_KANDIDAT_STATUS_TOPIC,
+        )
 
-            runBlocking { senOppfolgingKandidatStatusConsumer.pollAndProcessRecords(kafkaConsumer) }
+        runBlocking { senOppfolgingKandidatStatusConsumer.pollAndProcessRecords(kafkaConsumer) }
 
-            verify(exactly = 1) {
-                kafkaConsumer.commitSync()
-            }
-            val pPersonstatus = database.getPersonOversiktStatusList(fnr = UserConstants.ARBEIDSTAKER_FNR).single()
-            pPersonstatus.fnr shouldBeEqualTo kandidatStatusRecord.personident
-            pPersonstatus.isAktivSenOppfolgingKandidat shouldBe true
+        verify(exactly = 1) {
+            kafkaConsumer.commitSync()
         }
-
-        it("consumes sen oppfolging kandidat status and updates personoversikt status") {
-            val personoversiktStatus = PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR)
-            database.connection.use { connection ->
-                connection.createPersonOversiktStatus(
-                    commit = true,
-                    personOversiktStatus = personoversiktStatus,
-                )
-            }
-
-            kafkaConsumer.mockPollConsumerRecords(
-                recordValue = kandidatStatusRecord,
-                topic = SenOppfolgingKandidatStatusConsumer.SEN_OPPFOLGING_KANDIDAT_STATUS_TOPIC,
-            )
-
-            runBlocking { senOppfolgingKandidatStatusConsumer.pollAndProcessRecords(kafkaConsumer) }
-
-            verify(exactly = 1) {
-                kafkaConsumer.commitSync()
-            }
-            val updatedPersonstatus = database.getPersonOversiktStatusList(fnr = UserConstants.ARBEIDSTAKER_FNR).single()
-            updatedPersonstatus.fnr shouldBeEqualTo kandidatStatusRecord.personident
-            updatedPersonstatus.isAktivSenOppfolgingKandidat shouldBe true
-        }
-
-        it("consumes sen oppfolging kandidat status FERDIGBEHANDLET and updates personoversikt status") {
-            val kandidatStatusFerdigbehandletRecord = KandidatStatusRecord(
-                uuid = UUID.randomUUID(),
-                createdAt = OffsetDateTime.now(),
-                personident = UserConstants.ARBEIDSTAKER_FNR,
-                status = StatusDTO(
-                    value = Status.FERDIGBEHANDLET,
-                    isActive = false,
-                ),
-            )
-            val personoversiktStatus = PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR)
-            database.connection.use { connection ->
-                connection.createPersonOversiktStatus(
-                    commit = true,
-                    personOversiktStatus = personoversiktStatus,
-                )
-            }
-
-            kafkaConsumer.mockPollConsumerRecords(
-                recordValue = kandidatStatusFerdigbehandletRecord,
-                topic = SenOppfolgingKandidatStatusConsumer.SEN_OPPFOLGING_KANDIDAT_STATUS_TOPIC,
-            )
-
-            runBlocking { senOppfolgingKandidatStatusConsumer.pollAndProcessRecords(kafkaConsumer) }
-
-            verify(exactly = 1) {
-                kafkaConsumer.commitSync()
-            }
-            val updatedPersonstatus = database.getPersonOversiktStatusList(fnr = UserConstants.ARBEIDSTAKER_FNR).single()
-            updatedPersonstatus.fnr shouldBeEqualTo kandidatStatusFerdigbehandletRecord.personident
-            updatedPersonstatus.isAktivSenOppfolgingKandidat shouldBe false
-        }
+        val pPersonstatus = database.getPersonOversiktStatusList(fnr = UserConstants.ARBEIDSTAKER_FNR).single()
+        pPersonstatus.fnr shouldBeEqualTo kandidatStatusRecord.personident
+        pPersonstatus.isAktivSenOppfolgingKandidat shouldBe true
     }
-})
+
+    @Test
+    fun `consumes sen oppfolging kandidat status and updates personoversikt status`() {
+        val kandidatStatusRecord = KandidatStatusRecord(
+            uuid = UUID.randomUUID(),
+            createdAt = OffsetDateTime.now(),
+            personident = UserConstants.ARBEIDSTAKER_FNR,
+            status = StatusDTO(
+                value = Status.KANDIDAT,
+                isActive = true,
+            ),
+        )
+        val personoversiktStatus = PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR)
+        database.connection.use { connection ->
+            connection.createPersonOversiktStatus(
+                commit = true,
+                personOversiktStatus = personoversiktStatus,
+            )
+        }
+
+        kafkaConsumer.mockPollConsumerRecords(
+            recordValue = kandidatStatusRecord,
+            topic = SenOppfolgingKandidatStatusConsumer.SEN_OPPFOLGING_KANDIDAT_STATUS_TOPIC,
+        )
+
+        runBlocking { senOppfolgingKandidatStatusConsumer.pollAndProcessRecords(kafkaConsumer) }
+
+        verify(exactly = 1) {
+            kafkaConsumer.commitSync()
+        }
+        val updatedPersonstatus = database.getPersonOversiktStatusList(fnr = UserConstants.ARBEIDSTAKER_FNR).single()
+        updatedPersonstatus.fnr shouldBeEqualTo kandidatStatusRecord.personident
+        updatedPersonstatus.isAktivSenOppfolgingKandidat shouldBe true
+    }
+
+    @Test
+    fun `consumes sen oppfolging kandidat status FERDIGBEHANDLET and updates personoversikt status`() {
+        val kandidatStatusFerdigbehandletRecord = KandidatStatusRecord(
+            uuid = UUID.randomUUID(),
+            createdAt = OffsetDateTime.now(),
+            personident = UserConstants.ARBEIDSTAKER_FNR,
+            status = StatusDTO(
+                value = Status.FERDIGBEHANDLET,
+                isActive = false,
+            ),
+        )
+        val personoversiktStatus = PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR)
+        database.connection.use { connection ->
+            connection.createPersonOversiktStatus(
+                commit = true,
+                personOversiktStatus = personoversiktStatus,
+            )
+        }
+
+        kafkaConsumer.mockPollConsumerRecords(
+            recordValue = kandidatStatusFerdigbehandletRecord,
+            topic = SenOppfolgingKandidatStatusConsumer.SEN_OPPFOLGING_KANDIDAT_STATUS_TOPIC,
+        )
+
+        runBlocking { senOppfolgingKandidatStatusConsumer.pollAndProcessRecords(kafkaConsumer) }
+
+        verify(exactly = 1) {
+            kafkaConsumer.commitSync()
+        }
+        val updatedPersonstatus = database.getPersonOversiktStatusList(fnr = UserConstants.ARBEIDSTAKER_FNR).single()
+        updatedPersonstatus.fnr shouldBeEqualTo kandidatStatusFerdigbehandletRecord.personident
+        updatedPersonstatus.isAktivSenOppfolgingKandidat shouldBe false
+    }
+}

@@ -5,27 +5,29 @@ import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
 import no.nav.syfo.testutil.ExternalMockEnvironment
 import no.nav.syfo.testutil.UserConstants
 import org.amshove.kluent.shouldBeEqualTo
-import org.spekframework.spek2.Spek
-import org.spekframework.spek2.style.specification.describe
+import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
 
 private const val anyCallId = "callId"
 
-object VeilederClientSpek : Spek({
-    val externalMockEnvironment = ExternalMockEnvironment.instance
-    val azureAdClient = AzureAdClient(
+class VeilederClientTest {
+    private val externalMockEnvironment = ExternalMockEnvironment.instance
+    private val azureAdClient = AzureAdClient(
         azureEnvironment = externalMockEnvironment.environment.azure,
         valkeyStore = externalMockEnvironment.valkeyStore,
         httpClient = externalMockEnvironment.mockHttpClient
     )
-    val veilederClient = VeilederClient(
+    private val veilederClient = VeilederClient(
         azureAdClient = azureAdClient,
         clientEnvironment = externalMockEnvironment.environment.clients.syfoveileder,
         valkeyStore = externalMockEnvironment.valkeyStore,
         httpClient = externalMockEnvironment.mockHttpClient
     )
 
-    describe("getVeileder") {
-        it("Returns veileder result when veileder found") {
+    @Nested
+    inner class GetVeileder {
+        @Test
+        fun `Returns veileder result when veileder found`() {
             val result = runBlocking {
                 veilederClient.getVeileder(
                     callId = anyCallId,
@@ -37,7 +39,9 @@ object VeilederClientSpek : Spek({
             veilederDTO?.enabled shouldBeEqualTo true
             veilederDTO?.ident shouldBeEqualTo UserConstants.VEILEDER_ID
         }
-        it("Returns null result when veileder not found") {
+
+        @Test
+        fun `Returns null result when veileder not found`() {
             val result = runBlocking {
                 veilederClient.getVeileder(
                     callId = anyCallId,
@@ -47,7 +51,9 @@ object VeilederClientSpek : Spek({
             val veilederDTO = result.getOrThrow()
             veilederDTO shouldBeEqualTo null
         }
-        it("Returns failure when request fails") {
+
+        @Test
+        fun `Returns failure when request fails`() {
             val result = runBlocking {
                 veilederClient.getVeileder(
                     callId = anyCallId,
@@ -57,4 +63,4 @@ object VeilederClientSpek : Spek({
             result.isFailure shouldBeEqualTo true
         }
     }
-})
+}

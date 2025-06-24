@@ -31,35 +31,128 @@ import no.nav.syfo.testutil.setTildeltEnhet
 import no.nav.syfo.testutil.setupApiAndClient
 import no.nav.syfo.util.NAV_PERSONIDENT_HEADER
 import org.amshove.kluent.shouldBeEqualTo
-import org.spekframework.spek2.Spek
-import org.spekframework.spek2.style.specification.describe
+import org.junit.jupiter.api.*
+import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
-object PersontildelingApiV2Spek : Spek({
+class PersontildelingApiV2Test {
+    private val externalMockEnvironment = ExternalMockEnvironment.instance
+    private val database = externalMockEnvironment.database
+    private val personOversiktStatusRepository = externalMockEnvironment.personOversiktStatusRepository
+    private val internalMockEnvironment = InternalMockEnvironment.instance
+    private val personoversiktStatusService = internalMockEnvironment.personoversiktStatusService
+    private val personoversiktRepository = internalMockEnvironment.personoversiktRepository
+    private val baseUrl = personTildelingApiV2Path
+    private val validToken = generateJWT(
+        audience = externalMockEnvironment.environment.azure.appClientId,
+        issuer = externalMockEnvironment.wellKnownVeilederV2.issuer,
+        navIdent = VEILEDER_ID,
+    )
 
-    describe("PersontildelingApi") {
-        val externalMockEnvironment = ExternalMockEnvironment.instance
-        val database = externalMockEnvironment.database
-        val personOversiktStatusRepository = externalMockEnvironment.personOversiktStatusRepository
-        val internalMockEnvironment = InternalMockEnvironment.instance
-        val personoversiktStatusService = internalMockEnvironment.personoversiktStatusService
-        val personoversiktRepository = internalMockEnvironment.personoversiktRepository
-        val baseUrl = personTildelingApiV2Path
+    @BeforeEach
+    fun setup() {
+        database.dropData()
+    }
 
-        beforeEachTest {
-            database.dropData()
+    @Nested
+    inner class SkalLagreVeiledertilknytninger {
+        private val url = "$baseUrl/registrer"
+        @Test
+        fun `skal lagre liste med veiledertilknytninger`() {
+            testApplication {
+                val client = setupApiAndClient()
+                personoversiktStatusService.upsertAktivitetskravvurderingStatus(
+                    personident = PersonIdent(ARBEIDSTAKER_FNR),
+                    isAktivVurdering = true,
+                )
+                database.setTildeltEnhet(
+                    ident = PersonIdent(ARBEIDSTAKER_FNR),
+                    enhet = NAV_ENHET,
+                )
+                val response = client.post(url) {
+                    bearerAuth(validToken)
+                    header(
+                        HttpHeaders.ContentType,
+                        ContentType.Application.Json.toString()
+                    )
+                    setBody("{\"tilknytninger\":[{\"veilederIdent\": \"${VEILEDER_ID}\",\"fnr\": \"${ARBEIDSTAKER_FNR}\",\"enhet\": \"${NAV_ENHET}\"}]}")
+                }
+                response.status shouldBeEqualTo HttpStatusCode.OK
+            }
+        }
+    }
+
+    @Nested
+    inner class Personer {
+        @Nested
+        inner class GetVeilederknytningForPerson {
+            @Test
+            fun `returns person with correct values`() {
+                testApplication {
+                    val client = setupApiAndClient()
+                    personoversiktStatusService.upsertAktivitetskravvurderingStatus(
+                        personident = PersonIdent(
+                            ARBEIDSTAKER_FNR
+                        ),
+                        isAktivVurdering = true,
+                    )
+                    database.setTildeltEnhet(
+                        ident = PersonIdent(ARBEIDSTAKER_FNR),
+                        enhet = NAV_ENHET,
+                    )
+                    val tilknytning = VeilederBrukerKnytning(
+                        VEILEDER_ID,
+                        ARBEIDSTAKER_FNR
+                    )
+                    personOversiktStatusRepository.lagreVeilederForBruker(
+                        tilknytning,
+                        VEILEDER_ID
+                    )
+
+                    val url = "$personTildelingApiV2Path/personer/single"
+                    val response = client.get(url) {
+                        bearerAuth(validToken)
+                        header(
+                            NAV_PERSONIDENT_HEADER,
+                            ARBEIDSTAKER_FNR
+                        )
+                    }
+                    response.status shouldBeEqualTo HttpStatusCode.OK
+                    val personinfo =
+                        response.body<VeilederBrukerKnytningDTO>()
+                    personinfo.tildeltVeilederident shouldBeEqualTo tilknytning.veilederIdent
+                    personinfo.personident.value shouldBeEqualTo tilknytning.fnr
+                }
+            }
+
+            @Test
+            fun `returns 404 when person does not exist`() {
+                testApplication {
+                    val client = setupApiAndClient()
+                    val url = "$personTildelingApiV2Path/personer/single"
+                    val response = client.get(url) {
+                        bearerAuth(validToken)
+                        header(
+                            NAV_PERSONIDENT_HEADER,
+                            ARBEIDSTAKER_2_FNR
+                        )
+                    }
+                    response.status shouldBeEqualTo HttpStatusCode.NoContent
+                }
+            }
         }
 
-        val validToken = generateJWT(
-            audience = externalMockEnvironment.environment.azure.appClientId,
-            issuer = externalMockEnvironment.wellKnownVeilederV2.issuer,
-            navIdent = VEILEDER_ID,
-        )
+        @Nested
+        inner class PostVeilederknytningForPerson {
+            private val url = "$personTildelingApiV2Path/personer/single"
+            private val veilederBrukerKnytning = VeilederBrukerKnytning(
+                VEILEDER_ID_2,
+                ARBEIDSTAKER_FNR
+            )
 
-        describe("skal lagre veiledertilknytninger") {
-            val url = "$baseUrl/registrer"
-
-            it("skal lagre liste med veiledertilknytninger") {
+            @Test
+            fun `returns OK when request is successful`() {
                 testApplication {
                     val client = setupApiAndClient()
                     personoversiktStatusService.upsertAktivitetskravvurderingStatus(
@@ -76,394 +169,328 @@ object PersontildelingApiV2Spek : Spek({
                             HttpHeaders.ContentType,
                             ContentType.Application.Json.toString()
                         )
-                        setBody("{\"tilknytninger\":[{\"veilederIdent\": \"${VEILEDER_ID}\",\"fnr\": \"${ARBEIDSTAKER_FNR}\",\"enhet\": \"${NAV_ENHET}\"}]}")
+                        setBody(veilederBrukerKnytning)
                     }
                     response.status shouldBeEqualTo HttpStatusCode.OK
+
+                    val person = database.getPersonOversiktStatusList(fnr = veilederBrukerKnytning.fnr).first()
+                    person.veilederIdent shouldBeEqualTo veilederBrukerKnytning.veilederIdent
+
+                    val historikk = personOversiktStatusRepository.getVeilederTilknytningHistorikk(
+                        PersonIdent(ARBEIDSTAKER_FNR)
+                    )
+                    historikk.size shouldBeEqualTo 1
+                    val historikkDTO = historikk.first()
+                    historikkDTO.tildeltVeileder shouldBeEqualTo veilederBrukerKnytning.veilederIdent
+                    historikkDTO.tildeltEnhet shouldBeEqualTo NAV_ENHET
+                    historikkDTO.tildeltAv shouldBeEqualTo VEILEDER_ID
+                    historikkDTO.tildeltDato shouldBeEqualTo LocalDate.now()
+                }
+            }
+
+            @Test
+            fun `returns error when request sets veileder who is not active in the persons enhet`() {
+                testApplication {
+                    val client = setupApiAndClient()
+                    personoversiktStatusService.upsertAktivitetskravvurderingStatus(
+                        personident = PersonIdent(ARBEIDSTAKER_FNR),
+                        isAktivVurdering = true,
+                    )
+                    database.setTildeltEnhet(
+                        ident = PersonIdent(ARBEIDSTAKER_FNR),
+                        enhet = NAV_ENHET,
+                    )
+                    val response = client.post(url) {
+                        bearerAuth(validToken)
+                        header(
+                            HttpHeaders.ContentType,
+                            ContentType.Application.Json.toString()
+                        )
+                        setBody(
+                            VeilederBrukerKnytning(
+                                VEILEDER_ID_NOT_ENABLED,
+                                ARBEIDSTAKER_FNR
+                            )
+                        )
+                    }
+                    // TODO: Endre til InternalServerError når valideringen endres tilbake
+                    response.status shouldBeEqualTo HttpStatusCode.OK
+                }
+            }
+
+            @Test
+            fun `returns OK when request for person som ikke finnes i oversikten is successful`() {
+                testApplication {
+                    val client = setupApiAndClient()
+                    val response = client.post(url) {
+                        bearerAuth(validToken)
+                        header(
+                            HttpHeaders.ContentType,
+                            ContentType.Application.Json.toString()
+                        )
+                        setBody(veilederBrukerKnytning)
+                    }
+                    response.status shouldBeEqualTo HttpStatusCode.OK
+
+                    val person = database.getPersonOversiktStatusList(fnr = veilederBrukerKnytning.fnr).first()
+                    person.veilederIdent shouldBeEqualTo veilederBrukerKnytning.veilederIdent
+
+                    val historikk = personOversiktStatusRepository.getVeilederTilknytningHistorikk(
+                        PersonIdent(ARBEIDSTAKER_FNR)
+                    )
+                    historikk.size shouldBeEqualTo 1
+                    val historikkDTO = historikk.first()
+                    historikkDTO.tildeltVeileder shouldBeEqualTo veilederBrukerKnytning.veilederIdent
+                    historikkDTO.tildeltEnhet shouldBeEqualTo NAV_ENHET
+                    historikkDTO.tildeltAv shouldBeEqualTo VEILEDER_ID
+                    historikkDTO.tildeltDato shouldBeEqualTo LocalDate.now()
+                }
+            }
+
+            @Test
+            fun `returns OK when request for person som finnes i oversikten uten enhet is successful`() {
+                testApplication {
+                    val client = setupApiAndClient()
+                    personoversiktStatusService.upsertAktivitetskravvurderingStatus(
+                        personident = PersonIdent(ARBEIDSTAKER_FNR),
+                        isAktivVurdering = true,
+                    )
+                    val response = client.post(url) {
+                        bearerAuth(validToken)
+                        header(
+                            HttpHeaders.ContentType,
+                            ContentType.Application.Json.toString()
+                        )
+                        setBody(veilederBrukerKnytning)
+                    }
+                    response.status shouldBeEqualTo HttpStatusCode.OK
+
+                    val person = database.getPersonOversiktStatusList(fnr = veilederBrukerKnytning.fnr).first()
+                    person.veilederIdent shouldBeEqualTo veilederBrukerKnytning.veilederIdent
+
+                    val historikk =
+                        personOversiktStatusRepository.getVeilederTilknytningHistorikk(PersonIdent(ARBEIDSTAKER_FNR))
+                    historikk.size shouldBeEqualTo 1
+                    val historikkDTO = historikk.first()
+                    historikkDTO.tildeltVeileder shouldBeEqualTo veilederBrukerKnytning.veilederIdent
+                    historikkDTO.tildeltEnhet shouldBeEqualTo NAV_ENHET
+                    historikkDTO.tildeltAv shouldBeEqualTo VEILEDER_ID
+                    historikkDTO.tildeltDato shouldBeEqualTo LocalDate.now()
+                }
+            }
+
+            @Test
+            fun `returns OK when already assigned to veileder`() {
+                personoversiktStatusService.upsertAktivitetskravvurderingStatus(
+                    personident = PersonIdent(ARBEIDSTAKER_FNR),
+                    isAktivVurdering = true,
+                )
+                database.setTildeltEnhet(
+                    ident = PersonIdent(ARBEIDSTAKER_FNR),
+                    enhet = NAV_ENHET,
+                )
+                personoversiktRepository.lagreVeilederForBruker(
+                    veilederBrukerKnytning = VeilederBrukerKnytning(
+                        VEILEDER_ID_2,
+                        ARBEIDSTAKER_FNR
+                    ),
+                    tildeltAv = VEILEDER_ID
+                )
+                testApplication {
+                    val client = setupApiAndClient()
+                    val response = client.post(url) {
+                        bearerAuth(validToken)
+                        header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                        setBody(veilederBrukerKnytning)
+                    }
+                    response.status shouldBeEqualTo HttpStatusCode.OK
+
+                    val person = database.getPersonOversiktStatusList(fnr = veilederBrukerKnytning.fnr).first()
+                    person.veilederIdent shouldBeEqualTo veilederBrukerKnytning.veilederIdent
+                    val historikk =
+                        personOversiktStatusRepository.getVeilederTilknytningHistorikk(PersonIdent(ARBEIDSTAKER_FNR))
+                    historikk.size shouldBeEqualTo 1
+                }
+            }
+
+            @Test
+            fun `returns OK when already assigned to veileder and then assigned to a different`() {
+                personoversiktStatusService.upsertAktivitetskravvurderingStatus(
+                    personident = PersonIdent(ARBEIDSTAKER_FNR),
+                    isAktivVurdering = true,
+                )
+                database.setTildeltEnhet(
+                    ident = PersonIdent(ARBEIDSTAKER_FNR),
+                    enhet = NAV_ENHET,
+                )
+                personoversiktRepository.lagreVeilederForBruker(
+                    veilederBrukerKnytning = VeilederBrukerKnytning(
+                        VEILEDER_ID,
+                        ARBEIDSTAKER_FNR
+                    ),
+                    tildeltAv = VEILEDER_ID
+                )
+                testApplication {
+                    val client = setupApiAndClient()
+                    val response = client.post(url) {
+                        bearerAuth(validToken)
+                        header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                        setBody(veilederBrukerKnytning)
+                    }
+
+                    response.status shouldBeEqualTo HttpStatusCode.OK
+
+                    val person = database.getPersonOversiktStatusList(fnr = veilederBrukerKnytning.fnr).first()
+                    person.veilederIdent shouldBeEqualTo veilederBrukerKnytning.veilederIdent
+                    val historikk =
+                        personOversiktStatusRepository.getVeilederTilknytningHistorikk(PersonIdent(ARBEIDSTAKER_FNR))
+                    historikk.size shouldBeEqualTo 2
+                }
+            }
+
+            @Test
+            fun `returns Unauthorized when missing token`() {
+                testApplication {
+                    val client = setupApiAndClient()
+                    personoversiktStatusService.upsertAktivitetskravvurderingStatus(
+                        personident = PersonIdent(ARBEIDSTAKER_FNR),
+                        isAktivVurdering = true,
+                    )
+                    database.setTildeltEnhet(
+                        ident = PersonIdent(ARBEIDSTAKER_FNR),
+                        enhet = NAV_ENHET,
+                    )
+                    val response = client.post(url) {
+                        header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                        setBody(veilederBrukerKnytning)
+                    }
+                    response.status shouldBeEqualTo HttpStatusCode.Unauthorized
+                }
+            }
+
+            @Test
+            fun `returns Forbidden when no access to person`() {
+                testApplication {
+                    val client = setupApiAndClient()
+                    personoversiktStatusService.upsertAktivitetskravvurderingStatus(
+                        personident = PersonIdent(ARBEIDSTAKER_FNR),
+                        isAktivVurdering = true,
+                    )
+                    database.setTildeltEnhet(
+                        ident = PersonIdent(ARBEIDSTAKER_FNR),
+                        enhet = NAV_ENHET,
+                    )
+                    val response = client.post(url) {
+                        bearerAuth(validToken)
+                        header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                        setBody(
+                            VeilederBrukerKnytning(
+                                VEILEDER_ID,
+                                ARBEIDSTAKER_NO_ACCESS
+                            )
+                        )
+                    }
+                    response.status shouldBeEqualTo HttpStatusCode.Forbidden
                 }
             }
         }
 
-        describe("/personer") {
-            describe("GET veilederknytning for person") {
-                it("returns person with correct values") {
-                    testApplication {
-                        val client = setupApiAndClient()
-                        personoversiktStatusService.upsertAktivitetskravvurderingStatus(
-                            personident = PersonIdent(
-                                ARBEIDSTAKER_FNR
-                            ),
-                            isAktivVurdering = true,
-                        )
-                        database.setTildeltEnhet(
-                            ident = PersonIdent(ARBEIDSTAKER_FNR),
-                            enhet = NAV_ENHET,
-                        )
-                        val tilknytning = VeilederBrukerKnytning(
-                            VEILEDER_ID,
-                            ARBEIDSTAKER_FNR
-                        )
-                        personOversiktStatusRepository.lagreVeilederForBruker(
-                            tilknytning,
-                            VEILEDER_ID
-                        )
+        @Nested
+        inner class GetVeilederhistorikkForPerson {
+            private val url = "$personTildelingApiV2Path/historikk"
 
-                        val url = "$personTildelingApiV2Path/personer/single"
-                        val response = client.get(url) {
-                            bearerAuth(validToken)
-                            header(
-                                NAV_PERSONIDENT_HEADER,
-                                ARBEIDSTAKER_FNR
-                            )
-                        }
-                        response.status shouldBeEqualTo HttpStatusCode.OK
-                        val personinfo =
-                            response.body<VeilederBrukerKnytningDTO>()
-                        personinfo.tildeltVeilederident shouldBeEqualTo tilknytning.veilederIdent
-                        personinfo.personident.value shouldBeEqualTo tilknytning.fnr
+            @Test
+            fun `returns OK when no tildeling`() {
+                testApplication {
+                    val client = setupApiAndClient()
+                    personoversiktStatusService.upsertAktivitetskravvurderingStatus(
+                        personident = PersonIdent(ARBEIDSTAKER_FNR),
+                        isAktivVurdering = true,
+                    )
+                    val response = client.get(url) {
+                        bearerAuth(validToken)
+                        header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                        header(NAV_PERSONIDENT_HEADER, ARBEIDSTAKER_FNR)
                     }
-                }
-                it("returns 404 when person does not exist") {
-                    testApplication {
-                        val client = setupApiAndClient()
-                        val url = "$personTildelingApiV2Path/personer/single"
-                        val response = client.get(url) {
-                            bearerAuth(validToken)
-                            header(
-                                NAV_PERSONIDENT_HEADER,
-                                ARBEIDSTAKER_2_FNR
-                            )
-                        }
-                        response.status shouldBeEqualTo HttpStatusCode.NoContent
-                    }
+                    response.status shouldBeEqualTo HttpStatusCode.OK
+                    val historikk = response.body<List<VeilederTildelingHistorikkDTO>>()
+                    historikk shouldBeEqualTo emptyList()
                 }
             }
-            describe("POST veilederknytning for person") {
-                val url = "$personTildelingApiV2Path/personer/single"
-                val veilederBrukerKnytning = VeilederBrukerKnytning(
-                    VEILEDER_ID_2,
-                    ARBEIDSTAKER_FNR
+
+            @Test
+            fun `returns OK when tildeling`() {
+                val personident = PersonIdent(ARBEIDSTAKER_FNR)
+                personoversiktStatusService.upsertAktivitetskravvurderingStatus(
+                    personident = personident,
+                    isAktivVurdering = true,
                 )
-
-                it("returns OK when request is successful") {
-                    testApplication {
-                        val client = setupApiAndClient()
-                        personoversiktStatusService.upsertAktivitetskravvurderingStatus(
-                            personident = PersonIdent(ARBEIDSTAKER_FNR),
-                            isAktivVurdering = true,
-                        )
-                        database.setTildeltEnhet(
-                            ident = PersonIdent(ARBEIDSTAKER_FNR),
-                            enhet = NAV_ENHET,
-                        )
-                        val response = client.post(url) {
-                            bearerAuth(validToken)
-                            header(
-                                HttpHeaders.ContentType,
-                                ContentType.Application.Json.toString()
-                            )
-                            setBody(veilederBrukerKnytning)
-                        }
-                        response.status shouldBeEqualTo HttpStatusCode.OK
-
-                        val person = database.getPersonOversiktStatusList(fnr = veilederBrukerKnytning.fnr).first()
-                        person.veilederIdent shouldBeEqualTo veilederBrukerKnytning.veilederIdent
-
-                        val historikk = personOversiktStatusRepository.getVeilederTilknytningHistorikk(
-                            PersonIdent(ARBEIDSTAKER_FNR)
-                        )
-                        historikk.size shouldBeEqualTo 1
-                        val historikkDTO = historikk.first()
-                        historikkDTO.tildeltVeileder shouldBeEqualTo veilederBrukerKnytning.veilederIdent
-                        historikkDTO.tildeltEnhet shouldBeEqualTo NAV_ENHET
-                        historikkDTO.tildeltAv shouldBeEqualTo VEILEDER_ID
-                        historikkDTO.tildeltDato shouldBeEqualTo LocalDate.now()
+                database.setTildeltEnhet(
+                    ident = personident,
+                    enhet = NAV_ENHET,
+                )
+                personoversiktRepository.lagreVeilederForBruker(
+                    veilederBrukerKnytning = VeilederBrukerKnytning(
+                        VEILEDER_ID,
+                        ARBEIDSTAKER_FNR
+                    ),
+                    tildeltAv = VEILEDER_ID_2,
+                )
+                testApplication {
+                    val client = setupApiAndClient()
+                    val response = client.get(url) {
+                        bearerAuth(validToken)
+                        header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                        header(NAV_PERSONIDENT_HEADER, ARBEIDSTAKER_FNR)
                     }
-                }
-                it("returns error when request sets veileder who is not active in the persons enhet") {
-                    testApplication {
-                        val client = setupApiAndClient()
-                        personoversiktStatusService.upsertAktivitetskravvurderingStatus(
-                            personident = PersonIdent(ARBEIDSTAKER_FNR),
-                            isAktivVurdering = true,
-                        )
-                        database.setTildeltEnhet(
-                            ident = PersonIdent(ARBEIDSTAKER_FNR),
-                            enhet = NAV_ENHET,
-                        )
-                        val response = client.post(url) {
-                            bearerAuth(validToken)
-                            header(
-                                HttpHeaders.ContentType,
-                                ContentType.Application.Json.toString()
-                            )
-                            setBody(
-                                VeilederBrukerKnytning(
-                                    VEILEDER_ID_NOT_ENABLED,
-                                    ARBEIDSTAKER_FNR
-                                )
-                            )
-                        }
-                        // TODO: Endre til InternalServerError når valideringen endres tilbake
-                        response.status shouldBeEqualTo HttpStatusCode.OK
-                    }
-                }
-                it("returns OK when request for person som ikke finnes i oversikten is successful") {
-                    testApplication {
-                        val client = setupApiAndClient()
-                        val response = client.post(url) {
-                            bearerAuth(validToken)
-                            header(
-                                HttpHeaders.ContentType,
-                                ContentType.Application.Json.toString()
-                            )
-                            setBody(veilederBrukerKnytning)
-                        }
-                        response.status shouldBeEqualTo HttpStatusCode.OK
-
-                        val person = database.getPersonOversiktStatusList(fnr = veilederBrukerKnytning.fnr).first()
-                        person.veilederIdent shouldBeEqualTo veilederBrukerKnytning.veilederIdent
-
-                        val historikk = personOversiktStatusRepository.getVeilederTilknytningHistorikk(
-                            PersonIdent(ARBEIDSTAKER_FNR)
-                        )
-                        historikk.size shouldBeEqualTo 1
-                        val historikkDTO = historikk.first()
-                        historikkDTO.tildeltVeileder shouldBeEqualTo veilederBrukerKnytning.veilederIdent
-                        historikkDTO.tildeltEnhet shouldBeEqualTo NAV_ENHET
-                        historikkDTO.tildeltAv shouldBeEqualTo VEILEDER_ID
-                        historikkDTO.tildeltDato shouldBeEqualTo LocalDate.now()
-                    }
-                }
-                it("returns OK when request for person som finnes i oversikten uten enhet is successful") {
-                    testApplication {
-                        val client = setupApiAndClient()
-                        personoversiktStatusService.upsertAktivitetskravvurderingStatus(
-                            personident = PersonIdent(ARBEIDSTAKER_FNR),
-                            isAktivVurdering = true,
-                        )
-                        val response = client.post(url) {
-                            bearerAuth(validToken)
-                            header(
-                                HttpHeaders.ContentType,
-                                ContentType.Application.Json.toString()
-                            )
-                            setBody(veilederBrukerKnytning)
-                        }
-                        response.status shouldBeEqualTo HttpStatusCode.OK
-
-                        val person = database.getPersonOversiktStatusList(fnr = veilederBrukerKnytning.fnr).first()
-                        person.veilederIdent shouldBeEqualTo veilederBrukerKnytning.veilederIdent
-
-                        val historikk =
-                            personOversiktStatusRepository.getVeilederTilknytningHistorikk(PersonIdent(ARBEIDSTAKER_FNR))
-                        historikk.size shouldBeEqualTo 1
-                        val historikkDTO = historikk.first()
-                        historikkDTO.tildeltVeileder shouldBeEqualTo veilederBrukerKnytning.veilederIdent
-                        historikkDTO.tildeltEnhet shouldBeEqualTo NAV_ENHET
-                        historikkDTO.tildeltAv shouldBeEqualTo VEILEDER_ID
-                        historikkDTO.tildeltDato shouldBeEqualTo LocalDate.now()
-                    }
-                }
-                it("returns OK when already assigned to veileder") {
-                    personoversiktStatusService.upsertAktivitetskravvurderingStatus(
-                        personident = PersonIdent(ARBEIDSTAKER_FNR),
-                        isAktivVurdering = true,
-                    )
-                    database.setTildeltEnhet(
-                        ident = PersonIdent(ARBEIDSTAKER_FNR),
-                        enhet = NAV_ENHET,
-                    )
-                    personoversiktRepository.lagreVeilederForBruker(
-                        veilederBrukerKnytning = VeilederBrukerKnytning(
-                            VEILEDER_ID_2,
-                            ARBEIDSTAKER_FNR
-                        ),
-                        tildeltAv = VEILEDER_ID
-                    )
-                    testApplication {
-                        val client = setupApiAndClient()
-                        val response = client.post(url) {
-                            bearerAuth(validToken)
-                            header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
-                            setBody(veilederBrukerKnytning)
-                        }
-                        response.status shouldBeEqualTo HttpStatusCode.OK
-
-                        val person = database.getPersonOversiktStatusList(fnr = veilederBrukerKnytning.fnr).first()
-                        person.veilederIdent shouldBeEqualTo veilederBrukerKnytning.veilederIdent
-                        val historikk =
-                            personOversiktStatusRepository.getVeilederTilknytningHistorikk(PersonIdent(ARBEIDSTAKER_FNR))
-                        historikk.size shouldBeEqualTo 1
-                    }
-                }
-                it("returns OK when already assigned to veileder and then assigned to a different") {
-                    personoversiktStatusService.upsertAktivitetskravvurderingStatus(
-                        personident = PersonIdent(ARBEIDSTAKER_FNR),
-                        isAktivVurdering = true,
-                    )
-                    database.setTildeltEnhet(
-                        ident = PersonIdent(ARBEIDSTAKER_FNR),
-                        enhet = NAV_ENHET,
-                    )
-                    personoversiktRepository.lagreVeilederForBruker(
-                        veilederBrukerKnytning = VeilederBrukerKnytning(
-                            VEILEDER_ID,
-                            ARBEIDSTAKER_FNR
-                        ),
-                        tildeltAv = VEILEDER_ID
-                    )
-                    testApplication {
-                        val client = setupApiAndClient()
-                        val response = client.post(url) {
-                            bearerAuth(validToken)
-                            header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
-                            setBody(veilederBrukerKnytning)
-                        }
-                        response.status shouldBeEqualTo HttpStatusCode.OK
-
-                        val person = database.getPersonOversiktStatusList(fnr = veilederBrukerKnytning.fnr).first()
-                        person.veilederIdent shouldBeEqualTo veilederBrukerKnytning.veilederIdent
-                        val historikk =
-                            personOversiktStatusRepository.getVeilederTilknytningHistorikk(PersonIdent(ARBEIDSTAKER_FNR))
-                        historikk.size shouldBeEqualTo 2
-                    }
-                }
-
-                it("returns Unauthorized when missing token") {
-                    testApplication {
-                        val client = setupApiAndClient()
-                        personoversiktStatusService.upsertAktivitetskravvurderingStatus(
-                            personident = PersonIdent(ARBEIDSTAKER_FNR),
-                            isAktivVurdering = true,
-                        )
-                        database.setTildeltEnhet(
-                            ident = PersonIdent(ARBEIDSTAKER_FNR),
-                            enhet = NAV_ENHET,
-                        )
-                        val response = client.post(url) {
-                            header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
-                            setBody(veilederBrukerKnytning)
-                        }
-                        response.status shouldBeEqualTo HttpStatusCode.Unauthorized
-                    }
-                }
-
-                it("returns Forbidden when no access to person") {
-                    testApplication {
-                        val client = setupApiAndClient()
-                        personoversiktStatusService.upsertAktivitetskravvurderingStatus(
-                            personident = PersonIdent(ARBEIDSTAKER_FNR),
-                            isAktivVurdering = true,
-                        )
-                        database.setTildeltEnhet(
-                            ident = PersonIdent(ARBEIDSTAKER_FNR),
-                            enhet = NAV_ENHET,
-                        )
-                        val response = client.post(url) {
-                            bearerAuth(validToken)
-                            header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
-                            setBody(
-                                VeilederBrukerKnytning(
-                                    VEILEDER_ID,
-                                    ARBEIDSTAKER_NO_ACCESS
-                                )
-                            )
-                        }
-                        response.status shouldBeEqualTo HttpStatusCode.Forbidden
-                    }
+                    response.status shouldBeEqualTo HttpStatusCode.OK
+                    val historikk = response.body<List<VeilederTildelingHistorikkDTO>>()
+                    historikk.size shouldBeEqualTo 1
+                    val veilederHistorikkDTO = historikk.first()
+                    veilederHistorikkDTO.tildeltAv shouldBeEqualTo VEILEDER_ID_2
+                    veilederHistorikkDTO.tildeltVeileder shouldBeEqualTo VEILEDER_ID
+                    veilederHistorikkDTO.tildeltEnhet shouldBeEqualTo NAV_ENHET
+                    veilederHistorikkDTO.tildeltDato shouldBeEqualTo LocalDate.now()
                 }
             }
-            describe("GET veilederhistorikk for person") {
-                val url = "$personTildelingApiV2Path/historikk"
 
-                it("returns OK when no tildeling") {
-                    testApplication {
-                        val client = setupApiAndClient()
-                        personoversiktStatusService.upsertAktivitetskravvurderingStatus(
-                            personident = PersonIdent(ARBEIDSTAKER_FNR),
-                            isAktivVurdering = true,
-                        )
-                        val response = client.get(url) {
-                            bearerAuth(validToken)
-                            header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
-                            header(NAV_PERSONIDENT_HEADER, ARBEIDSTAKER_FNR)
-                        }
-                        response.status shouldBeEqualTo HttpStatusCode.OK
-                        val historikk = response.body<List<VeilederTildelingHistorikkDTO>>()
-                        historikk shouldBeEqualTo emptyList()
+            @Test
+            fun `returns OK when with historikk`() {
+                val personident = PersonIdent(ARBEIDSTAKER_FNR)
+                personoversiktStatusService.upsertAktivitetskravvurderingStatus(
+                    personident = personident,
+                    isAktivVurdering = true,
+                )
+                database.setTildeltEnhet(
+                    ident = personident,
+                    enhet = NAV_ENHET,
+                )
+                personoversiktRepository.lagreVeilederForBruker(
+                    veilederBrukerKnytning = VeilederBrukerKnytning(
+                        VEILEDER_ID,
+                        ARBEIDSTAKER_FNR
+                    ),
+                    tildeltAv = VEILEDER_ID_2,
+                )
+                personoversiktRepository.lagreVeilederForBruker(
+                    veilederBrukerKnytning = VeilederBrukerKnytning(
+                        VEILEDER_ID_2,
+                        ARBEIDSTAKER_FNR
+                    ),
+                    tildeltAv = VEILEDER_ID,
+                )
+                testApplication {
+                    val client = setupApiAndClient()
+                    val response = client.get(url) {
+                        bearerAuth(validToken)
+                        header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                        header(NAV_PERSONIDENT_HEADER, ARBEIDSTAKER_FNR)
                     }
-                }
-                it("returns OK when tildeling") {
-                    val personident = PersonIdent(ARBEIDSTAKER_FNR)
-                    personoversiktStatusService.upsertAktivitetskravvurderingStatus(
-                        personident = personident,
-                        isAktivVurdering = true,
-                    )
-                    database.setTildeltEnhet(
-                        ident = personident,
-                        enhet = NAV_ENHET,
-                    )
-                    personoversiktRepository.lagreVeilederForBruker(
-                        veilederBrukerKnytning = VeilederBrukerKnytning(
-                            VEILEDER_ID,
-                            ARBEIDSTAKER_FNR
-                        ),
-                        tildeltAv = VEILEDER_ID_2,
-                    )
-                    testApplication {
-                        val client = setupApiAndClient()
-                        val response = client.get(url) {
-                            bearerAuth(validToken)
-                            header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
-                            header(NAV_PERSONIDENT_HEADER, ARBEIDSTAKER_FNR)
-                        }
-                        response.status shouldBeEqualTo HttpStatusCode.OK
-                        val historikk = response.body<List<VeilederTildelingHistorikkDTO>>()
-                        historikk.size shouldBeEqualTo 1
-                        val veilederHistorikkDTO = historikk.first()
-                        veilederHistorikkDTO.tildeltAv shouldBeEqualTo VEILEDER_ID_2
-                        veilederHistorikkDTO.tildeltVeileder shouldBeEqualTo VEILEDER_ID
-                        veilederHistorikkDTO.tildeltEnhet shouldBeEqualTo NAV_ENHET
-                        veilederHistorikkDTO.tildeltDato shouldBeEqualTo LocalDate.now()
-                    }
-                }
-                it("returns OK when with historikk") {
-                    val personident = PersonIdent(ARBEIDSTAKER_FNR)
-                    personoversiktStatusService.upsertAktivitetskravvurderingStatus(
-                        personident = personident,
-                        isAktivVurdering = true,
-                    )
-                    database.setTildeltEnhet(
-                        ident = personident,
-                        enhet = NAV_ENHET,
-                    )
-                    personoversiktRepository.lagreVeilederForBruker(
-                        veilederBrukerKnytning = VeilederBrukerKnytning(
-                            VEILEDER_ID,
-                            ARBEIDSTAKER_FNR
-                        ),
-                        tildeltAv = VEILEDER_ID_2,
-                    )
-                    personoversiktRepository.lagreVeilederForBruker(
-                        veilederBrukerKnytning = VeilederBrukerKnytning(
-                            VEILEDER_ID_2,
-                            ARBEIDSTAKER_FNR
-                        ),
-                        tildeltAv = VEILEDER_ID,
-                    )
-                    testApplication {
-                        val client = setupApiAndClient()
-                        val response = client.get(url) {
-                            bearerAuth(validToken)
-                            header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
-                            header(NAV_PERSONIDENT_HEADER, ARBEIDSTAKER_FNR)
-                        }
-                        response.status shouldBeEqualTo HttpStatusCode.OK
-                        val historikk = response.body<List<VeilederTildelingHistorikkDTO>>()
-                        historikk.size shouldBeEqualTo 2
-                    }
+                    response.status shouldBeEqualTo HttpStatusCode.OK
+                    val historikk = response.body<List<VeilederTildelingHistorikkDTO>>()
+                    historikk.size shouldBeEqualTo 2
                 }
             }
         }
     }
-})
+}

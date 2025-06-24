@@ -1,9 +1,9 @@
 package no.nav.syfo.personstatus.infrastructure.kafka
 
-import io.mockk.*
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
@@ -16,67 +16,67 @@ import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeEqualTo
 import org.apache.kafka.clients.consumer.KafkaConsumer
-import org.spekframework.spek2.Spek
-import org.spekframework.spek2.style.specification.describe
+import org.junit.jupiter.api.*
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.UUID
 
-class ArbeidsuforhetvurderingConsumerSpek : Spek({
-    val externalMockEnvironment = ExternalMockEnvironment.instance
-    val database = externalMockEnvironment.database
-    val kafkaConsumer = mockk<KafkaConsumer<String, ArbeidsuforhetvurderingRecord>>()
-    val personoversiktStatusService = externalMockEnvironment.personoversiktStatusService
-
-    val arbeidsuforhetvurderingConsumer = ArbeidsuforhetvurderingConsumer(
+class ArbeidsuforhetvurderingConsumerTest {
+    private val externalMockEnvironment = ExternalMockEnvironment.instance
+    private val database = externalMockEnvironment.database
+    private val kafkaConsumer = mockk<KafkaConsumer<String, ArbeidsuforhetvurderingRecord>>()
+    private val personoversiktStatusService = externalMockEnvironment.personoversiktStatusService
+    private val arbeidsuforhetvurderingConsumer = ArbeidsuforhetvurderingConsumer(
         personoversiktStatusService = personoversiktStatusService,
     )
-    beforeEachGroup { database.dropData() }
-    beforeEachTest {
+
+    @BeforeEach
+    fun setup() {
+        database.dropData()
         every { kafkaConsumer.commitSync() } returns Unit
     }
 
-    afterEachTest {
+    @AfterEach
+    fun teardown() {
         database.dropData()
         clearMocks(kafkaConsumer)
     }
 
-    describe("pollAndProcessRecords") {
-        it("consumes arbeidsuforhet vurdering and updates personoversikt status") {
-            val personoversiktStatus =
-                PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR, isAktivArbeidsuforhetvurdering = true)
-            database.connection.use { connection ->
-                connection.createPersonOversiktStatus(
-                    commit = true,
-                    personOversiktStatus = personoversiktStatus,
-                )
-            }
-
-            val arbeidsuforhetvurderingRecord = generateArbeidsvurderingRecord(
-                personIdent = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),
-                createdAt = OffsetDateTime.now(),
-                isFinal = true,
+    @Test
+    fun `consumes arbeidsuforhet vurdering and updates personoversikt status`() {
+        val personoversiktStatus =
+            PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR, isAktivArbeidsuforhetvurdering = true)
+        database.connection.use { connection ->
+            connection.createPersonOversiktStatus(
+                commit = true,
+                personOversiktStatus = personoversiktStatus,
             )
-            kafkaConsumer.mockPollConsumerRecords(
-                recordValue = arbeidsuforhetvurderingRecord,
-                topic = "teamsykefravr.arbeidsuforhet-vurdering",
-            )
-
-            runBlocking {
-                arbeidsuforhetvurderingConsumer.pollAndProcessRecords(kafkaConsumer = kafkaConsumer)
-            }
-
-            verify(exactly = 1) {
-                kafkaConsumer.commitSync()
-            }
-            val updatedPersonstatus = database.getPersonOversiktStatusList(fnr = UserConstants.ARBEIDSTAKER_FNR).single()
-            updatedPersonstatus.fnr shouldBeEqualTo arbeidsuforhetvurderingRecord.personident
-
-            personoversiktStatus.isAktivArbeidsuforhetvurdering shouldNotBeEqualTo updatedPersonstatus.isAktivArbeidsuforhetvurdering
-            updatedPersonstatus.isAktivArbeidsuforhetvurdering shouldBe false
         }
+
+        val arbeidsuforhetvurderingRecord = generateArbeidsvurderingRecord(
+            personIdent = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),
+            createdAt = OffsetDateTime.now(),
+            isFinal = true,
+        )
+        kafkaConsumer.mockPollConsumerRecords(
+            recordValue = arbeidsuforhetvurderingRecord,
+            topic = "teamsykefravr.arbeidsuforhet-vurdering",
+        )
+
+        runBlocking {
+            arbeidsuforhetvurderingConsumer.pollAndProcessRecords(kafkaConsumer = kafkaConsumer)
+        }
+
+        verify(exactly = 1) {
+            kafkaConsumer.commitSync()
+        }
+        val updatedPersonstatus = database.getPersonOversiktStatusList(fnr = UserConstants.ARBEIDSTAKER_FNR).single()
+        updatedPersonstatus.fnr shouldBeEqualTo arbeidsuforhetvurderingRecord.personident
+
+        personoversiktStatus.isAktivArbeidsuforhetvurdering shouldNotBeEqualTo updatedPersonstatus.isAktivArbeidsuforhetvurdering
+        updatedPersonstatus.isAktivArbeidsuforhetvurdering shouldBe false
     }
-})
+}
 
 private fun generateArbeidsvurderingRecord(
     personIdent: PersonIdent,

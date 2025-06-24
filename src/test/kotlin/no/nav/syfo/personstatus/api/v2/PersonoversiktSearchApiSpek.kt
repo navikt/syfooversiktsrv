@@ -15,14 +15,13 @@ import no.nav.syfo.testutil.generator.generateOppfolgingstilfelle
 import no.nav.syfo.testutil.generator.generateOppfolgingstilfelleVirksomhet
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeNull
-import org.spekframework.spek2.Spek
-import org.spekframework.spek2.style.specification.describe
+import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.time.Month
 
-object PersonoversiktSearchApiSpek : Spek({
-
-    fun createActiveOppfolgingstilfelle(
+class PersonoversiktSearchApiTest {
+    private fun createActiveOppfolgingstilfelle(
         virksomhetsnummer: Virksomhetsnummer = Virksomhetsnummer("123456789"),
         virksomhetsnavn: String = "Virksomhet AS"
     ) = generateOppfolgingstilfelle(
@@ -37,24 +36,21 @@ object PersonoversiktSearchApiSpek : Spek({
         )
     )
 
-    describe("PersonoversiktSearchApi") {
-        val externalMockEnvironment = ExternalMockEnvironment.instance
-        val database = externalMockEnvironment.database
-        val personOversiktStatusRepository = PersonOversiktStatusRepository(database = database)
-        val url = "$personOversiktApiV2Path/search"
-
-        beforeEachTest {
+    @Nested
+    inner class PersonoversiktSearchApi {
+        @Test
+        fun `returns sykmeldt person matching search when veileder has access to person`() {
+            val externalMockEnvironment = ExternalMockEnvironment.instance
+            val database = externalMockEnvironment.database
+            val personOversiktStatusRepository = externalMockEnvironment.personOversiktStatusRepository
+            val url = "$personOversiktApiV2Path/search"
+            val validToken = generateJWT(
+                audience = externalMockEnvironment.environment.azure.appClientId,
+                issuer = externalMockEnvironment.wellKnownVeilederV2.issuer,
+                navIdent = VEILEDER_ID,
+            )
+            val fodselsdato = LocalDate.of(1985, Month.MAY, 17)
             database.dropData()
-        }
-
-        val validToken = generateJWT(
-            audience = externalMockEnvironment.environment.azure.appClientId,
-            issuer = externalMockEnvironment.wellKnownVeilederV2.issuer,
-            navIdent = VEILEDER_ID,
-        )
-        val fodselsdato = LocalDate.of(1985, Month.MAY, 17)
-
-        it("returns sykmeldt person matching search when veileder has access to person") {
             testApplication {
                 val client = setupApiAndClient()
                 val newPersonOversiktStatus =
@@ -85,7 +81,19 @@ object PersonoversiktSearchApiSpek : Spek({
             }
         }
 
-        it("returns sykmeldt person matching search using fodselsdato when veileder has access to person") {
+        @Test
+        fun `returns sykmeldt person matching search using fodselsdato when veileder has access to person`() {
+            val externalMockEnvironment = ExternalMockEnvironment.instance
+            val database = externalMockEnvironment.database
+            val personOversiktStatusRepository = externalMockEnvironment.personOversiktStatusRepository
+            val url = "$personOversiktApiV2Path/search"
+            val validToken = generateJWT(
+                audience = externalMockEnvironment.environment.azure.appClientId,
+                issuer = externalMockEnvironment.wellKnownVeilederV2.issuer,
+                navIdent = VEILEDER_ID,
+            )
+            val fodselsdato = LocalDate.of(1985, Month.MAY, 17)
+            database.dropData()
             testApplication {
                 val client = setupApiAndClient()
                 val newPersonOversiktStatus =
@@ -109,7 +117,20 @@ object PersonoversiktSearchApiSpek : Spek({
                 personer.first().fnr shouldBeEqualTo UserConstants.ARBEIDSTAKER_FNR
             }
         }
-        it("returns sykmeldte personer matching search using fodselsdato when veileder has access to personer") {
+
+        @Test
+        fun `returns sykmeldte personer matching search using fodselsdato when veileder has access to personer`() {
+            val externalMockEnvironment = ExternalMockEnvironment.instance
+            val database = externalMockEnvironment.database
+            val personOversiktStatusRepository = externalMockEnvironment.personOversiktStatusRepository
+            val url = "$personOversiktApiV2Path/search"
+            val validToken = generateJWT(
+                audience = externalMockEnvironment.environment.azure.appClientId,
+                issuer = externalMockEnvironment.wellKnownVeilederV2.issuer,
+                navIdent = VEILEDER_ID,
+            )
+            val fodselsdato = LocalDate.of(1985, Month.MAY, 17)
+            database.dropData()
             testApplication {
                 val client = setupApiAndClient()
                 val newPersonOversiktStatus =
@@ -162,7 +183,19 @@ object PersonoversiktSearchApiSpek : Spek({
             }
         }
 
-        it("does not return sykmeldt person not matching search when veileder has access to person") {
+        @Test
+        fun `does not return sykmeldt person not matching search when veileder has access to person`() {
+            val externalMockEnvironment = ExternalMockEnvironment.instance
+            val database = externalMockEnvironment.database
+            val personOversiktStatusRepository = externalMockEnvironment.personOversiktStatusRepository
+            val url = "$personOversiktApiV2Path/search"
+            val validToken = generateJWT(
+                audience = externalMockEnvironment.environment.azure.appClientId,
+                issuer = externalMockEnvironment.wellKnownVeilederV2.issuer,
+                navIdent = VEILEDER_ID,
+            )
+            val fodselsdato = LocalDate.of(1985, Month.MAY, 17)
+            database.dropData()
             testApplication {
                 val client = setupApiAndClient()
                 val newPersonOversiktStatus =
@@ -184,7 +217,19 @@ object PersonoversiktSearchApiSpek : Spek({
             }
         }
 
-        it("returns nothing when no person matching search") {
+        @Test
+        fun `returns nothing when no person matching search`() {
+            val externalMockEnvironment = ExternalMockEnvironment.instance
+            val database = externalMockEnvironment.database
+            val personOversiktStatusRepository = externalMockEnvironment.personOversiktStatusRepository
+            val url = "$personOversiktApiV2Path/search"
+            val validToken = generateJWT(
+                audience = externalMockEnvironment.environment.azure.appClientId,
+                issuer = externalMockEnvironment.wellKnownVeilederV2.issuer,
+                navIdent = VEILEDER_ID,
+            )
+            val fodselsdato = LocalDate.of(1985, Month.MAY, 17)
+            database.dropData()
             testApplication {
                 val client = setupApiAndClient()
                 val newPersonOversiktStatus =
@@ -206,7 +251,19 @@ object PersonoversiktSearchApiSpek : Spek({
             }
         }
 
-        it("returns nothing when sykmeldt person matching search but veileder has no access to person") {
+        @Test
+        fun `returns nothing when sykmeldt person matching search but veileder has no access to person`() {
+            val externalMockEnvironment = ExternalMockEnvironment.instance
+            val database = externalMockEnvironment.database
+            val personOversiktStatusRepository = externalMockEnvironment.personOversiktStatusRepository
+            val url = "$personOversiktApiV2Path/search"
+            val validToken = generateJWT(
+                audience = externalMockEnvironment.environment.azure.appClientId,
+                issuer = externalMockEnvironment.wellKnownVeilederV2.issuer,
+                navIdent = VEILEDER_ID,
+            )
+            val fodselsdato = LocalDate.of(1985, Month.MAY, 17)
+            database.dropData()
             testApplication {
                 val client = setupApiAndClient()
                 val newPersonOversiktStatus =
@@ -227,7 +284,19 @@ object PersonoversiktSearchApiSpek : Spek({
                 response.status shouldBeEqualTo HttpStatusCode.NoContent
             }
         }
-        it("returns BadRequest when not legal search query") {
+
+        @Test
+        fun `returns BadRequest when not legal search query`() {
+            val externalMockEnvironment = ExternalMockEnvironment.instance
+            val database = externalMockEnvironment.database
+            val personOversiktStatusRepository = externalMockEnvironment.personOversiktStatusRepository
+            val url = "$personOversiktApiV2Path/search"
+            val validToken = generateJWT(
+                audience = externalMockEnvironment.environment.azure.appClientId,
+                issuer = externalMockEnvironment.wellKnownVeilederV2.issuer,
+                navIdent = VEILEDER_ID,
+            )
+            database.dropData()
             testApplication {
                 val client = setupApiAndClient()
                 val searchQueryDTO = SearchQueryDTO(initials = "FE")
@@ -239,7 +308,19 @@ object PersonoversiktSearchApiSpek : Spek({
                 response.status shouldBeEqualTo HttpStatusCode.BadRequest
             }
         }
-        it("returns BadRequest when name is blank") {
+
+        @Test
+        fun `returns BadRequest when name is blank`() {
+            val externalMockEnvironment = ExternalMockEnvironment.instance
+            val database = externalMockEnvironment.database
+            val personOversiktStatusRepository = externalMockEnvironment.personOversiktStatusRepository
+            val url = "$personOversiktApiV2Path/search"
+            val validToken = generateJWT(
+                audience = externalMockEnvironment.environment.azure.appClientId,
+                issuer = externalMockEnvironment.wellKnownVeilederV2.issuer,
+                navIdent = VEILEDER_ID,
+            )
+            database.dropData()
             testApplication {
                 val client = setupApiAndClient()
                 val searchQueryDTO = SearchQueryDTO(name = "")
@@ -251,7 +332,19 @@ object PersonoversiktSearchApiSpek : Spek({
                 response.status shouldBeEqualTo HttpStatusCode.BadRequest
             }
         }
-        it("returns BadRequest when initials is blank") {
+
+        @Test
+        fun `returns BadRequest when initials is blank`() {
+            val externalMockEnvironment = ExternalMockEnvironment.instance
+            val database = externalMockEnvironment.database
+            val personOversiktStatusRepository = externalMockEnvironment.personOversiktStatusRepository
+            val url = "$personOversiktApiV2Path/search"
+            val validToken = generateJWT(
+                audience = externalMockEnvironment.environment.azure.appClientId,
+                issuer = externalMockEnvironment.wellKnownVeilederV2.issuer,
+                navIdent = VEILEDER_ID,
+            )
+            database.dropData()
             testApplication {
                 val client = setupApiAndClient()
                 val searchQueryDTO = SearchQueryDTO(initials = "")
@@ -263,7 +356,19 @@ object PersonoversiktSearchApiSpek : Spek({
                 response.status shouldBeEqualTo HttpStatusCode.BadRequest
             }
         }
-        it("returns BadRequest when all parameters is null") {
+
+        @Test
+        fun `returns BadRequest when all parameters is null`() {
+            val externalMockEnvironment = ExternalMockEnvironment.instance
+            val database = externalMockEnvironment.database
+            val personOversiktStatusRepository = externalMockEnvironment.personOversiktStatusRepository
+            val url = "$personOversiktApiV2Path/search"
+            val validToken = generateJWT(
+                audience = externalMockEnvironment.environment.azure.appClientId,
+                issuer = externalMockEnvironment.wellKnownVeilederV2.issuer,
+                navIdent = VEILEDER_ID,
+            )
+            database.dropData()
             testApplication {
                 val client = setupApiAndClient()
                 val response = client.post(url) {
@@ -275,4 +380,4 @@ object PersonoversiktSearchApiSpek : Spek({
             }
         }
     }
-})
+}
