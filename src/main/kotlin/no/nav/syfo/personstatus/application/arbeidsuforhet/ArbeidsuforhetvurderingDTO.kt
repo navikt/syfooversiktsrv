@@ -4,11 +4,11 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 
 data class ArbeidsuforhetvurderingerRequestDTO(
-    val personidenter: List<String>
+    val personidenter: List<String>,
 )
 
 data class ArbeidsuforhetvurderingerResponseDTO(
-    val vurderinger: Map<String, ArbeidsuforhetvurderingDTO>
+    val vurderinger: Map<String, ArbeidsuforhetvurderingDTO>,
 )
 
 data class ArbeidsuforhetvurderingDTO(
@@ -22,5 +22,5 @@ data class VarselDTO(
 )
 
 enum class VurderingType {
-    FORHANDSVARSEL, OPPFYLT, AVSLAG, IKKE_AKTUELL
+    FORHANDSVARSEL, OPPFYLT, AVSLAG, IKKE_AKTUELL, AVSLAG_UTEN_FORHANDSVARSEL
 }
