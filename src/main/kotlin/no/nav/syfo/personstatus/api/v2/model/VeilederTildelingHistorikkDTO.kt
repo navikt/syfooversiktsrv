@@ -4,7 +4,7 @@ import java.time.LocalDate
 
 data class VeilederTildelingHistorikkDTO(
     val tildeltDato: LocalDate,
-    val tildeltVeileder: String,
+    val tildeltVeileder: String?,
     val tildeltEnhet: String,
     val tildeltAv: String,
 )
