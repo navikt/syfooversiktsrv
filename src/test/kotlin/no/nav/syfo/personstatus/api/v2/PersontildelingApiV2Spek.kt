@@ -165,8 +165,8 @@ object PersontildelingApiV2Spek : Spek({
                         }
                         response.status shouldBeEqualTo HttpStatusCode.OK
 
-                        val person = database.getPersonOversiktStatusList(fnr = veilederBrukerKnytning.fnr).first()
-                        person.veilederIdent shouldBeEqualTo veilederBrukerKnytning.veilederIdent
+                        val person = personoversiktRepository.getPersonOversiktStatus(PersonIdent(veilederBrukerKnytning.fnr))
+                        person?.veilederIdent shouldBeEqualTo veilederBrukerKnytning.veilederIdent
 
                         val historikk = personOversiktStatusRepository.getVeilederTilknytningHistorikk(
                             PersonIdent(ARBEIDSTAKER_FNR)
@@ -179,6 +179,45 @@ object PersontildelingApiV2Spek : Spek({
                         historikkDTO.tildeltDato shouldBeEqualTo LocalDate.now()
                     }
                 }
+
+                it("skal lagre tildeling av veileder fra tildelt til ufordelt") {
+                    testApplication {
+                        val ufordeltVeilederKnytning = VeilederBrukerKnytning(
+                            veilederIdent = null,
+                            fnr = ARBEIDSTAKER_FNR,
+                        )
+                        val client = setupApiAndClient()
+                        personoversiktStatusService.upsertAktivitetskravvurderingStatus(
+                            personident = PersonIdent(ARBEIDSTAKER_FNR),
+                            isAktivVurdering = true,
+                        )
+                        database.setTildeltEnhet(ident = PersonIdent(ARBEIDSTAKER_FNR), enhet = NAV_ENHET)
+                        personoversiktRepository.lagreVeilederForBruker(
+                            veilederBrukerKnytning = VeilederBrukerKnytning(
+                                VEILEDER_ID,
+                                ARBEIDSTAKER_FNR
+                            ),
+                            tildeltAv = VEILEDER_ID
+                        )
+                        val response = client.post(url) {
+                            bearerAuth(validToken)
+                            header(
+                                HttpHeaders.ContentType,
+                                ContentType.Application.Json.toString()
+                            )
+                            setBody(ufordeltVeilederKnytning)
+                        }
+                        response.status shouldBeEqualTo HttpStatusCode.OK
+
+                        val person = personoversiktRepository.getPersonOversiktStatus(PersonIdent(veilederBrukerKnytning.fnr))
+                        person?.veilederIdent shouldBeEqualTo null
+
+                        val historikk =
+                            personOversiktStatusRepository.getVeilederTilknytningHistorikk(PersonIdent(ARBEIDSTAKER_FNR))
+                        historikk.size shouldBeEqualTo 2
+                    }
+                }
+
                 it("returns error when request sets veileder who is not active in the persons enhet") {
                     testApplication {
                         val client = setupApiAndClient()
@@ -203,7 +242,6 @@ object PersontildelingApiV2Spek : Spek({
                                 )
                             )
                         }
-                        // TODO: Endre til InternalServerError når valideringen endres tilbake
                         response.status shouldBeEqualTo HttpStatusCode.OK
                     }
                 }
