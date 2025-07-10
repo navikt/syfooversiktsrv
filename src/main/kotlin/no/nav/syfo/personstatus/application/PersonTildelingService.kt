@@ -25,25 +25,15 @@ class PersonTildelingService(
                 ?: PersonOversiktStatus(fnr = veilederBrukerKnytning.fnr).also { personOversiktStatus ->
                     personoversiktStatusRepository.createPersonOversiktStatus(personOversiktStatus)
                 }
-
-            val arbeidstakerEnhet = if (personoversiktStatus.enhet == null) {
-                personBehandlendeEnhetService.updateBehandlendeEnhet(personident)
-            } else {
-                personoversiktStatus.enhet
-            } ?: throw IllegalStateException("Enhet for arbeidstaker er null")
-
-            val veiledereForArbeidstakerEnhet = veilederClient.getVeiledereForEnhet(
-                callId = callId,
-                enhetId = arbeidstakerEnhet,
-                token = token,
-            )
-            val isVeilederInArbeidstakerEnhet = veiledereForArbeidstakerEnhet.any { it.enabled && it.ident == veilederBrukerKnytning.veilederIdent }
-            if (!isVeilederInArbeidstakerEnhet) {
-                val message = "Kan ikke tildele veileder ${veilederBrukerKnytning.veilederIdent} som ikke er tilknyttet enhet $arbeidstakerEnhet. "
-                log.warn("$message Tildelt av $tildeltAv, PersonOversiktStatus uuid: ${personoversiktStatus.uuid}")
-                // throw IllegalStateException(message)
+            if (veilederBrukerKnytning.veilederIdent != null) {
+                validateVeilederInArbeidstakersEnhet(
+                    callId = callId,
+                    token = token,
+                    tildeltAv = tildeltAv,
+                    veilederBrukerKnytning = veilederBrukerKnytning,
+                    personoversiktStatus = personoversiktStatus
+                )
             }
-            // TODO: Flytt inn i else-blokken når vi har fått rullet ut vo-ruting til alle
             personoversiktStatusRepository.lagreVeilederForBruker(
                 veilederBrukerKnytning = veilederBrukerKnytning,
                 tildeltAv = tildeltAv,
@@ -53,6 +43,31 @@ class PersonTildelingService(
 
     fun getVeilederTilknytningHistorikk(personident: PersonIdent) =
         personoversiktStatusRepository.getVeilederTilknytningHistorikk(personident)
+
+    private suspend fun validateVeilederInArbeidstakersEnhet(
+        callId: String,
+        token: String,
+        tildeltAv: String,
+        veilederBrukerKnytning: VeilederBrukerKnytning,
+        personoversiktStatus: PersonOversiktStatus,
+    ) {
+        val arbeidstakerEnhet = personoversiktStatus.enhet
+            ?: personBehandlendeEnhetService.updateBehandlendeEnhet(PersonIdent(veilederBrukerKnytning.fnr))
+            ?: throw IllegalStateException("Enhet for arbeidstaker er null")
+        val veiledereForArbeidstakerEnhet = veilederClient.getVeiledereForEnhet(
+            callId = callId,
+            enhetId = arbeidstakerEnhet,
+            token = token,
+        )
+        val isVeilederInArbeidstakerEnhet =
+            veiledereForArbeidstakerEnhet.any { it.enabled && it.ident == veilederBrukerKnytning.veilederIdent }
+        if (!isVeilederInArbeidstakerEnhet) {
+            val message =
+                "Kan ikke tildele veileder ${veilederBrukerKnytning.veilederIdent} som ikke er tilknyttet enhet $arbeidstakerEnhet. "
+            log.warn("$message Tildelt av $tildeltAv, PersonOversiktStatus uuid: ${personoversiktStatus.uuid}")
+            // throw IllegalStateException(message)
+        }
+    }
 
     companion object {
         private val log = LoggerFactory.getLogger(this::class.java)

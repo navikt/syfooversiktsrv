@@ -24,8 +24,8 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
     override fun updateArbeidsuforhetvurderingStatus(
         personident: PersonIdent,
         isAktivVurdering: Boolean,
-    ): Result<Int> {
-        return try {
+    ): Result<Int> =
+        try {
             database.connection.use { connection ->
                 val tidspunkt = Timestamp.from(Instant.now())
                 val uuid = UUID.randomUUID().toString()
@@ -49,7 +49,6 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
         } catch (e: Exception) {
             Result.failure(e)
         }
-    }
 
     override fun upsertAktivitetskravAktivStatus(personident: PersonIdent, isAktivVurdering: Boolean): Result<Int> {
         return try {
