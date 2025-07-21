@@ -21,6 +21,7 @@ data class AktivitetskravDTO(
 data class AktivitetskravvurderingDTO(
     val createdAt: LocalDateTime,
     val status: AktivitetskravStatus,
+    val beskrivelse: String?,
     val frist: LocalDate?,
     val varsel: AktivitetskravVarselDTO?,
     val arsaker: List<Arsak>,
