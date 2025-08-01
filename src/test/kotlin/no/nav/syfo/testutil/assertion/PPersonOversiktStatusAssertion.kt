@@ -2,8 +2,8 @@ package no.nav.syfo.testutil.assertion
 
 import no.nav.syfo.oppfolgingstilfelle.kafka.OppfolgingstilfellePersonRecord
 import no.nav.syfo.personstatus.domain.PPersonOversiktStatus
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldNotBeNull
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.assertNotNull
 
 fun checkPPersonOversiktStatusOppfolgingstilfelle(
     pPersonOversiktStatus: PPersonOversiktStatus,
@@ -11,18 +11,33 @@ fun checkPPersonOversiktStatusOppfolgingstilfelle(
 ) {
     val latestOppfolgingstilfelle = oppfolgingstilfellePersonRecord.oppfolgingstilfelleList.firstOrNull()
 
-    latestOppfolgingstilfelle.shouldNotBeNull()
+    assertNotNull(latestOppfolgingstilfelle)
 
-    pPersonOversiktStatus.oppfolgingstilfelleGeneratedAt?.toInstant()
-        ?.toEpochMilli() shouldBeEqualTo oppfolgingstilfellePersonRecord.createdAt.toInstant().toEpochMilli()
-    pPersonOversiktStatus.oppfolgingstilfelleGeneratedAt?.offset shouldBeEqualTo oppfolgingstilfellePersonRecord.createdAt.offset
-    pPersonOversiktStatus.oppfolgingstilfelleUpdatedAt.shouldNotBeNull()
-    pPersonOversiktStatus.oppfolgingstilfelleStart shouldBeEqualTo latestOppfolgingstilfelle.start
-    pPersonOversiktStatus.oppfolgingstilfelleEnd shouldBeEqualTo latestOppfolgingstilfelle.end
-    pPersonOversiktStatus.oppfolgingstilfelleBitReferanseInntruffet?.toInstant()
-        ?.toEpochMilli() shouldBeEqualTo oppfolgingstilfellePersonRecord.referanseTilfelleBitInntruffet.toInstant()
-        .toEpochMilli()
-    pPersonOversiktStatus.oppfolgingstilfelleBitReferanseInntruffet?.offset shouldBeEqualTo oppfolgingstilfellePersonRecord.referanseTilfelleBitInntruffet.offset
-    pPersonOversiktStatus.oppfolgingstilfelleBitReferanseUuid.toString() shouldBeEqualTo oppfolgingstilfellePersonRecord.referanseTilfelleBitUuid
-    pPersonOversiktStatus.antallSykedager shouldBeEqualTo latestOppfolgingstilfelle.antallSykedager
+    assertEquals(
+        pPersonOversiktStatus.oppfolgingstilfelleGeneratedAt?.toInstant()
+            ?.toEpochMilli(),
+        oppfolgingstilfellePersonRecord.createdAt.toInstant().toEpochMilli()
+    )
+    assertEquals(
+        pPersonOversiktStatus.oppfolgingstilfelleGeneratedAt?.offset,
+        oppfolgingstilfellePersonRecord.createdAt.offset
+    )
+    assertNotNull(pPersonOversiktStatus.oppfolgingstilfelleUpdatedAt)
+    assertEquals(pPersonOversiktStatus.oppfolgingstilfelleStart, latestOppfolgingstilfelle.start)
+    assertEquals(pPersonOversiktStatus.oppfolgingstilfelleEnd, latestOppfolgingstilfelle.end)
+    assertEquals(
+        pPersonOversiktStatus.oppfolgingstilfelleBitReferanseInntruffet?.toInstant()
+            ?.toEpochMilli(),
+        oppfolgingstilfellePersonRecord.referanseTilfelleBitInntruffet.toInstant()
+            .toEpochMilli()
+    )
+    assertEquals(
+        pPersonOversiktStatus.oppfolgingstilfelleBitReferanseInntruffet?.offset,
+        oppfolgingstilfellePersonRecord.referanseTilfelleBitInntruffet.offset
+    )
+    assertEquals(
+        pPersonOversiktStatus.oppfolgingstilfelleBitReferanseUuid.toString(),
+        oppfolgingstilfellePersonRecord.referanseTilfelleBitUuid
+    )
+    assertEquals(pPersonOversiktStatus.antallSykedager, latestOppfolgingstilfelle.antallSykedager)
 }

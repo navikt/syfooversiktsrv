@@ -6,7 +6,7 @@ relevant persons and information on them.
 * Kotlin
 * Ktor
 * Gradle
-* Spek
+* JUnit
 * Postgres
 
 ## Buil and run local
