@@ -1,5 +1,6 @@
 package no.nav.syfo
 
+import no.nav.syfo.cache.ValkeyConfig
 import no.nav.syfo.personstatus.infrastructure.clients.ClientEnvironment
 import no.nav.syfo.personstatus.infrastructure.clients.ClientsEnvironment
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseEnvironment

@@ -9,7 +9,7 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import no.nav.syfo.ValkeyStore
+import no.nav.syfo.cache.ValkeyStore
 import no.nav.syfo.personstatus.api.v2.auth.getNAVIdentFromToken
 import no.nav.syfo.personstatus.infrastructure.clients.httpClientProxy
 import org.slf4j.LoggerFactory

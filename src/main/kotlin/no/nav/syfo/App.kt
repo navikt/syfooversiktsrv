@@ -5,6 +5,7 @@ import io.ktor.server.application.*
 import io.ktor.server.config.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import no.nav.syfo.cache.ValkeyStore
 import no.nav.syfo.personstatus.application.PersonoversiktStatusService
 import no.nav.syfo.personstatus.api.v2.apiModule
 import no.nav.syfo.personstatus.api.v2.auth.getWellKnown

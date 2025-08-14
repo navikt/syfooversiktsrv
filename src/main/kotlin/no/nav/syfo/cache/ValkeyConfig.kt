@@ -1,4 +1,4 @@
-package no.nav.syfo
+package no.nav.syfo.cache
 
 import java.net.URI
 

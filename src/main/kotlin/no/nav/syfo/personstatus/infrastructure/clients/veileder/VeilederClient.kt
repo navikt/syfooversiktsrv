@@ -8,7 +8,7 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.micrometer.core.instrument.Counter
 import net.logstash.logback.argument.StructuredArguments
-import no.nav.syfo.ValkeyStore
+import no.nav.syfo.cache.ValkeyStore
 import no.nav.syfo.personstatus.infrastructure.clients.ClientEnvironment
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
 import no.nav.syfo.personstatus.infrastructure.clients.httpClientDefault
