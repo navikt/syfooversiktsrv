@@ -1,7 +1,7 @@
 package no.nav.syfo.testutil.generator
 
-import no.nav.syfo.dialogmotekandidat.kafka.DIALOGMOTEKANDIDAT_TOPIC
-import no.nav.syfo.dialogmotekandidat.kafka.KafkaDialogmotekandidatEndring
+import no.nav.syfo.personstatus.infrastructure.kafka.dialogmotekandidat.DIALOGMOTEKANDIDAT_TOPIC
+import no.nav.syfo.personstatus.infrastructure.kafka.dialogmotekandidat.KafkaDialogmotekandidatEndring
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.TopicPartition
 import java.time.OffsetDateTime
@@ -35,7 +35,7 @@ fun dialogmotekandidatEndringTopicPartition() = TopicPartition(
 )
 
 fun dialogmotekandidatEndringConsumerRecord(
-    kafkaDialogmotekandidatEndring: KafkaDialogmotekandidatEndring
+    kafkaDialogmotekandidatEndring: KafkaDialogmotekandidatEndring,
 ) = ConsumerRecord(
     DIALOGMOTEKANDIDAT_TOPIC,
     0,

@@ -3,7 +3,7 @@ package no.nav.syfo.personstatus.infrastructure.cronjob
 import no.nav.syfo.ApplicationState
 import no.nav.syfo.Environment
 import no.nav.syfo.launchBackgroundTask
-import no.nav.syfo.application.cache.ValkeyStore
+import no.nav.syfo.ValkeyStore
 import no.nav.syfo.personstatus.application.PersonoversiktStatusService
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient

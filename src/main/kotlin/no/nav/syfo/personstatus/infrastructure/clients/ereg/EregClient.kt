@@ -6,7 +6,7 @@ import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import net.logstash.logback.argument.StructuredArguments
-import no.nav.syfo.application.cache.ValkeyStore
+import no.nav.syfo.ValkeyStore
 import no.nav.syfo.personstatus.infrastructure.clients.ClientEnvironment
 import no.nav.syfo.personstatus.infrastructure.clients.httpClientDefault
 import no.nav.syfo.personstatus.domain.Virksomhetsnummer

@@ -1,7 +1,7 @@
 package no.nav.syfo.testutil
 
 import no.nav.syfo.ApplicationState
-import no.nav.syfo.application.cache.ValkeyStore
+import no.nav.syfo.ValkeyStore
 import no.nav.syfo.personstatus.application.OppfolgingstilfelleService
 import no.nav.syfo.personstatus.application.PersonBehandlendeEnhetService
 import no.nav.syfo.personstatus.application.PersonoversiktStatusService

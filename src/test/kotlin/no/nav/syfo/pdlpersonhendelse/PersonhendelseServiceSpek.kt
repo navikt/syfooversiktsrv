@@ -1,6 +1,7 @@
 package no.nav.syfo.pdlpersonhendelse
 
 import kotlinx.coroutines.*
+import no.nav.syfo.personstatus.application.PdlPersonhendelseService
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.personstatus.infrastructure.database.queries.createPersonOversiktStatus
 import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList
