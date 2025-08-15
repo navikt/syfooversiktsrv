@@ -18,8 +18,6 @@ import org.amshove.kluent.shouldNotBeEqualTo
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
-import java.time.LocalDate
-import java.time.OffsetDateTime
 import java.util.UUID
 
 class ArbeidsuforhetvurderingConsumerSpek : Spek({
@@ -54,8 +52,6 @@ class ArbeidsuforhetvurderingConsumerSpek : Spek({
 
             val arbeidsuforhetvurderingRecord = generateArbeidsvurderingRecord(
                 personIdent = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),
-                createdAt = OffsetDateTime.now(),
-                isFinal = true,
             )
             kafkaConsumer.mockPollConsumerRecords(
                 recordValue = arbeidsuforhetvurderingRecord,
@@ -80,18 +76,8 @@ class ArbeidsuforhetvurderingConsumerSpek : Spek({
 
 private fun generateArbeidsvurderingRecord(
     personIdent: PersonIdent,
-    createdAt: OffsetDateTime,
-    type: VurderingType = VurderingType.OPPFYLT,
-    begrunnelse: String = "En kjempegod begrunnelse",
-    gjelderFom: LocalDate? = LocalDate.now().plusDays(1),
-    isFinal: Boolean = true,
 ): ArbeidsuforhetvurderingRecord = ArbeidsuforhetvurderingRecord(
     uuid = UUID.randomUUID(),
-    createdAt = createdAt,
     personident = personIdent.value,
-    veilederident = "Z123456",
-    type = type,
-    begrunnelse = begrunnelse,
-    gjelderFom = gjelderFom,
-    isFinal = isFinal,
+    isFinal = true,
 )

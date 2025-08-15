@@ -7,8 +7,6 @@ import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.slf4j.LoggerFactory
 import java.time.Duration
-import java.time.LocalDate
-import java.time.OffsetDateTime
 import kotlin.collections.forEach
 import kotlin.collections.isNotEmpty
 import kotlin.collections.partition
@@ -52,11 +50,5 @@ class AktivitetskravVurderingConsumer(
 data class AktivitetskravVurderingRecord(
     val uuid: String,
     val personIdent: String,
-    val createdAt: OffsetDateTime,
-    val status: String,
     val isFinal: Boolean,
-    val stoppunktAt: LocalDate,
-    val beskrivelse: String?,
-    val sistVurdert: OffsetDateTime?,
-    val frist: LocalDate?,
 )

@@ -5,7 +5,6 @@ import io.ktor.client.request.*
 import no.nav.syfo.personstatus.application.arbeidsuforhet.ArbeidsuforhetvurderingDTO
 import no.nav.syfo.personstatus.application.arbeidsuforhet.ArbeidsuforhetvurderingerResponseDTO
 import no.nav.syfo.personstatus.application.arbeidsuforhet.VarselDTO
-import no.nav.syfo.personstatus.application.arbeidsuforhet.VurderingType
 import no.nav.syfo.testutil.UserConstants
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -20,7 +19,7 @@ fun MockRequestHandleScope.arbeidsuforhetVurderingMockResponse(): HttpResponseDa
                     UserConstants.ARBEIDSTAKER_FNR,
                     ArbeidsuforhetvurderingDTO(
                         createdAt = latestVurdering,
-                        type = VurderingType.FORHANDSVARSEL,
+                        type = "FORHANDSVARSEL",
                         varsel = VarselDTO(LocalDate.now().plusDays(1))
                     ),
                 ),
