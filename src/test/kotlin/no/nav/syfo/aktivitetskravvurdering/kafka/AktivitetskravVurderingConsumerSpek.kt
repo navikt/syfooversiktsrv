@@ -2,7 +2,6 @@ package no.nav.syfo.aktivitetskravvurdering.kafka
 
 import io.mockk.*
 import kotlinx.coroutines.runBlocking
-import no.nav.syfo.personstatus.application.aktivitetskrav.AktivitetskravStatus
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList
 import no.nav.syfo.personstatus.infrastructure.database.queries.createPersonOversiktStatus
@@ -29,22 +28,10 @@ class AktivitetskravVurderingConsumerSpek : Spek({
         AktivitetskravVurderingConsumer(personoversiktStatusService = personoversiktStatusService)
 
     val aktivitetskravVurderingTopicPartition = aktivitetskravVurderingTopicPartition()
-    val kafkaAktivitetskravVurderingNy = generateKafkaAktivitetskravVurdering(status = AktivitetskravStatus.NY, isFinal = false)
-    val kafkaAktivitetskravVurderingAvventer = generateKafkaAktivitetskravVurdering(
-        status = AktivitetskravStatus.AVVENT,
-        beskrivelse = "Avventer",
-        sistVurdert = OffsetDateTime.now().minusMinutes(30),
-        frist = LocalDate.now().plusWeeks(1),
-        isFinal = false,
-    )
-    val aktivitetskravVurderingNy = generateKafkaAktivitetskravVurdering(
-        status = AktivitetskravStatus.NY,
-        isFinal = false,
-    )
-    val aktivitetskravVurderingOppfylt = generateKafkaAktivitetskravVurdering(
-        status = AktivitetskravStatus.OPPFYLT,
-        isFinal = true,
-    )
+    val kafkaAktivitetskravVurderingNy = generateKafkaAktivitetskravVurdering(isFinal = false)
+    val kafkaAktivitetskravVurderingAvventer = generateKafkaAktivitetskravVurdering(isFinal = false)
+    val aktivitetskravVurderingNy = generateKafkaAktivitetskravVurdering(isFinal = false)
+    val aktivitetskravVurderingOppfylt = generateKafkaAktivitetskravVurdering(isFinal = true)
 
     beforeEachTest {
         database.dropData()
