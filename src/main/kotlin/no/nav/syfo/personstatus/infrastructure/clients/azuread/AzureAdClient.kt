@@ -9,7 +9,7 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import no.nav.syfo.application.cache.ValkeyStore
+import no.nav.syfo.cache.ValkeyStore
 import no.nav.syfo.personstatus.api.v2.auth.getNAVIdentFromToken
 import no.nav.syfo.personstatus.infrastructure.clients.httpClientProxy
 import org.slf4j.LoggerFactory
@@ -24,7 +24,7 @@ class AzureAdClient(
 
     suspend fun getOnBehalfOfToken(
         scopeClientId: String,
-        token: String
+        token: String,
     ): AzureAdToken? {
         val veilederIdent = getNAVIdentFromToken(token)
         val cacheKey = "$CACHE_AZUREAD_TOKEN_OBO_KEY_PREFIX$scopeClientId-$veilederIdent"

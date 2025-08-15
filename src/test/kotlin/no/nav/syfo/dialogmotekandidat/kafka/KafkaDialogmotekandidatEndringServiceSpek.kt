@@ -3,6 +3,8 @@ package no.nav.syfo.dialogmotekandidat.kafka
 import io.mockk.*
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList
+import no.nav.syfo.personstatus.infrastructure.kafka.dialogmotekandidat.KafkaDialogmotekandidatEndringService
+import no.nav.syfo.personstatus.infrastructure.kafka.dialogmotekandidat.toPersonOversiktStatus
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.generator.*
 import no.nav.syfo.util.nowUTC

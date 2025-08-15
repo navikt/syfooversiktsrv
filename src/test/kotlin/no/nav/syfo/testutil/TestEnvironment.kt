@@ -2,7 +2,7 @@ package no.nav.syfo.testutil
 
 import no.nav.syfo.ApplicationState
 import no.nav.syfo.Environment
-import no.nav.syfo.application.cache.ValkeyConfig
+import no.nav.syfo.cache.ValkeyConfig
 import no.nav.syfo.personstatus.api.v2.access.PreAuthorizedClient
 import no.nav.syfo.personstatus.infrastructure.clients.ClientEnvironment
 import no.nav.syfo.personstatus.infrastructure.clients.ClientsEnvironment

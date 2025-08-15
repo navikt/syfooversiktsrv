@@ -5,7 +5,7 @@ import io.mockk.every
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.Virksomhetsnummer
-import no.nav.syfo.personoppgavehendelse.kafka.KPersonoppgavehendelse
+import no.nav.syfo.personstatus.infrastructure.kafka.personoppgavehendelse.KPersonoppgavehendelse
 import no.nav.syfo.personstatus.domain.OversikthendelseType
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.personstatus.domain.applyHendelse

@@ -1,6 +1,6 @@
 package no.nav.syfo.personstatus.domain
 
-import no.nav.syfo.dialogmotekandidat.kafka.toPersonOversiktStatus
+import no.nav.syfo.personstatus.infrastructure.kafka.dialogmotekandidat.toPersonOversiktStatus
 import no.nav.syfo.testutil.UserConstants
 import no.nav.syfo.testutil.generator.generateKafkaDialogmotekandidatEndringStoppunkt
 import no.nav.syfo.testutil.generator.generateOppfolgingstilfelle

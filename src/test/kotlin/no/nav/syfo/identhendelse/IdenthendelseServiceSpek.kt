@@ -1,6 +1,7 @@
 package no.nav.syfo.identhendelse
 
 import kotlinx.coroutines.*
+import no.nav.syfo.personstatus.application.IdenthendelseService
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.PdlClient
 import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus

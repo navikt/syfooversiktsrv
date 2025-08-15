@@ -6,6 +6,8 @@ import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList
+import no.nav.syfo.personstatus.infrastructure.kafka.frisktilarbeid.FriskTilArbeidVedtakConsumer
+import no.nav.syfo.personstatus.infrastructure.kafka.frisktilarbeid.Status
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.TestKafkaModule.kafkaConsumerFriskTilArbeid
 import no.nav.syfo.testutil.generator.friskTilArbeidConsumerRecord

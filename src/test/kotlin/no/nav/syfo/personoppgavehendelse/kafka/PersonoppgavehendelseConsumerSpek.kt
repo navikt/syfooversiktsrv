@@ -4,6 +4,9 @@ import io.mockk.every
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.personstatus.domain.*
 import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList
+import no.nav.syfo.personstatus.infrastructure.kafka.personoppgavehendelse.KPersonoppgavehendelse
+import no.nav.syfo.personstatus.infrastructure.kafka.personoppgavehendelse.PERSONOPPGAVEHENDELSE_TOPIC
+import no.nav.syfo.personstatus.infrastructure.kafka.personoppgavehendelse.PersonoppgavehendelseConsumer
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.generator.generateKPersonoppgavehendelse
 import org.amshove.kluent.*
