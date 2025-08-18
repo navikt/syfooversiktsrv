@@ -13,14 +13,10 @@ data class ArbeidsuforhetvurderingerResponseDTO(
 
 data class ArbeidsuforhetvurderingDTO(
     val createdAt: LocalDateTime,
-    val type: VurderingType,
+    val type: String,
     val varsel: VarselDTO?,
 )
 
 data class VarselDTO(
     val svarfrist: LocalDate,
 )
-
-enum class VurderingType {
-    FORHANDSVARSEL, OPPFYLT, AVSLAG, IKKE_AKTUELL, AVSLAG_UTEN_FORHANDSVARSEL, OPPFYLT_UTEN_FORHANDSVARSEL
-}
