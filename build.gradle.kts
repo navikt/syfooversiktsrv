@@ -19,7 +19,7 @@ val mockk = "1.13.17"
 val micrometerRegistry = "1.12.13"
 val nimbusjosejwt = "10.0.2"
 val postgresEmbedded = "2.1.0"
-val postgres = "42.7.5"
+val postgres = "42.7.7"
 val postgresRuntimeVersion = "17.5.0"
 val spek = "2.0.19"
 
