@@ -3,9 +3,9 @@ package no.nav.syfo.testutil.assertion
 import no.nav.syfo.oppfolgingstilfelle.kafka.OppfolgingstilfellePersonRecord
 import no.nav.syfo.personstatus.domain.PPersonOppfolgingstilfelleVirksomhet
 import no.nav.syfo.testutil.mock.eregOrganisasjonResponse
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldBeTrue
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.assertNull
 
 fun checkPPersonOppfolgingstilfelleVirksomhet(
     pPersonOppfolgingstilfelleVirksomhetList: List<PPersonOppfolgingstilfelleVirksomhet>,
@@ -13,11 +13,11 @@ fun checkPPersonOppfolgingstilfelleVirksomhet(
 ) {
     val virksomhetsnummerList = oppfolgingstilfellePersonRecord.oppfolgingstilfelleList.first().virksomhetsnummerList
 
-    pPersonOppfolgingstilfelleVirksomhetList.size shouldBeEqualTo virksomhetsnummerList.size
+    assertEquals(pPersonOppfolgingstilfelleVirksomhetList.size, virksomhetsnummerList.size)
 
     pPersonOppfolgingstilfelleVirksomhetList.forEachIndexed { index, pPersonOppfolgingstilfelleVirksomhet ->
-        virksomhetsnummerList.contains(pPersonOppfolgingstilfelleVirksomhet.virksomhetsnummer.value).shouldBeTrue()
-        pPersonOppfolgingstilfelleVirksomhet.virksomhetsnavn.shouldBeNull()
+        assertTrue(virksomhetsnummerList.contains(pPersonOppfolgingstilfelleVirksomhet.virksomhetsnummer.value))
+        assertNull(pPersonOppfolgingstilfelleVirksomhet.virksomhetsnavn)
     }
 }
 
@@ -27,10 +27,10 @@ fun checkPPersonOppfolgingstilfelleVirksomhetUpdated(
 ) {
     val virksomhetsnummerList = oppfolgingstilfellePersonRecord.oppfolgingstilfelleList.first().virksomhetsnummerList
 
-    pPersonOppfolgingstilfelleVirksomhetList.size shouldBeEqualTo virksomhetsnummerList.size
+    assertEquals(pPersonOppfolgingstilfelleVirksomhetList.size, virksomhetsnummerList.size)
 
     pPersonOppfolgingstilfelleVirksomhetList.forEach { pPersonOppfolgingstilfelleVirksomhet ->
-        virksomhetsnummerList.contains(pPersonOppfolgingstilfelleVirksomhet.virksomhetsnummer.value).shouldBeTrue()
-        pPersonOppfolgingstilfelleVirksomhet.virksomhetsnavn shouldBeEqualTo eregOrganisasjonResponse.navn.redigertnavn
+        assertTrue(virksomhetsnummerList.contains(pPersonOppfolgingstilfelleVirksomhet.virksomhetsnummer.value))
+        assertEquals(pPersonOppfolgingstilfelleVirksomhet.virksomhetsnavn, eregOrganisasjonResponse.navn.redigertnavn)
     }
 }
