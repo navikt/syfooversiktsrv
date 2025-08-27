@@ -7,7 +7,6 @@ import no.nav.syfo.personstatus.infrastructure.cronjob.preloadcache.PreloadCache
 import no.nav.syfo.testutil.ExternalMockEnvironment
 import no.nav.syfo.testutil.UserConstants
 import no.nav.syfo.testutil.createPersonOversiktStatus
-import no.nav.syfo.testutil.dropData
 import no.nav.syfo.testutil.generator.generatePersonOversiktStatus
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -36,7 +35,7 @@ class PreloadCacheCronjobTest {
 
     @AfterEach
     fun tearDown() {
-        database.dropData()
+        database.resetDatabase()
     }
 
     @Test

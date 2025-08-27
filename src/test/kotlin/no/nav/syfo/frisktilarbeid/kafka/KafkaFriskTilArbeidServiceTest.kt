@@ -43,7 +43,7 @@ class KafkaFriskTilArbeidServiceTest {
 
     @BeforeEach
     fun setUp() {
-        database.dropData()
+        database.resetDatabase()
 
         clearMocks(kafkaConsumerFriskTilArbeid)
         every { kafkaConsumerFriskTilArbeid.commitSync() } returns Unit

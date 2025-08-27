@@ -40,7 +40,7 @@ class OppfolgingsoppgaveConsumerTest {
 
     @BeforeEach
     fun setUp() {
-        database.dropData()
+        database.resetDatabase()
         clearMocks(kafkaConsumerMock)
         every { kafkaConsumerMock.commitSync() } returns Unit
     }

@@ -45,7 +45,7 @@ class PersonoppgavehendelseConsumerTest {
 
     @AfterEach
     fun tearDown() {
-        database.dropData()
+        database.resetDatabase()
     }
 
     @Test

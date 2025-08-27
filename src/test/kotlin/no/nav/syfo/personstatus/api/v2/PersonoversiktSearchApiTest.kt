@@ -51,7 +51,7 @@ class PersonoversiktSearchApiTest {
 
     @BeforeEach
     fun setUp() {
-        database.dropData()
+        database.resetDatabase()
     }
 
     @Test

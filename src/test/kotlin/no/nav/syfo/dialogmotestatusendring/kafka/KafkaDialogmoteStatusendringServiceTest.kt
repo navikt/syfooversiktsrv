@@ -47,7 +47,7 @@ class KafkaDialogmoteStatusendringServiceTest {
 
     @BeforeEach
     fun setUp() {
-        database.dropData()
+        database.resetDatabase()
 
         clearMocks(mockKafkaConsumerDialogmoteStatusendring)
         every { mockKafkaConsumerDialogmoteStatusendring.commitSync() } returns Unit

@@ -13,7 +13,6 @@ import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
 import no.nav.syfo.testutil.ExternalMockEnvironment
 import no.nav.syfo.testutil.InternalMockEnvironment
 import no.nav.syfo.testutil.UserConstants
-import no.nav.syfo.testutil.dropData
 import no.nav.syfo.testutil.generateJWT
 import no.nav.syfo.testutil.setTildeltEnhet
 import no.nav.syfo.testutil.setupApiAndClient
@@ -34,7 +33,7 @@ class PersontildelingSystemApiTest {
 
     @BeforeEach
     fun setUp() {
-        database.dropData()
+        database.resetDatabase()
     }
 
     private val azp = testAzureAppPreAuthorizedApps.find { preAuthorizedClient ->

@@ -10,7 +10,6 @@ import no.nav.syfo.personstatus.infrastructure.database.queries.createPersonOver
 import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList
 import no.nav.syfo.testutil.ExternalMockEnvironment
 import no.nav.syfo.testutil.UserConstants
-import no.nav.syfo.testutil.dropData
 import no.nav.syfo.testutil.generator.generateKafkaIdenthendelseDTO
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
@@ -41,7 +40,7 @@ class IdenthendelseServiceTest {
 
     @BeforeEach
     fun setUp() {
-        database.dropData()
+        database.resetDatabase()
     }
 
     @Nested

@@ -96,7 +96,7 @@ class PersonoversiktStatusApiV2Test {
 
     @BeforeEach
     fun setUp() {
-        database.dropData()
+        database.resetDatabase()
 
         clearMocks(mockKafkaConsumerOppfolgingstilfellePerson)
         every { mockKafkaConsumerOppfolgingstilfellePerson.commitSync() } returns Unit

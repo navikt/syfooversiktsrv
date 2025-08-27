@@ -15,7 +15,6 @@ import no.nav.syfo.personstatus.infrastructure.kafka.mockPollConsumerRecords
 import no.nav.syfo.testutil.ExternalMockEnvironment
 import no.nav.syfo.testutil.UserConstants
 import no.nav.syfo.testutil.createPersonOversiktStatus
-import no.nav.syfo.testutil.dropData
 import no.nav.syfo.testutil.generator.aktivitetskravVurderingConsumerRecord
 import no.nav.syfo.testutil.generator.aktivitetskravVurderingTopicPartition
 import no.nav.syfo.testutil.generator.generateKafkaAktivitetskravVurdering
@@ -45,7 +44,7 @@ class AktivitetskravVurderingConsumerTest {
 
     @BeforeEach
     fun setUp() {
-        database.dropData()
+        database.resetDatabase()
 
         clearMocks(consumerMock)
         every { consumerMock.commitSync() } returns Unit

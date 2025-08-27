@@ -5,7 +5,6 @@ import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.testutil.ExternalMockEnvironment
 import no.nav.syfo.testutil.UserConstants
-import no.nav.syfo.testutil.dropData
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
@@ -20,12 +19,12 @@ class PersonoversiktStatusServiceTest {
 
     @BeforeEach
     fun setUp() {
-        database.dropData()
+        database.resetDatabase()
     }
 
     @AfterEach
     fun tearDownAll() {
-        database.dropData()
+        database.resetDatabase()
     }
 
     @Test

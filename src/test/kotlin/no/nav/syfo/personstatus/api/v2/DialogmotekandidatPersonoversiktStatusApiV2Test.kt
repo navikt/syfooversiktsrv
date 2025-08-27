@@ -33,7 +33,7 @@ class DialogmotekandidatPersonoversiktStatusApiV2Test {
 
     @BeforeEach
     fun setUp() {
-        database.dropData()
+        database.resetDatabase()
     }
 
     @Test

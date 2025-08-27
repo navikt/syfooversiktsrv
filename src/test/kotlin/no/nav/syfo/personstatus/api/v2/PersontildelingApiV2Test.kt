@@ -35,7 +35,7 @@ class PersontildelingApiV2Test {
 
     @BeforeEach
     fun setUp() {
-        database.dropData()
+        database.resetDatabase()
     }
 
     private val validToken = generateJWT(

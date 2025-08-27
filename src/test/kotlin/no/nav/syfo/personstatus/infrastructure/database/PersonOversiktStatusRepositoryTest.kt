@@ -7,7 +7,6 @@ import no.nav.syfo.personstatus.infrastructure.database.queries.createPersonOver
 import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList
 import no.nav.syfo.testutil.ExternalMockEnvironment
 import no.nav.syfo.testutil.UserConstants
-import no.nav.syfo.testutil.dropData
 import no.nav.syfo.testutil.generator.generateOppfolgingstilfelle
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -40,12 +39,12 @@ class PersonOversiktStatusRepositoryTest {
 
     @BeforeEach
     fun setUp() {
-        database.dropData()
+        database.resetDatabase()
     }
 
     @AfterEach
     fun tearDown() {
-        database.dropData()
+        database.resetDatabase()
     }
 
     @Nested

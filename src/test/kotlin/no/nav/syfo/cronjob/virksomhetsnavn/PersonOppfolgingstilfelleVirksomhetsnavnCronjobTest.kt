@@ -55,7 +55,7 @@ class PersonOppfolgingstilfelleVirksomhetsnavnCronjobTest {
 
     @BeforeEach
     fun setUp() {
-        database.dropData()
+        database.resetDatabase()
 
         clearMocks(mockKafkaConsumerOppfolgingstilfellePerson)
         clearMocks(mockKafkaConsumerDialogmotekandidatEndring)
@@ -142,7 +142,7 @@ class PersonOppfolgingstilfelleVirksomhetsnavnCronjobTest {
                 oversiktHendelseMotebehovSvarMottatt,
             )
             oversikthendelseList.forEach { oversikthendelse ->
-                database.dropData()
+                database.resetDatabase()
 
                 val personoversiktStatus = PersonOversiktStatus(
                     fnr = oversikthendelse.personident

@@ -11,7 +11,6 @@ import no.nav.syfo.personstatus.infrastructure.database.queries.createPersonOver
 import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList
 import no.nav.syfo.testutil.ExternalMockEnvironment
 import no.nav.syfo.testutil.UserConstants
-import no.nav.syfo.testutil.dropData
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
@@ -31,13 +30,13 @@ class ArbeidsuforhetvurderingConsumerTest {
 
     @BeforeEach
     fun setUp() {
-        database.dropData()
+        database.resetDatabase()
         every { kafkaConsumer.commitSync() } returns Unit
     }
 
     @AfterEach
     fun tearDown() {
-        database.dropData()
+        database.resetDatabase()
         clearMocks(kafkaConsumer)
     }
 

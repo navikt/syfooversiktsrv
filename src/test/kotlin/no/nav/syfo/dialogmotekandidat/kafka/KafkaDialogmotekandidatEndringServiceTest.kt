@@ -41,7 +41,7 @@ class KafkaDialogmotekandidatEndringServiceTest {
 
     @BeforeEach
     fun setUp() {
-        database.dropData()
+        database.resetDatabase()
 
         clearMocks(mockKafkaConsumerDialogmotekandidatEndring)
         every { mockKafkaConsumerDialogmotekandidatEndring.commitSync() } returns Unit

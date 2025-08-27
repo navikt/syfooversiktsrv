@@ -36,7 +36,7 @@ class ReaperCronjobTest {
 
     @AfterEach
     fun tearDown() {
-        database.dropData()
+        database.resetDatabase()
         clearMocks(behandlendeEnhetClient)
     }
 

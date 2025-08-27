@@ -32,7 +32,7 @@ class BehandlerdialogPersonoversiktStatusApiV2Test {
 
     @BeforeEach
     fun setUp() {
-        database.dropData()
+        database.resetDatabase()
     }
 
     @Test

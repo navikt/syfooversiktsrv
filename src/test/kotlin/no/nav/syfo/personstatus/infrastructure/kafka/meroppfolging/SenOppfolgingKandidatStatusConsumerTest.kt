@@ -11,7 +11,6 @@ import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversik
 import no.nav.syfo.personstatus.infrastructure.kafka.mockPollConsumerRecords
 import no.nav.syfo.testutil.ExternalMockEnvironment
 import no.nav.syfo.testutil.UserConstants
-import no.nav.syfo.testutil.dropData
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -49,7 +48,7 @@ class SenOppfolgingKandidatStatusConsumerTest {
 
     @AfterEach
     fun tearDown() {
-        database.dropData()
+        database.resetDatabase()
         clearMocks(kafkaConsumer)
     }
 
