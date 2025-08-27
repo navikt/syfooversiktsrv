@@ -11,7 +11,7 @@ import no.nav.syfo.personstatus.api.v2.endpoints.podReadinessPath
 import no.nav.syfo.personstatus.api.v2.endpoints.registerPodApi
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import no.nav.syfo.testutil.TestDatabase
-import no.nav.syfo.testutil.TestDatabaseNotResponding
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.DisplayName
@@ -19,6 +19,8 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class PodApiTest {
+
+    private val database = TestDatabase()
 
     private fun ApplicationTestBuilder.setupPodApi(database: DatabaseInterface, applicationState: ApplicationState) {
         application {
@@ -31,10 +33,14 @@ class PodApiTest {
         }
     }
 
+    @AfterEach
+    fun tearDown() {
+        database.resetDatabase()
+    }
+
     @Nested
     @DisplayName("Successful liveness and readiness checks")
     inner class SuccessfulChecks {
-        private val database = TestDatabase()
 
         @Test
         fun `Returns ok on is_alive`() {
@@ -66,7 +72,6 @@ class PodApiTest {
     @Nested
     @DisplayName("Unsuccessful liveness and readiness checks")
     inner class UnsuccessfulChecks {
-        private val database = TestDatabase()
 
         @Test
         fun `Returns internal server error when liveness check fails`() {
@@ -98,7 +103,6 @@ class PodApiTest {
     @Nested
     @DisplayName("Successful liveness and unsuccessful readiness checks when database not working")
     inner class DatabaseNotWorking {
-        private val database = TestDatabaseNotResponding()
 
         @Test
         fun `Returns ok on is_alive`() {
@@ -107,6 +111,9 @@ class PodApiTest {
                     database = database,
                     applicationState = ApplicationState(alive = true, ready = true),
                 )
+
+                database.simulateDatabaseError()
+
                 val response = client.get(podLivenessPath)
                 assertEquals(HttpStatusCode.OK, response.status)
                 assertNotNull(response.bodyAsText())
@@ -120,6 +127,9 @@ class PodApiTest {
                     database = database,
                     applicationState = ApplicationState(alive = true, ready = true),
                 )
+
+                database.simulateDatabaseError()
+
                 val response = client.get(podReadinessPath)
                 assertEquals(HttpStatusCode.InternalServerError, response.status)
                 assertNotNull(response.bodyAsText())
