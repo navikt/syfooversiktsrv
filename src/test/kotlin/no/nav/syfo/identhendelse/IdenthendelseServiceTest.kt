@@ -76,85 +76,85 @@ class IdenthendelseServiceTest {
             assertEquals(1, updatedPersonOversiktStatus.size)
             assertEquals(oldPersonOversiktStatus.first().uuid, updatedPersonOversiktStatus.first().uuid)
         }
-    }
 
-    @Test
-    fun `Skal ikke oppdatere database når person ikke finnes i databasen`() {
-        val kafkaIdenthendelseDTO = generateKafkaIdenthendelseDTO(hasOldPersonident = true)
-        val newIdent = kafkaIdenthendelseDTO.getActivePersonident()!!
-        val oldIdent = PersonIdent("12333378910")
+        @Test
+        fun `Skal ikke oppdatere database når person ikke finnes i databasen`() {
+            val kafkaIdenthendelseDTO = generateKafkaIdenthendelseDTO(hasOldPersonident = true)
+            val newIdent = kafkaIdenthendelseDTO.getActivePersonident()!!
+            val oldIdent = PersonIdent("12333378910")
 
-        // Check that person with old/current personident do not exist in db before update
-        val currentPersonOversiktStatus = database.getPersonOversiktStatusList(oldIdent.value)
-        assertEquals(0, currentPersonOversiktStatus.size)
+            // Check that person with old/current personident do not exist in db before update
+            val currentPersonOversiktStatus = database.getPersonOversiktStatusList(oldIdent.value)
+            assertEquals(0, currentPersonOversiktStatus.size)
 
-        // Check that person with new personident do not exist in db before update
-        val newPersonOversiktStatus = database.getPersonOversiktStatusList(newIdent.value)
-        assertEquals(0, newPersonOversiktStatus.size)
+            // Check that person with new personident do not exist in db before update
+            val newPersonOversiktStatus = database.getPersonOversiktStatusList(newIdent.value)
+            assertEquals(0, newPersonOversiktStatus.size)
 
-        runBlocking {
-            identhendelseService.handleIdenthendelse(kafkaIdenthendelseDTO)
+            runBlocking {
+                identhendelseService.handleIdenthendelse(kafkaIdenthendelseDTO)
+            }
+
+            // Check that person with new personident still do not exist in db after update
+            val updatedPersonOversiktStatus = database.getPersonOversiktStatusList(newIdent.value)
+            assertEquals(0, updatedPersonOversiktStatus.size)
         }
 
-        // Check that person with new personident still do not exist in db after update
-        val updatedPersonOversiktStatus = database.getPersonOversiktStatusList(newIdent.value)
-        assertEquals(0, updatedPersonOversiktStatus.size)
-    }
+        @Test
+        fun `Skal ikke oppdatere database når person ikke har gamle identer`() {
+            val kafkaIdenthendelseDTO = generateKafkaIdenthendelseDTO(hasOldPersonident = false)
+            val newIdent = kafkaIdenthendelseDTO.getActivePersonident()!!
 
-    @Test
-    fun `Skal ikke oppdatere database når person ikke har gamle identer`() {
-        val kafkaIdenthendelseDTO = generateKafkaIdenthendelseDTO(hasOldPersonident = false)
-        val newIdent = kafkaIdenthendelseDTO.getActivePersonident()!!
+            // Check that person with new personident do not exist in db before update
+            val newPersonOversiktStatus = database.getPersonOversiktStatusList(newIdent.value)
+            assertEquals(0, newPersonOversiktStatus.size)
 
-        // Check that person with new personident do not exist in db before update
-        val newPersonOversiktStatus = database.getPersonOversiktStatusList(newIdent.value)
-        assertEquals(0, newPersonOversiktStatus.size)
+            runBlocking {
+                identhendelseService.handleIdenthendelse(kafkaIdenthendelseDTO)
+            }
 
-        runBlocking {
-            identhendelseService.handleIdenthendelse(kafkaIdenthendelseDTO)
+            // Check that person with new personident still do not exist in db after update
+            val updatedPersonOversiktStatus = database.getPersonOversiktStatusList(newIdent.value)
+            assertEquals(0, updatedPersonOversiktStatus.size)
         }
 
-        // Check that person with new personident still do not exist in db after update
-        val updatedPersonOversiktStatus = database.getPersonOversiktStatusList(newIdent.value)
-        assertEquals(0, updatedPersonOversiktStatus.size)
-    }
+        @Test
+        fun `Skal overskrive veilederident når ny ident allerede finnes i databasen`() {
+            val kafkaIdenthendelseDTO = generateKafkaIdenthendelseDTO(hasOldPersonident = true)
+            val newIdent = kafkaIdenthendelseDTO.getActivePersonident()!!
+            val oldIdent = kafkaIdenthendelseDTO.getInactivePersonidenter().first()
 
-    @Test
-    fun `Skal overskrive veilederident når ny ident allerede finnes i databasen`() {
-        val kafkaIdenthendelseDTO = generateKafkaIdenthendelseDTO(hasOldPersonident = true)
-        val newIdent = kafkaIdenthendelseDTO.getActivePersonident()!!
-        val oldIdent = kafkaIdenthendelseDTO.getInactivePersonidenter().first()
-
-        val veilederIdent = "Z990099"
-        val personOversiktStatusWithOldIdent = PersonOversiktStatus(
-            fnr = oldIdent.value,
-        ).copy(veilederIdent = veilederIdent)
-        val personOversiktStatusWithNewIdent = PersonOversiktStatus(
-            fnr = newIdent.value,
-        )
-        database.connection.use { connection ->
-            connection.createPersonOversiktStatus(
-                commit = true,
-                personOversiktStatus = personOversiktStatusWithOldIdent,
+            val veilederIdent = "Z990099"
+            val personOversiktStatusWithOldIdent = PersonOversiktStatus(
+                fnr = oldIdent.value,
+            ).copy(veilederIdent = veilederIdent)
+            val personOversiktStatusWithNewIdent = PersonOversiktStatus(
+                fnr = newIdent.value,
             )
-        }
-        database.connection.use { connection ->
-            connection.createPersonOversiktStatus(
-                commit = true,
-                personOversiktStatus = personOversiktStatusWithNewIdent,
-            )
-        }
+            database.connection.use { connection ->
+                connection.createPersonOversiktStatus(
+                    commit = true,
+                    personOversiktStatus = personOversiktStatusWithOldIdent,
+                )
+            }
+            database.connection.use { connection ->
+                connection.createPersonOversiktStatus(
+                    commit = true,
+                    personOversiktStatus = personOversiktStatusWithNewIdent,
+                )
+            }
 
-        runBlocking {
-            identhendelseService.handleIdenthendelse(kafkaIdenthendelseDTO)
+            runBlocking {
+                identhendelseService.handleIdenthendelse(kafkaIdenthendelseDTO)
+            }
+
+            val updatedPersonOversiktStatus = database.getPersonOversiktStatusList(newIdent.value)
+            assertEquals(1, updatedPersonOversiktStatus.size)
+            assertEquals(veilederIdent, updatedPersonOversiktStatus.first().veilederIdent)
+
+            val oldPersonOversiktStatus = database.getPersonOversiktStatusList(oldIdent.value)
+            assertEquals(0, oldPersonOversiktStatus.size)
         }
-
-        val updatedPersonOversiktStatus = database.getPersonOversiktStatusList(newIdent.value)
-        assertEquals(1, updatedPersonOversiktStatus.size)
-        assertEquals(veilederIdent, updatedPersonOversiktStatus.first().veilederIdent)
-
-        val oldPersonOversiktStatus = database.getPersonOversiktStatusList(oldIdent.value)
-        assertEquals(0, oldPersonOversiktStatus.size)
     }
 
     @Nested
