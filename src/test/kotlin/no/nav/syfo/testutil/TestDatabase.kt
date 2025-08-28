@@ -12,18 +12,24 @@ import java.time.LocalDate
 import java.time.OffsetDateTime
 
 class TestDatabase : DatabaseInterface {
-    private val pg: EmbeddedPostgres
+    private val pg: EmbeddedPostgres = try {
+        EmbeddedPostgres.start()
+    } catch (e: Exception) {
+        EmbeddedPostgres.builder().setLocaleConfig("locale", "en_US").start()
+    }
 
-    override val connection: Connection
+    private var shouldSimulateError = false
+    private val workingConnection: Connection
         get() = pg.postgresDatabase.connection.apply { autoCommit = false }
 
-    init {
-        pg = try {
-            EmbeddedPostgres.start()
-        } catch (e: Exception) {
-            EmbeddedPostgres.builder().setLocaleConfig("locale", "en_US").start()
+    override val connection: Connection
+        get() = if (shouldSimulateError) {
+            throw Exception("Simulated database connection failure")
+        } else {
+            workingConnection
         }
 
+    init {
         Flyway.configure().run {
             dataSource(pg.postgresDatabase).load().migrate()
         }
@@ -32,14 +38,18 @@ class TestDatabase : DatabaseInterface {
     fun stop() {
         pg.close()
     }
-}
 
-class TestDatabaseNotResponding : DatabaseInterface {
+    fun simulateDatabaseError() {
+        shouldSimulateError = true
+    }
 
-    override val connection: Connection
-        get() = throw Exception("Not working")
+    fun restoreDatabase() {
+        shouldSimulateError = false
+    }
 
-    fun stop() {
+    fun resetDatabase() {
+        restoreDatabase()
+        dropData()
     }
 }
 
