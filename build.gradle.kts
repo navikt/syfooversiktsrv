@@ -4,7 +4,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 group = "no.nav.syfo"
 version = "1.0-SNAPSHOT"
 
-val confluent = "7.9.0"
+val confluent = "8.0.0"
 val flyway = "11.11.2"
 val hikari = "7.0.2"
 val isdialogmoteSchema = "1.0.5"
