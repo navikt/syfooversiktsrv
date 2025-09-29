@@ -21,6 +21,36 @@ import kotlin.use
 
 class PersonOversiktStatusRepository(private val database: DatabaseInterface) : IPersonOversiktStatusRepository {
 
+    override fun getPersonOversiktStatus(personident: PersonIdent): PersonOversiktStatus? {
+        return database.connection.use { connection ->
+            connection.getPersonOversiktStatus(personident)
+        }
+    }
+
+    private fun Connection.getPersonOversiktStatus(personident: PersonIdent): PersonOversiktStatus? {
+        val personoversiktStatus = prepareStatement(GET_PERSON_OVERSIKT_STATUS).use {
+            it.setString(1, personident.value)
+            it.executeQuery().toList { toPPersonOversiktStatus() }
+        }
+        return personoversiktStatus.firstOrNull()?.toPersonOversiktStatus()
+    }
+
+    override fun getPersonstatusesWithoutNavnOrFodselsdato(limit: Int): List<PersonOversiktStatus> =
+        database.connection.use { connection ->
+            connection.prepareStatement(GET_PERSON_STATUSES_WITHOUT_NAVN_OR_FODSELSDATO).use {
+                it.setInt(1, limit)
+                it.executeQuery().toList { toPPersonOversiktStatus() }
+            }
+        }.map { it.toPersonOversiktStatus() }
+
+    override fun createPersonOversiktStatus(personOversiktStatus: PersonOversiktStatus): PersonOversiktStatus =
+        database.connection.use { connection ->
+            connection.createPersonOversiktStatus(
+                commit = true,
+                personOversiktStatus = personOversiktStatus,
+            )
+        }
+
     override fun updateArbeidsuforhetvurderingStatus(
         personident: PersonIdent,
         isAktivVurdering: Boolean,
@@ -130,36 +160,6 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
             Result.failure(e)
         }
     }
-
-    override fun getPersonOversiktStatus(personident: PersonIdent): PersonOversiktStatus? {
-        return database.connection.use { connection ->
-            connection.getPersonOversiktStatus(personident)
-        }
-    }
-
-    private fun Connection.getPersonOversiktStatus(personident: PersonIdent): PersonOversiktStatus? {
-        val personoversiktStatus = prepareStatement(GET_PERSON_OVERSIKT_STATUS).use {
-            it.setString(1, personident.value)
-            it.executeQuery().toList { toPPersonOversiktStatus() }
-        }
-        return personoversiktStatus.firstOrNull()?.toPersonOversiktStatus()
-    }
-
-    override fun getPersonstatusesWithoutNavnOrFodselsdato(limit: Int): List<PersonOversiktStatus> =
-        database.connection.use { connection ->
-            connection.prepareStatement(GET_PERSON_STATUSES_WITHOUT_NAVN_OR_FODSELSDATO).use {
-                it.setInt(1, limit)
-                it.executeQuery().toList { toPPersonOversiktStatus() }
-            }
-        }.map { it.toPersonOversiktStatus() }
-
-    override fun createPersonOversiktStatus(personOversiktStatus: PersonOversiktStatus): PersonOversiktStatus =
-        database.connection.use { connection ->
-            connection.createPersonOversiktStatus(
-                commit = true,
-                personOversiktStatus = personOversiktStatus,
-            )
-        }
 
     override fun lagreVeilederForBruker(
         veilederBrukerKnytning: VeilederBrukerKnytning,
@@ -699,4 +699,5 @@ private fun ResultSet.toPPersonOversiktStatus(): PPersonOversiktStatus =
         isAktivSenOppfolgingKandidat = getBoolean("is_aktiv_sen_oppfolging_kandidat"),
         isAktivAktivitetskravvurdering = getBoolean("is_aktiv_aktivitetskrav_vurdering"),
         isAktivManglendeMedvirkningVurdering = getBoolean("is_aktiv_manglende_medvirkning_vurdering"),
+        isAktivKartleggingssporsmalVurdering = getBoolean("is_aktiv_kartleggingssporsmal_vurdering"),
     )

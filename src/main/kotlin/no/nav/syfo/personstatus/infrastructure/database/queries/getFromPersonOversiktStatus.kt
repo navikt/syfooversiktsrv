@@ -93,4 +93,5 @@ fun ResultSet.toPPersonOversiktStatus(): PPersonOversiktStatus =
         isAktivSenOppfolgingKandidat = getBoolean("is_aktiv_sen_oppfolging_kandidat"),
         isAktivAktivitetskravvurdering = getBoolean("is_aktiv_aktivitetskrav_vurdering"),
         isAktivManglendeMedvirkningVurdering = getBoolean("is_aktiv_manglende_medvirkning_vurdering"),
+        isAktivKartleggingssporsmalVurdering = getBoolean("is_aktiv_kartleggingssporsmal_vurdering"),
     )

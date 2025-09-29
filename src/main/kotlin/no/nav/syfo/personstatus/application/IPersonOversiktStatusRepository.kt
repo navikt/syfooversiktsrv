@@ -9,6 +9,12 @@ import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
 
 interface IPersonOversiktStatusRepository {
 
+    fun getPersonOversiktStatus(personident: PersonIdent): PersonOversiktStatus?
+
+    fun getPersonstatusesWithoutNavnOrFodselsdato(limit: Int): List<PersonOversiktStatus>
+
+    fun createPersonOversiktStatus(personOversiktStatus: PersonOversiktStatus): PersonOversiktStatus
+
     fun updateArbeidsuforhetvurderingStatus(personident: PersonIdent, isAktivVurdering: Boolean): Result<Int>
 
     fun upsertSenOppfolgingKandidat(personident: PersonIdent, isAktivKandidat: Boolean): Result<Int>
@@ -16,12 +22,6 @@ interface IPersonOversiktStatusRepository {
     fun upsertAktivitetskravAktivStatus(personident: PersonIdent, isAktivVurdering: Boolean): Result<Int>
 
     fun upsertManglendeMedvirkningStatus(personident: PersonIdent, isAktivVurdering: Boolean): Result<Int>
-
-    fun getPersonOversiktStatus(personident: PersonIdent): PersonOversiktStatus?
-
-    fun getPersonstatusesWithoutNavnOrFodselsdato(limit: Int): List<PersonOversiktStatus>
-
-    fun createPersonOversiktStatus(personOversiktStatus: PersonOversiktStatus): PersonOversiktStatus
 
     fun lagreVeilederForBruker(
         veilederBrukerKnytning: VeilederBrukerKnytning,
