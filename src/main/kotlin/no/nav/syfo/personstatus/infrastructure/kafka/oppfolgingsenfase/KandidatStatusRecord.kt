@@ -1,4 +1,4 @@
-package no.nav.syfo.personstatus.infrastructure.kafka.meroppfolging
+package no.nav.syfo.personstatus.infrastructure.kafka.oppfolgingsenfase
 
 import java.time.OffsetDateTime
 import java.util.UUID

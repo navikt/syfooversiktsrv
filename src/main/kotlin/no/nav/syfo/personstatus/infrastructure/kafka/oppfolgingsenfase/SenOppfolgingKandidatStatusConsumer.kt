@@ -1,4 +1,4 @@
-package no.nav.syfo.personstatus.infrastructure.kafka.meroppfolging
+package no.nav.syfo.personstatus.infrastructure.kafka.oppfolgingsenfase
 
 import no.nav.syfo.ApplicationState
 import no.nav.syfo.personstatus.application.PersonoversiktStatusService
