@@ -40,6 +40,7 @@ data class PersonOversiktStatus(
     val isAktivSenOppfolgingKandidat: Boolean = false,
     val isAktivAktivitetskravvurdering: Boolean = false,
     val isAktivManglendeMedvirkningVurdering: Boolean = false,
+    val isAktivKartleggingssporsmalVurdering: Boolean = false,
 ) {
     fun updatePersonDetails(navn: String? = null, fodselsdato: LocalDate? = null): PersonOversiktStatus =
         if (navn != null && fodselsdato != null) {

@@ -37,4 +37,5 @@ fun generatePPersonOversiktStatus(fnr: String = UserConstants.ARBEIDSTAKER_FNR) 
     isAktivSenOppfolgingKandidat = false,
     isAktivAktivitetskravvurdering = false,
     isAktivManglendeMedvirkningVurdering = false,
+    isAktivKartleggingssporsmalVurdering = false,
 )
