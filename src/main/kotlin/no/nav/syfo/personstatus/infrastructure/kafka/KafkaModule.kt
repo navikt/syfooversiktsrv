@@ -17,7 +17,7 @@ import no.nav.syfo.personstatus.application.OppfolgingstilfelleService
 import no.nav.syfo.personstatus.application.oppfolgingsoppgave.OppfolgingsoppgaveService
 import no.nav.syfo.personstatus.infrastructure.kafka.behandlendeenhet.BehandlendeEnhetConsumer
 import no.nav.syfo.personstatus.infrastructure.kafka.manglendemedvirkning.ManglendeMedvirkningVurderingConsumer
-import no.nav.syfo.personstatus.infrastructure.kafka.meroppfolging.SenOppfolgingKandidatStatusConsumer
+import no.nav.syfo.personstatus.infrastructure.kafka.oppfolgingsenfase.SenOppfolgingKandidatStatusConsumer
 import no.nav.syfo.personstatus.infrastructure.kafka.oppfolgingsoppgave.launchOppfolgingsoppgaveConsumer
 
 fun launchKafkaModule(

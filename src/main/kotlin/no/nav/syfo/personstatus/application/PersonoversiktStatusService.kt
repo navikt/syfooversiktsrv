@@ -125,6 +125,13 @@ class PersonoversiktStatusService(
         )
     }
 
+    fun upsertKartleggingssporsmalVurdering(personident: PersonIdent, isAktivVurdering: Boolean): Result<Int> {
+        return personoversiktStatusRepository.upsertKartleggingssporsmalVurdering(
+            personident = personident,
+            isAktivVurdering = isAktivVurdering,
+        )
+    }
+
     fun upsertAktivitetskravvurderingStatus(personident: PersonIdent, isAktivVurdering: Boolean): Result<Int> =
         personoversiktStatusRepository.upsertAktivitetskravAktivStatus(
             personident = personident,

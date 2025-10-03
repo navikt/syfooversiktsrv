@@ -45,8 +45,9 @@ const val queryCreatePersonOversiktStatus =
         friskmelding_til_arbeidsformidling_fom,
         is_aktiv_sen_oppfolging_kandidat,
         is_aktiv_aktivitetskrav_vurdering,
-        is_aktiv_manglende_medvirkning_vurdering
-    ) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        is_aktiv_manglende_medvirkning_vurdering,
+        is_aktiv_kartleggingssporsmal_vurdering
+    ) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     RETURNING *
     """
 
@@ -114,6 +115,7 @@ fun Connection.createPersonOversiktStatus(
         it.setBoolean(parameterIndex++, personOversiktStatus.isAktivSenOppfolgingKandidat)
         it.setBoolean(parameterIndex++, personOversiktStatus.isAktivAktivitetskravvurdering)
         it.setBoolean(parameterIndex++, personOversiktStatus.isAktivManglendeMedvirkningVurdering)
+        it.setBoolean(parameterIndex++, personOversiktStatus.isAktivKartleggingssporsmalVurdering)
         it.executeQuery().toList { toPPersonOversiktStatus() }.firstOrNull()
     } ?: throw SQLException("Creating PersonOversikStatus failed, no rows affected.")
 

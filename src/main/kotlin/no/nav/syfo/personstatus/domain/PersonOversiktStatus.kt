@@ -52,6 +52,9 @@ data class PersonOversiktStatus(
         } else {
             this
         }
+
+    fun updateKartleggingssporsmalVurdering(isAktivVurdering: Boolean): PersonOversiktStatus =
+        this.copy(isAktivKartleggingssporsmalVurdering = isAktivVurdering)
 }
 
 fun PersonOversiktStatus.isDialogmotekandidat() =

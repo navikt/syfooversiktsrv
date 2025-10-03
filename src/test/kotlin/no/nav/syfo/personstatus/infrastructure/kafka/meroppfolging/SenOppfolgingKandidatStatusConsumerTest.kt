@@ -9,6 +9,10 @@ import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.personstatus.infrastructure.database.queries.createPersonOversiktStatus
 import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList
 import no.nav.syfo.personstatus.infrastructure.kafka.mockPollConsumerRecords
+import no.nav.syfo.personstatus.infrastructure.kafka.oppfolgingsenfase.KandidatStatusRecord
+import no.nav.syfo.personstatus.infrastructure.kafka.oppfolgingsenfase.SenOppfolgingKandidatStatusConsumer
+import no.nav.syfo.personstatus.infrastructure.kafka.oppfolgingsenfase.Status
+import no.nav.syfo.personstatus.infrastructure.kafka.oppfolgingsenfase.StatusDTO
 import no.nav.syfo.testutil.ExternalMockEnvironment
 import no.nav.syfo.testutil.UserConstants
 import org.apache.kafka.clients.consumer.KafkaConsumer

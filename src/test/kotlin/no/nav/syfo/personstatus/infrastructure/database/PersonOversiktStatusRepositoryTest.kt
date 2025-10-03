@@ -36,6 +36,7 @@ class PersonOversiktStatusRepositoryTest {
     private val externalMockEnvironment = ExternalMockEnvironment.instance
     private val database = externalMockEnvironment.database
     private val personOversiktStatusRepository = externalMockEnvironment.personOversiktStatusRepository
+    private val arbeidstakerFnr = PersonIdent(UserConstants.ARBEIDSTAKER_FNR)
 
     @BeforeEach
     fun setUp() {
@@ -97,7 +98,7 @@ class PersonOversiktStatusRepositoryTest {
         @Test
         fun `Creates new person when none exist when updating arbeidsuforhet vurdering status`() {
             val result = personOversiktStatusRepository.updateArbeidsuforhetvurderingStatus(
-                personident = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),
+                personident = arbeidstakerFnr,
                 isAktivVurdering = false
             )
 
@@ -122,7 +123,7 @@ class PersonOversiktStatusRepositoryTest {
             }
 
             val result = personOversiktStatusRepository.upsertSenOppfolgingKandidat(
-                personident = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),
+                personident = arbeidstakerFnr,
                 isAktivKandidat = true,
             )
 
@@ -144,7 +145,7 @@ class PersonOversiktStatusRepositoryTest {
             }
 
             val result = personOversiktStatusRepository.upsertSenOppfolgingKandidat(
-                personident = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),
+                personident = arbeidstakerFnr,
                 isAktivKandidat = false,
             )
 
@@ -157,12 +158,67 @@ class PersonOversiktStatusRepositoryTest {
         @Test
         fun `Creates new person when none exist when upserting mer oppfolging kandidat status`() {
             val result = personOversiktStatusRepository.upsertSenOppfolgingKandidat(
-                personident = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),
+                personident = arbeidstakerFnr,
                 isAktivKandidat = true,
             )
 
             val pPersonOversiktStatus = database.getPersonOversiktStatusList(fnr = UserConstants.ARBEIDSTAKER_FNR)
             assertTrue(pPersonOversiktStatus.isNotEmpty())
+            assertTrue(result.isSuccess)
+        }
+    }
+
+    @Nested
+    @DisplayName("Upsert kartleggingsspormal vurdering")
+    inner class UpsertKartleggingssporsmalVurdering {
+        @Test
+        fun `Successfully updates kartleggingssporsmal vurdering status to active`() {
+            val newPersonOversiktStatus = PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR)
+            personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus)
+
+            val result = personOversiktStatusRepository.upsertKartleggingssporsmalVurdering(
+                personident = arbeidstakerFnr,
+                isAktivVurdering = true,
+            )
+
+            assertTrue(result.isSuccess)
+            val pPersonOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(personident = arbeidstakerFnr)!!
+            assertNotEquals(
+                newPersonOversiktStatus.isAktivKartleggingssporsmalVurdering,
+                pPersonOversiktStatus.isAktivKartleggingssporsmalVurdering
+            )
+            assertTrue(pPersonOversiktStatus.isAktivKartleggingssporsmalVurdering)
+        }
+
+        @Test
+        fun `Successfully updates kartleggingssporsmal vurdering status from active to not active`() {
+            val newPersonOversiktStatus = PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR)
+                .copy(isAktivKartleggingssporsmalVurdering = true)
+            personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus)
+
+            val result = personOversiktStatusRepository.upsertKartleggingssporsmalVurdering(
+                personident = arbeidstakerFnr,
+                isAktivVurdering = false,
+            )
+
+            assertTrue(result.isSuccess)
+            val pPersonOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(personident = arbeidstakerFnr)!!
+            assertNotEquals(
+                newPersonOversiktStatus.isAktivKartleggingssporsmalVurdering,
+                pPersonOversiktStatus.isAktivKartleggingssporsmalVurdering
+            )
+            assertFalse(pPersonOversiktStatus.isAktivKartleggingssporsmalVurdering)
+        }
+
+        @Test
+        fun `Creates new person when none exist when upserting kartleggingssporsmal vurdering status`() {
+            val result = personOversiktStatusRepository.upsertKartleggingssporsmalVurdering(
+                personident = arbeidstakerFnr,
+                isAktivVurdering = true,
+            )
+
+            val pPersonOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(personident = arbeidstakerFnr)
+            assertNotNull(pPersonOversiktStatus)
             assertTrue(result.isSuccess)
         }
     }
@@ -183,7 +239,7 @@ class PersonOversiktStatusRepositoryTest {
             }
 
             val personStatus =
-                personOversiktStatusRepository.getPersonOversiktStatus(PersonIdent(UserConstants.ARBEIDSTAKER_FNR))
+                personOversiktStatusRepository.getPersonOversiktStatus(arbeidstakerFnr)
             assertNotNull(personStatus)
             assertEquals(newPersonOversiktStatus.fnr, personStatus?.fnr)
             assertEquals(fodselsdato, personStatus?.fodselsdato)
@@ -192,7 +248,7 @@ class PersonOversiktStatusRepositoryTest {
         @Test
         fun `Handles trying to retrieve non existing person oversikt status`() {
             val personStatus =
-                personOversiktStatusRepository.getPersonOversiktStatus(PersonIdent(UserConstants.ARBEIDSTAKER_FNR))
+                personOversiktStatusRepository.getPersonOversiktStatus(arbeidstakerFnr)
 
             assertNull(personStatus)
         }
@@ -213,7 +269,7 @@ class PersonOversiktStatusRepositoryTest {
             }
 
             val result = personOversiktStatusRepository.upsertAktivitetskravAktivStatus(
-                personident = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),
+                personident = arbeidstakerFnr,
                 isAktivVurdering = true,
             )
 
@@ -235,25 +291,26 @@ class PersonOversiktStatusRepositoryTest {
             }
 
             val result = personOversiktStatusRepository.upsertAktivitetskravAktivStatus(
-                personident = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),
+                personident = arbeidstakerFnr,
                 isAktivVurdering = false,
             )
 
             assertTrue(result.isSuccess)
-            val pPersonOversiktStatus = database.getPersonOversiktStatusList(fnr = UserConstants.ARBEIDSTAKER_FNR).first()
+            val pPersonOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(personident = arbeidstakerFnr)!!
             assertNotEquals(newPersonOversiktStatus.isAktivAktivitetskravvurdering, pPersonOversiktStatus.isAktivAktivitetskravvurdering)
             assertFalse(pPersonOversiktStatus.isAktivAktivitetskravvurdering)
         }
 
         @Test
-        fun `Creates new person when none exist when upserting mer oppfolging kandidat status`() {
+        fun `Creates new person when none exist when upserting aktivitetskrav status`() {
             val result = personOversiktStatusRepository.upsertAktivitetskravAktivStatus(
-                personident = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),
+                personident = arbeidstakerFnr,
                 isAktivVurdering = true,
             )
 
-            val pPersonOversiktStatus = database.getPersonOversiktStatusList(fnr = UserConstants.ARBEIDSTAKER_FNR)
-            assertTrue(pPersonOversiktStatus.isNotEmpty())
+            val pPersonOversiktStatus =
+                personOversiktStatusRepository.getPersonOversiktStatus(personident = arbeidstakerFnr)
+            assertNotNull(pPersonOversiktStatus)
             assertTrue(result.isSuccess)
         }
     }
