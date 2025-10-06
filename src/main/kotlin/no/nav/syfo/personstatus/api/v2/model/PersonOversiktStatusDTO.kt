@@ -27,6 +27,7 @@ data class PersonOversiktStatusDTO(
     val senOppfolgingKandidat: SenOppfolgingKandidatDTO?,
     val aktivitetskravvurdering: AktivitetskravDTO?,
     val manglendeMedvirkning: ManglendeMedvirkningDTO?,
+    val isAktivKartleggingssporsmalVurdering: Boolean,
 )
 
 data class PersonOppfolgingstilfelleDTO(

@@ -172,7 +172,7 @@ class OppfolgingstilfelleConsumerTest {
         )
         val personoversiktStatus = PersonOversiktStatus(
             fnr = oversiktHendelseOPLPSBistandMottatt.personident
-        ).applyHendelse(oversiktHendelseOPLPSBistandMottatt.hendelsetype)
+        ).applyOversikthendelse(oversiktHendelseOPLPSBistandMottatt.hendelsetype)
 
         database.createPersonOversiktStatus(personoversiktStatus)
         runBlocking {
@@ -269,9 +269,15 @@ class OppfolgingstilfelleConsumerTest {
                     pPersonOversikStatusId = pPersonOversiktStatus.id,
                 )
 
-            assertEquals(recordValue.oppfolgingstilfelleList.first().virksomhetsnummerList.size, pPersonOppfolgingstilfelleVirksomhetList.size)
+            assertEquals(
+                recordValue.oppfolgingstilfelleList.first().virksomhetsnummerList.size,
+                pPersonOppfolgingstilfelleVirksomhetList.size
+            )
 
-            assertEquals(recordValue.oppfolgingstilfelleList.first().virksomhetsnummerList.first(), pPersonOppfolgingstilfelleVirksomhetList.first().virksomhetsnummer.value)
+            assertEquals(
+                recordValue.oppfolgingstilfelleList.first().virksomhetsnummerList.first(),
+                pPersonOppfolgingstilfelleVirksomhetList.first().virksomhetsnummer.value
+            )
         }
     }
 
@@ -335,9 +341,15 @@ class OppfolgingstilfelleConsumerTest {
                     pPersonOversikStatusId = pPersonOversiktStatus.id,
                 )
 
-            assertEquals(recordValue.oppfolgingstilfelleList.first().virksomhetsnummerList.size, pPersonOppfolgingstilfelleVirksomhetList.size)
+            assertEquals(
+                recordValue.oppfolgingstilfelleList.first().virksomhetsnummerList.size,
+                pPersonOppfolgingstilfelleVirksomhetList.size
+            )
 
-            assertEquals(recordValue.oppfolgingstilfelleList.first().virksomhetsnummerList.first(), pPersonOppfolgingstilfelleVirksomhetList.first().virksomhetsnummer.value)
+            assertEquals(
+                recordValue.oppfolgingstilfelleList.first().virksomhetsnummerList.first(),
+                pPersonOppfolgingstilfelleVirksomhetList.first().virksomhetsnummer.value
+            )
         }
     }
 
@@ -418,9 +430,15 @@ class OppfolgingstilfelleConsumerTest {
                     pPersonOversikStatusId = pPersonOversiktStatus.id,
                 )
 
-            assertEquals(recordValueSecond.oppfolgingstilfelleList.first().virksomhetsnummerList.size, pPersonOppfolgingstilfelleVirksomhetList.size)
+            assertEquals(
+                recordValueSecond.oppfolgingstilfelleList.first().virksomhetsnummerList.size,
+                pPersonOppfolgingstilfelleVirksomhetList.size
+            )
 
-            assertEquals(recordValueSecond.oppfolgingstilfelleList.first().virksomhetsnummerList.first(), pPersonOppfolgingstilfelleVirksomhetList.first().virksomhetsnummer.value)
+            assertEquals(
+                recordValueSecond.oppfolgingstilfelleList.first().virksomhetsnummerList.first(),
+                pPersonOppfolgingstilfelleVirksomhetList.first().virksomhetsnummer.value
+            )
         }
 
         mockConsumer(kafkaOppfolgingstilfellePersonServiceRecordRelevantNewest)
@@ -461,9 +479,15 @@ class OppfolgingstilfelleConsumerTest {
                     pPersonOversikStatusId = pPersonOversiktStatus.id,
                 )
 
-            assertEquals(recordValueNewest.oppfolgingstilfelleList.first().virksomhetsnummerList.size, pPersonOppfolgingstilfelleVirksomhetList.size)
+            assertEquals(
+                recordValueNewest.oppfolgingstilfelleList.first().virksomhetsnummerList.size,
+                pPersonOppfolgingstilfelleVirksomhetList.size
+            )
 
-            assertEquals(recordValueNewest.oppfolgingstilfelleList.first().virksomhetsnummerList.first(), pPersonOppfolgingstilfelleVirksomhetList.first().virksomhetsnummer.value)
+            assertEquals(
+                recordValueNewest.oppfolgingstilfelleList.first().virksomhetsnummerList.first(),
+                pPersonOppfolgingstilfelleVirksomhetList.first().virksomhetsnummer.value
+            )
         }
     }
 
@@ -539,9 +563,15 @@ class OppfolgingstilfelleConsumerTest {
                     pPersonOversikStatusId = pPersonOversiktStatus.id,
                 )
 
-            assertEquals(recordValueSecond.oppfolgingstilfelleList.first().virksomhetsnummerList.size, pPersonOppfolgingstilfelleVirksomhetList.size)
+            assertEquals(
+                recordValueSecond.oppfolgingstilfelleList.first().virksomhetsnummerList.size,
+                pPersonOppfolgingstilfelleVirksomhetList.size
+            )
 
-            assertEquals(recordValueSecond.oppfolgingstilfelleList.first().virksomhetsnummerList.first(), pPersonOppfolgingstilfelleVirksomhetList.first().virksomhetsnummer.value)
+            assertEquals(
+                recordValueSecond.oppfolgingstilfelleList.first().virksomhetsnummerList.first(),
+                pPersonOppfolgingstilfelleVirksomhetList.first().virksomhetsnummer.value
+            )
         }
     }
 
@@ -622,9 +652,15 @@ class OppfolgingstilfelleConsumerTest {
                     pPersonOversikStatusId = pPersonOversiktStatus.id,
                 )
 
-            assertEquals(recordValueSecond.oppfolgingstilfelleList.first().virksomhetsnummerList.size, pPersonOppfolgingstilfelleVirksomhetList.size)
+            assertEquals(
+                recordValueSecond.oppfolgingstilfelleList.first().virksomhetsnummerList.size,
+                pPersonOppfolgingstilfelleVirksomhetList.size
+            )
 
-            assertEquals(recordValueSecond.oppfolgingstilfelleList.first().virksomhetsnummerList.first(), pPersonOppfolgingstilfelleVirksomhetList.first().virksomhetsnummer.value)
+            assertEquals(
+                recordValueSecond.oppfolgingstilfelleList.first().virksomhetsnummerList.first(),
+                pPersonOppfolgingstilfelleVirksomhetList.first().virksomhetsnummer.value
+            )
         }
 
         mockConsumer(kafkaOppfolgingstilfellePersonServiceRecordRelevantNewest)
@@ -665,9 +701,15 @@ class OppfolgingstilfelleConsumerTest {
                     pPersonOversikStatusId = pPersonOversiktStatus.id,
                 )
 
-            assertEquals(recordValueNewest.oppfolgingstilfelleList.first().virksomhetsnummerList.size, pPersonOppfolgingstilfelleVirksomhetList.size)
+            assertEquals(
+                recordValueNewest.oppfolgingstilfelleList.first().virksomhetsnummerList.size,
+                pPersonOppfolgingstilfelleVirksomhetList.size
+            )
 
-            assertEquals(recordValueNewest.oppfolgingstilfelleList.first().virksomhetsnummerList.first(), pPersonOppfolgingstilfelleVirksomhetList.first().virksomhetsnummer.value)
+            assertEquals(
+                recordValueNewest.oppfolgingstilfelleList.first().virksomhetsnummerList.first(),
+                pPersonOppfolgingstilfelleVirksomhetList.first().virksomhetsnummer.value
+            )
         }
     }
 
@@ -745,7 +787,10 @@ class OppfolgingstilfelleConsumerTest {
 
             assertEquals(2, pPersonOppfolgingstilfelleVirksomhetList.size)
 
-            assertEquals(virksomhetsnummerListSecond.first().value, pPersonOppfolgingstilfelleVirksomhetList.first().virksomhetsnummer.value)
+            assertEquals(
+                virksomhetsnummerListSecond.first().value,
+                pPersonOppfolgingstilfelleVirksomhetList.first().virksomhetsnummer.value
+            )
             assertEquals(virksomhetsnummerListSecond.last().value, pPersonOppfolgingstilfelleVirksomhetList.last().virksomhetsnummer.value)
         }
     }

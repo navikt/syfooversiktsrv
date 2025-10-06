@@ -146,7 +146,7 @@ class PersonOppfolgingstilfelleVirksomhetsnavnCronjobTest {
 
                 val personoversiktStatus = PersonOversiktStatus(
                     fnr = oversikthendelse.personident
-                ).applyHendelse(oversikthendelse.hendelsetype)
+                ).applyOversikthendelse(oversikthendelse.hendelsetype)
 
                 database.createPersonOversiktStatus(personoversiktStatus)
 
@@ -369,7 +369,7 @@ class PersonOppfolgingstilfelleVirksomhetsnavnCronjobTest {
             )
             val personoversiktStatus = PersonOversiktStatus(
                 fnr = oversiktHendelseOPLPSBistandMottatt.personident
-            ).applyHendelse(oversiktHendelseOPLPSBistandMottatt.hendelsetype)
+            ).applyOversikthendelse(oversiktHendelseOPLPSBistandMottatt.hendelsetype)
 
             database.createPersonOversiktStatus(personoversiktStatus)
 

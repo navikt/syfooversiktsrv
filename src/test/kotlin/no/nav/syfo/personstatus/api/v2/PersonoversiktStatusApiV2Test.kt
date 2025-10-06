@@ -698,7 +698,7 @@ class PersonoversiktStatusApiV2Test {
             val client = setupApiAndClient()
             val personoversiktStatus = PersonOversiktStatus(
                 fnr = ARBEIDSTAKER_FNR
-            ).applyHendelse(OversikthendelseType.BEHANDLER_BER_OM_BISTAND_MOTTATT)
+            ).applyOversikthendelse(OversikthendelseType.BEHANDLER_BER_OM_BISTAND_MOTTATT)
 
             database.createPersonOversiktStatus(personoversiktStatus)
 
@@ -723,7 +723,7 @@ class PersonoversiktStatusApiV2Test {
             val client = setupApiAndClient()
             val personoversiktStatus = PersonOversiktStatus(
                 fnr = ARBEIDSTAKER_FNR
-            ).applyHendelse(OversikthendelseType.BEHANDLER_BER_OM_BISTAND_BEHANDLET)
+            ).applyOversikthendelse(OversikthendelseType.BEHANDLER_BER_OM_BISTAND_BEHANDLET)
 
             database.createPersonOversiktStatus(personoversiktStatus)
 

@@ -4,7 +4,6 @@ import io.mockk.every
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.personstatus.domain.OversikthendelseType
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
-import no.nav.syfo.personstatus.domain.applyHendelse
 import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList
 import no.nav.syfo.personstatus.infrastructure.kafka.personoppgavehendelse.KPersonoppgavehendelse
 import no.nav.syfo.personstatus.infrastructure.kafka.personoppgavehendelse.PERSONOPPGAVEHENDELSE_TOPIC
@@ -65,7 +64,7 @@ class PersonoppgavehendelseConsumerTest {
     fun `Update personoversiktstatus on read from topic personoppgavehendelser`() {
         mockReceiveHendelse(lpsbistandBehandlet, mockPersonoppgavehendelseConsumer)
         val personOversiktStatus = PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR)
-            .applyHendelse(OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT)
+            .applyOversikthendelse(OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT)
         database.createPersonOversiktStatus(personOversiktStatus)
 
         runBlocking {
@@ -86,7 +85,7 @@ class PersonoppgavehendelseConsumerTest {
         )
         mockReceiveHendelse(dialogmotesvarBehandlet, mockPersonoppgavehendelseConsumer)
         val personOversiktStatus = PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR)
-            .applyHendelse(OversikthendelseType.DIALOGMOTESVAR_MOTTATT)
+            .applyOversikthendelse(OversikthendelseType.DIALOGMOTESVAR_MOTTATT)
         database.createPersonOversiktStatus(personOversiktStatus)
         runBlocking {
             personoppgavehendelseConsumer.pollAndProcessRecords(kafkaConsumer = mockPersonoppgavehendelseConsumer)
@@ -123,7 +122,7 @@ class PersonoppgavehendelseConsumerTest {
         )
         mockReceiveHendelse(behandlerdialogSvarBehandlet, mockPersonoppgavehendelseConsumer)
         val personOversiktStatus = PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR)
-            .applyHendelse(OversikthendelseType.BEHANDLERDIALOG_SVAR_MOTTATT)
+            .applyOversikthendelse(OversikthendelseType.BEHANDLERDIALOG_SVAR_MOTTATT)
         database.createPersonOversiktStatus(personOversiktStatus)
         runBlocking {
             personoppgavehendelseConsumer.pollAndProcessRecords(kafkaConsumer = mockPersonoppgavehendelseConsumer)
@@ -160,7 +159,7 @@ class PersonoppgavehendelseConsumerTest {
         )
         mockReceiveHendelse(behandlerdialogUbesvartBehandlet, mockPersonoppgavehendelseConsumer)
         val personOversiktStatus = PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR)
-            .applyHendelse(OversikthendelseType.BEHANDLERDIALOG_MELDING_UBESVART_MOTTATT)
+            .applyOversikthendelse(OversikthendelseType.BEHANDLERDIALOG_MELDING_UBESVART_MOTTATT)
         database.createPersonOversiktStatus(personOversiktStatus)
         runBlocking {
             personoppgavehendelseConsumer.pollAndProcessRecords(kafkaConsumer = mockPersonoppgavehendelseConsumer)
@@ -196,7 +195,7 @@ class PersonoppgavehendelseConsumerTest {
         )
         mockReceiveHendelse(behandlerdialogAvvistBehandlet, mockPersonoppgavehendelseConsumer)
         val personOversiktStatus = PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR)
-            .applyHendelse(OversikthendelseType.BEHANDLERDIALOG_MELDING_AVVIST_MOTTATT)
+            .applyOversikthendelse(OversikthendelseType.BEHANDLERDIALOG_MELDING_AVVIST_MOTTATT)
         database.createPersonOversiktStatus(personOversiktStatus)
         runBlocking {
             personoppgavehendelseConsumer.pollAndProcessRecords(kafkaConsumer = mockPersonoppgavehendelseConsumer)
@@ -228,7 +227,7 @@ class PersonoppgavehendelseConsumerTest {
             generateKPersonoppgavehendelse(OversikthendelseType.BEHANDLER_BER_OM_BISTAND_BEHANDLET)
         mockReceiveHendelse(behandlerBistandHendelseBehandlet, mockPersonoppgavehendelseConsumer)
         val personOversiktStatus = PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR)
-            .applyHendelse(OversikthendelseType.BEHANDLER_BER_OM_BISTAND_MOTTATT)
+            .applyOversikthendelse(OversikthendelseType.BEHANDLER_BER_OM_BISTAND_MOTTATT)
         database.createPersonOversiktStatus(personOversiktStatus)
 
         runBlocking {
