@@ -602,6 +602,7 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
         OR is_aktiv_sen_oppfolging_kandidat = 't'
         OR is_aktiv_aktivitetskrav_vurdering = 't'
         OR is_aktiv_manglende_medvirkning_vurdering = 't'
+        OR is_aktiv_kartleggingssporsmal_vurdering = 't'
         )
         """
 

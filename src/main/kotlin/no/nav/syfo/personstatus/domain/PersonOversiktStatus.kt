@@ -69,7 +69,8 @@ data class PersonOversiktStatus(
             this.behandlerBerOmBistandUbehandlet ||
             this.isAktivArbeidsuforhetvurdering ||
             this.isAktivSenOppfolgingKandidat ||
-            this.isAktivManglendeMedvirkningVurdering
+            this.isAktivManglendeMedvirkningVurdering ||
+            this.isAktivKartleggingssporsmalVurdering
 
     fun updatePersonDetails(navn: String? = null, fodselsdato: LocalDate? = null): PersonOversiktStatus =
         if (navn != null && fodselsdato != null) {

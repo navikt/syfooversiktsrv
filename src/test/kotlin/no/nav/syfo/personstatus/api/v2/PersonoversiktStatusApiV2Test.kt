@@ -975,4 +975,50 @@ class PersonoversiktStatusApiV2Test {
             }
         }
     }
+
+    @Nested
+    @DisplayName("Kartleggingssporsmal")
+    inner class Kartleggingssporsmal {
+
+        @Test
+        fun `Return person when isAktivKartleggingssporsmalVurdering true`() {
+            testApplication {
+                val client = setupApiAndClient()
+                val personident = ARBEIDSTAKER_FNR
+                val personoversiktStatus = PersonOversiktStatus(
+                    fnr = personident,
+                ).copy(isAktivKartleggingssporsmalVurdering = true)
+
+                database.createPersonOversiktStatus(personoversiktStatus)
+
+                database.setTildeltEnhet(
+                    ident = PersonIdent(ARBEIDSTAKER_FNR),
+                    enhet = NAV_ENHET,
+                )
+                val response = client.get(url) { bearerAuth(validToken) }
+                assertEquals(HttpStatusCode.OK, response.status)
+                val personOversiktStatus = response.body<List<PersonOversiktStatusDTO>>().first()
+                assertEquals(personident, personOversiktStatus.fnr)
+                assertEquals(NAV_ENHET, personOversiktStatus.enhet)
+                assertTrue(personOversiktStatus.isAktivKartleggingssporsmalVurdering)
+            }
+        }
+
+        @Test
+        fun `Return no person when isAktivKartleggingssporsmalVurdering false`() {
+            testApplication {
+                val client = setupApiAndClient()
+                val personident = ARBEIDSTAKER_FNR
+                val personoversiktStatus = PersonOversiktStatus(fnr = personident)
+
+                database.createPersonOversiktStatus(personoversiktStatus)
+                database.setTildeltEnhet(
+                    ident = PersonIdent(ARBEIDSTAKER_FNR),
+                    enhet = NAV_ENHET,
+                )
+                val response = client.get(url) { bearerAuth(validToken) }
+                assertEquals(HttpStatusCode.NoContent, response.status)
+            }
+        }
+    }
 }
