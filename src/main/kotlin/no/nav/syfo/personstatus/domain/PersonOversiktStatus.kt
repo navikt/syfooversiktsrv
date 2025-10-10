@@ -42,6 +42,36 @@ data class PersonOversiktStatus(
     val isAktivManglendeMedvirkningVurdering: Boolean = false,
     val isAktivKartleggingssporsmalVurdering: Boolean = false,
 ) {
+
+    fun isDialogmotekandidat() =
+        dialogmotekandidat == true &&
+            latestOppfolgingstilfelle != null &&
+            dialogmotekandidatGeneratedAt != null &&
+            dialogmotekandidatGeneratedAt.toLocalDateOslo()
+                .isAfter(latestOppfolgingstilfelle.oppfolgingstilfelleStart) &&
+            dialogmotekandidatGeneratedAt.toLocalDateOslo().isBeforeOrEqual(LocalDate.now().minusDays(7)) &&
+            !hasOpenDialogmoteInvitation()
+
+    fun hasActiveBehandlerdialogOppgave(): Boolean =
+        this.behandlerdialogSvarUbehandlet ||
+            this.behandlerdialogUbesvartUbehandlet ||
+            this.behandlerdialogAvvistUbehandlet
+
+    fun hasActiveOppgave(): Boolean =
+        this.oppfolgingsplanLPSBistandUbehandlet == true ||
+            this.dialogmotesvarUbehandlet ||
+            isDialogmotekandidat() ||
+            (this.motebehovUbehandlet == true && this.latestOppfolgingstilfelle != null) ||
+            this.isAktivAktivitetskravvurdering ||
+            hasActiveBehandlerdialogOppgave() ||
+            this.friskmeldingTilArbeidsformidlingFom != null ||
+            this.isAktivOppfolgingsoppgave ||
+            this.behandlerBerOmBistandUbehandlet ||
+            this.isAktivArbeidsuforhetvurdering ||
+            this.isAktivSenOppfolgingKandidat ||
+            this.isAktivManglendeMedvirkningVurdering ||
+            this.isAktivKartleggingssporsmalVurdering
+
     fun updatePersonDetails(navn: String? = null, fodselsdato: LocalDate? = null): PersonOversiktStatus =
         if (navn != null && fodselsdato != null) {
             this.copy(navn = navn, fodselsdato = fodselsdato)
@@ -55,36 +85,29 @@ data class PersonOversiktStatus(
 
     fun updateKartleggingssporsmalVurdering(isAktivVurdering: Boolean): PersonOversiktStatus =
         this.copy(isAktivKartleggingssporsmalVurdering = isAktivVurdering)
-}
 
-fun PersonOversiktStatus.isDialogmotekandidat() =
-    dialogmotekandidat == true &&
-        latestOppfolgingstilfelle != null &&
-        dialogmotekandidatGeneratedAt != null &&
-        dialogmotekandidatGeneratedAt.toLocalDateOslo()
-            .isAfter(latestOppfolgingstilfelle.oppfolgingstilfelleStart) &&
-        dialogmotekandidatGeneratedAt.toLocalDateOslo().isBeforeOrEqual(LocalDate.now().minusDays(7)) &&
-        noOpenDialogmoteInvitation()
+    fun applyOversikthendelse(
+        oversikthendelseType: OversikthendelseType,
+    ): PersonOversiktStatus =
+        when (oversikthendelseType) {
+            OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT -> this.copy(motebehovUbehandlet = true)
+            OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET -> this.copy(motebehovUbehandlet = false)
+            OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT -> this.copy(oppfolgingsplanLPSBistandUbehandlet = true)
+            OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_BEHANDLET -> this.copy(oppfolgingsplanLPSBistandUbehandlet = false)
+            OversikthendelseType.DIALOGMOTESVAR_MOTTATT -> this.copy(dialogmotesvarUbehandlet = true)
+            OversikthendelseType.DIALOGMOTESVAR_BEHANDLET -> this.copy(dialogmotesvarUbehandlet = false)
+            OversikthendelseType.BEHANDLERDIALOG_SVAR_MOTTATT -> this.copy(behandlerdialogSvarUbehandlet = true)
+            OversikthendelseType.BEHANDLERDIALOG_SVAR_BEHANDLET -> this.copy(behandlerdialogSvarUbehandlet = false)
+            OversikthendelseType.BEHANDLERDIALOG_MELDING_UBESVART_MOTTATT -> this.copy(behandlerdialogUbesvartUbehandlet = true)
+            OversikthendelseType.BEHANDLERDIALOG_MELDING_UBESVART_BEHANDLET -> this.copy(behandlerdialogUbesvartUbehandlet = false)
+            OversikthendelseType.BEHANDLERDIALOG_MELDING_AVVIST_MOTTATT -> this.copy(behandlerdialogAvvistUbehandlet = true)
+            OversikthendelseType.BEHANDLERDIALOG_MELDING_AVVIST_BEHANDLET -> this.copy(behandlerdialogAvvistUbehandlet = false)
+            OversikthendelseType.BEHANDLER_BER_OM_BISTAND_MOTTATT -> this.copy(behandlerBerOmBistandUbehandlet = true)
+            OversikthendelseType.BEHANDLER_BER_OM_BISTAND_BEHANDLET -> this.copy(behandlerBerOmBistandUbehandlet = false)
+        }
 
-fun PersonOversiktStatus.hasOpenDialogmoteInvitation() =
-    motestatus == DialogmoteStatusendringType.INNKALT.name ||
-        motestatus == DialogmoteStatusendringType.NYTT_TID_STED.name
-
-fun PersonOversiktStatus.noOpenDialogmoteInvitation() = !hasOpenDialogmoteInvitation()
-
-fun PersonOversiktStatus.hasActiveOppgave(): Boolean {
-    return this.oppfolgingsplanLPSBistandUbehandlet == true ||
-        this.dialogmotesvarUbehandlet ||
-        this.isDialogmotekandidat() ||
-        (this.motebehovUbehandlet == true && this.latestOppfolgingstilfelle != null) ||
-        this.isAktivAktivitetskravvurdering ||
-        this.hasActiveBehandlerdialogOppgave() ||
-        this.friskmeldingTilArbeidsformidlingFom != null ||
-        this.isAktivOppfolgingsoppgave ||
-        this.behandlerBerOmBistandUbehandlet ||
-        this.isAktivArbeidsuforhetvurdering ||
-        this.isAktivSenOppfolgingKandidat ||
-        this.isAktivManglendeMedvirkningVurdering
+    private fun hasOpenDialogmoteInvitation() =
+        motestatus == DialogmoteStatusendringType.INNKALT.name || motestatus == DialogmoteStatusendringType.NYTT_TID_STED.name
 }
 
 fun List<PersonOversiktStatus>.addPersonName(
@@ -132,58 +155,22 @@ fun PersonOversiktStatus.toPersonOversiktStatusDTO(
         aktivitetskravvurdering = aktivitetskravvurdering,
         manglendeMedvirkning = manglendeMedvirkning,
         senOppfolgingKandidat = senOppfolgingKandidat,
+        isAktivKartleggingssporsmalVurdering = isAktivKartleggingssporsmalVurdering,
     )
 
-fun PersonOversiktStatus.hasActiveBehandlerdialogOppgave(): Boolean {
-    return this.behandlerdialogSvarUbehandlet ||
-        this.behandlerdialogUbesvartUbehandlet ||
-        this.behandlerdialogAvvistUbehandlet
+enum class OversikthendelseType {
+    MOTEBEHOV_SVAR_MOTTATT,
+    MOTEBEHOV_SVAR_BEHANDLET,
+    OPPFOLGINGSPLANLPS_BISTAND_MOTTATT,
+    OPPFOLGINGSPLANLPS_BISTAND_BEHANDLET,
+    DIALOGMOTESVAR_MOTTATT,
+    DIALOGMOTESVAR_BEHANDLET,
+    BEHANDLERDIALOG_SVAR_MOTTATT,
+    BEHANDLERDIALOG_SVAR_BEHANDLET,
+    BEHANDLERDIALOG_MELDING_UBESVART_MOTTATT,
+    BEHANDLERDIALOG_MELDING_UBESVART_BEHANDLET,
+    BEHANDLERDIALOG_MELDING_AVVIST_MOTTATT,
+    BEHANDLERDIALOG_MELDING_AVVIST_BEHANDLET,
+    BEHANDLER_BER_OM_BISTAND_MOTTATT,
+    BEHANDLER_BER_OM_BISTAND_BEHANDLET,
 }
-
-fun PersonOversiktStatus.applyHendelse(
-    oversikthendelseType: OversikthendelseType,
-): PersonOversiktStatus =
-    when (oversikthendelseType) {
-        OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT -> this.copy(
-            motebehovUbehandlet = true,
-        )
-        OversikthendelseType.MOTEBEHOV_SVAR_BEHANDLET -> this.copy(
-            motebehovUbehandlet = false,
-        )
-        OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_MOTTATT -> this.copy(
-            oppfolgingsplanLPSBistandUbehandlet = true,
-        )
-        OversikthendelseType.OPPFOLGINGSPLANLPS_BISTAND_BEHANDLET -> this.copy(
-            oppfolgingsplanLPSBistandUbehandlet = false,
-        )
-        OversikthendelseType.DIALOGMOTESVAR_MOTTATT -> this.copy(
-            dialogmotesvarUbehandlet = true,
-        )
-        OversikthendelseType.DIALOGMOTESVAR_BEHANDLET -> this.copy(
-            dialogmotesvarUbehandlet = false,
-        )
-        OversikthendelseType.BEHANDLERDIALOG_SVAR_MOTTATT -> this.copy(
-            behandlerdialogSvarUbehandlet = true,
-        )
-        OversikthendelseType.BEHANDLERDIALOG_SVAR_BEHANDLET -> this.copy(
-            behandlerdialogSvarUbehandlet = false,
-        )
-        OversikthendelseType.BEHANDLERDIALOG_MELDING_UBESVART_MOTTATT -> this.copy(
-            behandlerdialogUbesvartUbehandlet = true,
-        )
-        OversikthendelseType.BEHANDLERDIALOG_MELDING_UBESVART_BEHANDLET -> this.copy(
-            behandlerdialogUbesvartUbehandlet = false,
-        )
-        OversikthendelseType.BEHANDLERDIALOG_MELDING_AVVIST_MOTTATT -> this.copy(
-            behandlerdialogAvvistUbehandlet = true,
-        )
-        OversikthendelseType.BEHANDLERDIALOG_MELDING_AVVIST_BEHANDLET -> this.copy(
-            behandlerdialogAvvistUbehandlet = false,
-        )
-        OversikthendelseType.BEHANDLER_BER_OM_BISTAND_MOTTATT -> this.copy(
-            behandlerBerOmBistandUbehandlet = true
-        )
-        OversikthendelseType.BEHANDLER_BER_OM_BISTAND_BEHANDLET -> this.copy(
-            behandlerBerOmBistandUbehandlet = false
-        )
-    }

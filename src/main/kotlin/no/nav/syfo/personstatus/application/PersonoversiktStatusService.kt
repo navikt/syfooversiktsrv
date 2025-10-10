@@ -8,8 +8,6 @@ import no.nav.syfo.personstatus.infrastructure.kafka.personoppgavehendelse.KPers
 import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOppfolgingstilfelleVirksomhetMap
 import no.nav.syfo.personstatus.domain.*
 import no.nav.syfo.personstatus.domain.addPersonName
-import no.nav.syfo.personstatus.domain.applyHendelse
-import no.nav.syfo.personstatus.domain.hasActiveOppgave
 import no.nav.syfo.personstatus.domain.toPersonOppfolgingstilfelleVirksomhet
 import no.nav.syfo.personstatus.domain.toPersonOversiktStatus
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.model.fodselsdato
@@ -187,7 +185,7 @@ class PersonoversiktStatusService(
 
         if (existingPersonOversiktStatus == null) {
             val personOversiktStatus = PersonOversiktStatus(fnr = personident.value)
-            val personOversiktStatusWithHendelseType = personOversiktStatus.applyHendelse(oversikthendelseType)
+            val personOversiktStatusWithHendelseType = personOversiktStatus.applyOversikthendelse(oversikthendelseType)
 
             connection.createPersonOversiktStatus(
                 commit = false,

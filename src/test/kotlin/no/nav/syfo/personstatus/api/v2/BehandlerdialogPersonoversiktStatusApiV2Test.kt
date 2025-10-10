@@ -9,7 +9,6 @@ import no.nav.syfo.personstatus.api.v2.model.PersonOversiktStatusDTO
 import no.nav.syfo.personstatus.domain.OversikthendelseType
 import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
-import no.nav.syfo.personstatus.domain.applyHendelse
 import no.nav.syfo.personstatus.infrastructure.kafka.personoppgavehendelse.KPersonoppgavehendelse
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.NAV_ENHET
@@ -46,7 +45,7 @@ class BehandlerdialogPersonoversiktStatusApiV2Test {
             )
             val personoversiktStatus = PersonOversiktStatus(
                 fnr = oversikthendelseBehandlerdialogSvarMottatt.personident
-            ).applyHendelse(oversikthendelseBehandlerdialogSvarMottatt.hendelsetype)
+            ).applyOversikthendelse(oversikthendelseBehandlerdialogSvarMottatt.hendelsetype)
 
             database.createPersonOversiktStatus(personoversiktStatus)
 
@@ -76,7 +75,7 @@ class BehandlerdialogPersonoversiktStatusApiV2Test {
             )
             val personoversiktStatus = PersonOversiktStatus(
                 fnr = oversikthendelseBehandlerdialogUbesvartMottatt.personident
-            ).applyHendelse(oversikthendelseBehandlerdialogUbesvartMottatt.hendelsetype)
+            ).applyOversikthendelse(oversikthendelseBehandlerdialogUbesvartMottatt.hendelsetype)
 
             database.createPersonOversiktStatus(personoversiktStatus)
 
@@ -111,8 +110,8 @@ class BehandlerdialogPersonoversiktStatusApiV2Test {
             val personoversiktStatus = PersonOversiktStatus(
                 fnr = oversikthendelseBehandlerdialogSvarMottatt.personident
             )
-                .applyHendelse(oversikthendelseBehandlerdialogUbesvartBehandlet.hendelsetype)
-                .applyHendelse(oversikthendelseBehandlerdialogSvarMottatt.hendelsetype)
+                .applyOversikthendelse(oversikthendelseBehandlerdialogUbesvartBehandlet.hendelsetype)
+                .applyOversikthendelse(oversikthendelseBehandlerdialogSvarMottatt.hendelsetype)
 
             database.createPersonOversiktStatus(personoversiktStatus)
 
@@ -142,7 +141,7 @@ class BehandlerdialogPersonoversiktStatusApiV2Test {
             )
             val personoversiktStatus = PersonOversiktStatus(
                 fnr = oversikthendelseBehandlerdialogAvvistMottatt.personident
-            ).applyHendelse(oversikthendelseBehandlerdialogAvvistMottatt.hendelsetype)
+            ).applyOversikthendelse(oversikthendelseBehandlerdialogAvvistMottatt.hendelsetype)
 
             database.createPersonOversiktStatus(personoversiktStatus)
 
@@ -172,7 +171,7 @@ class BehandlerdialogPersonoversiktStatusApiV2Test {
             )
             val personoversiktStatus = PersonOversiktStatus(
                 fnr = oversikthendelseBehandlerdialogAvvistMottatt.personident
-            ).applyHendelse(oversikthendelseBehandlerdialogAvvistMottatt.hendelsetype)
+            ).applyOversikthendelse(oversikthendelseBehandlerdialogAvvistMottatt.hendelsetype)
 
             database.createPersonOversiktStatus(personoversiktStatus)
 
