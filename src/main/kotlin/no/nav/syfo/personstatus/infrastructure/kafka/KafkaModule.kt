@@ -16,6 +16,7 @@ import no.nav.syfo.personstatus.application.PersonoversiktStatusService
 import no.nav.syfo.personstatus.application.OppfolgingstilfelleService
 import no.nav.syfo.personstatus.application.oppfolgingsoppgave.OppfolgingsoppgaveService
 import no.nav.syfo.personstatus.infrastructure.kafka.behandlendeenhet.BehandlendeEnhetConsumer
+import no.nav.syfo.personstatus.infrastructure.kafka.kartleggingssporsmal.KartleggingssporsmalKandidatStatusConsumer
 import no.nav.syfo.personstatus.infrastructure.kafka.manglendemedvirkning.ManglendeMedvirkningVurderingConsumer
 import no.nav.syfo.personstatus.infrastructure.kafka.oppfolgingsenfase.SenOppfolgingKandidatStatusConsumer
 import no.nav.syfo.personstatus.infrastructure.kafka.oppfolgingsoppgave.launchOppfolgingsoppgaveConsumer
@@ -90,6 +91,12 @@ fun launchKafkaModule(
         )
 
     BehandlendeEnhetConsumer(personBehandlendeEnhetService = personBehandlendeEnhetService)
+        .start(
+            applicationState = applicationState,
+            kafkaEnvironment = environment.kafka,
+        )
+
+    KartleggingssporsmalKandidatStatusConsumer(personoversiktStatusService = personoversiktStatusService)
         .start(
             applicationState = applicationState,
             kafkaEnvironment = environment.kafka,

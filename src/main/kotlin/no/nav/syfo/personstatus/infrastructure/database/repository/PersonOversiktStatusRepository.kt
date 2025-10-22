@@ -161,7 +161,7 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
         }
     }
 
-    override fun upsertKartleggingssporsmalVurdering(personident: PersonIdent, isAktivVurdering: Boolean): Result<Int> {
+    override fun upsertKartleggingssporsmalKandidatStatus(personident: PersonIdent, isAktivKandidat: Boolean): Result<Int> {
         return try {
             database.connection.use { connection ->
                 val now = Timestamp.from(Instant.now())
@@ -169,7 +169,7 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
                 val rowsUpdated = connection.prepareStatement(UPSERT_PERSON_OVERSIKT_STATUS_KARTLEGGINGSSPORSMAL).use {
                     it.setString(1, uuid)
                     it.setString(2, personident.value)
-                    it.setBoolean(3, isAktivVurdering)
+                    it.setBoolean(3, isAktivKandidat)
                     it.setTimestamp(4, now)
                     it.setTimestamp(5, now)
                     it.executeUpdate()
