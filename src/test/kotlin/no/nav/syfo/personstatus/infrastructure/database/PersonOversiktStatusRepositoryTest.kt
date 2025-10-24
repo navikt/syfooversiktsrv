@@ -176,9 +176,9 @@ class PersonOversiktStatusRepositoryTest {
             val newPersonOversiktStatus = PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_FNR)
             personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus)
 
-            val result = personOversiktStatusRepository.upsertKartleggingssporsmalVurdering(
+            val result = personOversiktStatusRepository.upsertKartleggingssporsmalKandidatStatus(
                 personident = arbeidstakerFnr,
-                isAktivVurdering = true,
+                isAktivKandidat = true,
             )
 
             assertTrue(result.isSuccess)
@@ -196,9 +196,9 @@ class PersonOversiktStatusRepositoryTest {
                 .copy(isAktivKartleggingssporsmalVurdering = true)
             personOversiktStatusRepository.createPersonOversiktStatus(newPersonOversiktStatus)
 
-            val result = personOversiktStatusRepository.upsertKartleggingssporsmalVurdering(
+            val result = personOversiktStatusRepository.upsertKartleggingssporsmalKandidatStatus(
                 personident = arbeidstakerFnr,
-                isAktivVurdering = false,
+                isAktivKandidat = false,
             )
 
             assertTrue(result.isSuccess)
@@ -212,9 +212,9 @@ class PersonOversiktStatusRepositoryTest {
 
         @Test
         fun `Creates new person when none exist when upserting kartleggingssporsmal vurdering status`() {
-            val result = personOversiktStatusRepository.upsertKartleggingssporsmalVurdering(
+            val result = personOversiktStatusRepository.upsertKartleggingssporsmalKandidatStatus(
                 personident = arbeidstakerFnr,
-                isAktivVurdering = true,
+                isAktivKandidat = true,
             )
 
             val pPersonOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(personident = arbeidstakerFnr)

@@ -123,10 +123,10 @@ class PersonoversiktStatusService(
         )
     }
 
-    fun upsertKartleggingssporsmalVurdering(personident: PersonIdent, isAktivVurdering: Boolean): Result<Int> {
-        return personoversiktStatusRepository.upsertKartleggingssporsmalVurdering(
+    fun upsertKartleggingssporsmalKandidatStatus(personident: PersonIdent, isAktivKandidat: Boolean): Result<Int> {
+        return personoversiktStatusRepository.upsertKartleggingssporsmalKandidatStatus(
             personident = personident,
-            isAktivVurdering = isAktivVurdering,
+            isAktivKandidat = isAktivKandidat,
         )
     }
 

@@ -12,31 +12,32 @@ import org.apache.kafka.common.serialization.Deserializer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.Duration
+import java.time.OffsetDateTime
 import java.util.*
+import kotlin.jvm.java
 
-class KartleggingssporsmalKandidatConsumer(
+class KartleggingssporsmalKandidatStatusConsumer(
     private val personoversiktStatusService: PersonoversiktStatusService,
-) : KafkaConsumerService<KartleggingssporsmalKandidatRecord> {
+) : KafkaConsumerService<KartleggingssporsmalKandidatStatusRecord> {
 
     override val pollDurationInMillis: Long = 1000
 
-    override suspend fun pollAndProcessRecords(kafkaConsumer: KafkaConsumer<String, KartleggingssporsmalKandidatRecord>) {
+    override suspend fun pollAndProcessRecords(kafkaConsumer: KafkaConsumer<String, KartleggingssporsmalKandidatStatusRecord>) {
         val records = kafkaConsumer.poll(Duration.ofMillis(pollDurationInMillis))
         if (records.count() > 0) {
-            log.info("KartleggingssporsmalKandidatConsumer trace: Received ${records.count()} records")
+            log.info("KartleggingssporsmalKandidatStatusConsumer trace: Received ${records.count()} records")
             processRecords(records = records)
             kafkaConsumer.commitSync()
         }
     }
 
-    // TODO: Legg til hvordan dette blir en "aktiv" vurdering
-    private fun processRecords(records: ConsumerRecords<String, KartleggingssporsmalKandidatRecord>): List<Result<Int>> {
+    private fun processRecords(records: ConsumerRecords<String, KartleggingssporsmalKandidatStatusRecord>): List<Result<Int>> {
         val validRecords = records.requireNoNulls()
         return validRecords.map { record ->
             val recordValue = record.value()
-            personoversiktStatusService.upsertKartleggingssporsmalVurdering(
+            personoversiktStatusService.upsertKartleggingssporsmalKandidatStatus(
                 personident = PersonIdent(recordValue.personident),
-                isAktivVurdering = false,
+                isAktivKandidat = recordValue.isAktivKandidat(),
             )
         }
     }
@@ -61,13 +62,17 @@ class KartleggingssporsmalKandidatConsumer(
     }
 }
 
-data class KartleggingssporsmalKandidatRecord(
-    val uuid: UUID,
+data class KartleggingssporsmalKandidatStatusRecord(
+    val kandidatUuid: UUID,
     val personident: String,
+    val createdAt: OffsetDateTime,
+    val status: String, // KANDIDAT, SVAR_MOTTATT, FERDIG_BEHANDLET
 )
 
-class KandidatStatusRecordDeserializer : Deserializer<KartleggingssporsmalKandidatRecord> {
+private fun KartleggingssporsmalKandidatStatusRecord.isAktivKandidat(): Boolean = status == "SVAR_MOTTATT"
+
+class KandidatStatusRecordDeserializer : Deserializer<KartleggingssporsmalKandidatStatusRecord> {
     private val mapper = configuredJacksonMapper()
-    override fun deserialize(topic: String, data: ByteArray): KartleggingssporsmalKandidatRecord =
-        mapper.readValue(data, KartleggingssporsmalKandidatRecord::class.java)
+    override fun deserialize(topic: String, data: ByteArray): KartleggingssporsmalKandidatStatusRecord =
+        mapper.readValue(data, KartleggingssporsmalKandidatStatusRecord::class.java)
 }
