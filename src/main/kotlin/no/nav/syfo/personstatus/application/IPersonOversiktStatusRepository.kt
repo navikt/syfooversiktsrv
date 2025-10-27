@@ -19,7 +19,7 @@ interface IPersonOversiktStatusRepository {
 
     fun upsertSenOppfolgingKandidat(personident: PersonIdent, isAktivKandidat: Boolean): Result<Int>
 
-    fun upsertKartleggingssporsmalVurdering(personident: PersonIdent, isAktivVurdering: Boolean): Result<Int>
+    fun upsertKartleggingssporsmalKandidatStatus(personident: PersonIdent, isAktivKandidat: Boolean): Result<Int>
 
     fun upsertAktivitetskravAktivStatus(personident: PersonIdent, isAktivVurdering: Boolean): Result<Int>
 
