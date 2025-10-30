@@ -1,7 +1,7 @@
 package no.nav.syfo.testutil.database
 
-import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendring
-import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendringType
+import no.nav.syfo.personstatus.domain.DialogmoteStatusendring
+import no.nav.syfo.personstatus.domain.DialogmoteStatusendringType
 import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.Virksomhetsnummer
 import no.nav.syfo.personstatus.infrastructure.database.queries.updatePersonOversiktStatusKandidat

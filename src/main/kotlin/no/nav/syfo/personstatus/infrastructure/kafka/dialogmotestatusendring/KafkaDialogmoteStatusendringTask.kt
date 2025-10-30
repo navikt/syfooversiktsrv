@@ -1,4 +1,4 @@
-package no.nav.syfo.dialogmotestatusendring.kafka
+package no.nav.syfo.personstatus.infrastructure.kafka.dialogmotestatusendring
 
 import no.nav.syfo.ApplicationState
 import no.nav.syfo.personstatus.infrastructure.database.database

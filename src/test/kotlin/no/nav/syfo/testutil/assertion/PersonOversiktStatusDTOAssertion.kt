@@ -1,6 +1,6 @@
 package no.nav.syfo.testutil.assertion
 
-import no.nav.syfo.oppfolgingstilfelle.kafka.OppfolgingstilfellePersonRecord
+import no.nav.syfo.personstatus.infrastructure.kafka.oppfolgingstilfelle.OppfolgingstilfellePersonRecord
 import no.nav.syfo.personstatus.api.v2.model.PersonOppfolgingstilfelleDTO
 import no.nav.syfo.personstatus.api.v2.model.PersonOppfolgingstilfelleVirksomhetDTO
 import no.nav.syfo.testutil.mock.eregOrganisasjonResponse

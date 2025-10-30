@@ -1,7 +1,7 @@
-package no.nav.syfo.oppfolgingstilfelle.kafka
+package no.nav.syfo.personstatus.infrastructure.kafka.oppfolgingstilfelle
 
-import no.nav.syfo.oppfolgingstilfelle.domain.Oppfolgingstilfelle
-import no.nav.syfo.oppfolgingstilfelle.domain.PersonOppfolgingstilfelleVirksomhet
+import no.nav.syfo.personstatus.domain.Oppfolgingstilfelle
+import no.nav.syfo.personstatus.domain.PersonOppfolgingstilfelleVirksomhet
 import no.nav.syfo.personstatus.domain.*
 import no.nav.syfo.util.nowUTC
 import java.time.LocalDate

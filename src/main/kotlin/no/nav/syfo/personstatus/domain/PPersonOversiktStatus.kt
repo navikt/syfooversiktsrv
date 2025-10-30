@@ -1,7 +1,5 @@
 package no.nav.syfo.personstatus.domain
 
-import no.nav.syfo.oppfolgingstilfelle.domain.Oppfolgingstilfelle
-import no.nav.syfo.oppfolgingstilfelle.domain.PersonOppfolgingstilfelleVirksomhet
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.*

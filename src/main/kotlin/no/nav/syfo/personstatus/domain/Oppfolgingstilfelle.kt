@@ -1,6 +1,5 @@
-package no.nav.syfo.oppfolgingstilfelle.domain
+package no.nav.syfo.personstatus.domain
 
-import no.nav.syfo.personstatus.domain.Virksomhetsnummer
 import no.nav.syfo.personstatus.api.v2.model.PersonOppfolgingstilfelleDTO
 import no.nav.syfo.personstatus.api.v2.model.PersonOppfolgingstilfelleVirksomhetDTO
 import org.slf4j.LoggerFactory

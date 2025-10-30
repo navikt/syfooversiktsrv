@@ -1,4 +1,4 @@
-package no.nav.syfo.dialogmotestatusendring.kafka
+package no.nav.syfo.personstatus.infrastructure.kafka.dialogmotestatusendring
 
 import io.confluent.kafka.serializers.KafkaAvroDeserializer
 import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig

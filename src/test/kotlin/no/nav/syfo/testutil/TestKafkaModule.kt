@@ -4,11 +4,11 @@ import io.mockk.mockk
 import no.nav.syfo.dialogmote.avro.KDialogmoteStatusEndring
 import no.nav.syfo.personstatus.infrastructure.kafka.dialogmotekandidat.KafkaDialogmotekandidatEndring
 import no.nav.syfo.personstatus.infrastructure.kafka.dialogmotekandidat.KafkaDialogmotekandidatEndringService
-import no.nav.syfo.dialogmotestatusendring.kafka.KafkaDialogmoteStatusendringService
+import no.nav.syfo.personstatus.infrastructure.kafka.dialogmotestatusendring.KafkaDialogmoteStatusendringService
 import no.nav.syfo.personstatus.infrastructure.kafka.frisktilarbeid.FriskTilArbeidVedtakConsumer
 import no.nav.syfo.personstatus.infrastructure.kafka.frisktilarbeid.VedtakStatusRecord
-import no.nav.syfo.oppfolgingstilfelle.kafka.OppfolgingstilfellePersonRecord
-import no.nav.syfo.oppfolgingstilfelle.kafka.OppfolgingstilfelleConsumer
+import no.nav.syfo.personstatus.infrastructure.kafka.oppfolgingstilfelle.OppfolgingstilfellePersonRecord
+import no.nav.syfo.personstatus.infrastructure.kafka.oppfolgingstilfelle.OppfolgingstilfelleConsumer
 import no.nav.syfo.personstatus.infrastructure.kafka.personoppgavehendelse.KPersonoppgavehendelse
 import org.apache.kafka.clients.consumer.KafkaConsumer
 

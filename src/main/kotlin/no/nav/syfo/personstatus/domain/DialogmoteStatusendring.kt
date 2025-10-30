@@ -1,8 +1,6 @@
-package no.nav.syfo.dialogmotestatusendring.domain
+package no.nav.syfo.personstatus.domain
 
 import no.nav.syfo.dialogmote.avro.KDialogmoteStatusEndring
-import no.nav.syfo.personstatus.domain.PersonIdent
-import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 

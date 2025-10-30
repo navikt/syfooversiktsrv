@@ -1,6 +1,6 @@
 package no.nav.syfo.personstatus.infrastructure.database.repository
 
-import no.nav.syfo.oppfolgingstilfelle.domain.Oppfolgingstilfelle
+import no.nav.syfo.personstatus.domain.Oppfolgingstilfelle
 import no.nav.syfo.personstatus.api.v2.model.VeilederTildelingHistorikkDTO
 import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
 import no.nav.syfo.personstatus.domain.*
