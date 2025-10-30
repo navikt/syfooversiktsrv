@@ -1,4 +1,4 @@
-package no.nav.syfo.oppfolgingstilfelle.kafka
+package no.nav.syfo.personstatus.infrastructure.kafka.oppfolgingstilfelle
 
 import io.micrometer.core.instrument.Counter
 import no.nav.syfo.personstatus.infrastructure.METRICS_NS

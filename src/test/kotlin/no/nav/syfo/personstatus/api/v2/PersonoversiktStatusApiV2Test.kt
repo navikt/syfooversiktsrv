@@ -7,7 +7,7 @@ import io.ktor.server.testing.*
 import io.mockk.clearMocks
 import io.mockk.every
 import kotlinx.coroutines.runBlocking
-import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendringType
+import no.nav.syfo.personstatus.domain.DialogmoteStatusendringType
 import no.nav.syfo.personstatus.api.v2.endpoints.personOversiktApiV2Path
 import no.nav.syfo.personstatus.api.v2.model.PersonOversiktStatusDTO
 import no.nav.syfo.personstatus.application.manglendemedvirkning.ManglendeMedvirkningVurderingType

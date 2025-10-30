@@ -1,6 +1,6 @@
 package no.nav.syfo.personstatus.application
 
-import no.nav.syfo.oppfolgingstilfelle.domain.PersonOppfolgingstilfelleVirksomhet
+import no.nav.syfo.personstatus.domain.PersonOppfolgingstilfelleVirksomhet
 import no.nav.syfo.personstatus.infrastructure.kafka.personoppgavehendelse.COUNT_KAFKA_CONSUMER_PERSONOPPGAVEHENDELSE_CREATED_PERSONOVERSIKT_STATUS
 import no.nav.syfo.personstatus.infrastructure.kafka.personoppgavehendelse.COUNT_KAFKA_CONSUMER_PERSONOPPGAVEHENDELSE_READ
 import no.nav.syfo.personstatus.infrastructure.kafka.personoppgavehendelse.COUNT_KAFKA_CONSUMER_PERSONOPPGAVEHENDELSE_UPDATED_PERSONOVERSIKT_STATUS

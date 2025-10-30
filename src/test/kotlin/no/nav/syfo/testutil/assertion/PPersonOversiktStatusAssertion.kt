@@ -1,6 +1,6 @@
 package no.nav.syfo.testutil.assertion
 
-import no.nav.syfo.oppfolgingstilfelle.kafka.OppfolgingstilfellePersonRecord
+import no.nav.syfo.personstatus.infrastructure.kafka.oppfolgingstilfelle.OppfolgingstilfellePersonRecord
 import no.nav.syfo.personstatus.domain.PPersonOversiktStatus
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.assertNotNull

@@ -1,4 +1,4 @@
-package no.nav.syfo.dialogmotestatusendring.kafka
+package no.nav.syfo.personstatus.infrastructure.kafka.dialogmotestatusendring
 
 import io.micrometer.core.instrument.Counter
 import no.nav.syfo.personstatus.infrastructure.METRICS_NS

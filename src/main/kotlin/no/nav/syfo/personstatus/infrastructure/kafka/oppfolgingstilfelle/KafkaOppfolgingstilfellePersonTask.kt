@@ -1,4 +1,4 @@
-package no.nav.syfo.oppfolgingstilfelle.kafka
+package no.nav.syfo.personstatus.infrastructure.kafka.oppfolgingstilfelle
 
 import no.nav.syfo.ApplicationState
 import no.nav.syfo.personstatus.application.OppfolgingstilfelleService

@@ -1,8 +1,8 @@
-package no.nav.syfo.dialogmotestatusendring.kafka
+package no.nav.syfo.personstatus.infrastructure.kafka.dialogmotestatusendring
 
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import no.nav.syfo.dialogmote.avro.KDialogmoteStatusEndring
-import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendring
+import no.nav.syfo.personstatus.domain.DialogmoteStatusendring
 import no.nav.syfo.personstatus.infrastructure.database.queries.createPersonOversiktStatus
 import no.nav.syfo.personstatus.infrastructure.kafka.KafkaConsumerService
 import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList

@@ -1,8 +1,8 @@
 package no.nav.syfo.testutil.generator
 
 import no.nav.syfo.dialogmote.avro.KDialogmoteStatusEndring
-import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendringType
-import no.nav.syfo.dialogmotestatusendring.kafka.DIALOGMOTE_STATUSENDRING_TOPIC
+import no.nav.syfo.personstatus.domain.DialogmoteStatusendringType
+import no.nav.syfo.personstatus.infrastructure.kafka.dialogmotestatusendring.DIALOGMOTE_STATUSENDRING_TOPIC
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.TopicPartition
 import java.time.OffsetDateTime

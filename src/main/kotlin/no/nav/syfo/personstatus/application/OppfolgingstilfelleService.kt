@@ -1,7 +1,7 @@
 package no.nav.syfo.personstatus.application
 
-import no.nav.syfo.oppfolgingstilfelle.domain.Oppfolgingstilfelle
-import no.nav.syfo.oppfolgingstilfelle.kafka.COUNT_KAFKA_CONSUMER_OPPFOLGINGSTILFELLE_PERSON_TILDELT_VEILEDER_NOT_FOUND_OR_NOT_ENABLED
+import no.nav.syfo.personstatus.domain.Oppfolgingstilfelle
+import no.nav.syfo.personstatus.infrastructure.kafka.oppfolgingstilfelle.COUNT_KAFKA_CONSUMER_OPPFOLGINGSTILFELLE_PERSON_TILDELT_VEILEDER_NOT_FOUND_OR_NOT_ENABLED
 import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.model.fodselsdato

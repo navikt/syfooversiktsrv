@@ -1,6 +1,6 @@
 package no.nav.syfo.personstatus.infrastructure.database.queries
 
-import no.nav.syfo.dialogmotestatusendring.domain.DialogmoteStatusendring
+import no.nav.syfo.personstatus.domain.DialogmoteStatusendring
 import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.PPersonOversiktStatus
 import no.nav.syfo.personstatus.application.oppfolgingsoppgave.OppfolgingsoppgaveRecord

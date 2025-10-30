@@ -6,10 +6,10 @@ import no.nav.syfo.Environment
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
 import no.nav.syfo.personstatus.application.PersonBehandlendeEnhetService
 import no.nav.syfo.personstatus.infrastructure.kafka.dialogmotekandidat.launchKafkaTaskDialogmotekandidatEndring
-import no.nav.syfo.dialogmotestatusendring.kafka.launchKafkaTaskDialogmoteStatusendring
+import no.nav.syfo.personstatus.infrastructure.kafka.dialogmotestatusendring.launchKafkaTaskDialogmoteStatusendring
 import no.nav.syfo.personstatus.infrastructure.kafka.frisktilarbeid.launchKafkaTaskFriskTilArbeidVedtak
 import no.nav.syfo.personstatus.infrastructure.kafka.identhendelse.launchKafkaTaskIdenthendelse
-import no.nav.syfo.oppfolgingstilfelle.kafka.launchKafkaTaskOppfolgingstilfellePerson
+import no.nav.syfo.personstatus.infrastructure.kafka.oppfolgingstilfelle.launchKafkaTaskOppfolgingstilfellePerson
 import no.nav.syfo.personstatus.infrastructure.kafka.personhendelse.launchKafkaTaskPersonhendelse
 import no.nav.syfo.personstatus.infrastructure.kafka.personoppgavehendelse.launchKafkaTaskPersonoppgavehendelse
 import no.nav.syfo.personstatus.application.PersonoversiktStatusService
