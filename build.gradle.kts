@@ -4,26 +4,26 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 group = "no.nav.syfo"
 version = "1.0-SNAPSHOT"
 
-val confluent = "7.9.0"
-val flyway = "11.11.2"
+val confluent = "8.1.0"
+val flyway = "11.15.0"
 val hikari = "7.0.2"
 val isdialogmoteSchema = "1.0.5"
-val jacksonDataType = "2.19.2"
-val jedis = "5.2.0"
-val json = "20240303"
-val kafka = "3.9.0"
-val ktor = "3.3.0"
-val logback = "1.5.18"
-val logstashEncoder = "7.4"
-val mockk = "1.14.5"
+val jacksonDataType = "2.20.0"
+val jedis = "7.0.0"
+val json = "20250517"
+val kafka = "4.1.0"
+val ktor = "3.3.1"
+val logback = "1.5.20"
+val logstashEncoder = "9.0"
+val mockk = "1.14.6"
 val micrometerRegistry = "1.12.13"
-val nimbusjosejwt = "10.4.2"
+val nimbusjosejwt = "10.5"
 val postgresEmbedded = "2.1.1"
-val postgres = "42.7.7"
+val postgres = "42.7.8"
 val postgresRuntimeVersion = "17.6.0"
 
 plugins {
-    kotlin("jvm") version "2.2.10"
+    kotlin("jvm") version "2.2.20"
     id("com.gradleup.shadow") version "8.3.6"
     id("org.jlleitschuh.gradle.ktlint") version "11.6.1"
     id("com.github.davidmc24.gradle.plugin.avro") version "1.8.0"
@@ -82,22 +82,28 @@ dependencies {
     implementation("org.apache.kafka:kafka_2.13:$kafka", excludeLog4j)
     implementation("io.confluent:kafka-avro-serializer:$confluent", excludeLog4j)
     constraints {
-        implementation("org.apache.zookeeper:zookeeper") {
-            because("io.confluent:kafka-schema-registry:$confluent -> https://www.cve.org/CVERecord?id=CVE-2023-44981")
-            version {
-                require("3.9.3")
-            }
-        }
         implementation("org.apache.avro:avro") {
             because("io.confluent:kafka-schema-registry:$confluent -> https://www.cve.org/CVERecord?id=CVE-2023-39410")
             version {
-                require("1.12.0")
+                require("1.12.1")
             }
         }
         implementation("org.apache.commons:commons-compress") {
             because("org.apache.commons:commons-compress:1.22 -> https://www.cve.org/CVERecord?id=CVE-2012-2098")
             version {
-                require("1.27.1")
+                require("1.28.0")
+            }
+        }
+        implementation("org.bitbucket.b_c:jose4j") {
+            because("org.apache.kafka:kafka_2.13:$kafka -> https://github.com/advisories/GHSA-6qvw-249j-h44c")
+            version {
+                require("0.9.6")
+            }
+        }
+        implementation("commons-beanutils:commons-beanutils") {
+            because("org.apache.kafka:kafka_2.13:$kafka -> https://www.cve.org/CVERecord?id=CVE-2025-48734")
+            version {
+                require("1.11.0")
             }
         }
     }
