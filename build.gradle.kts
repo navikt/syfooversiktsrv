@@ -45,7 +45,6 @@ dependencies {
 
     implementation("io.ktor:ktor-server-auth-jwt:$ktor")
     implementation("io.ktor:ktor-client-apache:$ktor")
-    implementation("io.ktor:ktor-client-cio:$ktor")
     implementation("io.ktor:ktor-client-content-negotiation:$ktor")
     implementation("io.ktor:ktor-serialization-jackson:$ktor")
     implementation("io.ktor:ktor-server-call-id:$ktor")
