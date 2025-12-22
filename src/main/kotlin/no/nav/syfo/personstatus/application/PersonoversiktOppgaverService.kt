@@ -8,6 +8,8 @@ import no.nav.syfo.personstatus.application.aktivitetskrav.GetAktivitetskravForP
 import no.nav.syfo.personstatus.application.aktivitetskrav.IAktivitetskravClient
 import no.nav.syfo.personstatus.application.arbeidsuforhet.ArbeidsuforhetvurderingerResponseDTO
 import no.nav.syfo.personstatus.application.arbeidsuforhet.IArbeidsuforhetvurderingClient
+import no.nav.syfo.personstatus.application.dialogmotekandidat.DialogmotekandidatResponseDTO
+import no.nav.syfo.personstatus.application.dialogmotekandidat.IDialogmotekandidatClient
 import no.nav.syfo.personstatus.application.manglendemedvirkning.IManglendeMedvirkningClient
 import no.nav.syfo.personstatus.application.manglendemedvirkning.ManglendeMedvirkningResponseDTO
 import no.nav.syfo.personstatus.application.meroppfolging.IMeroppfolgingClient
@@ -30,6 +32,7 @@ class PersonoversiktOppgaverService(
     private val aktivitetskravClient: IAktivitetskravClient,
     private val oppfolgingsoppgaveClient: IOppfolgingsoppgaveClient,
     private val merOppfolgingClient: IMeroppfolgingClient,
+    private val dialogmotekandidatClient: IDialogmotekandidatClient,
 ) {
     private val log = LoggerFactory.getLogger(this::class.java)
 
@@ -63,6 +66,11 @@ class PersonoversiktOppgaverService(
             token = token,
             personStatuser = personer,
         )
+        val dialogmoteKandidater = getActiveDialogmotekandidatForPersons(
+            callId = callId,
+            token = token,
+            personStatuser = personer,
+        )
 
         return personer.associate {
             it.fnr to PersonoversiktAktiveOppgaver(
@@ -80,6 +88,9 @@ class PersonoversiktOppgaverService(
                     ?.get(it.fnr),
                 senOppfolgingKandidat = senOppfolgingKandidater.await()
                     ?.kandidater
+                    ?.get(it.fnr),
+                dialogmotekandidat = dialogmoteKandidater.await()
+                    ?.dialogmotekandidater
                     ?.get(it.fnr),
             )
         }
@@ -163,6 +174,26 @@ class PersonoversiktOppgaverService(
                     callId = callId,
                     token = token,
                     personidenter = personidenterWithActiveAktivitetskrav,
+                )
+            } else {
+                null
+            }
+        }
+
+    private fun getActiveDialogmotekandidatForPersons(
+        callId: String,
+        token: String,
+        personStatuser: List<PersonOversiktStatus>,
+    ): Deferred<DialogmotekandidatResponseDTO?> =
+        CoroutineScope(Dispatchers.IO).async {
+            val personidenterWithDialogmotekandidat = personStatuser
+                .filter { it.isDialogmotekandidat() }
+                .map { PersonIdent(it.fnr) }
+            if (personidenterWithDialogmotekandidat.isNotEmpty()) {
+                dialogmotekandidatClient.getDialogmotekandidater(
+                    callId = callId,
+                    token = token,
+                    personidenter = personidenterWithDialogmotekandidat,
                 )
             } else {
                 null

@@ -87,6 +87,10 @@ fun testEnvironment(
             baseUrl = "ismeroppfolgingUrl",
             clientId = "dev-gcp.teamsykefravr.ismeroppfolging",
         ),
+        dialogmotekandidat = ClientEnvironment(
+            baseUrl = "isdialogmotekandidatUrl",
+            clientId = "dev-gcp.teamsykefravr.isdialogmotekandidat",
+        ),
         syfoveileder = ClientEnvironment(
             clientId = "dev-gcp.teamsykefravr.syfoveileder",
             baseUrl = "syfoveilederUrl",

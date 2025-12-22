@@ -62,6 +62,7 @@ spec:
         - application: istilgangskontroll
         - application: ishuskelapp
         - application: ismeroppfolging
+        - application: isdialogmotekandidat
         - application: syfoveileder
   azure:
     application:
@@ -124,6 +125,10 @@ spec:
       value: "dev-gcp.teamsykefravr.ismeroppfolging"
     - name: ISMEROPPFOLGING_URL
       value: "http://ismeroppfolging"
+    - name: ISDIALOGMOTEKANDIDAT_CLIENT_ID
+      value: "dev-gcp.teamsykefravr.isdialogmotekandidat"
+    - name: ISDIALOGMOTEKANDIDAT_URL
+      value: "http://isdialogmotekandidat"
     - name: ISTILGANGSKONTROLL_CLIENT_ID
       value: "dev-gcp.teamsykefravr.istilgangskontroll"
     - name: ISTILGANGSKONTROLL_HOST

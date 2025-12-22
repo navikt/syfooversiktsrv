@@ -22,6 +22,7 @@ import no.nav.syfo.personstatus.infrastructure.clients.pdl.PdlClient
 import no.nav.syfo.personstatus.infrastructure.clients.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.personstatus.application.PersonBehandlendeEnhetService
 import no.nav.syfo.personstatus.application.oppfolgingsoppgave.OppfolgingsoppgaveService
+import no.nav.syfo.personstatus.infrastructure.clients.dialogmotekandidat.DialogmotekandidatClient
 import no.nav.syfo.personstatus.infrastructure.clients.veileder.VeilederClient
 import no.nav.syfo.personstatus.infrastructure.cronjob.launchCronjobModule
 import no.nav.syfo.personstatus.infrastructure.database.database
@@ -94,6 +95,10 @@ fun main() {
         azureAdClient = azureAdClient,
         clientEnvironment = environment.clients.ismeroppfolging,
     )
+    val dialogmotekandidatClient = DialogmotekandidatClient(
+        azureAdClient = azureAdClient,
+        clientEnvironment = environment.clients.dialogmotekandidat,
+    )
     val veilederTilgangskontrollClient = VeilederTilgangskontrollClient(
         azureAdClient = azureAdClient,
         istilgangskontrollEnv = environment.clients.istilgangskontroll,
@@ -161,6 +166,7 @@ fun main() {
                     manglendeMedvirkningClient = manglendeMedvirkningClient,
                     arbeidsuforhetvurderingClient = arbeidsuforhetvurderingClient,
                     merOppfolgingClient = merOppfolgingClient,
+                    dialogmotekandidatClient = dialogmotekandidatClient,
                 ),
                 personBehandlendeEnhetService = personBehandlendeEnhetService,
                 personoversiktStatusRepository = personoversiktStatusRepository,

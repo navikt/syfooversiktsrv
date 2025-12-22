@@ -12,6 +12,7 @@ import no.nav.syfo.personstatus.infrastructure.clients.aktivitetskrav.Aktivitets
 import no.nav.syfo.personstatus.infrastructure.clients.arbeidsuforhet.ArbeidsuforhetvurderingClient
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
 import no.nav.syfo.personstatus.infrastructure.clients.behandlendeenhet.BehandlendeEnhetClient
+import no.nav.syfo.personstatus.infrastructure.clients.dialogmotekandidat.DialogmotekandidatClient
 import no.nav.syfo.personstatus.infrastructure.clients.manglendemedvirkning.ManglendeMedvirkningClient
 import no.nav.syfo.personstatus.infrastructure.clients.meroppfolging.MerOppfolgingClient
 import no.nav.syfo.personstatus.infrastructure.clients.oppfolgingsoppgave.OppfolgingsoppgaveClient
@@ -59,6 +60,11 @@ fun Application.testApiModule(
         clientEnvironment = externalMockEnvironment.environment.clients.ismeroppfolging,
         httpClient = externalMockEnvironment.mockHttpClient
     )
+    val dialogmotekandidatClient = DialogmotekandidatClient(
+        azureAdClient = azureAdClient,
+        clientEnvironment = externalMockEnvironment.environment.clients.dialogmotekandidat,
+        httpClient = externalMockEnvironment.mockHttpClient
+    )
     val veilederTilgangskontrollClient = VeilederTilgangskontrollClient(
         azureAdClient = azureAdClient,
         istilgangskontrollEnv = externalMockEnvironment.environment.clients.istilgangskontroll,
@@ -95,6 +101,7 @@ fun Application.testApiModule(
             oppfolgingsoppgaveClient = oppfolgingsoppgaveClient,
             aktivitetskravClient = aktivitetskravClient,
             merOppfolgingClient = merOppfolgingClient,
+            dialogmotekandidatClient = dialogmotekandidatClient,
         ),
         personBehandlendeEnhetService = personBehandlendeEnhetService,
         personoversiktStatusRepository = personoversiktRepository,

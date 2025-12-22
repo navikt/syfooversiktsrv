@@ -3,6 +3,7 @@ package no.nav.syfo.personstatus.domain
 import no.nav.syfo.personstatus.api.v2.model.PersonOversiktStatusDTO
 import no.nav.syfo.personstatus.application.aktivitetskrav.AktivitetskravDTO
 import no.nav.syfo.personstatus.application.arbeidsuforhet.ArbeidsuforhetvurderingDTO
+import no.nav.syfo.personstatus.application.dialogmotekandidat.DialogmotekandidatDTO
 import no.nav.syfo.personstatus.application.manglendemedvirkning.ManglendeMedvirkningDTO
 import no.nav.syfo.personstatus.application.meroppfolging.SenOppfolgingKandidatDTO
 import no.nav.syfo.personstatus.application.oppfolgingsoppgave.OppfolgingsoppgaveLatestVersionDTO
@@ -131,6 +132,7 @@ fun PersonOversiktStatus.toPersonOversiktStatusDTO(
     aktivitetskravvurdering: AktivitetskravDTO?,
     manglendeMedvirkning: ManglendeMedvirkningDTO?,
     senOppfolgingKandidat: SenOppfolgingKandidatDTO?,
+    dialogmotekandidatStatus: DialogmotekandidatDTO?,
 ) =
     PersonOversiktStatusDTO(
         veilederIdent = veilederIdent,
@@ -142,6 +144,7 @@ fun PersonOversiktStatus.toPersonOversiktStatusDTO(
         oppfolgingsplanLPSBistandUbehandlet = oppfolgingsplanLPSBistandUbehandlet,
         dialogmotesvarUbehandlet = dialogmotesvarUbehandlet,
         dialogmotekandidat = dialogmotekandidat?.let { isDialogmotekandidat() },
+        dialogmotekandidatStatus = dialogmotekandidatStatus,
         motestatus = motestatus,
         latestOppfolgingstilfelle = latestOppfolgingstilfelle?.toPersonOppfolgingstilfelleDTO(),
         behandlerdialogUbehandlet = hasActiveBehandlerdialogOppgave(),
