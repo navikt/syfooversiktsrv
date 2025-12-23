@@ -98,6 +98,7 @@ class DialogmotekandidatPersonoversiktStatusApiV2Test {
             assertNull(personOversiktStatus.motebehovUbehandlet)
             assertNull(personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet)
             assertFalse(personOversiktStatus.dialogmotesvarUbehandlet)
+            assertTrue(personOversiktStatus.dialogmotekandidatStatus!!.isKandidat)
             assertNull(personOversiktStatus.aktivitetskravvurdering)
         }
     }
