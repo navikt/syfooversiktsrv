@@ -143,7 +143,6 @@ fun PersonOversiktStatus.toPersonOversiktStatusDTO(
         motebehovUbehandlet = motebehovUbehandlet,
         oppfolgingsplanLPSBistandUbehandlet = oppfolgingsplanLPSBistandUbehandlet,
         dialogmotesvarUbehandlet = dialogmotesvarUbehandlet,
-        dialogmotekandidat = dialogmotekandidat?.let { isDialogmotekandidat() },
         dialogmotekandidatStatus = dialogmotekandidatStatus,
         motestatus = motestatus,
         latestOppfolgingstilfelle = latestOppfolgingstilfelle?.toPersonOppfolgingstilfelleDTO(),
