@@ -78,7 +78,7 @@ class DialogmotekandidatClient(
     }
 
     companion object {
-        const val DIALOGMOTEKANDIDATER_API_PATH = "/api/internad/v1/kandidat/get-kandidater"
+        private const val DIALOGMOTEKANDIDATER_API_PATH = "/api/internad/v1/kandidat/get-kandidater"
         private val log = LoggerFactory.getLogger(this::class.java)
     }
 }
