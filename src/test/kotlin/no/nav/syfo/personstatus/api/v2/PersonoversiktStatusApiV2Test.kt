@@ -33,6 +33,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.time.LocalDate
+import java.time.OffsetDateTime
 
 class PersonoversiktStatusApiV2Test {
     val externalMockEnvironment = ExternalMockEnvironment.instance
@@ -858,6 +859,95 @@ class PersonoversiktStatusApiV2Test {
                 bearerAuth(validToken)
             }
             assertEquals(HttpStatusCode.NoContent, response.status)
+        }
+    }
+
+    @Nested
+    @DisplayName("Dialogmotekandidat")
+    inner class Dialogmotekandidat {
+
+        @Test
+        fun `Returns person with active dialogmotekandidat since more than 7 days ago`() {
+            testApplication {
+                val client = setupApiAndClient()
+                val virksomhetList = listOf(
+                    generateOppfolgingstilfelleVirksomhet(
+                        virksomhetsnummer = Virksomhetsnummer("123456789"),
+                        virksomhetsnavn = "Virksomhet AS",
+                    ),
+                )
+                val oppfolgingstilfelle = generateOppfolgingstilfelle(
+                    start = LocalDate.now().minusDays(180),
+                    end = LocalDate.now().minusDays(1),
+                    antallSykedager = 180,
+                    virksomhetList = virksomhetList,
+                )
+                val newPersonOversiktStatus = PersonOversiktStatus(fnr = ARBEIDSTAKER_FNR).copy(
+                    dialogmotekandidat = true,
+                    dialogmotekandidatGeneratedAt = OffsetDateTime.now().minusDays(10),
+                    latestOppfolgingstilfelle = oppfolgingstilfelle
+                )
+                database.connection.use { connection ->
+                    connection.createPersonOversiktStatus(commit = true, personOversiktStatus = newPersonOversiktStatus)
+                }
+                database.setTildeltEnhet(
+                    ident = PersonIdent(ARBEIDSTAKER_FNR),
+                    enhet = NAV_ENHET,
+                )
+                val response = client.get(url) {
+                    bearerAuth(validToken)
+                }
+                assertEquals(HttpStatusCode.OK, response.status)
+                val personOversiktStatus = response.body<List<PersonOversiktStatusDTO>>().first()
+                assertEquals(ARBEIDSTAKER_FNR, personOversiktStatus.fnr)
+                assertTrue(personOversiktStatus.dialogmotekandidat!!)
+                assertNotNull(personOversiktStatus.dialogmotekandidatStatus)
+                assertTrue(personOversiktStatus.dialogmotekandidatStatus!!.isKandidat)
+                assertNull(personOversiktStatus.dialogmotekandidatStatus!!.avvent)
+            }
+        }
+
+        @Test
+        fun `Returns person with active dialogmotekandidat with avvent-info`() {
+            testApplication {
+                val client = setupApiAndClient()
+                val virksomhetList = listOf(
+                    generateOppfolgingstilfelleVirksomhet(
+                        virksomhetsnummer = Virksomhetsnummer("123456789"),
+                        virksomhetsnavn = "Virksomhet AS",
+                    ),
+                )
+                val oppfolgingstilfelle = generateOppfolgingstilfelle(
+                    start = LocalDate.now().minusDays(180),
+                    end = LocalDate.now().minusDays(1),
+                    antallSykedager = 180,
+                    virksomhetList = virksomhetList,
+                )
+                val newPersonOversiktStatus = PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_2_FNR).copy(
+                    dialogmotekandidat = true,
+                    dialogmotekandidatGeneratedAt = OffsetDateTime.now().minusDays(10),
+                    latestOppfolgingstilfelle = oppfolgingstilfelle
+                )
+                database.connection.use { connection ->
+                    connection.createPersonOversiktStatus(commit = true, personOversiktStatus = newPersonOversiktStatus)
+                }
+                database.setTildeltEnhet(
+                    ident = PersonIdent(UserConstants.ARBEIDSTAKER_2_FNR),
+                    enhet = NAV_ENHET,
+                )
+                val response = client.get(url) {
+                    bearerAuth(validToken)
+                }
+                assertEquals(HttpStatusCode.OK, response.status)
+                val personOversiktStatus = response.body<List<PersonOversiktStatusDTO>>().first()
+                assertEquals(UserConstants.ARBEIDSTAKER_2_FNR, personOversiktStatus.fnr)
+                assertTrue(personOversiktStatus.dialogmotekandidat!!)
+                assertNotNull(personOversiktStatus.dialogmotekandidatStatus)
+                assertTrue(personOversiktStatus.dialogmotekandidatStatus!!.isKandidat)
+                assertNotNull(personOversiktStatus.dialogmotekandidatStatus!!.avvent)
+                assertEquals(LocalDate.now().plusWeeks(2), personOversiktStatus.dialogmotekandidatStatus!!.avvent!!.frist)
+                assertEquals("Avventer tilbakemelding fra behandler", personOversiktStatus.dialogmotekandidatStatus!!.avvent!!.beskrivelse)
+            }
         }
     }
 

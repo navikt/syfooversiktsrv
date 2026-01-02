@@ -2,6 +2,7 @@ package no.nav.syfo.personstatus.api.v2.model
 
 import no.nav.syfo.personstatus.application.aktivitetskrav.AktivitetskravDTO
 import no.nav.syfo.personstatus.application.arbeidsuforhet.ArbeidsuforhetvurderingDTO
+import no.nav.syfo.personstatus.application.dialogmotekandidat.DialogmotekandidatDTO
 import no.nav.syfo.personstatus.application.manglendemedvirkning.ManglendeMedvirkningDTO
 import no.nav.syfo.personstatus.application.meroppfolging.SenOppfolgingKandidatDTO
 import no.nav.syfo.personstatus.application.oppfolgingsoppgave.OppfolgingsoppgaveLatestVersionDTO
@@ -17,6 +18,7 @@ data class PersonOversiktStatusDTO(
     val oppfolgingsplanLPSBistandUbehandlet: Boolean?,
     val dialogmotesvarUbehandlet: Boolean,
     val dialogmotekandidat: Boolean?,
+    val dialogmotekandidatStatus: DialogmotekandidatDTO?,
     val motestatus: String?,
     val latestOppfolgingstilfelle: PersonOppfolgingstilfelleDTO?,
     val behandlerdialogUbehandlet: Boolean,

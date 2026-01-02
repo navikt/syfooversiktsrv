@@ -67,6 +67,7 @@ fun Route.registerPersonoversiktApiV2(
                         aktivitetskravvurdering = aktiveOppgaver?.aktivitetskrav,
                         manglendeMedvirkning = aktiveOppgaver?.manglendeMedvirkning,
                         senOppfolgingKandidat = aktiveOppgaver?.senOppfolgingKandidat,
+                        dialogmotekandidatStatus = aktiveOppgaver?.dialogmotekandidat,
                     )
                 }
 
@@ -120,6 +121,7 @@ fun Route.registerPersonoversiktApiV2(
                                     aktivitetskravvurdering = aktiveOppgaver?.aktivitetskrav,
                                     manglendeMedvirkning = aktiveOppgaver?.manglendeMedvirkning,
                                     senOppfolgingKandidat = aktiveOppgaver?.senOppfolgingKandidat,
+                                    dialogmotekandidatStatus = aktiveOppgaver?.dialogmotekandidat,
                                 )
                             }
 
