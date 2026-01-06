@@ -290,7 +290,7 @@ class PersonoversiktStatusApiV2Test {
             assertTrue(personOversiktStatus.motebehovUbehandlet!!)
             assertTrue(personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet!!)
             assertTrue(personOversiktStatus.dialogmotesvarUbehandlet)
-            assertNull(personOversiktStatus.dialogmotekandidat)
+            assertNull(personOversiktStatus.dialogmotekandidatStatus)
             assertNull(personOversiktStatus.motestatus)
 
             assertNotNull(personOversiktStatus.latestOppfolgingstilfelle)
@@ -336,7 +336,7 @@ class PersonoversiktStatusApiV2Test {
             assertTrue(personOversiktStatus.motebehovUbehandlet!!)
             assertNull(personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet)
             assertFalse(personOversiktStatus.dialogmotesvarUbehandlet)
-            assertNull(personOversiktStatus.dialogmotekandidat)
+            assertNull(personOversiktStatus.dialogmotekandidatStatus)
             assertNull(personOversiktStatus.motestatus)
 
             assertNotNull(personOversiktStatus.latestOppfolgingstilfelle)
@@ -386,7 +386,7 @@ class PersonoversiktStatusApiV2Test {
             assertTrue(personOversiktStatus.motebehovUbehandlet!!)
             assertTrue(personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet!!)
             assertFalse(personOversiktStatus.dialogmotesvarUbehandlet)
-            assertNull(personOversiktStatus.dialogmotekandidat)
+            assertNull(personOversiktStatus.dialogmotekandidatStatus)
             assertNull(personOversiktStatus.motestatus)
 
             assertNotNull(personOversiktStatus.latestOppfolgingstilfelle)
@@ -440,7 +440,7 @@ class PersonoversiktStatusApiV2Test {
             assertTrue(personOversiktStatus.motebehovUbehandlet!!)
             assertTrue(personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet!!)
             assertFalse(personOversiktStatus.dialogmotesvarUbehandlet)
-            assertNull(personOversiktStatus.dialogmotekandidat)
+            assertNull(personOversiktStatus.dialogmotekandidatStatus)
             assertNull(personOversiktStatus.motestatus)
 
             assertNotNull(personOversiktStatus.latestOppfolgingstilfelle)
@@ -479,7 +479,7 @@ class PersonoversiktStatusApiV2Test {
             assertNull(personOversiktStatus.motebehovUbehandlet)
             assertTrue(personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet!!)
             assertFalse(personOversiktStatus.dialogmotesvarUbehandlet)
-            assertNull(personOversiktStatus.dialogmotekandidat)
+            assertNull(personOversiktStatus.dialogmotekandidatStatus)
             assertNull(personOversiktStatus.motestatus)
 
             assertNull(personOversiktStatus.latestOppfolgingstilfelle)
@@ -514,7 +514,7 @@ class PersonoversiktStatusApiV2Test {
             assertNull(personOversiktStatus.motebehovUbehandlet)
             assertTrue(personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet!!)
             assertFalse(personOversiktStatus.dialogmotesvarUbehandlet)
-            assertNull(personOversiktStatus.dialogmotekandidat)
+            assertNull(personOversiktStatus.dialogmotekandidatStatus)
             assertNull(personOversiktStatus.motestatus)
             assertNull(personOversiktStatus.latestOppfolgingstilfelle)
         }
@@ -900,7 +900,6 @@ class PersonoversiktStatusApiV2Test {
                 assertEquals(HttpStatusCode.OK, response.status)
                 val personOversiktStatus = response.body<List<PersonOversiktStatusDTO>>().first()
                 assertEquals(ARBEIDSTAKER_FNR, personOversiktStatus.fnr)
-                assertTrue(personOversiktStatus.dialogmotekandidat!!)
                 assertNotNull(personOversiktStatus.dialogmotekandidatStatus)
                 assertTrue(personOversiktStatus.dialogmotekandidatStatus!!.isKandidat)
                 assertNull(personOversiktStatus.dialogmotekandidatStatus!!.avvent)
@@ -941,7 +940,6 @@ class PersonoversiktStatusApiV2Test {
                 assertEquals(HttpStatusCode.OK, response.status)
                 val personOversiktStatus = response.body<List<PersonOversiktStatusDTO>>().first()
                 assertEquals(UserConstants.ARBEIDSTAKER_2_FNR, personOversiktStatus.fnr)
-                assertTrue(personOversiktStatus.dialogmotekandidat!!)
                 assertNotNull(personOversiktStatus.dialogmotekandidatStatus)
                 assertTrue(personOversiktStatus.dialogmotekandidatStatus!!.isKandidat)
                 assertNotNull(personOversiktStatus.dialogmotekandidatStatus!!.avvent)

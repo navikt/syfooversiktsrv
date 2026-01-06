@@ -98,7 +98,7 @@ class DialogmotekandidatPersonoversiktStatusApiV2Test {
             assertNull(personOversiktStatus.motebehovUbehandlet)
             assertNull(personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet)
             assertFalse(personOversiktStatus.dialogmotesvarUbehandlet)
-            assertTrue(personOversiktStatus.dialogmotekandidat!!)
+            assertTrue(personOversiktStatus.dialogmotekandidatStatus!!.isKandidat)
             assertNull(personOversiktStatus.aktivitetskravvurdering)
         }
     }
@@ -123,7 +123,7 @@ class DialogmotekandidatPersonoversiktStatusApiV2Test {
             assertNull(personOversiktStatus.motebehovUbehandlet)
             assertNull(personOversiktStatus.oppfolgingsplanLPSBistandUbehandlet)
             assertFalse(personOversiktStatus.dialogmotesvarUbehandlet)
-            assertTrue(personOversiktStatus.dialogmotekandidat!!)
+            assertTrue(personOversiktStatus.dialogmotekandidatStatus!!.isKandidat)
             assertEquals(DialogmoteStatusendringType.AVLYST.name, personOversiktStatus.motestatus)
             assertNull(personOversiktStatus.aktivitetskravvurdering)
         }
