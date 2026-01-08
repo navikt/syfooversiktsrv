@@ -27,6 +27,7 @@ import kotlin.collections.map
 import kotlin.takeIf
 
 private val log: Logger = LoggerFactory.getLogger("no.nav.syfo")
+private const val NAV_UTLAND_ENHETID = "0393"
 
 const val personOversiktApiV2Path = "/api/v2/personoversikt"
 
@@ -85,6 +86,9 @@ fun Route.registerPersonoversiktApiV2(
                 val enhet: String = call.parameters["enhet"]?.takeIf { validateEnhet(it) }
                     ?: throw java.lang.IllegalArgumentException("Enhet mangler")
 
+                if (enhet == NAV_UTLAND_ENHETID) {
+                    log.warn("Enhetens oversikt lastes for Nav utland")
+                }
                 when (veilederTilgangskontrollClient.harVeilederTilgangTilEnhetMedOBO(enhet, token, callId)) {
                     true -> {
                         val requestTimer: Timer.Sample = Timer.start()
