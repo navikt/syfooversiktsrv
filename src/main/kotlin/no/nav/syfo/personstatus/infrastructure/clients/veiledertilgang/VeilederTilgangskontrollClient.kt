@@ -2,10 +2,12 @@ package no.nav.syfo.personstatus.infrastructure.clients.veiledertilgang
 
 import io.ktor.client.*
 import io.ktor.client.call.*
+import io.ktor.client.network.sockets.ConnectTimeoutException
 import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import io.ktor.network.sockets.SocketTimeoutException
 import io.micrometer.core.instrument.Timer
 import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.infrastructure.COUNT_CALL_TILGANGSKONTROLL_PERSONS_FAIL
@@ -86,6 +88,18 @@ class VeilederTilgangskontrollClient(
                 accept(ContentType.Application.Json)
                 contentType(ContentType.Application.Json)
                 setBody(personidenter)
+                retry {
+                    retryOnExceptionIf(2) { _, cause ->
+                        when (cause) {
+                            is ClientRequestException,
+                            is HttpRequestTimeoutException,
+                            is ConnectTimeoutException,
+                            is SocketTimeoutException -> false
+                            else -> true
+                        }
+                    }
+                    constantDelay(500L)
+                }
             }
 
             requestTimer.stop(HISTOGRAM_ISTILGANGSKONTROLL_PERSONER)
