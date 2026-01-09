@@ -3,10 +3,8 @@ package no.nav.syfo.personstatus.infrastructure.clients
 import io.ktor.client.*
 import io.ktor.client.engine.*
 import io.ktor.client.engine.apache.*
-import io.ktor.client.network.sockets.ConnectTimeoutException
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.network.sockets.SocketTimeoutException
 import io.ktor.serialization.jackson.jackson
 import no.nav.syfo.util.configure
 import org.apache.http.impl.conn.SystemDefaultRoutePlanner
@@ -22,13 +20,7 @@ val commonConfig: HttpClientConfig<out HttpClientEngineConfig>.() -> Unit = {
     }
     install(HttpRequestRetry) {
         retryOnExceptionIf(2) { _, cause ->
-            when (cause) {
-                is ClientRequestException,
-                is HttpRequestTimeoutException,
-                is ConnectTimeoutException,
-                is SocketTimeoutException -> false
-                else -> true
-            }
+            cause !is ClientRequestException
         }
         constantDelay(500L)
     }
