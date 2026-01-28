@@ -4,6 +4,7 @@ import no.nav.syfo.ApplicationState
 import no.nav.syfo.Environment
 import no.nav.syfo.launchBackgroundTask
 import no.nav.syfo.cache.ValkeyStore
+import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
 import no.nav.syfo.personstatus.application.PersonoversiktStatusService
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
@@ -26,6 +27,7 @@ fun launchCronjobModule(
     azureAdClient: AzureAdClient,
     personBehandlendeEnhetService: PersonBehandlendeEnhetService,
     personoversiktStatusService: PersonoversiktStatusService,
+    personoversiktStatusRepository: IPersonOversiktStatusRepository,
 ) {
     val eregClient = EregClient(
         clientEnvironment = environment.clients.ereg,
@@ -64,6 +66,7 @@ fun launchCronjobModule(
     val preloadCacheCronjob = PreloadCacheCronjob(
         database = database,
         tilgangskontrollClient = tilgangskontrollClient,
+        personoversiktStatusRepository = personoversiktStatusRepository,
     )
 
     val cronjobRunner = CronjobRunner(

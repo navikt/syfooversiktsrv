@@ -54,4 +54,6 @@ interface IPersonOversiktStatusRepository {
     )
 
     fun updateOppfolgingsoppgave(personIdent: PersonIdent, isActive: Boolean): Result<Int>
+
+    fun hentUbehandledePersonerTilknyttetEnhet(enhet: String): List<PersonOversiktStatus>
 }

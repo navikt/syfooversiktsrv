@@ -22,6 +22,7 @@ class PreloadCacheCronjobWithMockTest {
     private val preloadCacheCronjob = PreloadCacheCronjob(
         database = database,
         tilgangskontrollClient = veilederTilgangskontrollMockClient,
+        personoversiktStatusRepository = externalMockEnvironment.personOversiktStatusRepository,
     )
 
     @BeforeEach

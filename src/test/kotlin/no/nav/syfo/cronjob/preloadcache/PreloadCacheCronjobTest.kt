@@ -31,6 +31,7 @@ class PreloadCacheCronjobTest {
             istilgangskontrollEnv = externalMockEnvironment.environment.clients.istilgangskontroll,
             httpClient = externalMockEnvironment.mockHttpClient
         ),
+        personoversiktStatusRepository = externalMockEnvironment.personOversiktStatusRepository,
     )
 
     @AfterEach

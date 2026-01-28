@@ -6,7 +6,6 @@ import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
 import no.nav.syfo.personstatus.domain.*
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import no.nav.syfo.personstatus.infrastructure.database.queries.createPersonOversiktStatus
-import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOppfolgingstilfelleVirksomhetMap
 import no.nav.syfo.personstatus.infrastructure.database.queries.updatePersonOppfolgingstilfelleVirksomhetList
 import no.nav.syfo.personstatus.infrastructure.database.toList
 import no.nav.syfo.util.nowUTC
@@ -354,17 +353,17 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
         }
 
     override fun searchPerson(search: Search): List<PersonOversiktStatus> {
-        val results = when (search) {
+        val persons = when (search) {
             is Search.ByName -> searchByName(search)
             is Search.ByNameAndDate -> searchByDateAndName(search)
             is Search.ByDate -> searchByDate(search)
             is Search.ByInitialsAndDate -> searchByInitialsAndDate(search)
         }
-        val personOppfolgingstilfelleVirksomhetMap = database.connection.use { connection ->
-            connection.getPersonOppfolgingstilfelleVirksomhetMap(pPersonOversikStatusIds = results.map { it.id })
-        }
+        val personOppfolgingstilfelleVirksomhetMap =
+            getVirksomheterForPersons(pPersonOversikStatusIds = persons.map { it.id })
+                .groupBy { it.personOversiktStatusId }
 
-        return results.map {
+        return persons.map {
             val personOppfolgingstilfelleVirksomhetList =
                 personOppfolgingstilfelleVirksomhetMap[it.id]?.toPersonOppfolgingstilfelleVirksomhet() ?: emptyList()
             it.toPersonOversiktStatus(personOppfolgingstilfelleVirksomhetList = personOppfolgingstilfelleVirksomhetList)
@@ -447,11 +446,11 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
         }
     }
 
-    override fun updateOppfolgingsoppgave(personIdent: PersonIdent, isActiveOppfolgingsoppgave: Boolean): Result<Int> {
+    override fun updateOppfolgingsoppgave(personIdent: PersonIdent, isActive: Boolean): Result<Int> {
         return try {
             database.connection.use { connection ->
                 val rowsAffected = connection.prepareStatement(UPDATE_PERSON_OPPFOLGINGSOPPGAVE).use {
-                    it.setBoolean(1, isActiveOppfolgingsoppgave)
+                    it.setBoolean(1, isActive)
                     it.setTimestamp(2, Timestamp.from(Instant.now()))
                     it.setString(3, personIdent.value)
                     it.executeUpdate()
@@ -468,6 +467,24 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
             Result.failure(e)
         }
     }
+
+    override fun hentUbehandledePersonerTilknyttetEnhet(enhet: String): List<PersonOversiktStatus> =
+        database.connection.use { connection ->
+            connection.prepareStatement(GET_UBEHANDLEDE_PERSONER_TILKNYTTET_ENHET).use {
+                it.setString(1, enhet)
+                it.executeQuery().toList { toPPersonOversiktStatus() }
+            }
+        }.map { it.toPersonOversiktStatus() }
+
+    fun getVirksomheterForPersons(
+        pPersonOversikStatusIds: List<Int>,
+    ): List<PPersonOppfolgingstilfelleVirksomhet> =
+        database.connection.use { connection ->
+            connection.prepareStatement(GET_PERSON_OPPFOLGINGSTILFELLE_VIRKSOMHET_FOR_IDS).use {
+                it.setArray(1, connection.createArrayOf("INTEGER", pPersonOversikStatusIds.toTypedArray()))
+                it.executeQuery().toList { toPPersonOppfolgingstilfelleVirksomhet() }
+            }
+        }
 
     companion object {
         private const val GET_PERSON_OVERSIKT_STATUS =
@@ -606,6 +623,13 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
         )
         """
 
+        private const val GET_UBEHANDLEDE_PERSONER_TILKNYTTET_ENHET =
+            """
+            SELECT *
+            FROM PERSON_OVERSIKT_STATUS
+            WHERE tildelt_enhet = ? AND $AKTIV_OPPGAVE_WHERE_CLAUSE
+            """
+
         private const val GET_PERSONER_WITH_OPPGAVE_AND_OLD_ENHET =
             """
             SELECT fnr
@@ -696,6 +720,13 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
             "SELECT * FROM PERSON_OVERSIKT_STATUS p WHERE (p.oppfolgingstilfelle_end + INTERVAL '16 DAY' >= now() OR $AKTIV_OPPGAVE_WHERE_CLAUSE)"
 
         private const val ORDER_BY_ASC = "ORDER BY name ASC"
+
+        private const val GET_PERSON_OPPFOLGINGSTILFELLE_VIRKSOMHET_FOR_IDS =
+            """
+            SELECT *
+            FROM PERSON_OPPFOLGINGSTILFELLE_VIRKSOMHET
+            WHERE person_oversikt_status_id = ANY(?)
+            """
     }
 }
 
@@ -744,4 +775,14 @@ private fun ResultSet.toPPersonOversiktStatus(): PPersonOversiktStatus =
         isAktivAktivitetskravvurdering = getBoolean("is_aktiv_aktivitetskrav_vurdering"),
         isAktivManglendeMedvirkningVurdering = getBoolean("is_aktiv_manglende_medvirkning_vurdering"),
         isAktivKartleggingssporsmalVurdering = getBoolean("is_aktiv_kartleggingssporsmal_vurdering"),
+    )
+
+private fun ResultSet.toPPersonOppfolgingstilfelleVirksomhet(): PPersonOppfolgingstilfelleVirksomhet =
+    PPersonOppfolgingstilfelleVirksomhet(
+        id = getInt("id"),
+        uuid = UUID.fromString(getString("uuid")),
+        createdAt = getObject("created_at", OffsetDateTime::class.java),
+        virksomhetsnummer = Virksomhetsnummer(getString("virksomhetsnummer")),
+        virksomhetsnavn = getString("virksomhetsnavn"),
+        personOversiktStatusId = getInt("person_oversikt_status_id")
     )
