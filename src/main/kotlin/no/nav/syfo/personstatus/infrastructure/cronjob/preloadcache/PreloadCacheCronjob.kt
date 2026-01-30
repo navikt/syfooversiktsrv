@@ -2,18 +2,21 @@ package no.nav.syfo.personstatus.infrastructure.cronjob.preloadcache
 
 import kotlinx.coroutines.runBlocking
 import net.logstash.logback.argument.StructuredArguments
-import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
+import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
 import no.nav.syfo.personstatus.infrastructure.clients.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.personstatus.infrastructure.cronjob.Cronjob
 import no.nav.syfo.personstatus.infrastructure.cronjob.CronjobResult
-import no.nav.syfo.personstatus.domain.toPersonOversiktStatus
-import no.nav.syfo.personstatus.infrastructure.database.queries.hentUbehandledePersonerTilknyttetEnhet
+import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import org.slf4j.LoggerFactory
-import java.time.*
+import java.time.Duration
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 
 class PreloadCacheCronjob(
     private val database: DatabaseInterface,
     private val tilgangskontrollClient: VeilederTilgangskontrollClient,
+    private val personoversiktStatusRepository: IPersonOversiktStatusRepository,
 ) : Cronjob {
     private val log = LoggerFactory.getLogger(PreloadCacheCronjob::class.java)
     private val runAtHour = 6
@@ -33,14 +36,12 @@ class PreloadCacheCronjob(
         database.getEnheter()
             .forEach { enhetNr ->
                 try {
-                    val personer = database.hentUbehandledePersonerTilknyttetEnhet(enhetNr).map { pPersonOversiktStatus ->
-                        pPersonOversiktStatus.toPersonOversiktStatus(emptyList())
-                    }.filter { personOversiktStatus ->
-                        personOversiktStatus.hasActiveOppgave()
-                    }
+                    val ubehandledePersonerWithActiveOppgave =
+                        personoversiktStatusRepository.hentUbehandledePersonerTilknyttetEnhet(enhetNr)
+                            .filter { personOversiktStatus -> personOversiktStatus.hasActiveOppgave() }
 
-                    log.info("Caching ${personer.size} for enhet $enhetNr")
-                    personer.chunked(chunkSize).forEach { subList ->
+                    log.info("Caching ${ubehandledePersonerWithActiveOppgave.size} for enhet $enhetNr")
+                    ubehandledePersonerWithActiveOppgave.chunked(chunkSize).forEach { subList ->
                         if (subList.isNotEmpty()) {
                             runBlocking {
                                 val isResponseOK = tilgangskontrollClient.preloadCache(
