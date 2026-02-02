@@ -3,6 +3,7 @@ package no.nav.syfo.personstatus.infrastructure.cronjob.preloadcache
 import kotlinx.coroutines.runBlocking
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
+import no.nav.syfo.personstatus.domain.filterHasActiveOppgave
 import no.nav.syfo.personstatus.infrastructure.clients.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.personstatus.infrastructure.cronjob.Cronjob
 import no.nav.syfo.personstatus.infrastructure.cronjob.CronjobResult
@@ -38,20 +39,20 @@ class PreloadCacheCronjob(
                 try {
                     val ubehandledePersonerWithActiveOppgave =
                         personoversiktStatusRepository.hentUbehandledePersonerTilknyttetEnhet(enhetNr)
-                            .filter { personOversiktStatus -> personOversiktStatus.hasActiveOppgave() }
+                            .filterHasActiveOppgave()
 
                     log.info("Caching ${ubehandledePersonerWithActiveOppgave.size} for enhet $enhetNr")
-                    ubehandledePersonerWithActiveOppgave.chunked(chunkSize).forEach { subList ->
-                        if (subList.isNotEmpty()) {
+                    ubehandledePersonerWithActiveOppgave.chunked(chunkSize).forEach { personstatuserChunk ->
+                        if (personstatuserChunk.isNotEmpty()) {
                             runBlocking {
                                 val isResponseOK = tilgangskontrollClient.preloadCache(
-                                    subList.map { personOversiktStatus -> personOversiktStatus.fnr }
+                                    personstatuserChunk.map { personOversiktStatus -> personOversiktStatus.fnr }
                                 )
                                 if (isResponseOK) {
-                                    result.updated += subList.size
+                                    result.updated += personstatuserChunk.size
                                 } else {
                                     log.warn("Caching for $enhetNr failed")
-                                    result.failed += subList.size
+                                    result.failed += personstatuserChunk.size
                                 }
                             }
                         }

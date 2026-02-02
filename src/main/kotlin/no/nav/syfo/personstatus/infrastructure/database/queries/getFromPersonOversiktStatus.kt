@@ -1,9 +1,8 @@
 package no.nav.syfo.personstatus.infrastructure.database.queries
 
+import no.nav.syfo.personstatus.domain.PPersonOversiktStatus
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import no.nav.syfo.personstatus.infrastructure.database.toList
-import no.nav.syfo.personstatus.domain.*
-import no.nav.syfo.personstatus.infrastructure.database.repository.PersonOversiktStatusRepository
 import java.sql.Connection
 import java.sql.ResultSet
 import java.time.LocalDate
@@ -32,23 +31,6 @@ fun DatabaseInterface.getPersonOversiktStatusList(
 ): List<PPersonOversiktStatus> {
     return connection.use { connection ->
         connection.getPersonOversiktStatusList(fnr = fnr)
-    }
-}
-
-const val queryHentUbehandledePersonerTilknyttetEnhet = """
-                        SELECT *
-                        FROM PERSON_OVERSIKT_STATUS
-                        WHERE ((tildelt_enhet = ?)
-                        AND ${PersonOversiktStatusRepository.AKTIV_OPPGAVE_WHERE_CLAUSE}
-                        );
-                """
-
-fun DatabaseInterface.hentUbehandledePersonerTilknyttetEnhet(enhet: String): List<PPersonOversiktStatus> {
-    return connection.use { connection ->
-        connection.prepareStatement(queryHentUbehandledePersonerTilknyttetEnhet).use {
-            it.setString(1, enhet)
-            it.executeQuery().toList { toPPersonOversiktStatus() }
-        }
     }
 }
 

@@ -1,12 +1,22 @@
 package no.nav.syfo.personstatus.infrastructure.clients.veiledertilgang
 
-import io.ktor.client.*
-import io.ktor.client.call.*
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
 import io.ktor.client.network.sockets.ConnectTimeoutException
-import io.ktor.client.plugins.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
+import io.ktor.client.plugins.ClientRequestException
+import io.ktor.client.plugins.HttpRequestTimeoutException
+import io.ktor.client.plugins.ServerResponseException
+import io.ktor.client.plugins.retry
+import io.ktor.client.request.accept
+import io.ktor.client.request.get
+import io.ktor.client.request.header
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpResponse
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
 import io.ktor.network.sockets.SocketTimeoutException
 import io.micrometer.core.instrument.Timer
 import no.nav.syfo.personstatus.domain.PersonIdent
@@ -123,7 +133,7 @@ class VeilederTilgangskontrollClient(
     }
 
     suspend fun preloadCache(
-        personIdentNumberList: List<String>,
+        personidenter: List<String>,
     ): Boolean {
         val systemToken = azureAdClient.getSystemToken(
             scopeClientId = istilgangskontrollEnv.clientId,
@@ -136,7 +146,7 @@ class VeilederTilgangskontrollClient(
                 header(NAV_CALL_ID_HEADER, UUID.randomUUID().toString())
                 accept(ContentType.Application.Json)
                 contentType(ContentType.Application.Json)
-                setBody(personIdentNumberList)
+                setBody(personidenter)
             }
             HttpStatusCode.OK == response.status
         } catch (e: ClientRequestException) {

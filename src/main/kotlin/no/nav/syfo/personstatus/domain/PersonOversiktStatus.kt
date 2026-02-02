@@ -173,3 +173,6 @@ enum class OversikthendelseType {
     BEHANDLER_BER_OM_BISTAND_MOTTATT,
     BEHANDLER_BER_OM_BISTAND_BEHANDLET,
 }
+
+fun List<PersonOversiktStatus>.filterHasActiveOppgave(): List<PersonOversiktStatus> =
+    this.filter { it.hasActiveOppgave() }

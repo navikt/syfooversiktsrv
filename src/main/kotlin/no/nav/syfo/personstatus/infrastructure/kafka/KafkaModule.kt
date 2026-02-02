@@ -3,6 +3,7 @@ package no.nav.syfo.personstatus.infrastructure.kafka
 import no.nav.syfo.personstatus.infrastructure.kafka.aktivitetskrav.launchKafkaTaskAktivitetskravVurdering
 import no.nav.syfo.ApplicationState
 import no.nav.syfo.Environment
+import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
 import no.nav.syfo.personstatus.application.PersonBehandlendeEnhetService
 import no.nav.syfo.personstatus.infrastructure.kafka.dialogmotekandidat.launchKafkaTaskDialogmotekandidatEndring
@@ -29,6 +30,7 @@ fun launchKafkaModule(
     personBehandlendeEnhetService: PersonBehandlendeEnhetService,
     oppfolgingstilfelleService: OppfolgingstilfelleService,
     oppfolgingsoppgaveService: OppfolgingsoppgaveService,
+    personOversiktStatusRepository: IPersonOversiktStatusRepository,
 ) {
     launchKafkaTaskPersonoppgavehendelse(
         applicationState = applicationState,
@@ -59,6 +61,7 @@ fun launchKafkaModule(
         applicationState = applicationState,
         environment = environment,
         azureAdClient = azureAdClient,
+        personOversiktStatusRepository = personOversiktStatusRepository,
     )
 
     launchKafkaTaskPersonhendelse(
