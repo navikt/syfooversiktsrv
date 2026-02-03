@@ -183,6 +183,7 @@ fun main() {
                     personBehandlendeEnhetService = personBehandlendeEnhetService,
                     oppfolgingstilfelleService = oppfolgingstilfelleService,
                     oppfolgingsoppgaveService = oppfolgingsoppgaveService,
+                    personOversiktStatusRepository = personoversiktStatusRepository,
                 )
                 launchCronjobModule(
                     applicationState = applicationState,

@@ -9,13 +9,11 @@ import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOppfolg
 import no.nav.syfo.personstatus.domain.*
 import no.nav.syfo.personstatus.domain.addPersonName
 import no.nav.syfo.personstatus.domain.toPersonOppfolgingstilfelleVirksomhet
-import no.nav.syfo.personstatus.domain.toPersonOversiktStatus
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.model.fodselsdato
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.model.fullName
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import no.nav.syfo.personstatus.infrastructure.database.queries.createPersonOversiktStatus
 import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList
-import no.nav.syfo.personstatus.infrastructure.database.queries.hentUbehandledePersonerTilknyttetEnhet
 import no.nav.syfo.personstatus.infrastructure.database.queries.updateBehandlerBerOmBistand
 import no.nav.syfo.personstatus.infrastructure.database.queries.updatePersonOversiktMotebehov
 import no.nav.syfo.personstatus.infrastructure.database.queries.updatePersonOversiktStatusBehandlerdialogAvvist
@@ -44,20 +42,9 @@ class PersonoversiktStatusService(
 
     fun hentPersonoversiktStatusTilknyttetEnhet(
         enhet: String,
-    ): List<PersonOversiktStatus> {
-        val pPersonOversiktStatuser = database.hentUbehandledePersonerTilknyttetEnhet(enhet)
-        val personOppfolgingstilfelleVirksomhetMap = getPersonOppfolgingstilfelleVirksomhetMap(
-            pPersonOversikStatusIds = pPersonOversiktStatuser.map { it.id }
-        )
-
-        return pPersonOversiktStatuser.map {
-            val personOppfolgingstilfelleVirksomhetList = personOppfolgingstilfelleVirksomhetMap[it.id]
-                ?: emptyList()
-            it.toPersonOversiktStatus(personOppfolgingstilfelleVirksomhetList)
-        }.filter { personOversiktStatus ->
-            personOversiktStatus.hasActiveOppgave()
-        }
-    }
+    ): List<PersonOversiktStatus> =
+        personoversiktStatusRepository.hentUbehandledePersonerTilknyttetEnhet(enhet)
+            .filterHasActiveOppgave()
 
     fun getPersonstatus(personident: PersonIdent): PersonOversiktStatus? =
         personoversiktStatusRepository.getPersonOversiktStatus(personident)

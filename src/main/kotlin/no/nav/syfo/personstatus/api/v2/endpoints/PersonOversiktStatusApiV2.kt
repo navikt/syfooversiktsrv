@@ -93,9 +93,7 @@ fun Route.registerPersonoversiktApiV2(
                     true -> {
                         val requestTimer: Timer.Sample = Timer.start()
                         val personOversiktStatusList: List<PersonOversiktStatus> = personoversiktStatusService
-                            .hentPersonoversiktStatusTilknyttetEnhet(
-                                enhet = enhet,
-                            )
+                            .hentPersonoversiktStatusTilknyttetEnhet(enhet = enhet)
 
                         val personFnrListWithVeilederAccess: List<String> =
                             veilederTilgangskontrollClient.veilederPersonAccessListMedOBO(

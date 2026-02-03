@@ -2,10 +2,11 @@ package no.nav.syfo.personstatus.infrastructure.kafka.identhendelse
 
 import no.nav.syfo.ApplicationState
 import no.nav.syfo.Environment
-import no.nav.syfo.personstatus.infrastructure.database.database
+import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
+import no.nav.syfo.personstatus.application.IdenthendelseService
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.PdlClient
-import no.nav.syfo.personstatus.application.IdenthendelseService
+import no.nav.syfo.personstatus.infrastructure.database.database
 import no.nav.syfo.personstatus.infrastructure.kafka.launchKafkaTask
 
 const val PDL_AKTOR_TOPIC = "pdl.aktor-v2"
@@ -14,6 +15,7 @@ fun launchKafkaTaskIdenthendelse(
     applicationState: ApplicationState,
     environment: Environment,
     azureAdClient: AzureAdClient,
+    personOversiktStatusRepository: IPersonOversiktStatusRepository,
 ) {
     val pdlClient = PdlClient(
         azureAdClient = azureAdClient,
@@ -23,6 +25,7 @@ fun launchKafkaTaskIdenthendelse(
     val identhendelseService = IdenthendelseService(
         database = database,
         pdlClient = pdlClient,
+        personOversiktStatusRepository = personOversiktStatusRepository,
     )
 
     val kafkaIdenthendelseConsumerService = IdenthendelseConsumerService(

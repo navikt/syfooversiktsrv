@@ -20,19 +20,14 @@ import kotlin.use
 
 class PersonOversiktStatusRepository(private val database: DatabaseInterface) : IPersonOversiktStatusRepository {
 
-    override fun getPersonOversiktStatus(personident: PersonIdent): PersonOversiktStatus? {
-        return database.connection.use { connection ->
-            connection.getPersonOversiktStatus(personident)
+    override fun getPersonOversiktStatus(personident: PersonIdent): PersonOversiktStatus? =
+        database.connection.use { connection ->
+            val personoversiktStatus = connection.prepareStatement(GET_PERSON_OVERSIKT_STATUS).use {
+                it.setString(1, personident.value)
+                it.executeQuery().toList { toPPersonOversiktStatus() }
+            }
+            personoversiktStatus.firstOrNull()?.toPersonOversiktStatus()
         }
-    }
-
-    private fun Connection.getPersonOversiktStatus(personident: PersonIdent): PersonOversiktStatus? {
-        val personoversiktStatus = prepareStatement(GET_PERSON_OVERSIKT_STATUS).use {
-            it.setString(1, personident.value)
-            it.executeQuery().toList { toPPersonOversiktStatus() }
-        }
-        return personoversiktStatus.firstOrNull()?.toPersonOversiktStatus()
-    }
 
     override fun getPersonstatusesWithoutNavnOrFodselsdato(limit: Int): List<PersonOversiktStatus> =
         database.connection.use { connection ->
@@ -352,70 +347,55 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
             Result.failure(e)
         }
 
-    override fun searchPerson(search: Search): List<PersonOversiktStatus> {
-        val persons = when (search) {
-            is Search.ByName -> searchByName(search)
-            is Search.ByNameAndDate -> searchByDateAndName(search)
-            is Search.ByDate -> searchByDate(search)
-            is Search.ByInitialsAndDate -> searchByInitialsAndDate(search)
+    override fun searchPerson(search: Search): List<PersonOversiktStatus> =
+        database.connection.use { connection ->
+            val personstatuser = when (search) {
+                is Search.ByName -> connection.searchByName(search)
+                is Search.ByNameAndDate -> connection.searchByDateAndName(search)
+                is Search.ByDate -> connection.searchByDate(search)
+                is Search.ByInitialsAndDate -> connection.searchByInitialsAndDate(search)
+            }
+            connection.joinVirksomhetForPersons(personstatuser)
         }
-        val personOppfolgingstilfelleVirksomhetMap =
-            getVirksomheterForPersons(pPersonOversikStatusIds = persons.map { it.id })
-                .groupBy { it.personOversiktStatusId }
 
-        return persons.map {
-            val personOppfolgingstilfelleVirksomhetList =
-                personOppfolgingstilfelleVirksomhetMap[it.id]?.toPersonOppfolgingstilfelleVirksomhet() ?: emptyList()
-            it.toPersonOversiktStatus(personOppfolgingstilfelleVirksomhetList = personOppfolgingstilfelleVirksomhetList)
-        }
-    }
-
-    private fun searchByName(search: Search.ByName): List<PPersonOversiktStatus> {
+    private fun Connection.searchByName(search: Search.ByName): List<PPersonOversiktStatus> {
         val name = search.name.value.split(" ").joinToString(separator = "% ", postfix = "%")
         val nameQuery = "AND p.name ILIKE ?"
         val query = "$SEARCH_PERSON_BASE_QUERY $nameQuery $ORDER_BY_ASC"
-        return database.connection.use { connection ->
-            connection.prepareStatement(query).use {
-                it.setString(1, name)
-                it.executeQuery().toList { toPPersonOversiktStatus() }
-            }
+        return this.prepareStatement(query).use {
+            it.setString(1, name)
+            it.executeQuery().toList { toPPersonOversiktStatus() }
         }
     }
 
-    private fun searchByDateAndName(search: Search.ByNameAndDate): List<PPersonOversiktStatus> {
+    private fun Connection.searchByDateAndName(search: Search.ByNameAndDate): List<PPersonOversiktStatus> {
         val name = search.name.value.split(" ").joinToString(separator = "% ", postfix = "%")
         val nameAndDateQuery = "AND p.name ILIKE ? AND p.fodselsdato = ?"
         val query = "$SEARCH_PERSON_BASE_QUERY $nameAndDateQuery $ORDER_BY_ASC"
-        return database.connection.use { connection ->
-            connection.prepareStatement(query).use {
-                it.setString(1, name)
-                it.setDate(2, Date.valueOf(search.birthdate))
-                it.executeQuery().toList { toPPersonOversiktStatus() }
-            }
+        return this.prepareStatement(query).use {
+            it.setString(1, name)
+            it.setDate(2, Date.valueOf(search.birthdate))
+            it.executeQuery().toList { toPPersonOversiktStatus() }
         }
     }
 
-    private fun searchByDate(search: Search.ByDate): List<PPersonOversiktStatus> {
+    private fun Connection.searchByDate(search: Search.ByDate): List<PPersonOversiktStatus> {
         val dateQuery = "AND p.fodselsdato = ?"
         val query = "$SEARCH_PERSON_BASE_QUERY $dateQuery $ORDER_BY_ASC"
-        return database.connection.use { connection ->
-            connection.prepareStatement(query).use {
-                it.setDate(1, Date.valueOf(search.birthdate))
-                it.executeQuery().toList { toPPersonOversiktStatus() }
-            }
+        return this.prepareStatement(query).use {
+            it.setDate(1, Date.valueOf(search.birthdate))
+            it.executeQuery().toList { toPPersonOversiktStatus() }
         }
     }
 
-    private fun searchByInitialsAndDate(search: Search.ByInitialsAndDate): List<PPersonOversiktStatus> {
+    private fun Connection.searchByInitialsAndDate(search: Search.ByInitialsAndDate): List<PPersonOversiktStatus> {
         val initials = search.initials.value.toList().joinToString(separator = "% ", postfix = "%")
         val initialsAndDateQuery = "AND p.name ILIKE ? AND p.fodselsdato = ?"
         val query = "$SEARCH_PERSON_BASE_QUERY $initialsAndDateQuery $ORDER_BY_ASC"
-        return database.connection.use { connection ->
-            connection.prepareStatement(query).use {
-                it.setString(1, initials)
-                it.setDate(2, Date.valueOf(search.birthdate))
-                it.executeQuery().toList { toPPersonOversiktStatus() }
-            }
+        return this.prepareStatement(query).use {
+            it.setString(1, initials)
+            it.setDate(2, Date.valueOf(search.birthdate))
+            it.executeQuery().toList { toPPersonOversiktStatus() }
         }
     }
 
@@ -470,20 +450,30 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
 
     override fun hentUbehandledePersonerTilknyttetEnhet(enhet: String): List<PersonOversiktStatus> =
         database.connection.use { connection ->
-            connection.prepareStatement(GET_UBEHANDLEDE_PERSONER_TILKNYTTET_ENHET).use {
+            val personstatuser = connection.prepareStatement(GET_UBEHANDLEDE_PERSONER_TILKNYTTET_ENHET).use {
                 it.setString(1, enhet)
                 it.executeQuery().toList { toPPersonOversiktStatus() }
             }
-        }.map { it.toPersonOversiktStatus() }
+            connection.joinVirksomhetForPersons(personstatuser)
+        }
 
-    fun getVirksomheterForPersons(
-        pPersonOversikStatusIds: List<Int>,
-    ): List<PPersonOppfolgingstilfelleVirksomhet> =
-        database.connection.use { connection ->
-            connection.prepareStatement(GET_PERSON_OPPFOLGINGSTILFELLE_VIRKSOMHET_FOR_IDS).use {
-                it.setArray(1, connection.createArrayOf("INTEGER", pPersonOversikStatusIds.toTypedArray()))
-                it.executeQuery().toList { toPPersonOppfolgingstilfelleVirksomhet() }
-            }
+    private fun Connection.joinVirksomhetForPersons(personstatuser: List<PPersonOversiktStatus>): List<PersonOversiktStatus> {
+        val personstatusIds = personstatuser.map { it.id }
+        val virksomheterForPerson = this.getVirksomheterForPersons(personstatusIds)
+            .groupBy { it.personOversiktStatusId }
+        return personstatuser.map { personstatus ->
+            val personOppfolgingstilfelleVirksomhetList =
+                virksomheterForPerson[personstatus.id]?.toPersonOppfolgingstilfelleVirksomhet() ?: emptyList()
+            personstatus.toPersonOversiktStatus(
+                personOppfolgingstilfelleVirksomhetList = personOppfolgingstilfelleVirksomhetList,
+            )
+        }
+    }
+
+    private fun Connection.getVirksomheterForPersons(personstatusIds: List<Int>) =
+        this.prepareStatement(GET_PERSON_OPPFOLGINGSTILFELLE_VIRKSOMHET_FOR_IDS).use {
+            it.setArray(1, this.createArrayOf("INTEGER", personstatusIds.toTypedArray()))
+            it.executeQuery().toList { toPPersonOppfolgingstilfelleVirksomhet() }
         }
 
     companion object {

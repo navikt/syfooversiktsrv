@@ -2,11 +2,10 @@ package no.nav.syfo.personstatus.application
 
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.personstatus.infrastructure.kafka.identhendelse.KafkaIdenthendelseDTO
-import no.nav.syfo.personstatus.domain.PPersonOversiktStatus
 import no.nav.syfo.personstatus.domain.PersonIdent
+import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.personstatus.infrastructure.COUNT_KAFKA_CONSUMER_PDL_AKTOR_UPDATES
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
-import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList
 import no.nav.syfo.personstatus.infrastructure.database.queries.queryDeletePersonOversiktStatusFnr
 import no.nav.syfo.personstatus.infrastructure.database.queries.updatePersonOversiktStatusFnr
 import no.nav.syfo.personstatus.infrastructure.database.queries.updatePersonOversiktStatusVeileder
@@ -16,6 +15,7 @@ import org.slf4j.LoggerFactory
 class IdenthendelseService(
     private val database: DatabaseInterface,
     private val pdlClient: IPdlClient,
+    private val personOversiktStatusRepository: IPersonOversiktStatusRepository,
 ) {
 
     private val log: Logger = LoggerFactory.getLogger(IdenthendelseService::class.java)
@@ -25,8 +25,8 @@ class IdenthendelseService(
             val activeIdent = identhendelse.getActivePersonident()
             if (activeIdent != null) {
                 val inactiveIdenter = identhendelse.getInactivePersonidenter()
-                val personOversiktStatusWithOldIdent = inactiveIdenter.flatMap { personident ->
-                    database.getPersonOversiktStatusList(personident.value)
+                val personOversiktStatusWithOldIdent = inactiveIdenter.mapNotNull { personident ->
+                    personOversiktStatusRepository.getPersonOversiktStatus(PersonIdent(personident.value))
                 }
 
                 if (personOversiktStatusWithOldIdent.isNotEmpty()) {
@@ -54,14 +54,13 @@ class IdenthendelseService(
 
     private fun updateOrOverrideAndDeletePersonOversiktStatus(
         activeIdent: PersonIdent,
-        personOversiktStatusWithOldIdent: List<PPersonOversiktStatus>,
+        personOversiktStatusWithOldIdent: List<PersonOversiktStatus>,
     ): Int {
         var updatedRows = 0
-        val personOversiktStatusActiveIdentList = database.getPersonOversiktStatusList(activeIdent.value)
-        if (personOversiktStatusActiveIdentList.isNotEmpty()) {
-            val personOversiktStatusActiveIdent = personOversiktStatusActiveIdentList.first()
+        val personstatusActiveIdent = personOversiktStatusRepository.getPersonOversiktStatus(PersonIdent(activeIdent.value))
+        if (personstatusActiveIdent != null) {
             val oldStatus = personOversiktStatusWithOldIdent.first()
-            if (personOversiktStatusActiveIdent.veilederIdent == null && oldStatus.veilederIdent != null) {
+            if (personstatusActiveIdent.veilederIdent == null && oldStatus.veilederIdent != null) {
                 updatedRows += database.updatePersonOversiktStatusVeileder(oldStatus.veilederIdent, activeIdent)
             }
             database.queryDeletePersonOversiktStatusFnr(oldStatus.fnr)

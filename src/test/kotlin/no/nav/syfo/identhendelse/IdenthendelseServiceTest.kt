@@ -36,6 +36,7 @@ class IdenthendelseServiceTest {
     private val identhendelseService = IdenthendelseService(
         database = database,
         pdlClient = pdlClient,
+        personOversiktStatusRepository = externalMockEnvironment.personOversiktStatusRepository,
     )
 
     @BeforeEach
