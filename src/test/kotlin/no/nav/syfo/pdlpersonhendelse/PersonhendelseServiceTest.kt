@@ -2,20 +2,22 @@ package no.nav.syfo.pdlpersonhendelse
 
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.personstatus.application.PdlPersonhendelseService
+import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.personstatus.infrastructure.database.queries.createPersonOversiktStatus
-import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList
 import no.nav.syfo.testutil.ExternalMockEnvironment
 import no.nav.syfo.testutil.generator.generateKafkaPersonhendelse
-import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertNotNull
 import org.junit.jupiter.api.assertNull
+import org.junit.jupiter.api.assertThrows
 
 class PersonhendelseServiceTest {
     private val externalMockEnvironment = ExternalMockEnvironment.instance
     private val database = externalMockEnvironment.database
+    private val personOversiktStatusRepository = externalMockEnvironment.personOversiktStatusRepository
 
     private val pdlPersonhendelseService = PdlPersonhendelseService(
         database = database,
@@ -43,13 +45,11 @@ class PersonhendelseServiceTest {
             )
         }
 
-        runBlocking {
-            pdlPersonhendelseService.handlePersonhendelse(kafkaPersonhendelse)
-        }
+        pdlPersonhendelseService.handlePersonhendelse(kafkaPersonhendelse)
 
-        val updatedPersonOversiktStatus = database.getPersonOversiktStatusList(ident)
-        assertEquals(1, updatedPersonOversiktStatus.size)
-        assertNull(updatedPersonOversiktStatus.first().navn)
+        val updatedPersonOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(PersonIdent(ident))
+        assertNotNull(updatedPersonOversiktStatus)
+        assertNull(updatedPersonOversiktStatus!!.navn)
     }
 
     @Test
@@ -74,8 +74,8 @@ class PersonhendelseServiceTest {
             pdlPersonhendelseService.handlePersonhendelse(kafkaPersonhendelse)
         }
 
-        val updatedPersonOversiktStatus = database.getPersonOversiktStatusList(ident)
-        assertEquals(1, updatedPersonOversiktStatus.size)
-        assertNotNull(updatedPersonOversiktStatus.first().navn)
+        assertThrows(IllegalArgumentException::class.java) {
+            personOversiktStatusRepository.getPersonOversiktStatus(PersonIdent(ident))
+        }
     }
 }

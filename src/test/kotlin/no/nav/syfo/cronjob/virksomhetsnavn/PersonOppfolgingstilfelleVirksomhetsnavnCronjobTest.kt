@@ -233,9 +233,9 @@ class PersonOppfolgingstilfelleVirksomhetsnavnCronjobTest {
 
             val recordValue = kafkaOppfolgingstilfellePersonServiceRecordRelevant.value()
 
-            val pPersonOversiktStatusList = database.getPersonOversiktStatusList(
-                fnr = recordValue.personIdentNumber,
-            )
+            val pPersonOversiktStatusList = database.connection.use { connection ->
+                connection.getPersonOversiktStatusList(fnr = recordValue.personIdentNumber)
+            }
 
             assertEquals(1, pPersonOversiktStatusList.size)
 
@@ -294,9 +294,9 @@ class PersonOppfolgingstilfelleVirksomhetsnavnCronjobTest {
 
             val recordValue = kafkaOppfolgingstilfellePersonServiceRecordRelevant.value()
 
-            val pPersonOversiktStatusList = database.getPersonOversiktStatusList(
-                fnr = recordValue.personIdentNumber,
-            )
+            val pPersonOversiktStatusList = database.connection.use { connection ->
+                connection.getPersonOversiktStatusList(fnr = recordValue.personIdentNumber)
+            }
 
             assertEquals(1, pPersonOversiktStatusList.size)
 

@@ -171,13 +171,10 @@ class PersonBehandlendeEnhetCronjobTest {
             assertEquals(1, result.updated)
         }
 
-        val pPersonOversiktStatusList = database.getPersonOversiktStatusList(fnr = personIdentDefault.value)
-        assertEquals(1, pPersonOversiktStatusList.size)
+        val pPersonOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(personIdentDefault)
 
-        val pPersonOversiktStatus = pPersonOversiktStatusList.first()
-
-        assertNotNull(pPersonOversiktStatus.enhet)
-        assertNotNull(pPersonOversiktStatus.tildeltEnhetUpdatedAt)
+        assertNotNull(pPersonOversiktStatus)
+        assertNotNull(pPersonOversiktStatus!!.enhet)
 
         runBlocking {
             val result = personBehandlendeEnhetCronjob.runJob()

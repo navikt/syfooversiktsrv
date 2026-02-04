@@ -7,11 +7,12 @@ import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.PdlClient
 import no.nav.syfo.personstatus.infrastructure.database.queries.createPersonOversiktStatus
-import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList
 import no.nav.syfo.testutil.ExternalMockEnvironment
 import no.nav.syfo.testutil.UserConstants
 import no.nav.syfo.testutil.generator.generateKafkaIdenthendelseDTO
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -22,6 +23,7 @@ class IdenthendelseServiceTest {
 
     private val externalMockEnvironment = ExternalMockEnvironment.instance
     private val database = externalMockEnvironment.database
+    private val personOversiktStatusRepository = externalMockEnvironment.personOversiktStatusRepository
 
     private val pdlClient = PdlClient(
         azureAdClient = AzureAdClient(
@@ -64,17 +66,17 @@ class IdenthendelseServiceTest {
             }
 
             // Check that person with old/current personident exist in db before update
-            val oldPersonOversiktStatus = database.getPersonOversiktStatusList(oldIdent.value)
-            assertEquals(1, oldPersonOversiktStatus.size)
+            val oldPersonOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(oldIdent)
+            assertNotNull(oldPersonOversiktStatus)
 
             runBlocking {
                 identhendelseService.handleIdenthendelse(kafkaIdenthendelseDTO)
             }
 
             // Check that person with new personident exist in db after update
-            val updatedPersonOversiktStatus = database.getPersonOversiktStatusList(newIdent.value)
-            assertEquals(1, updatedPersonOversiktStatus.size)
-            assertEquals(oldPersonOversiktStatus.first().uuid, updatedPersonOversiktStatus.first().uuid)
+            val updatedPersonOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(newIdent)
+            assertNotNull(updatedPersonOversiktStatus)
+            assertEquals(oldPersonOversiktStatus!!.uuid, updatedPersonOversiktStatus!!.uuid)
         }
 
         @Test
@@ -84,20 +86,20 @@ class IdenthendelseServiceTest {
             val oldIdent = PersonIdent("12333378910")
 
             // Check that person with old/current personident do not exist in db before update
-            val currentPersonOversiktStatus = database.getPersonOversiktStatusList(oldIdent.value)
-            assertEquals(0, currentPersonOversiktStatus.size)
+            val currentPersonOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(oldIdent)
+            assertNull(currentPersonOversiktStatus)
 
             // Check that person with new personident do not exist in db before update
-            val newPersonOversiktStatus = database.getPersonOversiktStatusList(newIdent.value)
-            assertEquals(0, newPersonOversiktStatus.size)
+            val newPersonOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(newIdent)
+            assertNull(newPersonOversiktStatus)
 
             runBlocking {
                 identhendelseService.handleIdenthendelse(kafkaIdenthendelseDTO)
             }
 
             // Check that person with new personident still do not exist in db after update
-            val updatedPersonOversiktStatus = database.getPersonOversiktStatusList(newIdent.value)
-            assertEquals(0, updatedPersonOversiktStatus.size)
+            val updatedPersonOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(newIdent)
+            assertNull(updatedPersonOversiktStatus)
         }
 
         @Test
@@ -106,16 +108,16 @@ class IdenthendelseServiceTest {
             val newIdent = kafkaIdenthendelseDTO.getActivePersonident()!!
 
             // Check that person with new personident do not exist in db before update
-            val newPersonOversiktStatus = database.getPersonOversiktStatusList(newIdent.value)
-            assertEquals(0, newPersonOversiktStatus.size)
+            val newPersonOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(newIdent)
+            assertNull(newPersonOversiktStatus)
 
             runBlocking {
                 identhendelseService.handleIdenthendelse(kafkaIdenthendelseDTO)
             }
 
             // Check that person with new personident still do not exist in db after update
-            val updatedPersonOversiktStatus = database.getPersonOversiktStatusList(newIdent.value)
-            assertEquals(0, updatedPersonOversiktStatus.size)
+            val updatedPersonOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(newIdent)
+            assertNull(updatedPersonOversiktStatus)
         }
 
         @Test
@@ -148,12 +150,12 @@ class IdenthendelseServiceTest {
                 identhendelseService.handleIdenthendelse(kafkaIdenthendelseDTO)
             }
 
-            val updatedPersonOversiktStatus = database.getPersonOversiktStatusList(newIdent.value)
-            assertEquals(1, updatedPersonOversiktStatus.size)
-            assertEquals(veilederIdent, updatedPersonOversiktStatus.first().veilederIdent)
+            val updatedPersonOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(newIdent)
+            assertNotNull(updatedPersonOversiktStatus)
+            assertEquals(veilederIdent, updatedPersonOversiktStatus!!.veilederIdent)
 
-            val oldPersonOversiktStatus = database.getPersonOversiktStatusList(oldIdent.value)
-            assertEquals(0, oldPersonOversiktStatus.size)
+            val oldPersonOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(oldIdent)
+            assertNull(oldPersonOversiktStatus)
         }
     }
 
@@ -177,7 +179,7 @@ class IdenthendelseServiceTest {
                 )
             }
 
-            assertEquals(1, database.getPersonOversiktStatusList(oldIdent.value).size)
+            assertNotNull(personOversiktStatusRepository.getPersonOversiktStatus(oldIdent))
 
             runBlocking {
                 assertThrows(IllegalStateException::class.java) {
@@ -202,7 +204,7 @@ class IdenthendelseServiceTest {
                 )
             }
 
-            assertEquals(1, database.getPersonOversiktStatusList(oldIdent.value).size)
+            assertNotNull(personOversiktStatusRepository.getPersonOversiktStatus(oldIdent))
 
             runBlocking {
                 assertThrows(RuntimeException::class.java) {

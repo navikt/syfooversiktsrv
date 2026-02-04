@@ -4,7 +4,6 @@ import no.nav.syfo.personstatus.api.v2.model.SearchQueryDTO
 import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.personstatus.infrastructure.database.queries.createPersonOversiktStatus
-import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList
 import no.nav.syfo.testutil.ExternalMockEnvironment
 import no.nav.syfo.testutil.UserConstants
 import no.nav.syfo.testutil.generator.generateOppfolgingstilfelle
@@ -68,8 +67,9 @@ class PersonOversiktStatusRepositoryTest {
             )
 
             assertTrue(result.isSuccess)
-            val personOversiktStatus = database.getPersonOversiktStatusList(fnr = UserConstants.ARBEIDSTAKER_FNR).first()
-            assertNotEquals(newPersonOversiktStatus.isAktivArbeidsuforhetvurdering, personOversiktStatus.isAktivArbeidsuforhetvurdering)
+            val personOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(PersonIdent(UserConstants.ARBEIDSTAKER_FNR))
+            assertNotNull(personOversiktStatus)
+            assertNotEquals(newPersonOversiktStatus.isAktivArbeidsuforhetvurdering, personOversiktStatus!!.isAktivArbeidsuforhetvurdering)
             assertTrue(personOversiktStatus.isAktivArbeidsuforhetvurdering)
         }
 
@@ -90,8 +90,9 @@ class PersonOversiktStatusRepositoryTest {
             )
 
             assertTrue(result.isSuccess)
-            val personOversiktStatus = database.getPersonOversiktStatusList(fnr = UserConstants.ARBEIDSTAKER_FNR).first()
-            assertNotEquals(newPersonOversiktStatus.isAktivArbeidsuforhetvurdering, personOversiktStatus.isAktivArbeidsuforhetvurdering)
+            val personOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(PersonIdent(UserConstants.ARBEIDSTAKER_FNR))
+            assertNotNull(personOversiktStatus)
+            assertNotEquals(newPersonOversiktStatus.isAktivArbeidsuforhetvurdering, personOversiktStatus!!.isAktivArbeidsuforhetvurdering)
             assertFalse(personOversiktStatus.isAktivArbeidsuforhetvurdering)
         }
 
@@ -102,8 +103,8 @@ class PersonOversiktStatusRepositoryTest {
                 isAktivVurdering = false
             )
 
-            val personOversiktStatus = database.getPersonOversiktStatusList(fnr = UserConstants.ARBEIDSTAKER_FNR)
-            assertTrue(personOversiktStatus.isNotEmpty())
+            val personOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(arbeidstakerFnr)
+            assertNotNull(personOversiktStatus)
             assertTrue(result.isSuccess)
         }
     }
@@ -128,8 +129,9 @@ class PersonOversiktStatusRepositoryTest {
             )
 
             assertTrue(result.isSuccess)
-            val pPersonOversiktStatus = database.getPersonOversiktStatusList(fnr = UserConstants.ARBEIDSTAKER_FNR).first()
-            assertNotEquals(newPersonOversiktStatus.isAktivSenOppfolgingKandidat, pPersonOversiktStatus.isAktivSenOppfolgingKandidat)
+            val pPersonOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(arbeidstakerFnr)
+            assertNotNull(pPersonOversiktStatus)
+            assertNotEquals(newPersonOversiktStatus.isAktivSenOppfolgingKandidat, pPersonOversiktStatus!!.isAktivSenOppfolgingKandidat)
             assertTrue(pPersonOversiktStatus.isAktivSenOppfolgingKandidat)
         }
 
@@ -150,8 +152,9 @@ class PersonOversiktStatusRepositoryTest {
             )
 
             assertTrue(result.isSuccess)
-            val pPersonOversiktStatus = database.getPersonOversiktStatusList(fnr = UserConstants.ARBEIDSTAKER_FNR).first()
-            assertNotEquals(newPersonOversiktStatus.isAktivSenOppfolgingKandidat, pPersonOversiktStatus.isAktivSenOppfolgingKandidat)
+            val pPersonOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(arbeidstakerFnr)
+            assertNotNull(pPersonOversiktStatus)
+            assertNotEquals(newPersonOversiktStatus.isAktivSenOppfolgingKandidat, pPersonOversiktStatus!!.isAktivSenOppfolgingKandidat)
             assertFalse(pPersonOversiktStatus.isAktivSenOppfolgingKandidat)
         }
 
@@ -162,8 +165,8 @@ class PersonOversiktStatusRepositoryTest {
                 isAktivKandidat = true,
             )
 
-            val pPersonOversiktStatus = database.getPersonOversiktStatusList(fnr = UserConstants.ARBEIDSTAKER_FNR)
-            assertTrue(pPersonOversiktStatus.isNotEmpty())
+            val pPersonOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(arbeidstakerFnr)
+            assertNotNull(pPersonOversiktStatus)
             assertTrue(result.isSuccess)
         }
     }
@@ -274,8 +277,9 @@ class PersonOversiktStatusRepositoryTest {
             )
 
             assertTrue(result.isSuccess)
-            val pPersonOversiktStatus = database.getPersonOversiktStatusList(fnr = UserConstants.ARBEIDSTAKER_FNR).first()
-            assertNotEquals(newPersonOversiktStatus.isAktivAktivitetskravvurdering, pPersonOversiktStatus.isAktivAktivitetskravvurdering)
+            val pPersonOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(arbeidstakerFnr)
+            assertNotNull(pPersonOversiktStatus)
+            assertNotEquals(newPersonOversiktStatus.isAktivAktivitetskravvurdering, pPersonOversiktStatus!!.isAktivAktivitetskravvurdering)
             assertTrue(pPersonOversiktStatus.isAktivAktivitetskravvurdering)
         }
 

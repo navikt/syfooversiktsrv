@@ -1,7 +1,6 @@
 package no.nav.syfo.personstatus.infrastructure.database.queries
 
 import no.nav.syfo.personstatus.domain.PPersonOversiktStatus
-import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import no.nav.syfo.personstatus.infrastructure.database.toList
 import java.sql.Connection
 import java.sql.ResultSet
@@ -24,15 +23,6 @@ fun Connection.getPersonOversiktStatusList(
         it.setString(1, fnr)
         it.executeQuery().toList { toPPersonOversiktStatus() }
     }
-
-@Deprecated("Use getPersonOversiktStatus in PersonOversiktStatusRepository")
-fun DatabaseInterface.getPersonOversiktStatusList(
-    fnr: String,
-): List<PPersonOversiktStatus> {
-    return connection.use { connection ->
-        connection.getPersonOversiktStatusList(fnr = fnr)
-    }
-}
 
 fun ResultSet.toPPersonOversiktStatus(): PPersonOversiktStatus =
     PPersonOversiktStatus(

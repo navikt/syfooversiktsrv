@@ -5,9 +5,9 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
+import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.personstatus.infrastructure.database.queries.createPersonOversiktStatus
-import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList
 import no.nav.syfo.personstatus.infrastructure.kafka.mockPollConsumerRecords
 import no.nav.syfo.personstatus.infrastructure.kafka.oppfolgingsenfase.KandidatStatusRecord
 import no.nav.syfo.personstatus.infrastructure.kafka.oppfolgingsenfase.SenOppfolgingKandidatStatusConsumer
@@ -21,6 +21,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import java.time.OffsetDateTime
 import java.util.*
@@ -28,6 +29,7 @@ import java.util.*
 class SenOppfolgingKandidatStatusConsumerTest {
     private val externalMockEnvironment = ExternalMockEnvironment.instance
     private val database = externalMockEnvironment.database
+    private val personOversiktStatusRepository = externalMockEnvironment.personOversiktStatusRepository
     private val kafkaConsumer = mockk<KafkaConsumer<String, KandidatStatusRecord>>()
     private val personoversiktStatusService = externalMockEnvironment.personoversiktStatusService
 
@@ -68,8 +70,9 @@ class SenOppfolgingKandidatStatusConsumerTest {
         verify(exactly = 1) {
             kafkaConsumer.commitSync()
         }
-        val pPersonstatus = database.getPersonOversiktStatusList(fnr = UserConstants.ARBEIDSTAKER_FNR).single()
-        assertEquals(kandidatStatusRecord.personident, pPersonstatus.fnr)
+        val pPersonstatus = personOversiktStatusRepository.getPersonOversiktStatus(PersonIdent(UserConstants.ARBEIDSTAKER_FNR))
+        assertNotNull(pPersonstatus)
+        assertEquals(kandidatStatusRecord.personident, pPersonstatus!!.fnr)
         assertTrue(pPersonstatus.isAktivSenOppfolgingKandidat)
     }
 
@@ -93,8 +96,9 @@ class SenOppfolgingKandidatStatusConsumerTest {
         verify(exactly = 1) {
             kafkaConsumer.commitSync()
         }
-        val updatedPersonstatus = database.getPersonOversiktStatusList(fnr = UserConstants.ARBEIDSTAKER_FNR).single()
-        assertEquals(kandidatStatusRecord.personident, updatedPersonstatus.fnr)
+        val updatedPersonstatus = personOversiktStatusRepository.getPersonOversiktStatus(PersonIdent(UserConstants.ARBEIDSTAKER_FNR))
+        assertNotNull(updatedPersonstatus)
+        assertEquals(kandidatStatusRecord.personident, updatedPersonstatus!!.fnr)
         assertTrue(updatedPersonstatus.isAktivSenOppfolgingKandidat)
     }
 
@@ -127,8 +131,9 @@ class SenOppfolgingKandidatStatusConsumerTest {
         verify(exactly = 1) {
             kafkaConsumer.commitSync()
         }
-        val updatedPersonstatus = database.getPersonOversiktStatusList(fnr = UserConstants.ARBEIDSTAKER_FNR).single()
-        assertEquals(kandidatStatusFerdigbehandletRecord.personident, updatedPersonstatus.fnr)
+        val updatedPersonstatus = personOversiktStatusRepository.getPersonOversiktStatus(PersonIdent(UserConstants.ARBEIDSTAKER_FNR))
+        assertNotNull(updatedPersonstatus)
+        assertEquals(kandidatStatusFerdigbehandletRecord.personident, updatedPersonstatus!!.fnr)
         assertFalse(updatedPersonstatus.isAktivSenOppfolgingKandidat)
     }
 }
