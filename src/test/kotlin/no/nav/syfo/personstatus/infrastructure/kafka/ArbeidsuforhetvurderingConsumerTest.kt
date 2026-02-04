@@ -8,7 +8,6 @@ import kotlinx.coroutines.runBlocking
 import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.personstatus.infrastructure.database.queries.createPersonOversiktStatus
-import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList
 import no.nav.syfo.testutil.ExternalMockEnvironment
 import no.nav.syfo.testutil.UserConstants
 import org.apache.kafka.clients.consumer.KafkaConsumer
@@ -21,6 +20,7 @@ import java.util.*
 class ArbeidsuforhetvurderingConsumerTest {
     private val externalMockEnvironment = ExternalMockEnvironment.instance
     private val database = externalMockEnvironment.database
+    private val personOversiktStatusRepository = externalMockEnvironment.personOversiktStatusRepository
     private val kafkaConsumer = mockk<KafkaConsumer<String, ArbeidsuforhetvurderingRecord>>()
     private val personoversiktStatusService = externalMockEnvironment.personoversiktStatusService
 
@@ -66,8 +66,9 @@ class ArbeidsuforhetvurderingConsumerTest {
         verify(exactly = 1) {
             kafkaConsumer.commitSync()
         }
-        val updatedPersonstatus = database.getPersonOversiktStatusList(fnr = UserConstants.ARBEIDSTAKER_FNR).single()
-        assertEquals(arbeidsuforhetvurderingRecord.personident, updatedPersonstatus.fnr)
+        val updatedPersonstatus = personOversiktStatusRepository.getPersonOversiktStatus(PersonIdent(UserConstants.ARBEIDSTAKER_FNR))
+        assertNotNull(updatedPersonstatus)
+        assertEquals(arbeidsuforhetvurderingRecord.personident, updatedPersonstatus!!.fnr)
 
         assertNotEquals(personoversiktStatus.isAktivArbeidsuforhetvurdering, updatedPersonstatus.isAktivArbeidsuforhetvurdering)
         assertFalse(updatedPersonstatus.isAktivArbeidsuforhetvurdering)

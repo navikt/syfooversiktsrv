@@ -9,7 +9,6 @@ import no.nav.syfo.personstatus.api.v2.model.VeilederBrukerKnytningDTO
 import no.nav.syfo.personstatus.api.v2.model.VeilederTildelingHistorikkDTO
 import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
-import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_2_FNR
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
@@ -21,6 +20,7 @@ import no.nav.syfo.testutil.UserConstants.VEILEDER_ID_NOT_ENABLED
 import no.nav.syfo.util.NAV_PERSONIDENT_HEADER
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import java.time.LocalDate
 
 class PersontildelingApiV2Test {
@@ -268,8 +268,9 @@ class PersontildelingApiV2Test {
                     }
                     assertEquals(HttpStatusCode.OK, response.status)
 
-                    val person = database.getPersonOversiktStatusList(fnr = veilederBrukerKnytning.fnr).first()
-                    assertEquals(veilederBrukerKnytning.veilederIdent, person.veilederIdent)
+                    val person = personOversiktStatusRepository.getPersonOversiktStatus(PersonIdent(veilederBrukerKnytning.fnr))
+                    assertNotNull(person)
+                    assertEquals(veilederBrukerKnytning.veilederIdent, person!!.veilederIdent)
 
                     val historikk = personOversiktStatusRepository.getVeilederTilknytningHistorikk(
                         PersonIdent(ARBEIDSTAKER_FNR)
@@ -301,8 +302,9 @@ class PersontildelingApiV2Test {
                     }
                     assertEquals(HttpStatusCode.OK, response.status)
 
-                    val person = database.getPersonOversiktStatusList(fnr = veilederBrukerKnytning.fnr).first()
-                    assertEquals(veilederBrukerKnytning.veilederIdent, person.veilederIdent)
+                    val person = personOversiktStatusRepository.getPersonOversiktStatus(PersonIdent(veilederBrukerKnytning.fnr))
+                    assertNotNull(person)
+                    assertEquals(veilederBrukerKnytning.veilederIdent, person!!.veilederIdent)
 
                     val historikk =
                         personOversiktStatusRepository.getVeilederTilknytningHistorikk(PersonIdent(ARBEIDSTAKER_FNR))
@@ -341,8 +343,9 @@ class PersontildelingApiV2Test {
                     }
                     assertEquals(HttpStatusCode.OK, response.status)
 
-                    val person = database.getPersonOversiktStatusList(fnr = veilederBrukerKnytning.fnr).first()
-                    assertEquals(veilederBrukerKnytning.veilederIdent, person.veilederIdent)
+                    val person = personOversiktStatusRepository.getPersonOversiktStatus(PersonIdent(veilederBrukerKnytning.fnr))
+                    assertNotNull(person)
+                    assertEquals(veilederBrukerKnytning.veilederIdent, person!!.veilederIdent)
                     val historikk =
                         personOversiktStatusRepository.getVeilederTilknytningHistorikk(PersonIdent(ARBEIDSTAKER_FNR))
                     assertEquals(1, historikk.size)
@@ -375,8 +378,9 @@ class PersontildelingApiV2Test {
                     }
                     assertEquals(HttpStatusCode.OK, response.status)
 
-                    val person = database.getPersonOversiktStatusList(fnr = veilederBrukerKnytning.fnr).first()
-                    assertEquals(veilederBrukerKnytning.veilederIdent, person.veilederIdent)
+                    val person = personOversiktStatusRepository.getPersonOversiktStatus(PersonIdent(veilederBrukerKnytning.fnr))
+                    assertNotNull(person)
+                    assertEquals(veilederBrukerKnytning.veilederIdent, person!!.veilederIdent)
                     val historikk =
                         personOversiktStatusRepository.getVeilederTilknytningHistorikk(PersonIdent(ARBEIDSTAKER_FNR))
                     assertEquals(2, historikk.size)

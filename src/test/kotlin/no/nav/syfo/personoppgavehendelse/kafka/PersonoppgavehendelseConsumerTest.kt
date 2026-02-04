@@ -3,8 +3,8 @@ package no.nav.syfo.personoppgavehendelse.kafka
 import io.mockk.every
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.personstatus.domain.OversikthendelseType
+import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
-import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList
 import no.nav.syfo.personstatus.infrastructure.kafka.personoppgavehendelse.KPersonoppgavehendelse
 import no.nav.syfo.personstatus.infrastructure.kafka.personoppgavehendelse.PERSONOPPGAVEHENDELSE_TOPIC
 import no.nav.syfo.personstatus.infrastructure.kafka.personoppgavehendelse.PersonoppgavehendelseConsumer
@@ -16,6 +16,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.TopicPartition
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -24,6 +25,7 @@ import java.time.Duration
 class PersonoppgavehendelseConsumerTest {
     private val internalMockEnvironment = InternalMockEnvironment.instance
     private val database = ExternalMockEnvironment.instance.database
+    private val personOversiktStatusRepository = ExternalMockEnvironment.instance.personOversiktStatusRepository
     private val personoversiktStatusService = internalMockEnvironment.personoversiktStatusService
     private val personoppgavehendelseConsumer = PersonoppgavehendelseConsumer(personoversiktStatusService)
     private val mockPersonoppgavehendelseConsumer = TestKafkaModule.kafkaPersonoppgavehendelse
@@ -54,9 +56,9 @@ class PersonoppgavehendelseConsumerTest {
             personoppgavehendelseConsumer.pollAndProcessRecords(kafkaConsumer = mockPersonoppgavehendelseConsumer)
         }
 
-        val personoversiktStatuser = database.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
-        val firstStatus = personoversiktStatuser.first()
-        val isUbehandlet = firstStatus.oppfolgingsplanLPSBistandUbehandlet!!
+        val personoversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(PersonIdent(UserConstants.ARBEIDSTAKER_FNR))
+        assertNotNull(personoversiktStatus)
+        val isUbehandlet = personoversiktStatus!!.oppfolgingsplanLPSBistandUbehandlet!!
         assertTrue(isUbehandlet)
     }
 
@@ -71,9 +73,9 @@ class PersonoppgavehendelseConsumerTest {
             personoppgavehendelseConsumer.pollAndProcessRecords(kafkaConsumer = mockPersonoppgavehendelseConsumer)
         }
 
-        val personoversiktStatuser = database.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
-        val firstStatus = personoversiktStatuser.first()
-        val isUbehandlet = firstStatus.oppfolgingsplanLPSBistandUbehandlet!!
+        val personoversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(PersonIdent(UserConstants.ARBEIDSTAKER_FNR))
+        assertNotNull(personoversiktStatus)
+        val isUbehandlet = personoversiktStatus!!.oppfolgingsplanLPSBistandUbehandlet!!
         assertFalse(isUbehandlet)
     }
 
@@ -91,9 +93,9 @@ class PersonoppgavehendelseConsumerTest {
             personoppgavehendelseConsumer.pollAndProcessRecords(kafkaConsumer = mockPersonoppgavehendelseConsumer)
         }
 
-        val personoversiktStatuser = database.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
-        val firstStatus = personoversiktStatuser.first()
-        val isUbehandlet = firstStatus.dialogmotesvarUbehandlet
+        val personoversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(PersonIdent(UserConstants.ARBEIDSTAKER_FNR))
+        assertNotNull(personoversiktStatus)
+        val isUbehandlet = personoversiktStatus!!.dialogmotesvarUbehandlet
         assertFalse(isUbehandlet)
     }
 
@@ -108,9 +110,9 @@ class PersonoppgavehendelseConsumerTest {
             personoppgavehendelseConsumer.pollAndProcessRecords(kafkaConsumer = mockPersonoppgavehendelseConsumer)
         }
 
-        val personoversiktStatuser = database.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
-        val firstStatus = personoversiktStatuser.first()
-        val isUbehandlet = firstStatus.behandlerdialogSvarUbehandlet
+        val personoversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(PersonIdent(UserConstants.ARBEIDSTAKER_FNR))
+        assertNotNull(personoversiktStatus)
+        val isUbehandlet = personoversiktStatus!!.behandlerdialogSvarUbehandlet
         assertTrue(isUbehandlet)
     }
 
@@ -128,9 +130,9 @@ class PersonoppgavehendelseConsumerTest {
             personoppgavehendelseConsumer.pollAndProcessRecords(kafkaConsumer = mockPersonoppgavehendelseConsumer)
         }
 
-        val personoversiktStatuser = database.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
-        val firstStatus = personoversiktStatuser.first()
-        val isUbehandlet = firstStatus.behandlerdialogSvarUbehandlet
+        val personoversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(PersonIdent(UserConstants.ARBEIDSTAKER_FNR))
+        assertNotNull(personoversiktStatus)
+        val isUbehandlet = personoversiktStatus!!.behandlerdialogSvarUbehandlet
         assertFalse(isUbehandlet)
     }
 
@@ -145,9 +147,9 @@ class PersonoppgavehendelseConsumerTest {
             personoppgavehendelseConsumer.pollAndProcessRecords(kafkaConsumer = mockPersonoppgavehendelseConsumer)
         }
 
-        val personoversiktStatuser = database.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
-        val firstStatus = personoversiktStatuser.first()
-        val isUbehandlet = firstStatus.behandlerdialogUbesvartUbehandlet
+        val personoversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(PersonIdent(UserConstants.ARBEIDSTAKER_FNR))
+        assertNotNull(personoversiktStatus)
+        val isUbehandlet = personoversiktStatus!!.behandlerdialogUbesvartUbehandlet
         assertTrue(isUbehandlet)
     }
 
@@ -165,9 +167,9 @@ class PersonoppgavehendelseConsumerTest {
             personoppgavehendelseConsumer.pollAndProcessRecords(kafkaConsumer = mockPersonoppgavehendelseConsumer)
         }
 
-        val personoversiktStatuser = database.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
-        val firstStatus = personoversiktStatuser.first()
-        val isUbehandlet = firstStatus.behandlerdialogUbesvartUbehandlet
+        val personoversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(PersonIdent(UserConstants.ARBEIDSTAKER_FNR))
+        assertNotNull(personoversiktStatus)
+        val isUbehandlet = personoversiktStatus!!.behandlerdialogUbesvartUbehandlet
         assertFalse(isUbehandlet)
     }
 
@@ -182,9 +184,9 @@ class PersonoppgavehendelseConsumerTest {
             personoppgavehendelseConsumer.pollAndProcessRecords(kafkaConsumer = mockPersonoppgavehendelseConsumer)
         }
 
-        val personoversiktStatuser = database.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
-        val firstStatus = personoversiktStatuser.first()
-        assertTrue(firstStatus.behandlerdialogAvvistUbehandlet)
+        val personoversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(PersonIdent(UserConstants.ARBEIDSTAKER_FNR))
+        assertNotNull(personoversiktStatus)
+        assertTrue(personoversiktStatus!!.behandlerdialogAvvistUbehandlet)
     }
 
     @Test
@@ -201,9 +203,9 @@ class PersonoppgavehendelseConsumerTest {
             personoppgavehendelseConsumer.pollAndProcessRecords(kafkaConsumer = mockPersonoppgavehendelseConsumer)
         }
 
-        val personoversiktStatuser = database.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
-        val firstStatus = personoversiktStatuser.first()
-        assertFalse(firstStatus.behandlerdialogAvvistUbehandlet)
+        val personoversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(PersonIdent(UserConstants.ARBEIDSTAKER_FNR))
+        assertNotNull(personoversiktStatus)
+        assertFalse(personoversiktStatus!!.behandlerdialogAvvistUbehandlet)
     }
 
     @Test
@@ -216,9 +218,9 @@ class PersonoppgavehendelseConsumerTest {
             personoppgavehendelseConsumer.pollAndProcessRecords(kafkaConsumer = mockPersonoppgavehendelseConsumer)
         }
 
-        val personoversiktStatuser = database.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
-        val firstStatus = personoversiktStatuser.first()
-        assertTrue(firstStatus.behandlerBerOmBistandUbehandlet)
+        val personoversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(PersonIdent(UserConstants.ARBEIDSTAKER_FNR))
+        assertNotNull(personoversiktStatus)
+        assertTrue(personoversiktStatus!!.behandlerBerOmBistandUbehandlet)
     }
 
     @Test
@@ -234,9 +236,9 @@ class PersonoppgavehendelseConsumerTest {
             personoppgavehendelseConsumer.pollAndProcessRecords(kafkaConsumer = mockPersonoppgavehendelseConsumer)
         }
 
-        val personoversiktStatuser = database.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
-        val firstStatus = personoversiktStatuser.first()
-        assertFalse(firstStatus.behandlerBerOmBistandUbehandlet)
+        val personoversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(PersonIdent(UserConstants.ARBEIDSTAKER_FNR))
+        assertNotNull(personoversiktStatus)
+        assertFalse(personoversiktStatus!!.behandlerBerOmBistandUbehandlet)
     }
 }
 
