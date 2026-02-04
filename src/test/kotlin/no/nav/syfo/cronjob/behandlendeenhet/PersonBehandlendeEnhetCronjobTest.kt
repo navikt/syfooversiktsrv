@@ -45,25 +45,20 @@ class PersonBehandlendeEnhetCronjobTest {
             )
         )
 
-        database.connection.use { connection ->
-            val pPersonOversiktStatusList = connection.getPersonOversiktStatusList(
-                fnr = ARBEIDSTAKER_FNR,
-            )
-
-            assertEquals(1, pPersonOversiktStatusList.size)
-
-            val pPersonOversiktStatus = pPersonOversiktStatusList.first()
-
-            assertNull(pPersonOversiktStatus.enhet)
-            assertNull(pPersonOversiktStatus.tildeltEnhetUpdatedAt)
+        val pPersonOversiktStatusList = database.connection.use {
+            it.getPersonOversiktStatusList(fnr = ARBEIDSTAKER_FNR)
         }
 
-        runBlocking {
-            val result = personBehandlendeEnhetCronjob.runJob()
+        assertEquals(1, pPersonOversiktStatusList.size)
 
-            assertEquals(0, result.failed)
-            assertEquals(0, result.updated)
-        }
+        val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+
+        assertNull(pPersonOversiktStatus.enhet)
+        assertNull(pPersonOversiktStatus.tildeltEnhetUpdatedAt)
+
+        val result = runBlocking { personBehandlendeEnhetCronjob.runJob() }
+        assertEquals(0, result.failed)
+        assertEquals(0, result.updated)
     }
 
     @Test
@@ -90,32 +85,29 @@ class PersonBehandlendeEnhetCronjobTest {
             assertEquals(1, result.updated)
         }
 
-        database.connection.use { connection ->
-            val pPersonOversiktStatusList = connection.getPersonOversiktStatusList(
+        val pPersonOversiktStatusList = database.connection.use { connection ->
+            connection.getPersonOversiktStatusList(
                 fnr = personIdentDefault.value,
             )
-
-            assertEquals(1, pPersonOversiktStatusList.size)
-
-            val pPersonOversiktStatus = pPersonOversiktStatusList.first()
-
-            assertNotEquals(firstEnhet, pPersonOversiktStatus.enhet)
-            assertEquals(behandlendeEnhetDTO.geografiskEnhet.enhetId, pPersonOversiktStatus.enhet)
-            assertNotNull(pPersonOversiktStatus.tildeltEnhetUpdatedAt)
-            assertTrue(
-                pPersonOversiktStatus.tildeltEnhetUpdatedAt!!.toInstant()
-                    .toEpochMilli() > tildeltEnhetUpdatedAtBeforeUpdate.toInstant()
-                    .toEpochMilli()
-            )
-            assertNull(pPersonOversiktStatus.veilederIdent)
         }
 
-        runBlocking {
-            val result = personBehandlendeEnhetCronjob.runJob()
+        assertEquals(1, pPersonOversiktStatusList.size)
 
-            assertEquals(0, result.failed)
-            assertEquals(0, result.updated)
-        }
+        val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+
+        assertNotEquals(firstEnhet, pPersonOversiktStatus.enhet)
+        assertEquals(behandlendeEnhetDTO.geografiskEnhet.enhetId, pPersonOversiktStatus.enhet)
+        assertNotNull(pPersonOversiktStatus.tildeltEnhetUpdatedAt)
+        assertTrue(
+            pPersonOversiktStatus.tildeltEnhetUpdatedAt!!.toInstant()
+                .toEpochMilli() > tildeltEnhetUpdatedAtBeforeUpdate.toInstant()
+                .toEpochMilli()
+        )
+        assertNull(pPersonOversiktStatus.veilederIdent)
+
+        val result = runBlocking { personBehandlendeEnhetCronjob.runJob() }
+        assertEquals(0, result.failed)
+        assertEquals(0, result.updated)
     }
 
     @Test
@@ -207,27 +199,22 @@ class PersonBehandlendeEnhetCronjobTest {
             assertEquals(1, result.updated)
         }
 
-        database.connection.use { connection ->
-            val pPersonOversiktStatusList = connection.getPersonOversiktStatusList(
-                fnr = personIdentDefault.value,
-            )
-
-            assertEquals(1, pPersonOversiktStatusList.size)
-
-            val pPersonOversiktStatus = pPersonOversiktStatusList.first()
-
-            assertEquals(behandlendeEnhetDTO.geografiskEnhet.enhetId, pPersonOversiktStatus.enhet)
-            assertNotNull(pPersonOversiktStatus.tildeltEnhetUpdatedAt)
-            assertNotEquals(tildeltEnhetUpdatedAtBeforeUpdate, pPersonOversiktStatus.tildeltEnhetUpdatedAt)
-            assertNull(pPersonOversiktStatus.veilederIdent)
+        val pPersonOversiktStatusList = database.connection.use {
+            it.getPersonOversiktStatusList(fnr = personIdentDefault.value)
         }
 
-        runBlocking {
-            val result = personBehandlendeEnhetCronjob.runJob()
+        assertEquals(1, pPersonOversiktStatusList.size)
 
-            assertEquals(0, result.failed)
-            assertEquals(0, result.updated)
-        }
+        val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+
+        assertEquals(behandlendeEnhetDTO.geografiskEnhet.enhetId, pPersonOversiktStatus.enhet)
+        assertNotNull(pPersonOversiktStatus.tildeltEnhetUpdatedAt)
+        assertNotEquals(tildeltEnhetUpdatedAtBeforeUpdate, pPersonOversiktStatus.tildeltEnhetUpdatedAt)
+        assertNull(pPersonOversiktStatus.veilederIdent)
+
+        val result = runBlocking { personBehandlendeEnhetCronjob.runJob() }
+        assertEquals(0, result.failed)
+        assertEquals(0, result.updated)
     }
 
     @Test

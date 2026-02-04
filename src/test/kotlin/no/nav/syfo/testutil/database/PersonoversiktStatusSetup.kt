@@ -18,7 +18,7 @@ fun setAsKandidat(
 
     database.connection.use { connection ->
         connection.updatePersonOversiktStatusKandidat(
-            pPersonOversiktStatus = ppersonOversiktStatus,
+            personident = PersonIdent(ppersonOversiktStatus.fnr),
             kandidat = true,
             generatedAt = kandidatGeneratedAt
         )
@@ -47,7 +47,7 @@ fun setDialogmotestatus(
     )
     database.connection.use { connection ->
         connection.updatePersonOversiktStatusMotestatus(
-            pPersonOversiktStatus = ppersonOversiktStatus,
+            personident = PersonIdent(ppersonOversiktStatus.fnr),
             dialogmoteStatusendring = statusendring,
         )
         connection.commit()

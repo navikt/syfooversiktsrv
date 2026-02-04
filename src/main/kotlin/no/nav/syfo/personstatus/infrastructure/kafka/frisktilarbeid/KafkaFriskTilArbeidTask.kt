@@ -1,6 +1,7 @@
 package no.nav.syfo.personstatus.infrastructure.kafka.frisktilarbeid
 
 import no.nav.syfo.ApplicationState
+import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
 import no.nav.syfo.personstatus.infrastructure.database.database
 import no.nav.syfo.personstatus.infrastructure.kafka.KafkaEnvironment
 import no.nav.syfo.personstatus.infrastructure.kafka.kafkaAivenConsumerConfig
@@ -15,9 +16,11 @@ const val FRISK_TIL_ARBEID_VEDTAK_TOPIC = "teamsykefravr.isfrisktilarbeid-vedtak
 fun launchKafkaTaskFriskTilArbeidVedtak(
     applicationState: ApplicationState,
     kafkaEnvironment: KafkaEnvironment,
+    personOversiktStatusRepository: IPersonOversiktStatusRepository,
 ) {
     val friskTilArbeidVedtakConsumer = FriskTilArbeidVedtakConsumer(
         database = database,
+        personOversiktStatusRepository = personOversiktStatusRepository
     )
     val consumerProperties = Properties().apply {
         putAll(kafkaAivenConsumerConfig(kafkaEnvironment = kafkaEnvironment))

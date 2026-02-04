@@ -1,9 +1,8 @@
 package no.nav.syfo.personstatus.infrastructure.database.queries
 
+import no.nav.syfo.personstatus.application.oppfolgingsoppgave.OppfolgingsoppgaveRecord
 import no.nav.syfo.personstatus.domain.DialogmoteStatusendring
 import no.nav.syfo.personstatus.domain.PersonIdent
-import no.nav.syfo.personstatus.domain.PPersonOversiktStatus
-import no.nav.syfo.personstatus.application.oppfolgingsoppgave.OppfolgingsoppgaveRecord
 import java.sql.Connection
 import java.sql.Timestamp
 import java.time.Instant
@@ -20,14 +19,14 @@ const val queryUpdatePersonOversiktStatusLPS =
 
 fun Connection.updatePersonOversiktStatusLPS(
     isLPSBistandUbehandlet: Boolean,
-    fnr: PersonIdent,
+    personident: PersonIdent,
 ) {
     val currentTime = Timestamp.from(Instant.now())
 
     this.prepareStatement(queryUpdatePersonOversiktStatusLPS).use {
         it.setBoolean(1, isLPSBistandUbehandlet)
         it.setObject(2, currentTime)
-        it.setString(3, fnr.value)
+        it.setString(3, personident.value)
         it.execute()
     }
 }
@@ -86,20 +85,20 @@ const val queryUpdatePersonOversiktStatusMotestatus =
     """
 
 fun Connection.updatePersonOversiktStatusMotestatus(
-    pPersonOversiktStatus: PPersonOversiktStatus,
+    personident: PersonIdent,
     dialogmoteStatusendring: DialogmoteStatusendring,
 ) {
     this.prepareStatement(queryUpdatePersonOversiktStatusMotestatus).use {
         it.setString(1, dialogmoteStatusendring.type.name)
         it.setObject(2, dialogmoteStatusendring.endringTidspunkt)
         it.setObject(3, Timestamp.from(Instant.now()))
-        it.setString(4, pPersonOversiktStatus.fnr)
+        it.setString(4, personident.value)
         it.execute()
     }
 }
 
 fun Connection.updatePersonOversiktStatusKandidat(
-    pPersonOversiktStatus: PPersonOversiktStatus,
+    personident: PersonIdent,
     kandidat: Boolean,
     generatedAt: OffsetDateTime,
 ) {
@@ -107,7 +106,7 @@ fun Connection.updatePersonOversiktStatusKandidat(
         it.setBoolean(1, kandidat)
         it.setObject(2, generatedAt)
         it.setObject(3, Timestamp.from(Instant.now()))
-        it.setString(4, pPersonOversiktStatus.fnr)
+        it.setString(4, personident.value)
         it.execute()
     }
 }
@@ -122,13 +121,13 @@ const val queryUpdatePersonOversiktStatusKandidat =
     """
 
 fun Connection.updatePersonOversiktStatusFriskmeldtTilArbeid(
-    pPersonOversiktStatus: PPersonOversiktStatus,
+    personident: PersonIdent,
     friskTilArbeidFom: LocalDate?,
 ) {
     this.prepareStatement(queryUpdatePersonOversiktStatusFriskmeldtTilArbeid).use {
         it.setObject(1, friskTilArbeidFom)
         it.setObject(2, Timestamp.from(Instant.now()))
-        it.setString(3, pPersonOversiktStatus.fnr)
+        it.setString(3, personident.value)
         it.execute()
     }
 }
