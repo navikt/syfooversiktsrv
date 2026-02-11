@@ -1,19 +1,14 @@
 package no.nav.syfo.personstatus.application
 
-import no.nav.syfo.personstatus.domain.PersonOppfolgingstilfelleVirksomhet
-import no.nav.syfo.personstatus.infrastructure.kafka.personoppgavehendelse.COUNT_KAFKA_CONSUMER_PERSONOPPGAVEHENDELSE_CREATED_PERSONOVERSIKT_STATUS
-import no.nav.syfo.personstatus.infrastructure.kafka.personoppgavehendelse.COUNT_KAFKA_CONSUMER_PERSONOPPGAVEHENDELSE_READ
-import no.nav.syfo.personstatus.infrastructure.kafka.personoppgavehendelse.COUNT_KAFKA_CONSUMER_PERSONOPPGAVEHENDELSE_UPDATED_PERSONOVERSIKT_STATUS
-import no.nav.syfo.personstatus.infrastructure.kafka.personoppgavehendelse.KPersonoppgavehendelse
-import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOppfolgingstilfelleVirksomhetMap
-import no.nav.syfo.personstatus.domain.*
+import no.nav.syfo.personstatus.domain.OversikthendelseType
+import no.nav.syfo.personstatus.domain.PersonIdent
+import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.personstatus.domain.addPersonName
-import no.nav.syfo.personstatus.domain.toPersonOppfolgingstilfelleVirksomhet
+import no.nav.syfo.personstatus.domain.filterHasActiveOppgave
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.model.fodselsdato
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.model.fullName
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import no.nav.syfo.personstatus.infrastructure.database.queries.createPersonOversiktStatus
-import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList
 import no.nav.syfo.personstatus.infrastructure.database.queries.updateBehandlerBerOmBistand
 import no.nav.syfo.personstatus.infrastructure.database.queries.updatePersonOversiktMotebehov
 import no.nav.syfo.personstatus.infrastructure.database.queries.updatePersonOversiktStatusBehandlerdialogAvvist
@@ -21,16 +16,11 @@ import no.nav.syfo.personstatus.infrastructure.database.queries.updatePersonOver
 import no.nav.syfo.personstatus.infrastructure.database.queries.updatePersonOversiktStatusBehandlerdialogUbesvart
 import no.nav.syfo.personstatus.infrastructure.database.queries.updatePersonOversiktStatusDialogmotesvar
 import no.nav.syfo.personstatus.infrastructure.database.queries.updatePersonOversiktStatusLPS
+import no.nav.syfo.personstatus.infrastructure.kafka.personoppgavehendelse.COUNT_KAFKA_CONSUMER_PERSONOPPGAVEHENDELSE_CREATED_PERSONOVERSIKT_STATUS
+import no.nav.syfo.personstatus.infrastructure.kafka.personoppgavehendelse.COUNT_KAFKA_CONSUMER_PERSONOPPGAVEHENDELSE_READ
+import no.nav.syfo.personstatus.infrastructure.kafka.personoppgavehendelse.COUNT_KAFKA_CONSUMER_PERSONOPPGAVEHENDELSE_UPDATED_PERSONOVERSIKT_STATUS
+import no.nav.syfo.personstatus.infrastructure.kafka.personoppgavehendelse.KPersonoppgavehendelse
 import java.sql.Connection
-import kotlin.collections.associateBy
-import kotlin.collections.filter
-import kotlin.collections.firstOrNull
-import kotlin.collections.forEach
-import kotlin.collections.map
-import kotlin.collections.mapNotNull
-import kotlin.collections.mapValues
-import kotlin.text.isNullOrEmpty
-import kotlin.use
 
 class PersonoversiktStatusService(
     private val database: DatabaseInterface,
@@ -48,15 +38,6 @@ class PersonoversiktStatusService(
 
     fun getPersonstatus(personident: PersonIdent): PersonOversiktStatus? =
         personoversiktStatusRepository.getPersonOversiktStatus(personident)
-
-    private fun getPersonOppfolgingstilfelleVirksomhetMap(
-        pPersonOversikStatusIds: List<Int>,
-    ): Map<Int, List<PersonOppfolgingstilfelleVirksomhet>> =
-        database.connection.use { connection ->
-            connection.getPersonOppfolgingstilfelleVirksomhetMap(
-                pPersonOversikStatusIds = pPersonOversikStatusIds,
-            ).mapValues { it.value.toPersonOppfolgingstilfelleVirksomhet() }
-        }
 
     suspend fun getPersonOversiktStatusListWithName(
         callId: String,
@@ -166,9 +147,8 @@ class PersonoversiktStatusService(
         personident: PersonIdent,
         oversikthendelseType: OversikthendelseType,
     ) {
-        val existingPersonOversiktStatus = connection.getPersonOversiktStatusList(
-            fnr = personident.value,
-        ).firstOrNull()
+        val existingPersonOversiktStatus =
+            personoversiktStatusRepository.getPersonOversiktStatus(personident, connection)
 
         if (existingPersonOversiktStatus == null) {
             val personOversiktStatus = PersonOversiktStatus(fnr = personident.value)

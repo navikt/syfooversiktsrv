@@ -5,9 +5,9 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
+import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.personstatus.infrastructure.database.queries.createPersonOversiktStatus
-import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList
 import no.nav.syfo.personstatus.infrastructure.kafka.aktivitetskrav.AKTIVITETSKRAV_VURDERING_TOPIC
 import no.nav.syfo.personstatus.infrastructure.kafka.aktivitetskrav.AktivitetskravVurderingConsumer
 import no.nav.syfo.personstatus.infrastructure.kafka.aktivitetskrav.AktivitetskravVurderingRecord
@@ -30,6 +30,7 @@ class AktivitetskravVurderingConsumerTest {
 
     private val externalMockEnvironment = ExternalMockEnvironment.instance
     private val database = externalMockEnvironment.database
+    private val personOversiktStatusRepository = externalMockEnvironment.personOversiktStatusRepository
 
     private val consumerMock = mockk<KafkaConsumer<String, AktivitetskravVurderingRecord>>()
     private val personoversiktStatusService = externalMockEnvironment.personoversiktStatusService
@@ -65,20 +66,19 @@ class AktivitetskravVurderingConsumerTest {
         runBlocking { aktivitetskravVurderingConsumer.pollAndProcessRecords(kafkaConsumer = consumerMock) }
         verify(exactly = 1) { consumerMock.commitSync() }
 
-        val pPersonOversiktStatusList =
-            database.connection.use { it.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR) }
+        val personstatus = personOversiktStatusRepository.getPersonOversiktStatus(
+            PersonIdent(UserConstants.ARBEIDSTAKER_FNR)
+        )
 
-        assertEquals(1, pPersonOversiktStatusList.size)
+        assertNotNull(personstatus)
 
-        val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+        assertEquals(kafkaAktivitetskravVurderingNy.personIdent, personstatus!!.fnr)
+        assertTrue(personstatus.isAktivAktivitetskravvurdering)
 
-        assertEquals(kafkaAktivitetskravVurderingNy.personIdent, pPersonOversiktStatus.fnr)
-        assertTrue(pPersonOversiktStatus.isAktivAktivitetskravvurdering)
-
-        assertNull(pPersonOversiktStatus.enhet)
-        assertNull(pPersonOversiktStatus.veilederIdent)
-        assertNull(pPersonOversiktStatus.motebehovUbehandlet)
-        assertNull(pPersonOversiktStatus.oppfolgingsplanLPSBistandUbehandlet)
+        assertNull(personstatus.enhet)
+        assertNull(personstatus.veilederIdent)
+        assertNull(personstatus.motebehovUbehandlet)
+        assertNull(personstatus.oppfolgingsplanLPSBistandUbehandlet)
     }
 
     @Test
@@ -103,14 +103,14 @@ class AktivitetskravVurderingConsumerTest {
         runBlocking { aktivitetskravVurderingConsumer.pollAndProcessRecords(kafkaConsumer = consumerMock) }
         verify(exactly = 1) { consumerMock.commitSync() }
 
-        val pPersonOversiktStatusList =
-            database.connection.use { it.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR) }
+        val personstatus = personOversiktStatusRepository.getPersonOversiktStatus(
+            PersonIdent(UserConstants.ARBEIDSTAKER_FNR)
+        )
 
-        assertEquals(1, pPersonOversiktStatusList.size)
-        val pPersonOversiktStatus = pPersonOversiktStatusList.first()
-        assertNotNull(pPersonOversiktStatus.oppfolgingstilfelleGeneratedAt)
-        assertNotNull(pPersonOversiktStatus.oppfolgingstilfelleBitReferanseUuid)
-        assertTrue(pPersonOversiktStatus.isAktivAktivitetskravvurdering)
+        assertNotNull(personstatus)
+        assertNotNull(personstatus!!.latestOppfolgingstilfelle?.generatedAt)
+        assertNotNull(personstatus.latestOppfolgingstilfelle?.oppfolgingstilfelleBitReferanseUuid)
+        assertTrue(personstatus.isAktivAktivitetskravvurdering)
     }
 
     @Test
@@ -127,14 +127,19 @@ class AktivitetskravVurderingConsumerTest {
             recordValue = aktivitetskravVurderingNy,
             topic = AKTIVITETSKRAV_VURDERING_TOPIC,
         )
-        val personstatusBeforeConsuming =
-            database.connection.use { it.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR) }.first()
-        assertFalse(personstatusBeforeConsuming.isAktivAktivitetskravvurdering)
+        val personstatusBeforeConsuming = personOversiktStatusRepository.getPersonOversiktStatus(
+            PersonIdent(UserConstants.ARBEIDSTAKER_FNR)
+        )
+        assertNotNull(personstatusBeforeConsuming)
+        assertFalse(personstatusBeforeConsuming!!.isAktivAktivitetskravvurdering)
         runBlocking { aktivitetskravVurderingConsumer.pollAndProcessRecords(kafkaConsumer = consumerMock) }
         verify(exactly = 1) { consumerMock.commitSync() }
 
-        val personstatus = database.connection.use { it.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR) }.first()
-        assertTrue(personstatus.isAktivAktivitetskravvurdering)
+        val personstatus = personOversiktStatusRepository.getPersonOversiktStatus(
+            PersonIdent(UserConstants.ARBEIDSTAKER_FNR)
+        )
+        assertNotNull(personstatus)
+        assertTrue(personstatus!!.isAktivAktivitetskravvurdering)
     }
 
     @Test
@@ -146,9 +151,11 @@ class AktivitetskravVurderingConsumerTest {
                 personOversiktStatus = personoversiktStatus,
             )
         }
-        val personstatusBeforeConsuming =
-            database.connection.use { it.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR) }.first()
-        assertTrue(personstatusBeforeConsuming.isAktivAktivitetskravvurdering)
+        val personstatusBeforeConsuming = personOversiktStatusRepository.getPersonOversiktStatus(
+            PersonIdent(UserConstants.ARBEIDSTAKER_FNR)
+        )
+        assertNotNull(personstatusBeforeConsuming)
+        assertTrue(personstatusBeforeConsuming!!.isAktivAktivitetskravvurdering)
 
         consumerMock.mockPollConsumerRecords(
             recordValue = aktivitetskravVurderingOppfylt,
@@ -157,7 +164,10 @@ class AktivitetskravVurderingConsumerTest {
         runBlocking { aktivitetskravVurderingConsumer.pollAndProcessRecords(kafkaConsumer = consumerMock) }
         verify(exactly = 1) { consumerMock.commitSync() }
 
-        val pPersonOversiktStatusList = database.connection.use { it.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR) }
-        assertFalse(pPersonOversiktStatusList.first().isAktivAktivitetskravvurdering)
+        val personstatus = personOversiktStatusRepository.getPersonOversiktStatus(
+            PersonIdent(UserConstants.ARBEIDSTAKER_FNR)
+        )
+        assertNotNull(personstatus)
+        assertFalse(personstatus!!.isAktivAktivitetskravvurdering)
     }
 }

@@ -4,7 +4,7 @@ import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
-import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList
+import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.infrastructure.kafka.dialogmotekandidat.toPersonOversiktStatus
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.generator.*
@@ -19,8 +19,9 @@ class KafkaDialogmotekandidatEndringServiceTest {
 
     private val externalMockEnvironment = ExternalMockEnvironment.instance
     private val database = externalMockEnvironment.database
+    private val personOversiktStatusRepository = externalMockEnvironment.personOversiktStatusRepository
 
-    private val kafkaDialogmotekandidatEndringService = TestKafkaModule.kafkaDialogmotekandidatEndringService
+    private val kafkaDialogmotekandidatEndringService = TestKafkaModule.dialogmotekandidatEndringConsumer
     private val mockKafkaConsumerDialogmotekandidatEndring = TestKafkaModule.kafkaConsumerDialogmotekandidatEndring
 
     private val dialogmoteKandidatTopicPartition = dialogmotekandidatEndringTopicPartition()
@@ -65,21 +66,20 @@ class KafkaDialogmotekandidatEndringServiceTest {
             mockKafkaConsumerDialogmotekandidatEndring.commitSync()
         }
 
-        val pPersonOversiktStatusList =
-            database.connection.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
+        val personstatus = personOversiktStatusRepository.getPersonOversiktStatus(
+            PersonIdent(UserConstants.ARBEIDSTAKER_FNR)
+        )
 
-        assertEquals(1, pPersonOversiktStatusList.size)
+        assertNotNull(personstatus)
 
-        val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+        assertEquals(kafkaDialogmotekandidatEndringStoppunktYesterday.personIdentNumber, personstatus!!.fnr)
+        assertEquals(kafkaDialogmotekandidatEndringStoppunktYesterday.kandidat, personstatus.dialogmotekandidat)
+        assertNotNull(personstatus.dialogmotekandidatGeneratedAt)
 
-        assertEquals(kafkaDialogmotekandidatEndringStoppunktYesterday.personIdentNumber, pPersonOversiktStatus.fnr)
-        assertEquals(kafkaDialogmotekandidatEndringStoppunktYesterday.kandidat, pPersonOversiktStatus.dialogmotekandidat)
-        assertNotNull(pPersonOversiktStatus.dialogmotekandidatGeneratedAt)
-
-        assertNull(pPersonOversiktStatus.enhet)
-        assertNull(pPersonOversiktStatus.veilederIdent)
-        assertNull(pPersonOversiktStatus.motebehovUbehandlet)
-        assertNull(pPersonOversiktStatus.oppfolgingsplanLPSBistandUbehandlet)
+        assertNull(personstatus.enhet)
+        assertNull(personstatus.veilederIdent)
+        assertNull(personstatus.motebehovUbehandlet)
+        assertNull(personstatus.oppfolgingsplanLPSBistandUbehandlet)
     }
 
     @Test
@@ -106,13 +106,13 @@ class KafkaDialogmotekandidatEndringServiceTest {
             mockKafkaConsumerDialogmotekandidatEndring.commitSync()
         }
 
-        val pPersonOversiktStatusList =
-            database.connection.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
+        val pPersonOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(
+            PersonIdent(UserConstants.ARBEIDSTAKER_FNR)
+        )
 
-        assertEquals(1, pPersonOversiktStatusList.size)
-        val pPersonOversiktStatus = pPersonOversiktStatusList.first()
-        assertNotNull(pPersonOversiktStatus.oppfolgingstilfelleGeneratedAt)
-        assertNotNull(pPersonOversiktStatus.oppfolgingstilfelleBitReferanseUuid)
+        assertNotNull(pPersonOversiktStatus)
+        assertNotNull(pPersonOversiktStatus!!.latestOppfolgingstilfelle?.generatedAt)
+        assertNotNull(pPersonOversiktStatus.latestOppfolgingstilfelle?.oppfolgingstilfelleBitReferanseUuid)
 
         assertEquals(kafkaDialogmotekandidatEndringStoppunktYesterday.personIdentNumber, pPersonOversiktStatus.fnr)
         assertEquals(kafkaDialogmotekandidatEndringStoppunktYesterday.kandidat, pPersonOversiktStatus.dialogmotekandidat)
@@ -141,12 +141,12 @@ class KafkaDialogmotekandidatEndringServiceTest {
             mockKafkaConsumerDialogmotekandidatEndring.commitSync()
         }
 
-        val pPersonOversiktStatusList =
-            database.connection.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
+        val pPersonOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(
+            PersonIdent(UserConstants.ARBEIDSTAKER_FNR)
+        )
 
-        assertEquals(1, pPersonOversiktStatusList.size)
-        val pPersonOversiktStatus = pPersonOversiktStatusList.first()
-        assertEquals(kafkaDialogmotekandidatEndringUnntakToday.personIdentNumber, pPersonOversiktStatus.fnr)
+        assertNotNull(pPersonOversiktStatus)
+        assertEquals(kafkaDialogmotekandidatEndringUnntakToday.personIdentNumber, pPersonOversiktStatus!!.fnr)
         assertEquals(kafkaDialogmotekandidatEndringUnntakToday.kandidat, pPersonOversiktStatus.dialogmotekandidat)
         assertNotNull(pPersonOversiktStatus.dialogmotekandidatGeneratedAt)
     }
@@ -173,12 +173,12 @@ class KafkaDialogmotekandidatEndringServiceTest {
             mockKafkaConsumerDialogmotekandidatEndring.commitSync()
         }
 
-        val pPersonOversiktStatusList =
-            database.connection.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
+        val pPersonOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(
+            PersonIdent(UserConstants.ARBEIDSTAKER_FNR)
+        )
 
-        assertEquals(1, pPersonOversiktStatusList.size)
-        val pPersonOversiktStatus = pPersonOversiktStatusList.first()
-        assertEquals(kafkaDialogmotekandidatEndringUnntakToday.personIdentNumber, pPersonOversiktStatus.fnr)
+        assertNotNull(pPersonOversiktStatus)
+        assertEquals(kafkaDialogmotekandidatEndringUnntakToday.personIdentNumber, pPersonOversiktStatus!!.fnr)
         assertEquals(kafkaDialogmotekandidatEndringUnntakToday.kandidat, pPersonOversiktStatus.dialogmotekandidat)
         assertNotNull(pPersonOversiktStatus.dialogmotekandidatGeneratedAt)
     }

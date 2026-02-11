@@ -1,8 +1,9 @@
 package no.nav.syfo.personstatus.infrastructure.kafka.frisktilarbeid
 
+import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
+import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import no.nav.syfo.personstatus.infrastructure.database.queries.createPersonOversiktStatus
-import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList
 import no.nav.syfo.personstatus.infrastructure.database.queries.updatePersonOversiktStatusFriskmeldtTilArbeid
 import no.nav.syfo.personstatus.infrastructure.kafka.KafkaConsumerService
 import org.apache.kafka.clients.consumer.ConsumerRecords
@@ -13,6 +14,7 @@ import java.time.Duration
 
 class FriskTilArbeidVedtakConsumer(
     private val database: DatabaseInterface,
+    private val personOversiktStatusRepository: IPersonOversiktStatusRepository,
 ) : KafkaConsumerService<VedtakStatusRecord> {
 
     override val pollDurationInMillis: Long = 1000
@@ -54,9 +56,11 @@ class FriskTilArbeidVedtakConsumer(
         connection: Connection,
         vedtakStatusRecord: VedtakStatusRecord,
     ) {
-        val existingPersonOversiktStatus = connection.getPersonOversiktStatusList(
-            fnr = vedtakStatusRecord.personident,
-        ).firstOrNull()
+        val existingPersonOversiktStatus =
+            personOversiktStatusRepository.getPersonOversiktStatus(
+                personident = PersonIdent(vedtakStatusRecord.personident),
+                connection = connection
+            )
 
         if (existingPersonOversiktStatus == null) {
             val personOversiktStatus = vedtakStatusRecord.toPersonOversiktStatus()
@@ -67,10 +71,8 @@ class FriskTilArbeidVedtakConsumer(
             COUNT_KAFKA_CONSUMER_FRISKTILARBEID_CREATED_PERSONOVERSIKT_STATUS.increment()
         } else {
             connection.updatePersonOversiktStatusFriskmeldtTilArbeid(
-                pPersonOversiktStatus = existingPersonOversiktStatus,
-                friskTilArbeidFom = if (vedtakStatusRecord.status == Status.FATTET)
-                    vedtakStatusRecord.fom
-                else null
+                personident = PersonIdent(existingPersonOversiktStatus.fnr),
+                friskTilArbeidFom = if (vedtakStatusRecord.status == Status.FATTET) vedtakStatusRecord.fom else null
             )
             COUNT_KAFKA_CONSUMER_FRISKTILARBEID_UPDATED_PERSONOVERSIKT_STATUS.increment()
         }

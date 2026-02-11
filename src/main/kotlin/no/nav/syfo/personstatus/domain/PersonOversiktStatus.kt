@@ -81,9 +81,6 @@ data class PersonOversiktStatus(
             this
         }
 
-    fun updateKartleggingssporsmalVurdering(isAktivVurdering: Boolean): PersonOversiktStatus =
-        this.copy(isAktivKartleggingssporsmalVurdering = isAktivVurdering)
-
     fun applyOversikthendelse(
         oversikthendelseType: OversikthendelseType,
     ): PersonOversiktStatus =

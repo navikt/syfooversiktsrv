@@ -3,17 +3,29 @@ package no.nav.syfo.cronjob.virksomhetsnavn
 import io.mockk.clearMocks
 import io.mockk.every
 import kotlinx.coroutines.runBlocking
-import no.nav.syfo.personstatus.domain.*
+import no.nav.syfo.personstatus.domain.OversikthendelseType
+import no.nav.syfo.personstatus.domain.PersonIdent
+import no.nav.syfo.personstatus.domain.PersonOversiktStatus
+import no.nav.syfo.personstatus.domain.Virksomhetsnummer
 import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOppfolgingstilfelleVirksomhetList
 import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList
 import no.nav.syfo.personstatus.infrastructure.kafka.personoppgavehendelse.KPersonoppgavehendelse
-import no.nav.syfo.testutil.*
+import no.nav.syfo.testutil.ExternalMockEnvironment
+import no.nav.syfo.testutil.InternalMockEnvironment
+import no.nav.syfo.testutil.TestKafkaModule
+import no.nav.syfo.testutil.UserConstants
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER_DEFAULT
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER_NO_VIRKSOMHETSNAVN
 import no.nav.syfo.testutil.assertion.checkPPersonOppfolgingstilfelleVirksomhet
 import no.nav.syfo.testutil.assertion.checkPPersonOppfolgingstilfelleVirksomhetUpdated
-import no.nav.syfo.testutil.generator.*
+import no.nav.syfo.testutil.createPersonOversiktStatus
+import no.nav.syfo.testutil.generator.dialogmotekandidatEndringConsumerRecord
+import no.nav.syfo.testutil.generator.dialogmotekandidatEndringTopicPartition
+import no.nav.syfo.testutil.generator.generateKafkaDialogmotekandidatEndringStoppunkt
+import no.nav.syfo.testutil.generator.generateKafkaOppfolgingstilfellePerson
+import no.nav.syfo.testutil.generator.oppfolgingstilfellePersonConsumerRecord
+import no.nav.syfo.testutil.generator.oppfolgingstilfellePersonTopicPartition
 import no.nav.syfo.util.nowUTC
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.junit.jupiter.api.Assertions.*
@@ -41,7 +53,7 @@ class PersonOppfolgingstilfelleVirksomhetsnavnCronjobTest {
     private val oppfolgingstilfellePersonTopicPartition = oppfolgingstilfellePersonTopicPartition()
     private val personIdentDefault = PersonIdent(ARBEIDSTAKER_FNR)
 
-    private val kafkaDialogmotekandidatEndringService = TestKafkaModule.kafkaDialogmotekandidatEndringService
+    private val kafkaDialogmotekandidatEndringService = TestKafkaModule.dialogmotekandidatEndringConsumer
     private val mockKafkaConsumerDialogmotekandidatEndring =
         TestKafkaModule.kafkaConsumerDialogmotekandidatEndring
     private val dialogmoteKandidatTopicPartition = dialogmotekandidatEndringTopicPartition()

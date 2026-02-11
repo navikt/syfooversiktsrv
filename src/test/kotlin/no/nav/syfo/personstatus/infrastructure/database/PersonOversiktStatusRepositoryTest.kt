@@ -129,10 +129,10 @@ class PersonOversiktStatusRepositoryTest {
             )
 
             assertTrue(result.isSuccess)
-            val pPersonOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(arbeidstakerFnr)
-            assertNotNull(pPersonOversiktStatus)
-            assertNotEquals(newPersonOversiktStatus.isAktivSenOppfolgingKandidat, pPersonOversiktStatus!!.isAktivSenOppfolgingKandidat)
-            assertTrue(pPersonOversiktStatus.isAktivSenOppfolgingKandidat)
+            val personstatus = personOversiktStatusRepository.getPersonOversiktStatus(arbeidstakerFnr)
+            assertNotNull(personstatus)
+            assertNotEquals(newPersonOversiktStatus.isAktivSenOppfolgingKandidat, personstatus!!.isAktivSenOppfolgingKandidat)
+            assertTrue(personstatus.isAktivSenOppfolgingKandidat)
         }
 
         @Test
@@ -152,10 +152,10 @@ class PersonOversiktStatusRepositoryTest {
             )
 
             assertTrue(result.isSuccess)
-            val pPersonOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(arbeidstakerFnr)
-            assertNotNull(pPersonOversiktStatus)
-            assertNotEquals(newPersonOversiktStatus.isAktivSenOppfolgingKandidat, pPersonOversiktStatus!!.isAktivSenOppfolgingKandidat)
-            assertFalse(pPersonOversiktStatus.isAktivSenOppfolgingKandidat)
+            val personstatus = personOversiktStatusRepository.getPersonOversiktStatus(arbeidstakerFnr)
+            assertNotNull(personstatus)
+            assertNotEquals(newPersonOversiktStatus.isAktivSenOppfolgingKandidat, personstatus!!.isAktivSenOppfolgingKandidat)
+            assertFalse(personstatus.isAktivSenOppfolgingKandidat)
         }
 
         @Test

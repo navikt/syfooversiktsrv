@@ -523,6 +523,7 @@ class PersonoversiktStatusApiV2Test {
     @Test
     fun `Should not return Person if OversikthendelseType for Behandling is received without existing Person`() {
         testApplication {
+            database.resetDatabase()
             val client = setupApiAndClient()
             val oversiktHendelseMotebehovSvarBehandlet = KPersonoppgavehendelse(
                 ARBEIDSTAKER_FNR,

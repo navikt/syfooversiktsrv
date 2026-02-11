@@ -45,10 +45,12 @@ fun launchKafkaModule(
     launchKafkaTaskDialogmotekandidatEndring(
         applicationState = applicationState,
         kafkaEnvironment = environment.kafka,
+        personOversiktStatusRepository = personOversiktStatusRepository,
     )
     launchKafkaTaskDialogmoteStatusendring(
         applicationState = applicationState,
         kafkaEnvironment = environment.kafka,
+        personOversiktStatusRepository = personOversiktStatusRepository,
     )
 
     launchKafkaTaskAktivitetskravVurdering(
@@ -77,6 +79,7 @@ fun launchKafkaModule(
     launchKafkaTaskFriskTilArbeidVedtak(
         applicationState = applicationState,
         kafkaEnvironment = environment.kafka,
+        personOversiktStatusRepository = personOversiktStatusRepository,
     )
     ArbeidsuforhetvurderingConsumer(personoversiktStatusService = personoversiktStatusService)
         .start(applicationState = applicationState, kafkaEnvironment = environment.kafka)

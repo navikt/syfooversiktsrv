@@ -6,10 +6,11 @@ import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.personstatus.domain.Search
 import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
+import java.sql.Connection
 
 interface IPersonOversiktStatusRepository {
 
-    fun getPersonOversiktStatus(personident: PersonIdent): PersonOversiktStatus?
+    fun getPersonOversiktStatus(personident: PersonIdent, connection: Connection? = null): PersonOversiktStatus?
 
     fun getPersonstatusesWithoutNavnOrFodselsdato(limit: Int): List<PersonOversiktStatus>
 

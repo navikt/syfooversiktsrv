@@ -6,6 +6,7 @@ import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.personstatus.domain.DialogmoteStatusendring
 import no.nav.syfo.personstatus.domain.DialogmoteStatusendringType
+import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.generator.dialogmoteStatusendringConsumerRecord
@@ -23,8 +24,9 @@ class KafkaDialogmoteStatusendringServiceTest {
 
     private val externalMockEnvironment = ExternalMockEnvironment.instance
     private val database = externalMockEnvironment.database
+    private val personOversiktStatusRepository = externalMockEnvironment.personOversiktStatusRepository
 
-    private val kafkaDialogmoteStatusendringService = TestKafkaModule.kafkaDialogmoteStatusendringService
+    private val kafkaDialogmoteStatusendringService = TestKafkaModule.dialogmoteStatusendringConsumer
     private val mockKafkaConsumerDialogmoteStatusendring = TestKafkaModule.kafkaConsumerDialogmoteStatusendring
 
     private val dialogmoteStatusendringTopicPartition = dialogmoteStatusendringTopicPartition()
@@ -71,22 +73,20 @@ class KafkaDialogmoteStatusendringServiceTest {
             mockKafkaConsumerDialogmoteStatusendring.commitSync()
         }
 
-        val pPersonOversiktStatusList =
-            database.connection.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
+        val personstatus =
+            personOversiktStatusRepository.getPersonOversiktStatus(personident = PersonIdent(UserConstants.ARBEIDSTAKER_FNR))
 
-        assertEquals(1, pPersonOversiktStatusList.size)
+        assertNotNull(personstatus)
 
-        val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+        assertEquals(kafkaDialogmoteStatusendringToday.getPersonIdent(), personstatus?.fnr)
+        assertEquals(kafkaDialogmoteStatusendringToday.getStatusEndringType(), personstatus?.motestatus)
+        assertNotNull(personstatus?.motestatusGeneratedAt)
 
-        assertEquals(kafkaDialogmoteStatusendringToday.getPersonIdent(), pPersonOversiktStatus.fnr)
-        assertEquals(kafkaDialogmoteStatusendringToday.getStatusEndringType(), pPersonOversiktStatus.motestatus)
-        assertNotNull(pPersonOversiktStatus.motestatusGeneratedAt)
-
-        assertNull(pPersonOversiktStatus.dialogmotekandidat)
-        assertNull(pPersonOversiktStatus.enhet)
-        assertNull(pPersonOversiktStatus.veilederIdent)
-        assertNull(pPersonOversiktStatus.motebehovUbehandlet)
-        assertNull(pPersonOversiktStatus.oppfolgingsplanLPSBistandUbehandlet)
+        assertNull(personstatus?.dialogmotekandidat)
+        assertNull(personstatus?.enhet)
+        assertNull(personstatus?.veilederIdent)
+        assertNull(personstatus?.motebehovUbehandlet)
+        assertNull(personstatus?.oppfolgingsplanLPSBistandUbehandlet)
     }
 
     @Test
@@ -114,7 +114,7 @@ class KafkaDialogmoteStatusendringServiceTest {
         }
 
         val pPersonOversiktStatusList =
-            database.connection.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
+            database.connection.use { it.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR) }
 
         assertEquals(1, pPersonOversiktStatusList.size)
         val pPersonOversiktStatus = pPersonOversiktStatusList.first()
@@ -151,15 +151,14 @@ class KafkaDialogmoteStatusendringServiceTest {
             mockKafkaConsumerDialogmoteStatusendring.commitSync()
         }
 
-        val pPersonOversiktStatusList =
-            database.connection.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
+        val pPersonOversiktStatus =
+            personOversiktStatusRepository.getPersonOversiktStatus(personident = PersonIdent(UserConstants.ARBEIDSTAKER_FNR))
 
-        assertEquals(1, pPersonOversiktStatusList.size)
-        val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+        assertNotNull(pPersonOversiktStatus)
 
-        assertEquals(kafkaDialogmoteStatusendringToday.getPersonIdent(), pPersonOversiktStatus.fnr)
-        assertEquals(kafkaDialogmoteStatusendringToday.getStatusEndringType(), pPersonOversiktStatus.motestatus)
-        assertNotNull(pPersonOversiktStatus.motestatusGeneratedAt)
+        assertEquals(kafkaDialogmoteStatusendringToday.getPersonIdent(), pPersonOversiktStatus?.fnr)
+        assertEquals(kafkaDialogmoteStatusendringToday.getStatusEndringType(), pPersonOversiktStatus?.motestatus)
+        assertNotNull(pPersonOversiktStatus?.motestatusGeneratedAt)
     }
 
     @Test
@@ -183,18 +182,15 @@ class KafkaDialogmoteStatusendringServiceTest {
             kafkaDialogmoteStatusendringService.pollAndProcessRecords(kafkaConsumer = mockKafkaConsumerDialogmoteStatusendring)
         }
 
-        verify(exactly = 1) {
-            mockKafkaConsumerDialogmoteStatusendring.commitSync()
-        }
+        verify(exactly = 1) { mockKafkaConsumerDialogmoteStatusendring.commitSync() }
 
-        val pPersonOversiktStatusList =
-            database.connection.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
+        val pPersonOversiktStatus =
+            personOversiktStatusRepository.getPersonOversiktStatus(personident = PersonIdent(UserConstants.ARBEIDSTAKER_FNR))
 
-        assertEquals(1, pPersonOversiktStatusList.size)
-        val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+        assertNotNull(pPersonOversiktStatus)
 
-        assertEquals(kafkaDialogmoteStatusendringToday.getPersonIdent(), pPersonOversiktStatus.fnr)
-        assertEquals(kafkaDialogmoteStatusendringToday.getStatusEndringType(), pPersonOversiktStatus.motestatus)
-        assertNotNull(pPersonOversiktStatus.motestatusGeneratedAt)
+        assertEquals(kafkaDialogmoteStatusendringToday.getPersonIdent(), pPersonOversiktStatus?.fnr)
+        assertEquals(kafkaDialogmoteStatusendringToday.getStatusEndringType(), pPersonOversiktStatus?.motestatus)
+        assertNotNull(pPersonOversiktStatus?.motestatusGeneratedAt)
     }
 }

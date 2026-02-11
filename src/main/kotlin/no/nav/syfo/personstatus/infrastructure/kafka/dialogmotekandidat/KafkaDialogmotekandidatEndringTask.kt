@@ -1,6 +1,7 @@
 package no.nav.syfo.personstatus.infrastructure.kafka.dialogmotekandidat
 
 import no.nav.syfo.ApplicationState
+import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
 import no.nav.syfo.personstatus.infrastructure.database.database
 import no.nav.syfo.personstatus.infrastructure.kafka.KafkaEnvironment
 import no.nav.syfo.personstatus.infrastructure.kafka.kafkaAivenConsumerConfig
@@ -15,9 +16,11 @@ const val DIALOGMOTEKANDIDAT_TOPIC = "teamsykefravr.isdialogmotekandidat-dialogm
 fun launchKafkaTaskDialogmotekandidatEndring(
     applicationState: ApplicationState,
     kafkaEnvironment: KafkaEnvironment,
+    personOversiktStatusRepository: IPersonOversiktStatusRepository,
 ) {
-    val kafkaDialogmotekandidatEndringService = KafkaDialogmotekandidatEndringService(
+    val dialogmotekandidatEndringConsumer = DialogmotekandidatEndringConsumer(
         database = database,
+        personoversiktStatusRepository = personOversiktStatusRepository,
     )
     val consumerProperties = Properties().apply {
         putAll(kafkaAivenConsumerConfig(kafkaEnvironment = kafkaEnvironment))
@@ -28,7 +31,7 @@ fun launchKafkaTaskDialogmotekandidatEndring(
         applicationState = applicationState,
         topic = DIALOGMOTEKANDIDAT_TOPIC,
         consumerProperties = consumerProperties,
-        kafkaConsumerService = kafkaDialogmotekandidatEndringService,
+        kafkaConsumerService = dialogmotekandidatEndringConsumer,
     )
 }
 

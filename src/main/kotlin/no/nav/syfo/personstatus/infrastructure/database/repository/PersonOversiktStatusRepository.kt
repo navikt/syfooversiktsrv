@@ -20,13 +20,19 @@ import kotlin.use
 
 class PersonOversiktStatusRepository(private val database: DatabaseInterface) : IPersonOversiktStatusRepository {
 
-    override fun getPersonOversiktStatus(personident: PersonIdent): PersonOversiktStatus? =
-        database.connection.use { connection ->
-            val personoversiktStatus = connection.prepareStatement(GET_PERSON_OVERSIKT_STATUS).use {
-                it.setString(1, personident.value)
-                it.executeQuery().toList { toPPersonOversiktStatus() }
-            }
-            personoversiktStatus.firstOrNull()?.toPersonOversiktStatus()
+    override fun getPersonOversiktStatus(personident: PersonIdent, connection: Connection?): PersonOversiktStatus? =
+        if (connection != null) {
+            connection.getPersonStatus(personident)
+        } else {
+            database.connection.use { connection -> connection.getPersonStatus(personident) }
+        }
+
+    private fun Connection.getPersonStatus(personident: PersonIdent): PersonOversiktStatus? =
+        this.prepareStatement(GET_PERSON_OVERSIKT_STATUS).use {
+            it.setString(1, personident.value)
+            it.executeQuery().toList { toPPersonOversiktStatus() }
+                .firstOrNull()
+                ?.toPersonOversiktStatus()
         }
 
     override fun getPersonstatusesWithoutNavnOrFodselsdato(limit: Int): List<PersonOversiktStatus> =

@@ -7,8 +7,8 @@ import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.personstatus.application.oppfolgingsoppgave.OppfolgingsoppgaveRecord
 import no.nav.syfo.personstatus.application.oppfolgingsoppgave.OppfolgingsoppgaveService
+import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
-import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList
 import no.nav.syfo.personstatus.infrastructure.kafka.oppfolgingsoppgave.OppfolgingsoppgaveConsumer
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.generator.generateKafkaHuskelapp
@@ -28,6 +28,7 @@ class OppfolgingsoppgaveConsumerTest {
     private val externalMockEnvironment = ExternalMockEnvironment.instance
     private val internalMockEnvironment = InternalMockEnvironment.instance
     private val database = externalMockEnvironment.database
+    private val personOversiktStatusRepository = externalMockEnvironment.personOversiktStatusRepository
 
     private val kafkaConsumerMock = mockk<KafkaConsumer<String, OppfolgingsoppgaveRecord>>()
     private val oppfolgingsoppgaveService = OppfolgingsoppgaveService(
@@ -63,12 +64,12 @@ class OppfolgingsoppgaveConsumerTest {
                 kafkaConsumerMock.commitSync()
             }
 
-            val pPersonOversiktStatusList =
-                database.connection.use { it.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR) }
-            assertEquals(1, pPersonOversiktStatusList.size)
-            val pPersonOversiktStatus = pPersonOversiktStatusList.first()
-            assertEquals(activeHuskelappWithFrist.personIdent, pPersonOversiktStatus.fnr)
-            assertTrue(pPersonOversiktStatus.isAktivOppfolgingsoppgave)
+            val personstatus = personOversiktStatusRepository.getPersonOversiktStatus(
+                PersonIdent(UserConstants.ARBEIDSTAKER_FNR)
+            )
+            assertNotNull(personstatus)
+            assertEquals(activeHuskelappWithFrist.personIdent, personstatus!!.fnr)
+            assertTrue(personstatus.isAktivOppfolgingsoppgave)
         }
 
         @Test
@@ -87,12 +88,12 @@ class OppfolgingsoppgaveConsumerTest {
                 kafkaConsumerMock.commitSync()
             }
 
-            val pPersonOversiktStatusList =
-                database.connection.use { it.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR) }
-            assertEquals(1, pPersonOversiktStatusList.size)
-            val pPersonOversiktStatus = pPersonOversiktStatusList.first()
-            assertEquals(activeHuskelappNoFrist.personIdent, pPersonOversiktStatus.fnr)
-            assertTrue(pPersonOversiktStatus.isAktivOppfolgingsoppgave)
+            val personstatus = personOversiktStatusRepository.getPersonOversiktStatus(
+                PersonIdent(UserConstants.ARBEIDSTAKER_FNR)
+            )
+            assertNotNull(personstatus)
+            assertEquals(activeHuskelappNoFrist.personIdent, personstatus!!.fnr)
+            assertTrue(personstatus.isAktivOppfolgingsoppgave)
         }
 
         @Test
@@ -111,11 +112,11 @@ class OppfolgingsoppgaveConsumerTest {
                 kafkaConsumerMock.commitSync()
             }
 
-            val pPersonOversiktStatusList =
-                database.connection.use { it.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR) }
-            assertEquals(1, pPersonOversiktStatusList.size)
-            val pPersonOversiktStatus = pPersonOversiktStatusList.first()
-            assertNotNull(pPersonOversiktStatus.enhet)
+            val pPersonOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(
+                PersonIdent(UserConstants.ARBEIDSTAKER_FNR)
+            )
+            assertNotNull(pPersonOversiktStatus)
+            assertNotNull(pPersonOversiktStatus!!.enhet)
         }
 
         @Test
@@ -134,11 +135,11 @@ class OppfolgingsoppgaveConsumerTest {
                 kafkaConsumerMock.commitSync()
             }
 
-            val pPersonOversiktStatusList =
-                database.connection.use { it.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR) }
-            assertEquals(1, pPersonOversiktStatusList.size)
-            val pPersonOversiktStatus = pPersonOversiktStatusList.first()
-            assertNull(pPersonOversiktStatus.enhet)
+            val pPersonOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(
+                PersonIdent(UserConstants.ARBEIDSTAKER_FNR)
+            )
+            assertNotNull(pPersonOversiktStatus)
+            assertNull(pPersonOversiktStatus!!.enhet)
         }
 
         @Test
@@ -158,11 +159,11 @@ class OppfolgingsoppgaveConsumerTest {
                 kafkaConsumerMock.commitSync()
             }
 
-            val pPersonOversiktStatusList =
-                database.connection.use { it.getPersonOversiktStatusList(personIdent) }
-            assertEquals(1, pPersonOversiktStatusList.size)
-            val pPersonOversiktStatus = pPersonOversiktStatusList.first()
-            assertNull(pPersonOversiktStatus.enhet)
+            val pPersonOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(
+                PersonIdent(personIdent)
+            )
+            assertNotNull(pPersonOversiktStatus)
+            assertNull(pPersonOversiktStatus!!.enhet)
         }
     }
 
@@ -189,11 +190,11 @@ class OppfolgingsoppgaveConsumerTest {
             verify(exactly = 1) {
                 kafkaConsumerMock.commitSync()
             }
-            val pPersonOversiktStatusList =
-                database.connection.use { it.getPersonOversiktStatusList(personident) }
-            assertEquals(1, pPersonOversiktStatusList.size)
-            val pPersonOversiktStatus = pPersonOversiktStatusList.first()
-            assertEquals(activeHuskelappWithFrist.personIdent, pPersonOversiktStatus.fnr)
+            val pPersonOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(
+                PersonIdent(personident)
+            )
+            assertNotNull(pPersonOversiktStatus)
+            assertEquals(activeHuskelappWithFrist.personIdent, pPersonOversiktStatus!!.fnr)
             assertTrue(pPersonOversiktStatus.isAktivOppfolgingsoppgave)
         }
 
@@ -220,11 +221,11 @@ class OppfolgingsoppgaveConsumerTest {
             verify(exactly = 1) {
                 kafkaConsumerMock.commitSync()
             }
-            val pPersonOversiktStatusList =
-                database.connection.use { it.getPersonOversiktStatusList(personident) }
-            assertEquals(1, pPersonOversiktStatusList.size)
-            val pPersonOversiktStatus = pPersonOversiktStatusList.first()
-            assertEquals(inactiveHuskelappWithFrist.personIdent, pPersonOversiktStatus.fnr)
+            val pPersonOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(
+                PersonIdent(personident)
+            )
+            assertNotNull(pPersonOversiktStatus)
+            assertEquals(inactiveHuskelappWithFrist.personIdent, pPersonOversiktStatus!!.fnr)
             assertFalse(pPersonOversiktStatus.isAktivOppfolgingsoppgave)
         }
 
@@ -251,11 +252,11 @@ class OppfolgingsoppgaveConsumerTest {
             verify(exactly = 1) {
                 kafkaConsumerMock.commitSync()
             }
-            val pPersonOversiktStatusList =
-                database.connection.use { it.getPersonOversiktStatusList(personident) }
-            assertEquals(1, pPersonOversiktStatusList.size)
-            val pPersonOversiktStatus = pPersonOversiktStatusList.first()
-            assertEquals(inactiveHuskelappNoFrist.personIdent, pPersonOversiktStatus.fnr)
+            val pPersonOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(
+                PersonIdent(personident)
+            )
+            assertNotNull(pPersonOversiktStatus)
+            assertEquals(inactiveHuskelappNoFrist.personIdent, pPersonOversiktStatus!!.fnr)
             assertFalse(pPersonOversiktStatus.isAktivOppfolgingsoppgave)
         }
     }

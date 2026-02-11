@@ -5,7 +5,6 @@ import io.mockk.every
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.personstatus.domain.PersonIdent
-import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList
 import no.nav.syfo.personstatus.infrastructure.kafka.frisktilarbeid.Status
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.TestKafkaModule.kafkaConsumerFriskTilArbeid
@@ -15,6 +14,7 @@ import no.nav.syfo.testutil.generator.generateKafkaFriskTilArbeidVedtak
 import no.nav.syfo.testutil.generator.generateKafkaOppfolgingstilfellePerson
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -25,6 +25,7 @@ class KafkaFriskTilArbeidServiceTest {
 
     private val externalMockEnvironment = ExternalMockEnvironment.instance
     private val database = externalMockEnvironment.database
+    private val personOversiktStatusRepository = externalMockEnvironment.personOversiktStatusRepository
 
     private val kafkaFriskTilArbeidService = TestKafkaModule.friskTilArbeidVedtakConsumer
 
@@ -67,18 +68,17 @@ class KafkaFriskTilArbeidServiceTest {
             kafkaConsumerFriskTilArbeid.commitSync()
         }
 
-        val pPersonOversiktStatusList =
-            database.connection.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
+        val personOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(
+            PersonIdent(UserConstants.ARBEIDSTAKER_FNR)
+        )
 
-        assertEquals(1, pPersonOversiktStatusList.size)
+        assertNotNull(personOversiktStatus)
 
-        val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+        assertEquals(vedtak.personident, personOversiktStatus!!.fnr)
+        assertEquals(vedtak.fom, personOversiktStatus.friskmeldingTilArbeidsformidlingFom)
 
-        assertEquals(vedtak.personident, pPersonOversiktStatus.fnr)
-        assertEquals(vedtak.fom, pPersonOversiktStatus.friskmeldingTilArbeidsformidlingFom)
-
-        assertNull(pPersonOversiktStatus.enhet)
-        assertNull(pPersonOversiktStatus.veilederIdent)
+        assertNull(personOversiktStatus.enhet)
+        assertNull(personOversiktStatus.veilederIdent)
     }
 
     @Test
@@ -105,13 +105,13 @@ class KafkaFriskTilArbeidServiceTest {
             kafkaConsumerFriskTilArbeid.commitSync()
         }
 
-        val pPersonOversiktStatusList =
-            database.connection.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
+        val personOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(
+            PersonIdent(UserConstants.ARBEIDSTAKER_FNR)
+        )
 
-        assertEquals(1, pPersonOversiktStatusList.size)
-        val pPersonOversiktStatus = pPersonOversiktStatusList.first()
-        assertEquals(vedtak.personident, pPersonOversiktStatus.fnr)
-        assertEquals(vedtak.fom, pPersonOversiktStatus.friskmeldingTilArbeidsformidlingFom)
+        assertNotNull(personOversiktStatus)
+        assertEquals(vedtak.personident, personOversiktStatus!!.fnr)
+        assertEquals(vedtak.fom, personOversiktStatus.friskmeldingTilArbeidsformidlingFom)
     }
 
     @Test
@@ -129,15 +129,14 @@ class KafkaFriskTilArbeidServiceTest {
         clearMocks(kafkaConsumerFriskTilArbeid)
         every { kafkaConsumerFriskTilArbeid.commitSync() } returns Unit
 
-        val pPersonOversiktStatusListBefore =
-            database.connection.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
+        val personOversiktStatusBefore = personOversiktStatusRepository.getPersonOversiktStatus(
+            PersonIdent(UserConstants.ARBEIDSTAKER_FNR)
+        )
 
-        assertEquals(1, pPersonOversiktStatusListBefore.size)
+        assertNotNull(personOversiktStatusBefore)
 
-        val pPersonOversiktStatusBefore = pPersonOversiktStatusListBefore.first()
-
-        assertEquals(vedtak.personident, pPersonOversiktStatusBefore.fnr)
-        assertEquals(vedtak.fom, pPersonOversiktStatusBefore.friskmeldingTilArbeidsformidlingFom)
+        assertEquals(vedtak.personident, personOversiktStatusBefore!!.fnr)
+        assertEquals(vedtak.fom, personOversiktStatusBefore.friskmeldingTilArbeidsformidlingFom)
 
         every { kafkaConsumerFriskTilArbeid.poll(any<Duration>()) } returns ConsumerRecords(
             mapOf(
@@ -155,12 +154,12 @@ class KafkaFriskTilArbeidServiceTest {
             kafkaConsumerFriskTilArbeid.commitSync()
         }
 
-        val pPersonOversiktStatusList =
-            database.connection.getPersonOversiktStatusList(UserConstants.ARBEIDSTAKER_FNR)
+        val personOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(
+            PersonIdent(UserConstants.ARBEIDSTAKER_FNR)
+        )
 
-        assertEquals(1, pPersonOversiktStatusList.size)
-        val pPersonOversiktStatus = pPersonOversiktStatusList.first()
-        assertEquals(vedtak.personident, pPersonOversiktStatus.fnr)
-        assertNull(pPersonOversiktStatus.friskmeldingTilArbeidsformidlingFom)
+        assertNotNull(personOversiktStatus)
+        assertEquals(vedtak.personident, personOversiktStatus!!.fnr)
+        assertNull(personOversiktStatus.friskmeldingTilArbeidsformidlingFom)
     }
 }

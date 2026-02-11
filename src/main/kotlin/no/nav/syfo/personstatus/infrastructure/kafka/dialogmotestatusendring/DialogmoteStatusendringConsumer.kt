@@ -1,12 +1,13 @@
 package no.nav.syfo.personstatus.infrastructure.kafka.dialogmotestatusendring
 
-import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import no.nav.syfo.dialogmote.avro.KDialogmoteStatusEndring
+import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
 import no.nav.syfo.personstatus.domain.DialogmoteStatusendring
+import no.nav.syfo.personstatus.domain.PersonIdent
+import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import no.nav.syfo.personstatus.infrastructure.database.queries.createPersonOversiktStatus
-import no.nav.syfo.personstatus.infrastructure.kafka.KafkaConsumerService
-import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList
 import no.nav.syfo.personstatus.infrastructure.database.queries.updatePersonOversiktStatusMotestatus
+import no.nav.syfo.personstatus.infrastructure.kafka.KafkaConsumerService
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.slf4j.LoggerFactory
@@ -14,8 +15,9 @@ import java.sql.Connection
 import java.sql.SQLException
 import java.time.Duration
 
-class KafkaDialogmoteStatusendringService(
+class DialogmoteStatusendringConsumer(
     private val database: DatabaseInterface,
+    private val personOversiktStatusRepository: IPersonOversiktStatusRepository,
 ) : KafkaConsumerService<KDialogmoteStatusEndring> {
     override val pollDurationInMillis: Long = 1000
 
@@ -54,9 +56,11 @@ class KafkaDialogmoteStatusendringService(
         kafkaDialogmoteStatusEndring: KDialogmoteStatusEndring,
     ) {
         val dialogmoteStatusEndring = DialogmoteStatusendring.create(kafkaDialogmoteStatusEndring)
-        val existingPersonOversiktStatus = connection.getPersonOversiktStatusList(
-            fnr = kafkaDialogmoteStatusEndring.getPersonIdent(),
-        ).firstOrNull()
+        val existingPersonOversiktStatus =
+            personOversiktStatusRepository.getPersonOversiktStatus(
+                personident = PersonIdent(kafkaDialogmoteStatusEndring.getPersonIdent()),
+                connection = connection
+            )
 
         if (existingPersonOversiktStatus == null) {
             val personOversiktStatus = dialogmoteStatusEndring.toPersonOversiktStatus()
@@ -72,14 +76,14 @@ class KafkaDialogmoteStatusendringService(
             if (shouldUpdateMotestatus) {
                 try {
                     connection.updatePersonOversiktStatusMotestatus(
-                        pPersonOversiktStatus = existingPersonOversiktStatus,
+                        personident = PersonIdent(existingPersonOversiktStatus.fnr),
                         dialogmoteStatusendring = dialogmoteStatusEndring,
                     )
                 } catch (sqlException: SQLException) {
                     // retry
                     log.info("Got sqlException when receiveKafkaDialogmoteStatusEndring, try again")
                     connection.updatePersonOversiktStatusMotestatus(
-                        pPersonOversiktStatus = existingPersonOversiktStatus,
+                        personident = PersonIdent(existingPersonOversiktStatus.fnr),
                         dialogmoteStatusendring = dialogmoteStatusEndring,
                     )
                 }
@@ -89,6 +93,6 @@ class KafkaDialogmoteStatusendringService(
     }
 
     companion object {
-        private val log = LoggerFactory.getLogger(KafkaDialogmoteStatusendringService::class.java)
+        private val log = LoggerFactory.getLogger(DialogmoteStatusendringConsumer::class.java)
     }
 }
