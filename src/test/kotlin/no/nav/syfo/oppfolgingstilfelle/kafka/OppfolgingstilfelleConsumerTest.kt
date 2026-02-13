@@ -5,7 +5,6 @@ import io.mockk.every
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.personstatus.domain.*
 import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOppfolgingstilfelleVirksomhetList
-import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList
 import no.nav.syfo.personstatus.infrastructure.kafka.oppfolgingstilfelle.KafkaOppfolgingstilfelle
 import no.nav.syfo.personstatus.infrastructure.kafka.oppfolgingstilfelle.OppfolgingstilfellePersonRecord
 import no.nav.syfo.personstatus.infrastructure.kafka.personoppgavehendelse.KPersonoppgavehendelse
@@ -82,8 +81,11 @@ class OppfolgingstilfelleConsumerTest {
 
         val recordValue = oppfolgingstilfellePersonConsumerRecordRelevant.value()
 
-        val pPersonStatus =
-            personOversiktStatusRepository.getPersonOversiktStatus(PersonIdent(recordValue.personIdentNumber))
+        val pPersonStatus = database.connection.use {
+            with(personOversiktStatusRepository) {
+                it.getPersonStatus(personident = PersonIdent(recordValue.personIdentNumber))
+            }
+        }
 
         assertEquals(recordValue.personIdentNumber, pPersonStatus?.fnr)
         assertNotNull(pPersonStatus?.navn)
@@ -102,29 +104,27 @@ class OppfolgingstilfelleConsumerTest {
 
         val recordValue = oppfolgingstilfellePersonConsumerRecordRelevant.value()
 
-        database.connection.use { connection ->
-            val pPersonOversiktStatusList = connection.getPersonOversiktStatusList(
-                fnr = recordValue.personIdentNumber,
-            )
-
-            assertEquals(1, pPersonOversiktStatusList.size)
-
-            val pPersonOversiktStatus = pPersonOversiktStatusList.first()
-
-            assertEquals(recordValue.personIdentNumber, pPersonOversiktStatus.fnr)
-            assertNull(pPersonOversiktStatus.enhet)
-            assertNull(pPersonOversiktStatus.veilederIdent)
-
-            assertNull(pPersonOversiktStatus.motebehovUbehandlet)
-            assertNull(pPersonOversiktStatus.oppfolgingsplanLPSBistandUbehandlet)
-            assertNull(pPersonOversiktStatus.dialogmotekandidat)
-            assertNull(pPersonOversiktStatus.dialogmotekandidatGeneratedAt)
-
-            checkPPersonOversiktStatusOppfolgingstilfelle(
-                pPersonOversiktStatus = pPersonOversiktStatus,
-                oppfolgingstilfellePersonRecord = recordValue,
-            )
+        val personstatus = database.connection.use {
+            with(personOversiktStatusRepository) {
+                it.getPersonStatus(personident = PersonIdent(recordValue.personIdentNumber))
+            }
         }
+
+        assertNotNull(personstatus)
+
+        assertEquals(recordValue.personIdentNumber, personstatus?.fnr)
+        assertNull(personstatus?.enhet)
+        assertNull(personstatus?.veilederIdent)
+
+        assertNull(personstatus?.motebehovUbehandlet)
+        assertNull(personstatus?.oppfolgingsplanLPSBistandUbehandlet)
+        assertNull(personstatus?.dialogmotekandidat)
+        assertNull(personstatus?.dialogmotekandidatGeneratedAt)
+
+        checkPPersonOversiktStatusOppfolgingstilfelle(
+            pPersonOversiktStatus = personstatus!!,
+            oppfolgingstilfellePersonRecord = recordValue,
+        )
     }
 
     @Test
@@ -139,29 +139,27 @@ class OppfolgingstilfelleConsumerTest {
 
         val recordValue = oppfolgingstilfellePersonConsumerRecordRelevantNotArbeidstaker.value()
 
-        database.connection.use { connection ->
-            val pPersonOversiktStatusList = connection.getPersonOversiktStatusList(
-                fnr = recordValue.personIdentNumber,
-            )
-
-            assertEquals(1, pPersonOversiktStatusList.size)
-
-            val pPersonOversiktStatus = pPersonOversiktStatusList.first()
-
-            assertEquals(recordValue.personIdentNumber, pPersonOversiktStatus.fnr)
-            assertNull(pPersonOversiktStatus.enhet)
-            assertNull(pPersonOversiktStatus.veilederIdent)
-
-            assertNull(pPersonOversiktStatus.motebehovUbehandlet)
-            assertNull(pPersonOversiktStatus.oppfolgingsplanLPSBistandUbehandlet)
-            assertNull(pPersonOversiktStatus.dialogmotekandidat)
-            assertNull(pPersonOversiktStatus.dialogmotekandidatGeneratedAt)
-
-            checkPPersonOversiktStatusOppfolgingstilfelle(
-                pPersonOversiktStatus = pPersonOversiktStatus,
-                oppfolgingstilfellePersonRecord = recordValue,
-            )
+        val personstatus = database.connection.use {
+            with(personOversiktStatusRepository) {
+                it.getPersonStatus(personident = PersonIdent(recordValue.personIdentNumber))
+            }
         }
+
+        assertNotNull(personstatus)
+
+        assertEquals(recordValue.personIdentNumber, personstatus?.fnr)
+        assertNull(personstatus?.enhet)
+        assertNull(personstatus?.veilederIdent)
+
+        assertNull(personstatus?.motebehovUbehandlet)
+        assertNull(personstatus?.oppfolgingsplanLPSBistandUbehandlet)
+        assertNull(personstatus?.dialogmotekandidat)
+        assertNull(personstatus?.dialogmotekandidatGeneratedAt)
+
+        checkPPersonOversiktStatusOppfolgingstilfelle(
+            pPersonOversiktStatus = personstatus!!,
+            oppfolgingstilfellePersonRecord = recordValue,
+        )
     }
 
     @Test
@@ -185,27 +183,25 @@ class OppfolgingstilfelleConsumerTest {
 
         val recordValue = oppfolgingstilfellePersonConsumerRecordRelevant.value()
 
-        val pPersonOversiktStatusList = database.connection.use { connection ->
-            connection.getPersonOversiktStatusList(
-                fnr = recordValue.personIdentNumber,
-            )
+        val personstatus = database.connection.use {
+            with(personOversiktStatusRepository) {
+                it.getPersonStatus(personident = PersonIdent(recordValue.personIdentNumber))
+            }
         }
 
-        assertEquals(1, pPersonOversiktStatusList.size)
+        assertNotNull(personstatus)
 
-        val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+        assertEquals(recordValue.personIdentNumber, personstatus!!.fnr)
+        assertNull(personstatus.enhet)
+        assertNull(personstatus.veilederIdent)
 
-        assertEquals(recordValue.personIdentNumber, pPersonOversiktStatus.fnr)
-        assertNull(pPersonOversiktStatus.enhet)
-        assertNull(pPersonOversiktStatus.veilederIdent)
-
-        assertNull(pPersonOversiktStatus.motebehovUbehandlet)
-        assertTrue(pPersonOversiktStatus.oppfolgingsplanLPSBistandUbehandlet!!)
-        assertNull(pPersonOversiktStatus.dialogmotekandidat)
-        assertNull(pPersonOversiktStatus.dialogmotekandidatGeneratedAt)
+        assertNull(personstatus.motebehovUbehandlet)
+        assertTrue(personstatus.oppfolgingsplanLPSBistandUbehandlet!!)
+        assertNull(personstatus.dialogmotekandidat)
+        assertNull(personstatus.dialogmotekandidatGeneratedAt)
 
         checkPPersonOversiktStatusOppfolgingstilfelle(
-            pPersonOversiktStatus = pPersonOversiktStatus,
+            pPersonOversiktStatus = personstatus,
             oppfolgingstilfellePersonRecord = recordValue,
         )
     }
@@ -244,13 +240,11 @@ class OppfolgingstilfelleConsumerTest {
         val recordValue = kafkaOppfolgingstilfellePersonServiceRecordRelevantNewest.value()
 
         database.connection.use { connection ->
-            val pPersonOversiktStatusList = connection.getPersonOversiktStatusList(
-                fnr = recordValue.personIdentNumber,
-            )
+            val pPersonOversiktStatus = with(personOversiktStatusRepository) {
+                connection.getPersonStatus(personident = PersonIdent(recordValue.personIdentNumber))!!
+            }
 
-            assertEquals(1, pPersonOversiktStatusList.size)
-
-            val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+            assertNotNull(pPersonOversiktStatus)
 
             assertEquals(recordValue.personIdentNumber, pPersonOversiktStatus.fnr)
             assertNull(pPersonOversiktStatus.enhet)
@@ -316,13 +310,11 @@ class OppfolgingstilfelleConsumerTest {
         val recordValue = kafkaOppfolgingstilfellePersonServiceRecordRelevantNewest.value()
 
         database.connection.use { connection ->
-            val pPersonOversiktStatusList = connection.getPersonOversiktStatusList(
-                fnr = recordValue.personIdentNumber,
-            )
+            val pPersonOversiktStatus = with(personOversiktStatusRepository) {
+                connection.getPersonStatus(personident = PersonIdent(recordValue.personIdentNumber))!!
+            }
 
-            assertEquals(1, pPersonOversiktStatusList.size)
-
-            val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+            assertNotNull(pPersonOversiktStatus)
 
             assertEquals(recordValue.personIdentNumber, pPersonOversiktStatus.fnr)
             assertNull(pPersonOversiktStatus.enhet)
@@ -405,13 +397,11 @@ class OppfolgingstilfelleConsumerTest {
         val recordValueSecond = kafkaOppfolgingstilfellePersonServiceRecordRelevantSecond.value()
 
         database.connection.use { connection ->
-            val pPersonOversiktStatusList = connection.getPersonOversiktStatusList(
-                fnr = recordValueSecond.personIdentNumber,
-            )
+            val pPersonOversiktStatus = with(personOversiktStatusRepository) {
+                connection.getPersonStatus(personident = PersonIdent(recordValueSecond.personIdentNumber))!!
+            }
 
-            assertEquals(1, pPersonOversiktStatusList.size)
-
-            val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+            assertNotNull(pPersonOversiktStatus)
 
             assertEquals(recordValueSecond.personIdentNumber, pPersonOversiktStatus.fnr)
             assertNull(pPersonOversiktStatus.enhet)
@@ -454,13 +444,11 @@ class OppfolgingstilfelleConsumerTest {
         val recordValueNewest = kafkaOppfolgingstilfellePersonServiceRecordRelevantNewest.value()
 
         database.connection.use { connection ->
-            val pPersonOversiktStatusList = connection.getPersonOversiktStatusList(
-                fnr = recordValueNewest.personIdentNumber,
-            )
+            val pPersonOversiktStatus = with(personOversiktStatusRepository) {
+                connection.getPersonStatus(personident = PersonIdent(recordValueNewest.personIdentNumber))!!
+            }
 
-            assertEquals(1, pPersonOversiktStatusList.size)
-
-            val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+            assertNotNull(pPersonOversiktStatus)
 
             assertEquals(recordValueNewest.personIdentNumber, pPersonOversiktStatus.fnr)
             assertNull(pPersonOversiktStatus.enhet)
@@ -538,13 +526,11 @@ class OppfolgingstilfelleConsumerTest {
         val recordValueSecond = kafkaOppfolgingstilfellePersonServiceRecordRelevantSecond.value()
 
         database.connection.use { connection ->
-            val pPersonOversiktStatusList = connection.getPersonOversiktStatusList(
-                fnr = recordValueSecond.personIdentNumber,
-            )
+            val pPersonOversiktStatus = with(personOversiktStatusRepository) {
+                connection.getPersonStatus(personident = PersonIdent(recordValueSecond.personIdentNumber))!!
+            }
 
-            assertEquals(1, pPersonOversiktStatusList.size)
-
-            val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+            assertNotNull(pPersonOversiktStatus)
 
             assertEquals(recordValueSecond.personIdentNumber, pPersonOversiktStatus.fnr)
             assertNull(pPersonOversiktStatus.enhet)
@@ -627,13 +613,11 @@ class OppfolgingstilfelleConsumerTest {
         val recordValueSecond = kafkaOppfolgingstilfellePersonServiceRecordRelevantSecond.value()
 
         database.connection.use { connection ->
-            val pPersonOversiktStatusList = connection.getPersonOversiktStatusList(
-                fnr = recordValueSecond.personIdentNumber,
-            )
+            val pPersonOversiktStatus = with(personOversiktStatusRepository) {
+                connection.getPersonStatus(personident = PersonIdent(recordValueSecond.personIdentNumber))!!
+            }
 
-            assertEquals(1, pPersonOversiktStatusList.size)
-
-            val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+            assertNotNull(pPersonOversiktStatus)
 
             assertEquals(recordValueSecond.personIdentNumber, pPersonOversiktStatus.fnr)
             assertNull(pPersonOversiktStatus.enhet)
@@ -676,13 +660,11 @@ class OppfolgingstilfelleConsumerTest {
         val recordValueNewest = kafkaOppfolgingstilfellePersonServiceRecordRelevantNewest.value()
 
         database.connection.use { connection ->
-            val pPersonOversiktStatusList = connection.getPersonOversiktStatusList(
-                fnr = recordValueNewest.personIdentNumber,
-            )
+            val pPersonOversiktStatus = with(personOversiktStatusRepository) {
+                connection.getPersonStatus(personident = PersonIdent(recordValueNewest.personIdentNumber))!!
+            }
 
-            assertEquals(1, pPersonOversiktStatusList.size)
-
-            val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+            assertNotNull(pPersonOversiktStatus)
 
             assertEquals(recordValueNewest.personIdentNumber, pPersonOversiktStatus.fnr)
             assertNull(pPersonOversiktStatus.enhet)
@@ -760,13 +742,11 @@ class OppfolgingstilfelleConsumerTest {
         val recordValue = kafkaOppfolgingstilfellePersonServiceRecordRelevantSecond.value()
 
         database.connection.use { connection ->
-            val pPersonOversiktStatusList = connection.getPersonOversiktStatusList(
-                fnr = recordValue.personIdentNumber,
-            )
+            val pPersonOversiktStatus = with(personOversiktStatusRepository) {
+                connection.getPersonStatus(personident = PersonIdent(recordValue.personIdentNumber))!!
+            }
 
-            assertEquals(1, pPersonOversiktStatusList.size)
-
-            val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+            assertNotNull(pPersonOversiktStatus)
 
             assertEquals(recordValue.personIdentNumber, pPersonOversiktStatus.fnr)
             assertNull(pPersonOversiktStatus.enhet)
@@ -817,13 +797,11 @@ class OppfolgingstilfelleConsumerTest {
         val recordValue = kafkaOppfolgingstilfellePersonRecord.value()
 
         database.connection.use { connection ->
-            val pPersonOversiktStatusList = connection.getPersonOversiktStatusList(
-                fnr = recordValue.personIdentNumber,
-            )
+            val pPersonOversiktStatus = with(personOversiktStatusRepository) {
+                connection.getPersonStatus(personident = PersonIdent(recordValue.personIdentNumber))!!
+            }
 
-            assertEquals(1, pPersonOversiktStatusList.size)
-
-            val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+            assertNotNull(pPersonOversiktStatus)
 
             assertEquals(recordValue.personIdentNumber, pPersonOversiktStatus.fnr)
             assertNull(pPersonOversiktStatus.enhet)
@@ -858,7 +836,11 @@ class OppfolgingstilfelleConsumerTest {
             )
         }
 
-        val personOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(personIdentDefault)!!
+        val personOversiktStatus = database.connection.use { connection ->
+            with(personOversiktStatusRepository) {
+                connection.getPersonStatus(personident = personIdentDefault)
+            }
+        }!!.toPersonOversiktStatus()
 
         assertNotNull(personOversiktStatus.latestOppfolgingstilfelle)
         assertNull(personOversiktStatus.veilederIdent)
@@ -881,7 +863,11 @@ class OppfolgingstilfelleConsumerTest {
             )
         }
 
-        val personOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(personIdentDefault)!!
+        val personOversiktStatus = database.connection.use { connection ->
+            with(personOversiktStatusRepository) {
+                connection.getPersonStatus(personident = personIdentDefault)
+            }
+        }!!.toPersonOversiktStatus()
 
         assertNotNull(personOversiktStatus.latestOppfolgingstilfelle)
         assertNull(personOversiktStatus.veilederIdent)
@@ -904,7 +890,11 @@ class OppfolgingstilfelleConsumerTest {
             )
         }
 
-        val personOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(personIdentDefault)!!
+        val personOversiktStatus = database.connection.use { connection ->
+            with(personOversiktStatusRepository) {
+                connection.getPersonStatus(personident = personIdentDefault)
+            }
+        }!!.toPersonOversiktStatus()
 
         assertNotNull(personOversiktStatus.latestOppfolgingstilfelle)
         assertEquals(UserConstants.VEILEDER_ID, personOversiktStatus.veilederIdent)
@@ -927,7 +917,11 @@ class OppfolgingstilfelleConsumerTest {
             )
         }
 
-        val personOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(personIdentDefault)!!
+        val personOversiktStatus = database.connection.use { connection ->
+            with(personOversiktStatusRepository) {
+                connection.getPersonStatus(personident = personIdentDefault)
+            }
+        }!!.toPersonOversiktStatus()
 
         assertNotNull(personOversiktStatus.latestOppfolgingstilfelle)
         assertEquals(UserConstants.VEILEDER_ID_WITH_ERROR, personOversiktStatus.veilederIdent)

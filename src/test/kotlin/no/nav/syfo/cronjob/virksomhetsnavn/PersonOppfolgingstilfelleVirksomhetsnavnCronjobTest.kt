@@ -8,7 +8,6 @@ import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.personstatus.domain.Virksomhetsnummer
 import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOppfolgingstilfelleVirksomhetList
-import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList
 import no.nav.syfo.personstatus.infrastructure.kafka.personoppgavehendelse.KPersonoppgavehendelse
 import no.nav.syfo.testutil.ExternalMockEnvironment
 import no.nav.syfo.testutil.InternalMockEnvironment
@@ -109,13 +108,11 @@ class PersonOppfolgingstilfelleVirksomhetsnavnCronjobTest {
             val recordValue = kafkaOppfolgingstilfellePersonServiceRecordRelevant.value()
 
             database.connection.use { connection ->
-                val pPersonOversiktStatusList = connection.getPersonOversiktStatusList(
-                    fnr = recordValue.personIdentNumber,
-                )
+                val pPersonOversiktStatus = with(personOversiktStatusRepository) {
+                    connection.getPersonStatus(personident = PersonIdent(recordValue.personIdentNumber))!!
+                }
 
-                assertEquals(1, pPersonOversiktStatusList.size)
-
-                val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+                assertNotNull(pPersonOversiktStatus)
 
                 assertNull(pPersonOversiktStatus.motebehovUbehandlet)
                 assertNull(pPersonOversiktStatus.oppfolgingsplanLPSBistandUbehandlet)
@@ -166,15 +163,13 @@ class PersonOppfolgingstilfelleVirksomhetsnavnCronjobTest {
 
                 val recordValue = kafkaOppfolgingstilfellePersonServiceRecordRelevant.value()
 
-                val pPersonOversiktStatusList = database.connection.use { connection ->
-                    connection.getPersonOversiktStatusList(
-                        fnr = recordValue.personIdentNumber,
-                    )
+                val pPersonOversiktStatus = database.connection.use { connection ->
+                    with(personOversiktStatusRepository) {
+                        connection.getPersonStatus(personident = PersonIdent(recordValue.personIdentNumber))!!
+                    }
                 }
 
-                assertEquals(1, pPersonOversiktStatusList.size)
-
-                val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+                assertNotNull(pPersonOversiktStatus)
 
                 if (oversikthendelse.hendelsetype == OversikthendelseType.MOTEBEHOV_SVAR_MOTTATT) {
                     assertTrue(pPersonOversiktStatus.motebehovUbehandlet!!)
@@ -245,13 +240,13 @@ class PersonOppfolgingstilfelleVirksomhetsnavnCronjobTest {
 
             val recordValue = kafkaOppfolgingstilfellePersonServiceRecordRelevant.value()
 
-            val pPersonOversiktStatusList = database.connection.use { connection ->
-                connection.getPersonOversiktStatusList(fnr = recordValue.personIdentNumber)
+            val pPersonOversiktStatus = database.connection.use { connection ->
+                with(personOversiktStatusRepository) {
+                    connection.getPersonStatus(personident = PersonIdent(recordValue.personIdentNumber))!!
+                }
             }
 
-            assertEquals(1, pPersonOversiktStatusList.size)
-
-            val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+            assertNotNull(pPersonOversiktStatus)
 
             assertNull(pPersonOversiktStatus.motebehovUbehandlet)
             assertNull(pPersonOversiktStatus.oppfolgingsplanLPSBistandUbehandlet)
@@ -306,13 +301,14 @@ class PersonOppfolgingstilfelleVirksomhetsnavnCronjobTest {
 
             val recordValue = kafkaOppfolgingstilfellePersonServiceRecordRelevant.value()
 
-            val pPersonOversiktStatusList = database.connection.use { connection ->
-                connection.getPersonOversiktStatusList(fnr = recordValue.personIdentNumber)
+            val pPersonOversiktStatus = database.connection.use { connection ->
+                with(personOversiktStatusRepository) {
+                    connection.getPersonStatus(personident = PersonIdent(recordValue.personIdentNumber))!!
+                }
             }
 
-            assertEquals(1, pPersonOversiktStatusList.size)
+            assertNotNull(pPersonOversiktStatus)
 
-            val pPersonOversiktStatus = pPersonOversiktStatusList.first()
             assertTrue(pPersonOversiktStatus.isAktivAktivitetskravvurdering)
 
             database.connection.use { connection ->

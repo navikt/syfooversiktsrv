@@ -3,7 +3,6 @@ package no.nav.syfo.cronjob.behandlendeenhet
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
-import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOversiktStatusList
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_ENHET_ERROR_PERSONIDENT
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
@@ -45,16 +44,15 @@ class PersonBehandlendeEnhetCronjobTest {
             )
         )
 
-        val pPersonOversiktStatusList = database.connection.use {
-            it.getPersonOversiktStatusList(fnr = ARBEIDSTAKER_FNR)
+        val personstatus = database.connection.use {
+            with(personOversiktStatusRepository) {
+                it.getPersonStatus(personident = PersonIdent(ARBEIDSTAKER_FNR))
+            }
         }
 
-        assertEquals(1, pPersonOversiktStatusList.size)
-
-        val pPersonOversiktStatus = pPersonOversiktStatusList.first()
-
-        assertNull(pPersonOversiktStatus.enhet)
-        assertNull(pPersonOversiktStatus.tildeltEnhetUpdatedAt)
+        assertNotNull(personstatus)
+        assertNull(personstatus?.enhet)
+        assertNull(personstatus?.tildeltEnhetUpdatedAt)
 
         val result = runBlocking { personBehandlendeEnhetCronjob.runJob() }
         assertEquals(0, result.failed)
@@ -85,15 +83,13 @@ class PersonBehandlendeEnhetCronjobTest {
             assertEquals(1, result.updated)
         }
 
-        val pPersonOversiktStatusList = database.connection.use { connection ->
-            connection.getPersonOversiktStatusList(
-                fnr = personIdentDefault.value,
-            )
+        val pPersonOversiktStatus = database.connection.use { connection ->
+            with(personOversiktStatusRepository) {
+                connection.getPersonStatus(personident = personIdentDefault)!!
+            }
         }
 
-        assertEquals(1, pPersonOversiktStatusList.size)
-
-        val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+        assertNotNull(pPersonOversiktStatus)
 
         assertNotEquals(firstEnhet, pPersonOversiktStatus.enhet)
         assertEquals(behandlendeEnhetDTO.geografiskEnhet.enhetId, pPersonOversiktStatus.enhet)
@@ -134,13 +130,11 @@ class PersonBehandlendeEnhetCronjobTest {
         }
 
         database.connection.use { connection ->
-            val pPersonOversiktStatusList = connection.getPersonOversiktStatusList(
-                fnr = ARBEIDSTAKER_WITH_OPPFOLGINGSENHET.value,
-            )
+            val pPersonOversiktStatus = with(personOversiktStatusRepository) {
+                connection.getPersonStatus(personident = ARBEIDSTAKER_WITH_OPPFOLGINGSENHET)!!
+            }
 
-            assertEquals(1, pPersonOversiktStatusList.size)
-
-            val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+            assertNotNull(pPersonOversiktStatus)
             assertEquals(behandlendeEnhetDTOWithOppfolgingsenhet.oppfolgingsenhetDTO!!.enhet.enhetId, pPersonOversiktStatus.enhet)
             assertNotNull(pPersonOversiktStatus.tildeltEnhetUpdatedAt)
             assertNull(pPersonOversiktStatus.veilederIdent)
@@ -163,7 +157,11 @@ class PersonBehandlendeEnhetCronjobTest {
             assertEquals(1, result.updated)
         }
 
-        val pPersonOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(personIdentDefault)
+        val pPersonOversiktStatus = database.connection.use {
+            with(personOversiktStatusRepository) {
+                it.getPersonStatus(personident = personIdentDefault)
+            }
+        }
 
         assertNotNull(pPersonOversiktStatus)
         assertNotNull(pPersonOversiktStatus!!.enhet)
@@ -199,13 +197,13 @@ class PersonBehandlendeEnhetCronjobTest {
             assertEquals(1, result.updated)
         }
 
-        val pPersonOversiktStatusList = database.connection.use {
-            it.getPersonOversiktStatusList(fnr = personIdentDefault.value)
+        val pPersonOversiktStatus = database.connection.use { connection ->
+            with(personOversiktStatusRepository) {
+                connection.getPersonStatus(personident = personIdentDefault)!!
+            }
         }
 
-        assertEquals(1, pPersonOversiktStatusList.size)
-
-        val pPersonOversiktStatus = pPersonOversiktStatusList.first()
+        assertNotNull(pPersonOversiktStatus)
 
         assertEquals(behandlendeEnhetDTO.geografiskEnhet.enhetId, pPersonOversiktStatus.enhet)
         assertNotNull(pPersonOversiktStatus.tildeltEnhetUpdatedAt)
