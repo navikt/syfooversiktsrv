@@ -28,6 +28,7 @@ import no.nav.syfo.personstatus.infrastructure.cronjob.launchCronjobModule
 import no.nav.syfo.personstatus.infrastructure.database.database
 import no.nav.syfo.personstatus.infrastructure.database.databaseModule
 import no.nav.syfo.personstatus.infrastructure.database.repository.PersonOversiktStatusRepository
+import no.nav.syfo.personstatus.infrastructure.database.TransactionManager
 import no.nav.syfo.personstatus.infrastructure.kafka.launchKafkaModule
 import org.slf4j.LoggerFactory
 import redis.clients.jedis.DefaultJedisClientConfig
@@ -140,10 +141,11 @@ fun main() {
                 personOversiktStatusRepository = personoversiktStatusRepository,
                 veilederClient = veilederClient,
             )
+            val transactionManager = TransactionManager(database)
             personoversiktStatusService = PersonoversiktStatusService(
-                database = database,
                 pdlClient = pdlClient,
                 personoversiktStatusRepository = personoversiktStatusRepository,
+                transactionManager = transactionManager,
             )
             personBehandlendeEnhetService = PersonBehandlendeEnhetService(
                 personoversiktStatusRepository = personoversiktStatusRepository,
@@ -184,6 +186,7 @@ fun main() {
                     oppfolgingstilfelleService = oppfolgingstilfelleService,
                     oppfolgingsoppgaveService = oppfolgingsoppgaveService,
                     personOversiktStatusRepository = personoversiktStatusRepository,
+                    transactionManager = transactionManager,
                 )
                 launchCronjobModule(
                     applicationState = applicationState,

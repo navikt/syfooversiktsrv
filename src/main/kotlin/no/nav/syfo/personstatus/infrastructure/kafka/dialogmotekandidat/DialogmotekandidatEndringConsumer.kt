@@ -1,8 +1,8 @@
 package no.nav.syfo.personstatus.infrastructure.kafka.dialogmotekandidat
 
 import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
+import no.nav.syfo.personstatus.application.ITransactionManager
 import no.nav.syfo.personstatus.domain.PersonIdent
-import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import no.nav.syfo.personstatus.infrastructure.database.queries.createPersonOversiktStatus
 import no.nav.syfo.personstatus.infrastructure.database.queries.updatePersonOversiktStatusKandidat
 import no.nav.syfo.personstatus.infrastructure.kafka.KafkaConsumerService
@@ -14,7 +14,7 @@ import java.sql.SQLException
 import java.time.Duration
 
 class DialogmotekandidatEndringConsumer(
-    private val database: DatabaseInterface,
+    private val transactionManager: ITransactionManager,
     private val personoversiktStatusRepository: IPersonOversiktStatusRepository,
 ) : KafkaConsumerService<KafkaDialogmotekandidatEndring> {
 
@@ -39,7 +39,7 @@ class DialogmotekandidatEndringConsumer(
             COUNT_KAFKA_CONSUMER_DIALOGMOTEKANDIDAT_TOMBSTONE.increment(numberOfTombstones.toDouble())
         }
 
-        database.connection.use { connection ->
+        transactionManager.transaction { connection ->
             validRecords.forEach { record ->
                 COUNT_KAFKA_CONSUMER_DIALOGMOTEKANDIDAT_READ.increment()
                 log.info("Received ${KafkaDialogmotekandidatEndring::class.java.simpleName} with key=${record.key()}, ready to process.")
@@ -48,7 +48,6 @@ class DialogmotekandidatEndringConsumer(
                     kafkaDialogmotekandidatEndring = record.value()
                 )
             }
-            connection.commit()
         }
     }
 
@@ -59,7 +58,7 @@ class DialogmotekandidatEndringConsumer(
         val existingPersonOversiktStatus =
             personoversiktStatusRepository.getPersonOversiktStatus(
                 personident = PersonIdent(kafkaDialogmotekandidatEndring.personIdentNumber),
-                connection = connection
+                connection = connection,
             )
 
         if (existingPersonOversiktStatus == null) {

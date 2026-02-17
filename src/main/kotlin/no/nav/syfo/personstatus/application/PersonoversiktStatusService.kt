@@ -7,7 +7,6 @@ import no.nav.syfo.personstatus.domain.addPersonName
 import no.nav.syfo.personstatus.domain.filterHasActiveOppgave
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.model.fodselsdato
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.model.fullName
-import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import no.nav.syfo.personstatus.infrastructure.database.queries.createPersonOversiktStatus
 import no.nav.syfo.personstatus.infrastructure.database.queries.updateBehandlerBerOmBistand
 import no.nav.syfo.personstatus.infrastructure.database.queries.updatePersonOversiktMotebehov
@@ -23,9 +22,9 @@ import no.nav.syfo.personstatus.infrastructure.kafka.personoppgavehendelse.KPers
 import java.sql.Connection
 
 class PersonoversiktStatusService(
-    private val database: DatabaseInterface,
     private val pdlClient: IPdlClient,
     private val personoversiktStatusRepository: IPersonOversiktStatusRepository,
+    private val transactionManager: ITransactionManager,
 ) {
     private val isUbehandlet = true
     private val isBehandlet = false
@@ -61,7 +60,7 @@ class PersonoversiktStatusService(
     }
 
     fun createOrUpdatePersonoversiktStatuser(personoppgavehendelser: List<KPersonoppgavehendelse>) {
-        database.connection.use { connection ->
+        transactionManager.transaction { connection ->
             personoppgavehendelser.forEach { personoppgavehendelse ->
                 val personident = PersonIdent(personoppgavehendelse.personident)
                 val hendelsetype = personoppgavehendelse.hendelsetype
@@ -73,7 +72,6 @@ class PersonoversiktStatusService(
                 )
                 COUNT_KAFKA_CONSUMER_PERSONOPPGAVEHENDELSE_READ.increment()
             }
-            connection.commit()
         }
     }
 

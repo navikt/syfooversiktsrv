@@ -2,9 +2,9 @@ package no.nav.syfo.personstatus.infrastructure.kafka.dialogmotestatusendring
 
 import no.nav.syfo.dialogmote.avro.KDialogmoteStatusEndring
 import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
+import no.nav.syfo.personstatus.application.ITransactionManager
 import no.nav.syfo.personstatus.domain.DialogmoteStatusendring
 import no.nav.syfo.personstatus.domain.PersonIdent
-import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import no.nav.syfo.personstatus.infrastructure.database.queries.createPersonOversiktStatus
 import no.nav.syfo.personstatus.infrastructure.database.queries.updatePersonOversiktStatusMotestatus
 import no.nav.syfo.personstatus.infrastructure.kafka.KafkaConsumerService
@@ -16,7 +16,7 @@ import java.sql.SQLException
 import java.time.Duration
 
 class DialogmoteStatusendringConsumer(
-    private val database: DatabaseInterface,
+    private val transactionManager: ITransactionManager,
     private val personOversiktStatusRepository: IPersonOversiktStatusRepository,
 ) : KafkaConsumerService<KDialogmoteStatusEndring> {
     override val pollDurationInMillis: Long = 1000
@@ -29,7 +29,7 @@ class DialogmoteStatusendringConsumer(
         }
     }
 
-    private fun processRecords(records: ConsumerRecords<String, KDialogmoteStatusEndring>) {
+    private suspend fun processRecords(records: ConsumerRecords<String, KDialogmoteStatusEndring>) {
         val (tombstoneRecords, validRecords) = records.partition { it.value() == null }
 
         if (tombstoneRecords.isNotEmpty()) {
@@ -38,7 +38,7 @@ class DialogmoteStatusendringConsumer(
             COUNT_KAFKA_CONSUMER_DIALOGMOTE_STATUSENDRING_TOMBSTONE.increment(numberOfTombstones.toDouble())
         }
 
-        database.connection.use { connection ->
+        transactionManager.transaction { connection ->
             validRecords.forEach { record ->
                 COUNT_KAFKA_CONSUMER_DIALOGMOTE_STATUSENDRING_READ.increment()
                 log.info("Received ${KDialogmoteStatusEndring::class.java.simpleName} record with key: ${record.key()}")
@@ -47,7 +47,6 @@ class DialogmoteStatusendringConsumer(
                     kafkaDialogmoteStatusEndring = record.value(),
                 )
             }
-            connection.commit()
         }
     }
 
@@ -59,7 +58,7 @@ class DialogmoteStatusendringConsumer(
         val existingPersonOversiktStatus =
             personOversiktStatusRepository.getPersonOversiktStatus(
                 personident = PersonIdent(kafkaDialogmoteStatusEndring.getPersonIdent()),
-                connection = connection
+                connection = connection,
             )
 
         if (existingPersonOversiktStatus == null) {

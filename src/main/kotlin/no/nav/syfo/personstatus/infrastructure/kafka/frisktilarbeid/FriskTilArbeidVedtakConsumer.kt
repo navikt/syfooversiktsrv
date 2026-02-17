@@ -1,8 +1,8 @@
 package no.nav.syfo.personstatus.infrastructure.kafka.frisktilarbeid
 
 import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
+import no.nav.syfo.personstatus.application.ITransactionManager
 import no.nav.syfo.personstatus.domain.PersonIdent
-import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
 import no.nav.syfo.personstatus.infrastructure.database.queries.createPersonOversiktStatus
 import no.nav.syfo.personstatus.infrastructure.database.queries.updatePersonOversiktStatusFriskmeldtTilArbeid
 import no.nav.syfo.personstatus.infrastructure.kafka.KafkaConsumerService
@@ -13,7 +13,7 @@ import java.sql.Connection
 import java.time.Duration
 
 class FriskTilArbeidVedtakConsumer(
-    private val database: DatabaseInterface,
+    private val transactionManager: ITransactionManager,
     private val personOversiktStatusRepository: IPersonOversiktStatusRepository,
 ) : KafkaConsumerService<VedtakStatusRecord> {
 
@@ -38,7 +38,7 @@ class FriskTilArbeidVedtakConsumer(
             log.error("Value of $numberOfTombstones ConsumerRecord are null, most probably due to a tombstone. Contact the owner of the topic if an error is suspected")
         }
 
-        database.connection.use { connection ->
+        transactionManager.transaction { connection ->
             validRecords.forEach { record ->
                 log.info("Received ${VedtakStatusRecord::class.java.simpleName} with key=${record.key()}, ready to process.")
                 val vedtak = record.value()
@@ -48,7 +48,6 @@ class FriskTilArbeidVedtakConsumer(
                 )
                 COUNT_KAFKA_CONSUMER_FRISKTILARBEID_READ.increment()
             }
-            connection.commit()
         }
     }
 
@@ -59,7 +58,7 @@ class FriskTilArbeidVedtakConsumer(
         val existingPersonOversiktStatus =
             personOversiktStatusRepository.getPersonOversiktStatus(
                 personident = PersonIdent(vedtakStatusRecord.personident),
-                connection = connection
+                connection = connection,
             )
 
         if (existingPersonOversiktStatus == null) {
