@@ -2,6 +2,7 @@ package no.nav.syfo.testutil
 
 import io.mockk.mockk
 import no.nav.syfo.dialogmote.avro.KDialogmoteStatusEndring
+import no.nav.syfo.personstatus.infrastructure.database.TransactionManager
 import no.nav.syfo.personstatus.infrastructure.kafka.dialogmotekandidat.KafkaDialogmotekandidatEndring
 import no.nav.syfo.personstatus.infrastructure.kafka.dialogmotekandidat.DialogmotekandidatEndringConsumer
 import no.nav.syfo.personstatus.infrastructure.kafka.dialogmotestatusendring.DialogmoteStatusendringConsumer
@@ -15,6 +16,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer
 object TestKafkaModule {
     private val externalMockEnvironment: ExternalMockEnvironment = ExternalMockEnvironment.instance
     private val database = externalMockEnvironment.database
+    private val transactionManager = TransactionManager(database)
 
     val oppfolgingstilfelleConsumer = OppfolgingstilfelleConsumer(
         oppfolgingstilfelleService = externalMockEnvironment.oppfolgingstilfelleService
@@ -24,19 +26,19 @@ object TestKafkaModule {
     val kafkaPersonoppgavehendelse = mockk<KafkaConsumer<String, KPersonoppgavehendelse>>()
 
     val dialogmotekandidatEndringConsumer = DialogmotekandidatEndringConsumer(
-        database = database,
+        transactionManager = transactionManager,
         personoversiktStatusRepository = externalMockEnvironment.personOversiktStatusRepository
     )
     val kafkaConsumerDialogmotekandidatEndring = mockk<KafkaConsumer<String, KafkaDialogmotekandidatEndring>>()
 
     val dialogmoteStatusendringConsumer = DialogmoteStatusendringConsumer(
-        database = database,
+        transactionManager = transactionManager,
         personOversiktStatusRepository = externalMockEnvironment.personOversiktStatusRepository
     )
     val kafkaConsumerDialogmoteStatusendring = mockk<KafkaConsumer<String, KDialogmoteStatusEndring>>()
 
     val friskTilArbeidVedtakConsumer = FriskTilArbeidVedtakConsumer(
-        database = database,
+        transactionManager = transactionManager,
         personOversiktStatusRepository = externalMockEnvironment.personOversiktStatusRepository
     )
     val kafkaConsumerFriskTilArbeid = mockk<KafkaConsumer<String, VedtakStatusRecord>>()

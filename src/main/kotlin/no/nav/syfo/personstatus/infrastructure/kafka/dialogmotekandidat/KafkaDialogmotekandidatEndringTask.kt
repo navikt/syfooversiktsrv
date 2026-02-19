@@ -2,7 +2,7 @@ package no.nav.syfo.personstatus.infrastructure.kafka.dialogmotekandidat
 
 import no.nav.syfo.ApplicationState
 import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
-import no.nav.syfo.personstatus.infrastructure.database.database
+import no.nav.syfo.personstatus.application.ITransactionManager
 import no.nav.syfo.personstatus.infrastructure.kafka.KafkaEnvironment
 import no.nav.syfo.personstatus.infrastructure.kafka.kafkaAivenConsumerConfig
 import no.nav.syfo.personstatus.infrastructure.kafka.launchKafkaTask
@@ -17,9 +17,10 @@ fun launchKafkaTaskDialogmotekandidatEndring(
     applicationState: ApplicationState,
     kafkaEnvironment: KafkaEnvironment,
     personOversiktStatusRepository: IPersonOversiktStatusRepository,
+    transactionManager: ITransactionManager,
 ) {
     val dialogmotekandidatEndringConsumer = DialogmotekandidatEndringConsumer(
-        database = database,
+        transactionManager = transactionManager,
         personoversiktStatusRepository = personOversiktStatusRepository,
     )
     val consumerProperties = Properties().apply {

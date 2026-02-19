@@ -1,7 +1,7 @@
 package no.nav.syfo.personstatus.application
 
-import no.nav.syfo.personstatus.domain.Oppfolgingstilfelle
 import no.nav.syfo.personstatus.api.v2.model.VeilederTildelingHistorikkDTO
+import no.nav.syfo.personstatus.domain.Oppfolgingstilfelle
 import no.nav.syfo.personstatus.domain.PersonIdent
 import no.nav.syfo.personstatus.domain.PersonOversiktStatus
 import no.nav.syfo.personstatus.domain.Search

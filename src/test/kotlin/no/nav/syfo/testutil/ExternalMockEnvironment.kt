@@ -10,6 +10,7 @@ import no.nav.syfo.personstatus.infrastructure.clients.behandlendeenhet.Behandle
 import no.nav.syfo.personstatus.infrastructure.clients.pdl.PdlClient
 import no.nav.syfo.personstatus.infrastructure.clients.veileder.VeilederClient
 import no.nav.syfo.personstatus.infrastructure.database.repository.PersonOversiktStatusRepository
+import no.nav.syfo.personstatus.infrastructure.database.TransactionManager
 import no.nav.syfo.testutil.mock.*
 import redis.clients.jedis.DefaultJedisClientConfig
 import redis.clients.jedis.HostAndPort
@@ -55,9 +56,9 @@ class ExternalMockEnvironment private constructor() {
     )
 
     val personoversiktStatusService = PersonoversiktStatusService(
-        database = database,
         pdlClient = pdlClient,
         personoversiktStatusRepository = personOversiktStatusRepository,
+        transactionManager = TransactionManager(database),
     )
     val personBehandlendeEnhetService = PersonBehandlendeEnhetService(
         personoversiktStatusRepository = personOversiktStatusRepository,

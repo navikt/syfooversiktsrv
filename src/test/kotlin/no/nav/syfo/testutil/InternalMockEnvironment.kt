@@ -2,6 +2,7 @@ package no.nav.syfo.testutil
 
 import no.nav.syfo.personstatus.application.PersonBehandlendeEnhetService
 import no.nav.syfo.personstatus.application.PersonoversiktStatusService
+import no.nav.syfo.personstatus.infrastructure.database.TransactionManager
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
 import no.nav.syfo.personstatus.infrastructure.clients.behandlendeenhet.BehandlendeEnhetClient
 import no.nav.syfo.personstatus.infrastructure.clients.ereg.EregClient
@@ -55,9 +56,9 @@ class InternalMockEnvironment private constructor() {
         personOppfolgingstilfelleVirksomhetsnavnService = personOppfolgingstilfelleVirksomhetsnavnService,
     )
     val personoversiktStatusService = PersonoversiktStatusService(
-        database = database,
         pdlClient = pdlClient,
         personoversiktStatusRepository = personoversiktRepository,
+        transactionManager = TransactionManager(database),
     )
 
     companion object {

@@ -4,6 +4,7 @@ import no.nav.syfo.personstatus.infrastructure.kafka.aktivitetskrav.launchKafkaT
 import no.nav.syfo.ApplicationState
 import no.nav.syfo.Environment
 import no.nav.syfo.personstatus.application.IPersonOversiktStatusRepository
+import no.nav.syfo.personstatus.application.ITransactionManager
 import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
 import no.nav.syfo.personstatus.application.PersonBehandlendeEnhetService
 import no.nav.syfo.personstatus.infrastructure.kafka.dialogmotekandidat.launchKafkaTaskDialogmotekandidatEndring
@@ -31,6 +32,7 @@ fun launchKafkaModule(
     oppfolgingstilfelleService: OppfolgingstilfelleService,
     oppfolgingsoppgaveService: OppfolgingsoppgaveService,
     personOversiktStatusRepository: IPersonOversiktStatusRepository,
+    transactionManager: ITransactionManager,
 ) {
     launchKafkaTaskPersonoppgavehendelse(
         applicationState = applicationState,
@@ -46,11 +48,13 @@ fun launchKafkaModule(
         applicationState = applicationState,
         kafkaEnvironment = environment.kafka,
         personOversiktStatusRepository = personOversiktStatusRepository,
+        transactionManager = transactionManager,
     )
     launchKafkaTaskDialogmoteStatusendring(
         applicationState = applicationState,
         kafkaEnvironment = environment.kafka,
         personOversiktStatusRepository = personOversiktStatusRepository,
+        transactionManager = transactionManager,
     )
 
     launchKafkaTaskAktivitetskravVurdering(
@@ -80,6 +84,7 @@ fun launchKafkaModule(
         applicationState = applicationState,
         kafkaEnvironment = environment.kafka,
         personOversiktStatusRepository = personOversiktStatusRepository,
+        transactionManager = transactionManager,
     )
     ArbeidsuforhetvurderingConsumer(personoversiktStatusService = personoversiktStatusService)
         .start(applicationState = applicationState, kafkaEnvironment = environment.kafka)
