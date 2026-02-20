@@ -5,31 +5,31 @@ import io.ktor.server.application.*
 import io.ktor.server.config.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
-import no.nav.syfo.cache.ValkeyStore
-import no.nav.syfo.personstatus.application.PersonoversiktStatusService
-import no.nav.syfo.personstatus.api.v2.apiModule
-import no.nav.syfo.personstatus.api.v2.auth.getWellKnown
-import no.nav.syfo.personstatus.application.OppfolgingstilfelleService
-import no.nav.syfo.personstatus.application.PersonoversiktOppgaverService
-import no.nav.syfo.personstatus.infrastructure.clients.aktivitetskrav.AktivitetskravClient
-import no.nav.syfo.personstatus.infrastructure.clients.arbeidsuforhet.ArbeidsuforhetvurderingClient
-import no.nav.syfo.personstatus.infrastructure.clients.manglendemedvirkning.ManglendeMedvirkningClient
-import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
-import no.nav.syfo.personstatus.infrastructure.clients.behandlendeenhet.BehandlendeEnhetClient
-import no.nav.syfo.personstatus.infrastructure.clients.meroppfolging.MerOppfolgingClient
-import no.nav.syfo.personstatus.infrastructure.clients.oppfolgingsoppgave.OppfolgingsoppgaveClient
-import no.nav.syfo.personstatus.infrastructure.clients.pdl.PdlClient
-import no.nav.syfo.personstatus.infrastructure.clients.veiledertilgang.VeilederTilgangskontrollClient
-import no.nav.syfo.personstatus.application.PersonBehandlendeEnhetService
-import no.nav.syfo.personstatus.application.oppfolgingsoppgave.OppfolgingsoppgaveService
-import no.nav.syfo.personstatus.infrastructure.clients.dialogmotekandidat.DialogmotekandidatClient
-import no.nav.syfo.personstatus.infrastructure.clients.veileder.VeilederClient
-import no.nav.syfo.personstatus.infrastructure.cronjob.launchCronjobModule
-import no.nav.syfo.personstatus.infrastructure.database.database
-import no.nav.syfo.personstatus.infrastructure.database.databaseModule
-import no.nav.syfo.personstatus.infrastructure.database.repository.PersonOversiktStatusRepository
-import no.nav.syfo.personstatus.infrastructure.database.TransactionManager
-import no.nav.syfo.personstatus.infrastructure.kafka.launchKafkaModule
+import no.nav.syfo.util.cache.ValkeyStore
+import no.nav.syfo.application.PersonoversiktStatusService
+import no.nav.syfo.api.apiModule
+import no.nav.syfo.api.auth.getWellKnown
+import no.nav.syfo.application.OppfolgingstilfelleService
+import no.nav.syfo.application.PersonoversiktOppgaverService
+import no.nav.syfo.infrastructure.clients.aktivitetskrav.AktivitetskravClient
+import no.nav.syfo.infrastructure.clients.arbeidsuforhet.ArbeidsuforhetvurderingClient
+import no.nav.syfo.infrastructure.clients.manglendemedvirkning.ManglendeMedvirkningClient
+import no.nav.syfo.infrastructure.clients.azuread.AzureAdClient
+import no.nav.syfo.infrastructure.clients.behandlendeenhet.BehandlendeEnhetClient
+import no.nav.syfo.infrastructure.clients.meroppfolging.MerOppfolgingClient
+import no.nav.syfo.infrastructure.clients.oppfolgingsoppgave.OppfolgingsoppgaveClient
+import no.nav.syfo.infrastructure.clients.pdl.PdlClient
+import no.nav.syfo.infrastructure.clients.veiledertilgang.VeilederTilgangskontrollClient
+import no.nav.syfo.application.PersonBehandlendeEnhetService
+import no.nav.syfo.application.oppfolgingsoppgave.OppfolgingsoppgaveService
+import no.nav.syfo.infrastructure.clients.dialogmotekandidat.DialogmotekandidatClient
+import no.nav.syfo.infrastructure.clients.veileder.VeilederClient
+import no.nav.syfo.infrastructure.cronjob.launchCronjobModule
+import no.nav.syfo.infrastructure.database.database
+import no.nav.syfo.infrastructure.database.databaseModule
+import no.nav.syfo.infrastructure.database.repository.PersonOversiktStatusRepository
+import no.nav.syfo.infrastructure.database.TransactionManager
+import no.nav.syfo.infrastructure.kafka.launchKafkaModule
 import org.slf4j.LoggerFactory
 import redis.clients.jedis.DefaultJedisClientConfig
 import redis.clients.jedis.HostAndPort
@@ -38,6 +38,11 @@ import redis.clients.jedis.JedisPoolConfig
 import java.util.concurrent.TimeUnit
 
 const val applicationPort = 8080
+
+data class ApplicationState(
+    var alive: Boolean = true,
+    var ready: Boolean = false,
+)
 
 fun main() {
     val applicationState = ApplicationState()

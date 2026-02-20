@@ -2,13 +2,13 @@ package no.nav.syfo.testutil
 
 import no.nav.syfo.ApplicationState
 import no.nav.syfo.Environment
-import no.nav.syfo.cache.ValkeyConfig
-import no.nav.syfo.personstatus.api.v2.access.PreAuthorizedClient
-import no.nav.syfo.personstatus.infrastructure.clients.ClientEnvironment
-import no.nav.syfo.personstatus.infrastructure.clients.ClientsEnvironment
-import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureEnvironment
-import no.nav.syfo.personstatus.infrastructure.database.DatabaseEnvironment
-import no.nav.syfo.personstatus.infrastructure.kafka.KafkaEnvironment
+import no.nav.syfo.util.cache.ValkeyConfig
+import no.nav.syfo.api.access.PreAuthorizedClient
+import no.nav.syfo.infrastructure.clients.ClientEnvironment
+import no.nav.syfo.infrastructure.clients.ClientsEnvironment
+import no.nav.syfo.infrastructure.clients.azuread.AzureEnvironment
+import no.nav.syfo.infrastructure.database.DatabaseEnvironment
+import no.nav.syfo.infrastructure.kafka.KafkaEnvironment
 import no.nav.syfo.util.configuredJacksonMapper
 import java.net.URI
 

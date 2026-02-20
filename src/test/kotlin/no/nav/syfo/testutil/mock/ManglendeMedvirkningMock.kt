@@ -2,10 +2,10 @@ package no.nav.syfo.testutil.mock
 
 import io.ktor.client.engine.mock.*
 import io.ktor.client.request.*
-import no.nav.syfo.personstatus.application.manglendemedvirkning.ManglendeMedvirkningDTO
-import no.nav.syfo.personstatus.application.manglendemedvirkning.ManglendeMedvirkningResponseDTO
-import no.nav.syfo.personstatus.application.manglendemedvirkning.ManglendeMedvirkningVarselDTO
-import no.nav.syfo.personstatus.application.manglendemedvirkning.ManglendeMedvirkningVurderingType
+import no.nav.syfo.application.manglendemedvirkning.ManglendeMedvirkningDTO
+import no.nav.syfo.application.manglendemedvirkning.ManglendeMedvirkningResponseDTO
+import no.nav.syfo.application.manglendemedvirkning.ManglendeMedvirkningVarselDTO
+import no.nav.syfo.application.manglendemedvirkning.ManglendeMedvirkningVurderingType
 import no.nav.syfo.testutil.UserConstants
 import java.time.LocalDate
 import java.time.LocalDateTime

@@ -3,7 +3,7 @@ package no.nav.syfo.testutil.mock
 import io.ktor.client.engine.mock.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import no.nav.syfo.personstatus.infrastructure.clients.veileder.VeilederDTO
+import no.nav.syfo.infrastructure.clients.veileder.VeilederDTO
 import no.nav.syfo.testutil.UserConstants
 
 fun MockRequestHandleScope.veilederMockResponse(requestData: HttpRequestData): HttpResponseData {

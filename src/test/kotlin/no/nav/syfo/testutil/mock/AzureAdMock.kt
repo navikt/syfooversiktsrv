@@ -4,9 +4,9 @@ import io.ktor.client.engine.mock.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.http.*
-import no.nav.syfo.personstatus.api.v2.auth.WellKnown
-import no.nav.syfo.personstatus.api.v2.auth.getNAVIdentFromToken
-import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdTokenResponse
+import no.nav.syfo.api.auth.WellKnown
+import no.nav.syfo.api.auth.getNAVIdentFromToken
+import no.nav.syfo.infrastructure.clients.azuread.AzureAdTokenResponse
 import no.nav.syfo.testutil.UserConstants
 import java.nio.file.Paths
 

@@ -2,7 +2,7 @@ package no.nav.syfo.testutil.mock
 
 import io.ktor.client.engine.mock.*
 import io.ktor.client.request.*
-import no.nav.syfo.personstatus.infrastructure.clients.pdl.model.*
+import no.nav.syfo.infrastructure.clients.pdl.model.*
 import no.nav.syfo.testutil.UserConstants
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_NO_FODSELSDATO

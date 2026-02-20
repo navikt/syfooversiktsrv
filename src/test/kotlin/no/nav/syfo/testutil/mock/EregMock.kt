@@ -3,8 +3,8 @@ package no.nav.syfo.testutil.mock
 import io.ktor.client.engine.mock.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import no.nav.syfo.personstatus.infrastructure.clients.ereg.EregOrganisasjonNavn
-import no.nav.syfo.personstatus.infrastructure.clients.ereg.EregOrganisasjonResponse
+import no.nav.syfo.infrastructure.clients.ereg.EregOrganisasjonNavn
+import no.nav.syfo.infrastructure.clients.ereg.EregOrganisasjonResponse
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER_2
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER_DEFAULT
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER_NO_VIRKSOMHETSNAVN

@@ -1,6 +1,6 @@
 package no.nav.syfo.testutil.generator
 
-import no.nav.syfo.personstatus.domain.PPersonOversiktStatus
+import no.nav.syfo.domain.PPersonOversiktStatus
 import no.nav.syfo.testutil.UserConstants
 import java.util.*
 
