@@ -1,14 +1,15 @@
 package no.nav.syfo.personstatus.api.v2
+
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
-import no.nav.syfo.personstatus.api.v2.endpoints.personOversiktApiV2Path
-import no.nav.syfo.personstatus.api.v2.model.PersonOversiktStatusDTO
-import no.nav.syfo.personstatus.api.v2.model.SearchQueryDTO
-import no.nav.syfo.personstatus.domain.PersonOversiktStatus
-import no.nav.syfo.personstatus.domain.Virksomhetsnummer
-import no.nav.syfo.personstatus.infrastructure.database.repository.PersonOversiktStatusRepository
+import no.nav.syfo.api.endpoints.personOversiktApiV2Path
+import no.nav.syfo.api.model.PersonOversiktStatusDTO
+import no.nav.syfo.api.model.SearchQueryDTO
+import no.nav.syfo.domain.PersonOversiktStatus
+import no.nav.syfo.domain.Virksomhetsnummer
+import no.nav.syfo.infrastructure.database.repository.PersonOversiktStatusRepository
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.VEILEDER_ID
 import no.nav.syfo.testutil.generator.generateOppfolgingstilfelle
@@ -36,7 +37,7 @@ class PersonoversiktSearchApiTest {
 
     private fun createActiveOppfolgingstilfelle(
         virksomhetsnummer: Virksomhetsnummer = Virksomhetsnummer("123456789"),
-        virksomhetsnavn: String = "Virksomhet AS"
+        virksomhetsnavn: String = "Virksomhet AS",
     ) = generateOppfolgingstilfelle(
         start = LocalDate.now().minusWeeks(15),
         end = LocalDate.now().plusWeeks(1),

@@ -1,11 +1,11 @@
-package no.nav.syfo.personstatus.infrastructure.clients.azuread
+package no.nav.syfo.infrastructure.clients.azuread
 
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
-import no.nav.syfo.cache.ValkeyStore
+import no.nav.syfo.util.cache.ValkeyStore
 import no.nav.syfo.testutil.ExternalMockEnvironment
 import no.nav.syfo.testutil.UserConstants.VEILEDER_ID
 import no.nav.syfo.testutil.UserConstants.VEILEDER_IDENT_NO_AZURE_AD_TOKEN

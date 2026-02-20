@@ -6,10 +6,10 @@ import io.ktor.http.*
 import io.ktor.server.routing.*
 import io.ktor.server.testing.*
 import no.nav.syfo.ApplicationState
-import no.nav.syfo.personstatus.api.v2.endpoints.podLivenessPath
-import no.nav.syfo.personstatus.api.v2.endpoints.podReadinessPath
-import no.nav.syfo.personstatus.api.v2.endpoints.registerPodApi
-import no.nav.syfo.personstatus.infrastructure.database.DatabaseInterface
+import no.nav.syfo.api.endpoints.podLivenessPath
+import no.nav.syfo.api.endpoints.podReadinessPath
+import no.nav.syfo.api.endpoints.registerPodApi
+import no.nav.syfo.infrastructure.database.DatabaseInterface
 import no.nav.syfo.testutil.TestDatabase
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals

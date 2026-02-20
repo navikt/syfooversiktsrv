@@ -1,8 +1,8 @@
 package no.nav.syfo.personstatus.application
 
 import kotlinx.coroutines.runBlocking
-import no.nav.syfo.personstatus.domain.PersonIdent
-import no.nav.syfo.personstatus.domain.PersonOversiktStatus
+import no.nav.syfo.domain.PersonIdent
+import no.nav.syfo.domain.PersonOversiktStatus
 import no.nav.syfo.testutil.ExternalMockEnvironment
 import no.nav.syfo.testutil.UserConstants
 import org.junit.jupiter.api.AfterEach

@@ -1,9 +1,9 @@
-package no.nav.syfo.personstatus.infrastructure.database
+package no.nav.syfo.infrastructure.database
 
-import no.nav.syfo.personstatus.api.v2.model.SearchQueryDTO
-import no.nav.syfo.personstatus.domain.PersonIdent
-import no.nav.syfo.personstatus.domain.PersonOversiktStatus
-import no.nav.syfo.personstatus.infrastructure.database.queries.createPersonOversiktStatus
+import no.nav.syfo.api.model.SearchQueryDTO
+import no.nav.syfo.domain.PersonIdent
+import no.nav.syfo.domain.PersonOversiktStatus
+import no.nav.syfo.infrastructure.database.queries.createPersonOversiktStatus
 import no.nav.syfo.testutil.ExternalMockEnvironment
 import no.nav.syfo.testutil.UserConstants
 import no.nav.syfo.testutil.generator.generateOppfolgingstilfelle

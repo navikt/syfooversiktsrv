@@ -1,11 +1,11 @@
 package no.nav.syfo
 
-import no.nav.syfo.cache.ValkeyConfig
-import no.nav.syfo.personstatus.infrastructure.clients.ClientEnvironment
-import no.nav.syfo.personstatus.infrastructure.clients.ClientsEnvironment
-import no.nav.syfo.personstatus.infrastructure.database.DatabaseEnvironment
-import no.nav.syfo.personstatus.infrastructure.kafka.KafkaEnvironment
-import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureEnvironment
+import no.nav.syfo.util.cache.ValkeyConfig
+import no.nav.syfo.infrastructure.clients.ClientEnvironment
+import no.nav.syfo.infrastructure.clients.ClientsEnvironment
+import no.nav.syfo.infrastructure.database.DatabaseEnvironment
+import no.nav.syfo.infrastructure.kafka.KafkaEnvironment
+import no.nav.syfo.infrastructure.clients.azuread.AzureEnvironment
 import java.lang.RuntimeException
 import java.net.URI
 import kotlin.String

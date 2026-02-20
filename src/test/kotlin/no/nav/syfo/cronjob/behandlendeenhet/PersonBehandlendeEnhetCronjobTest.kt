@@ -1,8 +1,8 @@
 package no.nav.syfo.cronjob.behandlendeenhet
 
 import kotlinx.coroutines.runBlocking
-import no.nav.syfo.personstatus.domain.PersonIdent
-import no.nav.syfo.personstatus.domain.PersonOversiktStatus
+import no.nav.syfo.domain.PersonIdent
+import no.nav.syfo.domain.PersonOversiktStatus
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_ENHET_ERROR_PERSONIDENT
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR

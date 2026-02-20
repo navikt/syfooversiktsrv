@@ -1,7 +1,7 @@
-package no.nav.syfo.personstatus.infrastructure.clients.veileder
+package no.nav.syfo.infrastructure.clients.veileder
 
 import kotlinx.coroutines.runBlocking
-import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
+import no.nav.syfo.infrastructure.clients.azuread.AzureAdClient
 import no.nav.syfo.testutil.ExternalMockEnvironment
 import no.nav.syfo.testutil.UserConstants
 import org.junit.jupiter.api.Assertions.assertEquals

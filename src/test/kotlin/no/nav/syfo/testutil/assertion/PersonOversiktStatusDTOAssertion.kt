@@ -1,8 +1,8 @@
 package no.nav.syfo.testutil.assertion
 
-import no.nav.syfo.personstatus.infrastructure.kafka.oppfolgingstilfelle.OppfolgingstilfellePersonRecord
-import no.nav.syfo.personstatus.api.v2.model.PersonOppfolgingstilfelleDTO
-import no.nav.syfo.personstatus.api.v2.model.PersonOppfolgingstilfelleVirksomhetDTO
+import no.nav.syfo.infrastructure.kafka.oppfolgingstilfelle.OppfolgingstilfellePersonRecord
+import no.nav.syfo.api.model.PersonOppfolgingstilfelleDTO
+import no.nav.syfo.api.model.PersonOppfolgingstilfelleVirksomhetDTO
 import no.nav.syfo.testutil.mock.eregOrganisasjonResponse
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue

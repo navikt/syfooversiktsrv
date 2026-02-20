@@ -4,8 +4,8 @@ import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
-import no.nav.syfo.personstatus.domain.PersonIdent
-import no.nav.syfo.personstatus.infrastructure.kafka.dialogmotekandidat.toPersonOversiktStatus
+import no.nav.syfo.domain.PersonIdent
+import no.nav.syfo.infrastructure.kafka.dialogmotekandidat.toPersonOversiktStatus
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.generator.*
 import no.nav.syfo.util.nowUTC

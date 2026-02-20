@@ -1,4 +1,4 @@
-package no.nav.syfo.personstatus.infrastructure.kafka
+package no.nav.syfo.infrastructure.kafka
 
 import io.mockk.every
 import org.apache.kafka.clients.consumer.ConsumerRecord
