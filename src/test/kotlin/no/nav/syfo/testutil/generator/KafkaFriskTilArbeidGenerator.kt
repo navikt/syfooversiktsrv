@@ -1,9 +1,9 @@
 package no.nav.syfo.testutil.generator
 
-import no.nav.syfo.personstatus.infrastructure.kafka.frisktilarbeid.FRISK_TIL_ARBEID_VEDTAK_TOPIC
-import no.nav.syfo.personstatus.infrastructure.kafka.frisktilarbeid.Status
-import no.nav.syfo.personstatus.infrastructure.kafka.frisktilarbeid.VedtakStatusRecord
-import no.nav.syfo.personstatus.domain.PersonIdent
+import no.nav.syfo.infrastructure.kafka.frisktilarbeid.FRISK_TIL_ARBEID_VEDTAK_TOPIC
+import no.nav.syfo.infrastructure.kafka.frisktilarbeid.Status
+import no.nav.syfo.infrastructure.kafka.frisktilarbeid.VedtakStatusRecord
+import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.testutil.UserConstants
 import no.nav.syfo.util.nowUTC
 import org.apache.kafka.clients.consumer.ConsumerRecord

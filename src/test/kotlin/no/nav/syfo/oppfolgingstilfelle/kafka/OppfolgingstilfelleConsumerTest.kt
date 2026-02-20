@@ -3,11 +3,11 @@ package no.nav.syfo.oppfolgingstilfelle.kafka
 import io.mockk.clearMocks
 import io.mockk.every
 import kotlinx.coroutines.runBlocking
-import no.nav.syfo.personstatus.domain.*
-import no.nav.syfo.personstatus.infrastructure.database.queries.getPersonOppfolgingstilfelleVirksomhetList
-import no.nav.syfo.personstatus.infrastructure.kafka.oppfolgingstilfelle.KafkaOppfolgingstilfelle
-import no.nav.syfo.personstatus.infrastructure.kafka.oppfolgingstilfelle.OppfolgingstilfellePersonRecord
-import no.nav.syfo.personstatus.infrastructure.kafka.personoppgavehendelse.KPersonoppgavehendelse
+import no.nav.syfo.domain.*
+import no.nav.syfo.infrastructure.database.queries.getPersonOppfolgingstilfelleVirksomhetList
+import no.nav.syfo.infrastructure.kafka.oppfolgingstilfelle.KafkaOppfolgingstilfelle
+import no.nav.syfo.infrastructure.kafka.oppfolgingstilfelle.OppfolgingstilfellePersonRecord
+import no.nav.syfo.infrastructure.kafka.personoppgavehendelse.KPersonoppgavehendelse
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testutil.UserConstants.VIRKSOMHETSNUMMER

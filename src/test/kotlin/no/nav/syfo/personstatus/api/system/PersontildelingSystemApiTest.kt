@@ -6,10 +6,10 @@ import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.testApplication
-import no.nav.syfo.personstatus.api.v2.endpoints.personTildelingSystemApiPath
-import no.nav.syfo.personstatus.api.v2.model.VeilederBrukerKnytningDTO
-import no.nav.syfo.personstatus.domain.PersonIdent
-import no.nav.syfo.personstatus.domain.VeilederBrukerKnytning
+import no.nav.syfo.api.endpoints.personTildelingSystemApiPath
+import no.nav.syfo.api.model.VeilederBrukerKnytningDTO
+import no.nav.syfo.domain.PersonIdent
+import no.nav.syfo.domain.VeilederBrukerKnytning
 import no.nav.syfo.testutil.ExternalMockEnvironment
 import no.nav.syfo.testutil.InternalMockEnvironment
 import no.nav.syfo.testutil.UserConstants

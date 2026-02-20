@@ -2,8 +2,8 @@ package no.nav.syfo.testutil.mock
 
 import io.ktor.client.engine.mock.*
 import io.ktor.client.request.*
-import no.nav.syfo.personstatus.application.oppfolgingsoppgave.*
-import no.nav.syfo.personstatus.domain.PersonIdent
+import no.nav.syfo.application.oppfolgingsoppgave.*
+import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_2_FNR
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_3_FNR
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR

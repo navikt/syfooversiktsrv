@@ -4,9 +4,9 @@ import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
-import no.nav.syfo.personstatus.domain.DialogmoteStatusendringType
-import no.nav.syfo.personstatus.api.v2.endpoints.personOversiktApiV2Path
-import no.nav.syfo.personstatus.api.v2.model.PersonOversiktStatusDTO
+import no.nav.syfo.domain.DialogmoteStatusendringType
+import no.nav.syfo.api.endpoints.personOversiktApiV2Path
+import no.nav.syfo.api.model.PersonOversiktStatusDTO
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.testutil.database.createPersonoversiktStatusWithTilfelle

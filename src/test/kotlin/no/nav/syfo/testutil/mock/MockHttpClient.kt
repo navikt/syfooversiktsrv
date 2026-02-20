@@ -3,7 +3,7 @@ package no.nav.syfo.testutil.mock
 import io.ktor.client.*
 import io.ktor.client.engine.mock.*
 import no.nav.syfo.Environment
-import no.nav.syfo.personstatus.infrastructure.clients.commonConfig
+import no.nav.syfo.infrastructure.clients.commonConfig
 
 fun mockHttpClient(environment: Environment) = HttpClient(MockEngine) {
     commonConfig()

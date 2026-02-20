@@ -4,9 +4,9 @@ import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
-import no.nav.syfo.personstatus.domain.DialogmoteStatusendring
-import no.nav.syfo.personstatus.domain.DialogmoteStatusendringType
-import no.nav.syfo.personstatus.domain.PersonIdent
+import no.nav.syfo.domain.DialogmoteStatusendring
+import no.nav.syfo.domain.DialogmoteStatusendringType
+import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.generator.dialogmoteStatusendringConsumerRecord
 import no.nav.syfo.testutil.generator.dialogmoteStatusendringTopicPartition

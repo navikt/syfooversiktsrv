@@ -2,10 +2,10 @@ package no.nav.syfo.testutil.mock
 
 import io.ktor.client.engine.mock.*
 import io.ktor.client.request.*
-import no.nav.syfo.personstatus.application.meroppfolging.OnskerOppfolging
-import no.nav.syfo.personstatus.application.meroppfolging.SenOppfolgingKandidatDTO
-import no.nav.syfo.personstatus.application.meroppfolging.SenOppfolgingKandidaterResponseDTO
-import no.nav.syfo.personstatus.application.meroppfolging.SvarResponseDTO
+import no.nav.syfo.application.meroppfolging.OnskerOppfolging
+import no.nav.syfo.application.meroppfolging.SenOppfolgingKandidatDTO
+import no.nav.syfo.application.meroppfolging.SenOppfolgingKandidaterResponseDTO
+import no.nav.syfo.application.meroppfolging.SvarResponseDTO
 import no.nav.syfo.testutil.UserConstants
 import java.time.LocalDateTime
 import java.util.UUID

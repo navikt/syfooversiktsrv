@@ -1,15 +1,15 @@
-package no.nav.syfo.personstatus.infrastructure.kafka.meroppfolging
+package no.nav.syfo.infrastructure.kafka.meroppfolging
 
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
-import no.nav.syfo.personstatus.domain.PersonIdent
-import no.nav.syfo.personstatus.domain.PersonOversiktStatus
-import no.nav.syfo.personstatus.infrastructure.kafka.kartleggingssporsmal.KartleggingssporsmalKandidatStatusConsumer
-import no.nav.syfo.personstatus.infrastructure.kafka.kartleggingssporsmal.KartleggingssporsmalKandidatStatusRecord
-import no.nav.syfo.personstatus.infrastructure.kafka.mockPollConsumerRecords
+import no.nav.syfo.domain.PersonIdent
+import no.nav.syfo.domain.PersonOversiktStatus
+import no.nav.syfo.infrastructure.kafka.kartleggingssporsmal.KartleggingssporsmalKandidatStatusConsumer
+import no.nav.syfo.infrastructure.kafka.kartleggingssporsmal.KartleggingssporsmalKandidatStatusRecord
+import no.nav.syfo.infrastructure.kafka.mockPollConsumerRecords
 import no.nav.syfo.testutil.ExternalMockEnvironment
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
 import org.apache.kafka.clients.consumer.KafkaConsumer

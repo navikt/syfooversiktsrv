@@ -2,15 +2,15 @@ package no.nav.syfo.testutil
 
 import io.mockk.mockk
 import no.nav.syfo.dialogmote.avro.KDialogmoteStatusEndring
-import no.nav.syfo.personstatus.infrastructure.database.TransactionManager
-import no.nav.syfo.personstatus.infrastructure.kafka.dialogmotekandidat.KafkaDialogmotekandidatEndring
-import no.nav.syfo.personstatus.infrastructure.kafka.dialogmotekandidat.DialogmotekandidatEndringConsumer
-import no.nav.syfo.personstatus.infrastructure.kafka.dialogmotestatusendring.DialogmoteStatusendringConsumer
-import no.nav.syfo.personstatus.infrastructure.kafka.frisktilarbeid.FriskTilArbeidVedtakConsumer
-import no.nav.syfo.personstatus.infrastructure.kafka.frisktilarbeid.VedtakStatusRecord
-import no.nav.syfo.personstatus.infrastructure.kafka.oppfolgingstilfelle.OppfolgingstilfellePersonRecord
-import no.nav.syfo.personstatus.infrastructure.kafka.oppfolgingstilfelle.OppfolgingstilfelleConsumer
-import no.nav.syfo.personstatus.infrastructure.kafka.personoppgavehendelse.KPersonoppgavehendelse
+import no.nav.syfo.infrastructure.database.TransactionManager
+import no.nav.syfo.infrastructure.kafka.dialogmotekandidat.KafkaDialogmotekandidatEndring
+import no.nav.syfo.infrastructure.kafka.dialogmotekandidat.DialogmotekandidatEndringConsumer
+import no.nav.syfo.infrastructure.kafka.dialogmotestatusendring.DialogmoteStatusendringConsumer
+import no.nav.syfo.infrastructure.kafka.frisktilarbeid.FriskTilArbeidVedtakConsumer
+import no.nav.syfo.infrastructure.kafka.frisktilarbeid.VedtakStatusRecord
+import no.nav.syfo.infrastructure.kafka.oppfolgingstilfelle.OppfolgingstilfellePersonRecord
+import no.nav.syfo.infrastructure.kafka.oppfolgingstilfelle.OppfolgingstilfelleConsumer
+import no.nav.syfo.infrastructure.kafka.personoppgavehendelse.KPersonoppgavehendelse
 import org.apache.kafka.clients.consumer.KafkaConsumer
 
 object TestKafkaModule {

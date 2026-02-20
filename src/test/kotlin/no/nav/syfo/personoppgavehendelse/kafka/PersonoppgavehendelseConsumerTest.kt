@@ -2,12 +2,12 @@ package no.nav.syfo.personoppgavehendelse.kafka
 
 import io.mockk.every
 import kotlinx.coroutines.runBlocking
-import no.nav.syfo.personstatus.domain.OversikthendelseType
-import no.nav.syfo.personstatus.domain.PersonIdent
-import no.nav.syfo.personstatus.domain.PersonOversiktStatus
-import no.nav.syfo.personstatus.infrastructure.kafka.personoppgavehendelse.KPersonoppgavehendelse
-import no.nav.syfo.personstatus.infrastructure.kafka.personoppgavehendelse.PERSONOPPGAVEHENDELSE_TOPIC
-import no.nav.syfo.personstatus.infrastructure.kafka.personoppgavehendelse.PersonoppgavehendelseConsumer
+import no.nav.syfo.domain.OversikthendelseType
+import no.nav.syfo.domain.PersonIdent
+import no.nav.syfo.domain.PersonOversiktStatus
+import no.nav.syfo.infrastructure.kafka.personoppgavehendelse.KPersonoppgavehendelse
+import no.nav.syfo.infrastructure.kafka.personoppgavehendelse.PERSONOPPGAVEHENDELSE_TOPIC
+import no.nav.syfo.infrastructure.kafka.personoppgavehendelse.PersonoppgavehendelseConsumer
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.generator.generateKPersonoppgavehendelse
 import org.apache.kafka.clients.consumer.ConsumerRecord

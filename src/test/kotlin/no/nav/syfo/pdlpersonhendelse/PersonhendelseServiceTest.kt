@@ -1,10 +1,10 @@
 package no.nav.syfo.pdlpersonhendelse
 
 import kotlinx.coroutines.runBlocking
-import no.nav.syfo.personstatus.application.PdlPersonhendelseService
-import no.nav.syfo.personstatus.domain.PersonIdent
-import no.nav.syfo.personstatus.domain.PersonOversiktStatus
-import no.nav.syfo.personstatus.infrastructure.database.queries.createPersonOversiktStatus
+import no.nav.syfo.application.PdlPersonhendelseService
+import no.nav.syfo.domain.PersonIdent
+import no.nav.syfo.domain.PersonOversiktStatus
+import no.nav.syfo.infrastructure.database.queries.createPersonOversiktStatus
 import no.nav.syfo.testutil.ExternalMockEnvironment
 import no.nav.syfo.testutil.generator.generateKafkaPersonhendelse
 import org.junit.jupiter.api.Assertions.assertThrows

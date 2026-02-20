@@ -2,8 +2,8 @@ package no.nav.syfo.cronjob.preloadcache
 
 import io.mockk.*
 import kotlinx.coroutines.runBlocking
-import no.nav.syfo.personstatus.infrastructure.clients.veiledertilgang.VeilederTilgangskontrollClient
-import no.nav.syfo.personstatus.infrastructure.cronjob.preloadcache.PreloadCacheCronjob
+import no.nav.syfo.infrastructure.clients.veiledertilgang.VeilederTilgangskontrollClient
+import no.nav.syfo.infrastructure.cronjob.preloadcache.PreloadCacheCronjob
 import no.nav.syfo.testutil.ExternalMockEnvironment
 import no.nav.syfo.testutil.UserConstants
 import no.nav.syfo.testutil.createPersonOversiktStatus

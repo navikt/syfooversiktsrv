@@ -4,8 +4,8 @@ import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
-import no.nav.syfo.personstatus.domain.PersonIdent
-import no.nav.syfo.personstatus.infrastructure.kafka.frisktilarbeid.Status
+import no.nav.syfo.domain.PersonIdent
+import no.nav.syfo.infrastructure.kafka.frisktilarbeid.Status
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.TestKafkaModule.kafkaConsumerFriskTilArbeid
 import no.nav.syfo.testutil.generator.friskTilArbeidConsumerRecord
