@@ -3,9 +3,9 @@ package no.nav.syfo.testutil.mock
 import io.ktor.client.engine.mock.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import no.nav.syfo.personstatus.infrastructure.clients.behandlendeenhet.BehandlendeEnhetResponseDTO
-import no.nav.syfo.personstatus.infrastructure.clients.behandlendeenhet.Enhet
-import no.nav.syfo.personstatus.infrastructure.clients.behandlendeenhet.OppfolgingsenhetDTO
+import no.nav.syfo.infrastructure.clients.behandlendeenhet.BehandlendeEnhetResponseDTO
+import no.nav.syfo.infrastructure.clients.behandlendeenhet.Enhet
+import no.nav.syfo.infrastructure.clients.behandlendeenhet.OppfolgingsenhetDTO
 import no.nav.syfo.testutil.UserConstants
 import no.nav.syfo.util.NAV_PERSONIDENT_HEADER
 import java.time.OffsetDateTime

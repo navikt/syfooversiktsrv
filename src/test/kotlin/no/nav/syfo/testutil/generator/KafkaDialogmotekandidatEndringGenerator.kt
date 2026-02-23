@@ -1,7 +1,7 @@
 package no.nav.syfo.testutil.generator
 
-import no.nav.syfo.personstatus.infrastructure.kafka.dialogmotekandidat.DIALOGMOTEKANDIDAT_TOPIC
-import no.nav.syfo.personstatus.infrastructure.kafka.dialogmotekandidat.KafkaDialogmotekandidatEndring
+import no.nav.syfo.infrastructure.kafka.dialogmotekandidat.DIALOGMOTEKANDIDAT_TOPIC
+import no.nav.syfo.infrastructure.kafka.dialogmotekandidat.KafkaDialogmotekandidatEndring
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.TopicPartition
 import java.time.OffsetDateTime

@@ -1,7 +1,7 @@
 package no.nav.syfo.testutil.generator
 
-import no.nav.syfo.personstatus.domain.PersonOversiktStatus
-import no.nav.syfo.personstatus.domain.toPersonOversiktStatus
+import no.nav.syfo.domain.PersonOversiktStatus
+import no.nav.syfo.domain.toPersonOversiktStatus
 import no.nav.syfo.testutil.UserConstants
 import java.time.LocalDate
 import java.time.OffsetDateTime

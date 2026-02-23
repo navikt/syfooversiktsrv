@@ -1,8 +1,8 @@
 package no.nav.syfo.testutil.generator
 
-import no.nav.syfo.personstatus.domain.Oppfolgingstilfelle
-import no.nav.syfo.personstatus.domain.PersonOppfolgingstilfelleVirksomhet
-import no.nav.syfo.personstatus.domain.Virksomhetsnummer
+import no.nav.syfo.domain.Oppfolgingstilfelle
+import no.nav.syfo.domain.PersonOppfolgingstilfelleVirksomhet
+import no.nav.syfo.domain.Virksomhetsnummer
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.*

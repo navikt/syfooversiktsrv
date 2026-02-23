@@ -1,16 +1,16 @@
 package no.nav.syfo.testutil
 
 import no.nav.syfo.ApplicationState
-import no.nav.syfo.cache.ValkeyStore
-import no.nav.syfo.personstatus.application.OppfolgingstilfelleService
-import no.nav.syfo.personstatus.application.PersonBehandlendeEnhetService
-import no.nav.syfo.personstatus.application.PersonoversiktStatusService
-import no.nav.syfo.personstatus.infrastructure.clients.azuread.AzureAdClient
-import no.nav.syfo.personstatus.infrastructure.clients.behandlendeenhet.BehandlendeEnhetClient
-import no.nav.syfo.personstatus.infrastructure.clients.pdl.PdlClient
-import no.nav.syfo.personstatus.infrastructure.clients.veileder.VeilederClient
-import no.nav.syfo.personstatus.infrastructure.database.repository.PersonOversiktStatusRepository
-import no.nav.syfo.personstatus.infrastructure.database.TransactionManager
+import no.nav.syfo.util.cache.ValkeyStore
+import no.nav.syfo.application.OppfolgingstilfelleService
+import no.nav.syfo.application.PersonBehandlendeEnhetService
+import no.nav.syfo.application.PersonoversiktStatusService
+import no.nav.syfo.infrastructure.clients.azuread.AzureAdClient
+import no.nav.syfo.infrastructure.clients.behandlendeenhet.BehandlendeEnhetClient
+import no.nav.syfo.infrastructure.clients.pdl.PdlClient
+import no.nav.syfo.infrastructure.clients.veileder.VeilederClient
+import no.nav.syfo.infrastructure.database.repository.PersonOversiktStatusRepository
+import no.nav.syfo.infrastructure.database.TransactionManager
 import no.nav.syfo.testutil.mock.*
 import redis.clients.jedis.DefaultJedisClientConfig
 import redis.clients.jedis.HostAndPort
