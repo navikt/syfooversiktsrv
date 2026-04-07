@@ -64,6 +64,7 @@ spec:
         - application: ishuskelapp
         - application: ismeroppfolging
         - application: isdialogmotekandidat
+        - application: isdialogmote
         - application: syfoveileder
   azure:
     application:
