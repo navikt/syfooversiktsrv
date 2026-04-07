@@ -75,7 +75,6 @@ class PersonoversiktOppgaverService(
             personStatuser = personer,
         )
         val dialogmoteAvvent = getDialogmoteAvventForPersons(
-            callId = callId,
             token = token,
             personStatuser = personer,
         )
@@ -232,7 +231,6 @@ class PersonoversiktOppgaverService(
         }
 
     private fun getDialogmoteAvventForPersons(
-        callId: String,
         token: String,
         personStatuser: List<PersonOversiktStatus>,
     ): Deferred<List<DialogmoteAvventDTO>?> =
@@ -242,7 +240,6 @@ class PersonoversiktOppgaverService(
                 .map { PersonIdent(it.fnr) }
             if (personidenter.isNotEmpty()) {
                 dialogmoteClient.getDialogmoteAvvent(
-                    callId = callId,
                     token = token,
                     personidenter = personidenter,
                 )

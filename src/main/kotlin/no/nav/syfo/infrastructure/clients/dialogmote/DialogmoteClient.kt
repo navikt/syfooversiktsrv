@@ -9,6 +9,7 @@ import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.request
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
@@ -32,7 +33,6 @@ class DialogmoteClient(
     private val httpClient: HttpClient = httpClientDefault(),
 ) : IDialogmoteClient {
     override suspend fun getDialogmoteAvvent(
-        callId: String,
         token: String,
         personidenter: List<PersonIdent>,
     ): List<DialogmoteAvventDTO>? {
@@ -48,7 +48,6 @@ class DialogmoteClient(
             val response =
                 httpClient.post("${clientEnvironment.baseUrl}$AVVENT_API_PATH") {
                     header(HttpHeaders.Authorization, bearerHeader(oboToken))
-                    header(NAV_CALL_ID_HEADER, callId)
                     accept(ContentType.Application.Json)
                     contentType(ContentType.Application.Json)
                     setBody(requestDTO)
@@ -57,34 +56,26 @@ class DialogmoteClient(
                 HttpStatusCode.OK -> {
                     response.body<List<DialogmoteAvventDTO>>()
                 }
-
-                HttpStatusCode.NotFound -> {
-                    log.error("Resource not found")
-                    null
-                }
-
                 else -> {
                     log.error("Unhandled status code: ${response.status}")
                     null
                 }
             }
         } catch (e: ClientRequestException) {
-            handleUnexpectedResponseException(e.response, callId)
+            handleUnexpectedResponseException(e.response)
             throw e
         } catch (e: ServerResponseException) {
-            handleUnexpectedResponseException(e.response, callId)
+            handleUnexpectedResponseException(e.response)
             throw e
         }
     }
 
     private fun handleUnexpectedResponseException(
         response: HttpResponse,
-        callId: String,
     ) {
         log.error(
-            "Error while requesting from isdialogmote avvent with {}, {}",
-            StructuredArguments.keyValue("statusCode", response.status.value.toString()),
-            callIdArgument(callId),
+            "Error while requesting from isdialogmote avvent with {}",
+            StructuredArguments.keyValue("statusCode", response.status.value.toString())
         )
     }
 
