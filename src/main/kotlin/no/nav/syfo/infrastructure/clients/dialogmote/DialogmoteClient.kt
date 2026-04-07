@@ -9,7 +9,6 @@ import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
-import io.ktor.client.statement.request
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
@@ -22,9 +21,7 @@ import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.infrastructure.clients.ClientEnvironment
 import no.nav.syfo.infrastructure.clients.azuread.AzureAdClient
 import no.nav.syfo.infrastructure.clients.httpClientDefault
-import no.nav.syfo.util.NAV_CALL_ID_HEADER
 import no.nav.syfo.util.bearerHeader
-import no.nav.syfo.util.callIdArgument
 import org.slf4j.LoggerFactory
 
 class DialogmoteClient(
