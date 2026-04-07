@@ -1,39 +1,36 @@
 package no.nav.syfo
 
 import com.typesafe.config.ConfigFactory
-import io.ktor.server.application.Application
-import io.ktor.server.application.ApplicationStarted
-import io.ktor.server.config.HoconApplicationConfig
-import io.ktor.server.engine.applicationEnvironment
-import io.ktor.server.engine.connector
-import io.ktor.server.engine.embeddedServer
-import io.ktor.server.netty.Netty
+import io.ktor.server.application.*
+import io.ktor.server.config.*
+import io.ktor.server.engine.*
+import io.ktor.server.netty.*
+import no.nav.syfo.util.cache.ValkeyStore
+import no.nav.syfo.application.PersonoversiktStatusService
 import no.nav.syfo.api.apiModule
 import no.nav.syfo.api.auth.getWellKnown
 import no.nav.syfo.application.OppfolgingstilfelleService
-import no.nav.syfo.application.PersonBehandlendeEnhetService
 import no.nav.syfo.application.PersonoversiktOppgaverService
-import no.nav.syfo.application.PersonoversiktStatusService
-import no.nav.syfo.application.oppfolgingsoppgave.OppfolgingsoppgaveService
 import no.nav.syfo.infrastructure.clients.aktivitetskrav.AktivitetskravClient
 import no.nav.syfo.infrastructure.clients.arbeidsuforhet.ArbeidsuforhetvurderingClient
+import no.nav.syfo.infrastructure.clients.manglendemedvirkning.ManglendeMedvirkningClient
 import no.nav.syfo.infrastructure.clients.azuread.AzureAdClient
 import no.nav.syfo.infrastructure.clients.behandlendeenhet.BehandlendeEnhetClient
-import no.nav.syfo.infrastructure.clients.dialogmote.DialogmoteClient
-import no.nav.syfo.infrastructure.clients.dialogmotekandidat.DialogmotekandidatClient
-import no.nav.syfo.infrastructure.clients.manglendemedvirkning.ManglendeMedvirkningClient
 import no.nav.syfo.infrastructure.clients.meroppfolging.MerOppfolgingClient
 import no.nav.syfo.infrastructure.clients.oppfolgingsoppgave.OppfolgingsoppgaveClient
 import no.nav.syfo.infrastructure.clients.pdl.PdlClient
-import no.nav.syfo.infrastructure.clients.veileder.VeilederClient
 import no.nav.syfo.infrastructure.clients.veiledertilgang.VeilederTilgangskontrollClient
+import no.nav.syfo.application.PersonBehandlendeEnhetService
+import no.nav.syfo.application.oppfolgingsoppgave.OppfolgingsoppgaveService
+import no.nav.syfo.infrastructure.clients.dialogmote.DialogmoteClient
+import no.nav.syfo.infrastructure.clients.dialogmotekandidat.DialogmotekandidatClient
+import no.nav.syfo.infrastructure.clients.veileder.VeilederClient
 import no.nav.syfo.infrastructure.cronjob.launchCronjobModule
-import no.nav.syfo.infrastructure.database.TransactionManager
 import no.nav.syfo.infrastructure.database.database
 import no.nav.syfo.infrastructure.database.databaseModule
 import no.nav.syfo.infrastructure.database.repository.PersonOversiktStatusRepository
+import no.nav.syfo.infrastructure.database.TransactionManager
 import no.nav.syfo.infrastructure.kafka.launchKafkaModule
-import no.nav.syfo.util.cache.ValkeyStore
 import org.slf4j.LoggerFactory
 import redis.clients.jedis.DefaultJedisClientConfig
 import redis.clients.jedis.HostAndPort
@@ -54,194 +51,173 @@ fun main() {
     logger.info("syfooversiktsrv starting with java version: " + Runtime.version())
     val environment = Environment()
 
-    val wellKnownVeilederV2 =
-        getWellKnown(
-            wellKnownUrl = environment.azure.appWellKnownUrl,
-        )
+    val wellKnownVeilederV2 = getWellKnown(
+        wellKnownUrl = environment.azure.appWellKnownUrl,
+    )
 
     val valkeyConfig = environment.valkeyConfig
-    val valkeyStore =
-        ValkeyStore(
-            JedisPool(
-                JedisPoolConfig(),
-                HostAndPort(valkeyConfig.host, valkeyConfig.port),
-                DefaultJedisClientConfig
-                    .builder()
-                    .ssl(valkeyConfig.ssl)
-                    .user(valkeyConfig.valkeyUsername)
-                    .password(valkeyConfig.valkeyPassword)
-                    .database(valkeyConfig.valkeyDB)
-                    .build(),
-            ),
+    val valkeyStore = ValkeyStore(
+        JedisPool(
+            JedisPoolConfig(),
+            HostAndPort(valkeyConfig.host, valkeyConfig.port),
+            DefaultJedisClientConfig.builder()
+                .ssl(valkeyConfig.ssl)
+                .user(valkeyConfig.valkeyUsername)
+                .password(valkeyConfig.valkeyPassword)
+                .database(valkeyConfig.valkeyDB)
+                .build()
         )
+    )
 
-    val azureAdClient =
-        AzureAdClient(
-            azureEnvironment = environment.azure,
-            valkeyStore = valkeyStore,
-        )
+    val azureAdClient = AzureAdClient(
+        azureEnvironment = environment.azure,
+        valkeyStore = valkeyStore,
+    )
 
-    val pdlClient =
-        PdlClient(
-            azureAdClient = azureAdClient,
-            clientEnvironment = environment.clients.pdl,
-        )
-    val behandlendeEnhetClient =
-        BehandlendeEnhetClient(
-            azureAdClient = azureAdClient,
-            clientEnvironment = environment.clients.syfobehandlendeenhet,
-        )
-    val arbeidsuforhetvurderingClient =
-        ArbeidsuforhetvurderingClient(
-            azureAdClient = azureAdClient,
-            clientEnvironment = environment.clients.arbeidsuforhetvurdering,
-        )
-    val oppfolgingsoppgaveClient =
-        OppfolgingsoppgaveClient(
-            azureAdClient = azureAdClient,
-            clientEnvironment = environment.clients.ishuskelapp,
-        )
-    val aktivitetskravClient =
-        AktivitetskravClient(
-            azureAdClient = azureAdClient,
-            clientEnvironment = environment.clients.aktivitetskrav,
-        )
-    val manglendeMedvirkningClient =
-        ManglendeMedvirkningClient(
-            azureAdClient = azureAdClient,
-            clientEnvironment = environment.clients.manglendeMedvirkning,
-        )
-    val merOppfolgingClient =
-        MerOppfolgingClient(
-            azureAdClient = azureAdClient,
-            clientEnvironment = environment.clients.ismeroppfolging,
-        )
-    val dialogmotekandidatClient =
-        DialogmotekandidatClient(
-            azureAdClient = azureAdClient,
-            clientEnvironment = environment.clients.dialogmotekandidat,
-        )
+    val pdlClient = PdlClient(
+        azureAdClient = azureAdClient,
+        clientEnvironment = environment.clients.pdl,
+    )
+    val behandlendeEnhetClient = BehandlendeEnhetClient(
+        azureAdClient = azureAdClient,
+        clientEnvironment = environment.clients.syfobehandlendeenhet,
+    )
+    val arbeidsuforhetvurderingClient = ArbeidsuforhetvurderingClient(
+        azureAdClient = azureAdClient,
+        clientEnvironment = environment.clients.arbeidsuforhetvurdering,
+    )
+    val oppfolgingsoppgaveClient = OppfolgingsoppgaveClient(
+        azureAdClient = azureAdClient,
+        clientEnvironment = environment.clients.ishuskelapp,
+    )
+    val aktivitetskravClient = AktivitetskravClient(
+        azureAdClient = azureAdClient,
+        clientEnvironment = environment.clients.aktivitetskrav,
+    )
+    val manglendeMedvirkningClient = ManglendeMedvirkningClient(
+        azureAdClient = azureAdClient,
+        clientEnvironment = environment.clients.manglendeMedvirkning,
+    )
+    val merOppfolgingClient = MerOppfolgingClient(
+        azureAdClient = azureAdClient,
+        clientEnvironment = environment.clients.ismeroppfolging,
+    )
+    val dialogmotekandidatClient = DialogmotekandidatClient(
+        azureAdClient = azureAdClient,
+        clientEnvironment = environment.clients.dialogmotekandidat,
+    )
     val dialogmoteClient =
         DialogmoteClient(
             azureAdClient = azureAdClient,
             clientEnvironment = environment.clients.isdialogmote,
         )
-    val veilederTilgangskontrollClient =
-        VeilederTilgangskontrollClient(
-            azureAdClient = azureAdClient,
-            istilgangskontrollEnv = environment.clients.istilgangskontroll,
-        )
-    val veilederClient =
-        VeilederClient(
-            azureAdClient = azureAdClient,
-            clientEnvironment = environment.clients.syfoveileder,
-            valkeyStore = valkeyStore,
-        )
+    val veilederTilgangskontrollClient = VeilederTilgangskontrollClient(
+        azureAdClient = azureAdClient,
+        istilgangskontrollEnv = environment.clients.istilgangskontroll,
+    )
+    val veilederClient = VeilederClient(
+        azureAdClient = azureAdClient,
+        clientEnvironment = environment.clients.syfoveileder,
+        valkeyStore = valkeyStore,
+    )
 
     lateinit var personBehandlendeEnhetService: PersonBehandlendeEnhetService
     lateinit var personoversiktStatusService: PersonoversiktStatusService
     lateinit var oppfolgingstilfelleService: OppfolgingstilfelleService
     lateinit var oppfolgingsoppgaveService: OppfolgingsoppgaveService
 
-    val applicationEnvironment =
-        applicationEnvironment {
-            log = logger
-            config = HoconApplicationConfig(ConfigFactory.load())
-        }
+    val applicationEnvironment = applicationEnvironment {
+        log = logger
+        config = HoconApplicationConfig(ConfigFactory.load())
+    }
 
-    val server =
-        embeddedServer(
-            Netty,
-            environment = applicationEnvironment,
-            configure = {
-                connector {
-                    port = applicationPort
-                }
-                connectionGroupSize = 8
-                workerGroupSize = 8
-                callGroupSize = 16
-            },
-            module = {
-                databaseModule(
-                    databaseEnvironment = environment.database,
+    val server = embeddedServer(
+        Netty,
+        environment = applicationEnvironment,
+        configure = {
+            connector {
+                port = applicationPort
+            }
+            connectionGroupSize = 8
+            workerGroupSize = 8
+            callGroupSize = 16
+        },
+        module = {
+            databaseModule(
+                databaseEnvironment = environment.database,
+            )
+            val personoversiktStatusRepository = PersonOversiktStatusRepository(database = database)
+            oppfolgingstilfelleService = OppfolgingstilfelleService(
+                pdlClient = pdlClient,
+                personOversiktStatusRepository = personoversiktStatusRepository,
+                veilederClient = veilederClient,
+            )
+            val transactionManager = TransactionManager(database)
+            personoversiktStatusService = PersonoversiktStatusService(
+                pdlClient = pdlClient,
+                personoversiktStatusRepository = personoversiktStatusRepository,
+                transactionManager = transactionManager,
+            )
+            personBehandlendeEnhetService = PersonBehandlendeEnhetService(
+                personoversiktStatusRepository = personoversiktStatusRepository,
+                behandlendeEnhetClient = behandlendeEnhetClient,
+            )
+            oppfolgingsoppgaveService = OppfolgingsoppgaveService(
+                personBehandlendeEnhetService = personBehandlendeEnhetService,
+                personOversiktStatusRepository = personoversiktStatusRepository,
+            )
+            apiModule(
+                applicationState = applicationState,
+                database = database,
+                environment = environment,
+                wellKnownVeilederV2 = wellKnownVeilederV2,
+                personoversiktStatusService = personoversiktStatusService,
+                tilgangskontrollClient = veilederTilgangskontrollClient,
+                personoversiktOppgaverService = PersonoversiktOppgaverService(
+                    oppfolgingsoppgaveClient = oppfolgingsoppgaveClient,
+                    aktivitetskravClient = aktivitetskravClient,
+                    manglendeMedvirkningClient = manglendeMedvirkningClient,
+                    arbeidsuforhetvurderingClient = arbeidsuforhetvurderingClient,
+                    merOppfolgingClient = merOppfolgingClient,
+                    dialogmotekandidatClient = dialogmotekandidatClient,
+                    dialogmoteClient = dialogmoteClient,
+                ),
+                personBehandlendeEnhetService = personBehandlendeEnhetService,
+                personoversiktStatusRepository = personoversiktStatusRepository,
+                veilederClient = veilederClient,
+            )
+            monitor.subscribe(ApplicationStarted) {
+                applicationState.ready = true
+                logger.info("Application is ready, running Java VM ${Runtime.version()}")
+                launchKafkaModule(
+                    applicationState = applicationState,
+                    environment = environment,
+                    azureAdClient = azureAdClient,
+                    personoversiktStatusService = personoversiktStatusService,
+                    personBehandlendeEnhetService = personBehandlendeEnhetService,
+                    oppfolgingstilfelleService = oppfolgingstilfelleService,
+                    oppfolgingsoppgaveService = oppfolgingsoppgaveService,
+                    personOversiktStatusRepository = personoversiktStatusRepository,
+                    transactionManager = transactionManager,
                 )
-                val personoversiktStatusRepository = PersonOversiktStatusRepository(database = database)
-                oppfolgingstilfelleService =
-                    OppfolgingstilfelleService(
-                        pdlClient = pdlClient,
-                        personOversiktStatusRepository = personoversiktStatusRepository,
-                        veilederClient = veilederClient,
-                    )
-                val transactionManager = TransactionManager(database)
-                personoversiktStatusService =
-                    PersonoversiktStatusService(
-                        pdlClient = pdlClient,
-                        personoversiktStatusRepository = personoversiktStatusRepository,
-                        transactionManager = transactionManager,
-                    )
-                personBehandlendeEnhetService =
-                    PersonBehandlendeEnhetService(
-                        personoversiktStatusRepository = personoversiktStatusRepository,
-                        behandlendeEnhetClient = behandlendeEnhetClient,
-                    )
-                oppfolgingsoppgaveService =
-                    OppfolgingsoppgaveService(
-                        personBehandlendeEnhetService = personBehandlendeEnhetService,
-                        personOversiktStatusRepository = personoversiktStatusRepository,
-                    )
-                apiModule(
+                launchCronjobModule(
                     applicationState = applicationState,
                     database = database,
                     environment = environment,
-                    wellKnownVeilederV2 = wellKnownVeilederV2,
-                    personoversiktStatusService = personoversiktStatusService,
-                    tilgangskontrollClient = veilederTilgangskontrollClient,
-                    personoversiktOppgaverService =
-                        PersonoversiktOppgaverService(
-                            oppfolgingsoppgaveClient = oppfolgingsoppgaveClient,
-                            aktivitetskravClient = aktivitetskravClient,
-                            manglendeMedvirkningClient = manglendeMedvirkningClient,
-                            arbeidsuforhetvurderingClient = arbeidsuforhetvurderingClient,
-                            merOppfolgingClient = merOppfolgingClient,
-                            dialogmotekandidatClient = dialogmotekandidatClient,
-                            dialogmoteAvventClient = dialogmoteClient,
-                        ),
+                    valkeyStore = valkeyStore,
+                    azureAdClient = azureAdClient,
                     personBehandlendeEnhetService = personBehandlendeEnhetService,
+                    personoversiktStatusService = personoversiktStatusService,
                     personoversiktStatusRepository = personoversiktStatusRepository,
-                    veilederClient = veilederClient,
                 )
-                monitor.subscribe(ApplicationStarted) {
-                    applicationState.ready = true
-                    logger.info("Application is ready, running Java VM ${Runtime.version()}")
-                    launchKafkaModule(
-                        applicationState = applicationState,
-                        environment = environment,
-                        azureAdClient = azureAdClient,
-                        personoversiktStatusService = personoversiktStatusService,
-                        personBehandlendeEnhetService = personBehandlendeEnhetService,
-                        oppfolgingstilfelleService = oppfolgingstilfelleService,
-                        oppfolgingsoppgaveService = oppfolgingsoppgaveService,
-                        personOversiktStatusRepository = personoversiktStatusRepository,
-                        transactionManager = transactionManager,
-                    )
-                    launchCronjobModule(
-                        applicationState = applicationState,
-                        database = database,
-                        environment = environment,
-                        valkeyStore = valkeyStore,
-                        azureAdClient = azureAdClient,
-                        personBehandlendeEnhetService = personBehandlendeEnhetService,
-                        personoversiktStatusService = personoversiktStatusService,
-                        personoversiktStatusRepository = personoversiktStatusRepository,
-                    )
-                }
-            },
-        )
+            }
+        }
+    )
 
     Runtime.getRuntime().addShutdownHook(
         Thread {
             server.stop(10, 10, TimeUnit.SECONDS)
-        },
+        }
     )
 
     server.start(wait = true)

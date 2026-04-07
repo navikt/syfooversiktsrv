@@ -108,7 +108,7 @@ fun Application.testApiModule(
             aktivitetskravClient = aktivitetskravClient,
             merOppfolgingClient = merOppfolgingClient,
             dialogmotekandidatClient = dialogmotekandidatClient,
-            dialogmoteAvventClient = dialogmoteClient,
+            dialogmoteClient = dialogmoteClient,
         ),
         personBehandlendeEnhetService = personBehandlendeEnhetService,
         personoversiktStatusRepository = personoversiktRepository,

@@ -35,7 +35,7 @@ class PersonoversiktOppgaverService(
     private val oppfolgingsoppgaveClient: IOppfolgingsoppgaveClient,
     private val merOppfolgingClient: IMeroppfolgingClient,
     private val dialogmotekandidatClient: IDialogmotekandidatClient,
-    private val dialogmoteAvventClient: IDialogmoteClient,
+    private val dialogmoteClient: IDialogmoteClient,
 ) {
     private val log = LoggerFactory.getLogger(this::class.java)
 
@@ -241,7 +241,7 @@ class PersonoversiktOppgaverService(
                 .filter { it.dialogmotesvarUbehandlet || it.dialogmotekandidat == true || it.motebehovUbehandlet == true }
                 .map { PersonIdent(it.fnr) }
             if (personidenter.isNotEmpty()) {
-                dialogmoteAvventClient.getDialogmoteAvvent(
+                dialogmoteClient.getDialogmoteAvvent(
                     callId = callId,
                     token = token,
                     personidenter = personidenter,
