@@ -1,7 +1,7 @@
 package no.nav.syfo.testutil.mock
 
-import io.ktor.client.*
-import io.ktor.client.engine.mock.*
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.mock.MockEngine
 import no.nav.syfo.Environment
 import no.nav.syfo.infrastructure.clients.commonConfig
 
@@ -25,6 +25,7 @@ fun mockHttpClient(environment: Environment) = HttpClient(MockEngine) {
                 requestUrl.startsWith("/${environment.clients.manglendeMedvirkning.baseUrl}") -> manglendeMedvirkningMockResponse()
                 requestUrl.startsWith("/${environment.clients.aktivitetskrav.baseUrl}") -> aktivitetskravMockResponse()
                 requestUrl.startsWith("/${environment.clients.dialogmotekandidat.baseUrl}") -> dialogmotekandidatMockResponse(request)
+                requestUrl.startsWith("/${environment.clients.isdialogmote.baseUrl}") -> dialogmoteAvventMockResponse(request)
                 requestUrl.startsWith("/${environment.clients.ismeroppfolging.baseUrl}") -> merOppfolgingMockResponse()
                 requestUrl.startsWith("/${environment.clients.syfoveileder.baseUrl}") -> veilederMockResponse(request)
 

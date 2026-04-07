@@ -12,6 +12,7 @@ import no.nav.syfo.infrastructure.clients.aktivitetskrav.AktivitetskravClient
 import no.nav.syfo.infrastructure.clients.arbeidsuforhet.ArbeidsuforhetvurderingClient
 import no.nav.syfo.infrastructure.clients.azuread.AzureAdClient
 import no.nav.syfo.infrastructure.clients.behandlendeenhet.BehandlendeEnhetClient
+import no.nav.syfo.infrastructure.clients.dialogmote.DialogmoteClient
 import no.nav.syfo.infrastructure.clients.dialogmotekandidat.DialogmotekandidatClient
 import no.nav.syfo.infrastructure.clients.manglendemedvirkning.ManglendeMedvirkningClient
 import no.nav.syfo.infrastructure.clients.meroppfolging.MerOppfolgingClient
@@ -65,6 +66,11 @@ fun Application.testApiModule(
         clientEnvironment = externalMockEnvironment.environment.clients.dialogmotekandidat,
         httpClient = externalMockEnvironment.mockHttpClient
     )
+    val dialogmoteClient = DialogmoteClient(
+        azureAdClient = azureAdClient,
+        clientEnvironment = externalMockEnvironment.environment.clients.isdialogmote,
+        httpClient = externalMockEnvironment.mockHttpClient
+    )
     val veilederTilgangskontrollClient = VeilederTilgangskontrollClient(
         azureAdClient = azureAdClient,
         istilgangskontrollEnv = externalMockEnvironment.environment.clients.istilgangskontroll,
@@ -102,6 +108,7 @@ fun Application.testApiModule(
             aktivitetskravClient = aktivitetskravClient,
             merOppfolgingClient = merOppfolgingClient,
             dialogmotekandidatClient = dialogmotekandidatClient,
+            dialogmoteAvventClient = dialogmoteClient,
         ),
         personBehandlendeEnhetService = personBehandlendeEnhetService,
         personoversiktStatusRepository = personoversiktRepository,

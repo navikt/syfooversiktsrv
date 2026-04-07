@@ -3,6 +3,7 @@ package no.nav.syfo.domain
 import no.nav.syfo.api.model.PersonOversiktStatusDTO
 import no.nav.syfo.application.aktivitetskrav.AktivitetskravDTO
 import no.nav.syfo.application.arbeidsuforhet.ArbeidsuforhetvurderingDTO
+import no.nav.syfo.application.dialogmote.DialogmoteAvventDTO
 import no.nav.syfo.application.dialogmotekandidat.DialogmotekandidatDTO
 import no.nav.syfo.application.manglendemedvirkning.ManglendeMedvirkningDTO
 import no.nav.syfo.application.meroppfolging.SenOppfolgingKandidatDTO
@@ -130,6 +131,7 @@ fun PersonOversiktStatus.toPersonOversiktStatusDTO(
     manglendeMedvirkning: ManglendeMedvirkningDTO?,
     senOppfolgingKandidat: SenOppfolgingKandidatDTO?,
     dialogmotekandidatStatus: DialogmotekandidatDTO?,
+    dialogmoteAvvent: DialogmoteAvventDTO?,
 ) =
     PersonOversiktStatusDTO(
         veilederIdent = veilederIdent,
@@ -152,6 +154,7 @@ fun PersonOversiktStatus.toPersonOversiktStatusDTO(
         manglendeMedvirkning = manglendeMedvirkning,
         senOppfolgingKandidat = senOppfolgingKandidat,
         isAktivKartleggingssporsmalVurdering = isAktivKartleggingssporsmalVurdering,
+        dialogmoteAvvent = dialogmoteAvvent,
     )
 
 enum class OversikthendelseType {

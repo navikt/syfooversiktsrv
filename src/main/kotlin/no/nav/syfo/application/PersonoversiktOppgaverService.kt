@@ -8,6 +8,8 @@ import no.nav.syfo.application.aktivitetskrav.GetAktivitetskravForPersonsRespons
 import no.nav.syfo.application.aktivitetskrav.IAktivitetskravClient
 import no.nav.syfo.application.arbeidsuforhet.ArbeidsuforhetvurderingerResponseDTO
 import no.nav.syfo.application.arbeidsuforhet.IArbeidsuforhetvurderingClient
+import no.nav.syfo.application.dialogmote.DialogmoteAvventDTO
+import no.nav.syfo.application.dialogmote.IDialogmoteClient
 import no.nav.syfo.application.dialogmotekandidat.DialogmotekandidatResponseDTO
 import no.nav.syfo.application.dialogmotekandidat.IDialogmotekandidatClient
 import no.nav.syfo.application.manglendemedvirkning.IManglendeMedvirkningClient
@@ -33,6 +35,7 @@ class PersonoversiktOppgaverService(
     private val oppfolgingsoppgaveClient: IOppfolgingsoppgaveClient,
     private val merOppfolgingClient: IMeroppfolgingClient,
     private val dialogmotekandidatClient: IDialogmotekandidatClient,
+    private val dialogmoteAvventClient: IDialogmoteClient,
 ) {
     private val log = LoggerFactory.getLogger(this::class.java)
 
@@ -71,6 +74,11 @@ class PersonoversiktOppgaverService(
             token = token,
             personStatuser = personer,
         )
+        val dialogmoteAvvent = getDialogmoteAvventForPersons(
+            callId = callId,
+            token = token,
+            personStatuser = personer,
+        )
 
         return personer.associate {
             it.fnr to PersonoversiktAktiveOppgaver(
@@ -92,6 +100,9 @@ class PersonoversiktOppgaverService(
                 dialogmotekandidat = dialogmoteKandidater.await()
                     ?.dialogmotekandidater
                     ?.get(it.fnr),
+                dialogmoteAvvent = dialogmoteAvvent.await()
+                    ?.filter { avvent -> avvent.personident == it.fnr }
+                    ?.maxByOrNull { avvent -> avvent.createdAt },
             )
         }
     }
@@ -214,6 +225,26 @@ class PersonoversiktOppgaverService(
                     callId = callId,
                     token = token,
                     personidenter = personidenterWithActiveSenOppfolgingKandidat,
+                )
+            } else {
+                null
+            }
+        }
+
+    private fun getDialogmoteAvventForPersons(
+        callId: String,
+        token: String,
+        personStatuser: List<PersonOversiktStatus>,
+    ): Deferred<List<DialogmoteAvventDTO>?> =
+        CoroutineScope(Dispatchers.IO).async {
+            val personidenter = personStatuser
+                .filter { it.dialogmotesvarUbehandlet || it.dialogmotekandidat == true || it.motebehovUbehandlet == true }
+                .map { PersonIdent(it.fnr) }
+            if (personidenter.isNotEmpty()) {
+                dialogmoteAvventClient.getDialogmoteAvvent(
+                    callId = callId,
+                    token = token,
+                    personidenter = personidenter,
                 )
             } else {
                 null

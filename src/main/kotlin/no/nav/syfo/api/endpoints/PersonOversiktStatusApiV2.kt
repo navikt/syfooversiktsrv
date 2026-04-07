@@ -1,23 +1,26 @@
 package no.nav.syfo.api.endpoints
 
-import io.ktor.http.*
-import io.ktor.server.request.*
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.request.receive
 import io.ktor.server.response.respond
-import io.ktor.server.routing.*
+import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
+import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import io.micrometer.core.instrument.Timer
+import no.nav.syfo.api.model.SearchQueryDTO
 import no.nav.syfo.application.PersonoversiktOppgaverService
 import no.nav.syfo.application.PersonoversiktSearchService
-import no.nav.syfo.infrastructure.clients.veiledertilgang.VeilederTilgangskontrollClient
+import no.nav.syfo.application.PersonoversiktStatusService
+import no.nav.syfo.domain.PersonOversiktStatus
+import no.nav.syfo.domain.toPersonOversiktStatusDTO
 import no.nav.syfo.infrastructure.COUNT_PERSONOVERSIKTSTATUS_ENHET_HENTET
 import no.nav.syfo.infrastructure.HISTOGRAM_PERSONOVERSIKT
-import no.nav.syfo.application.PersonoversiktStatusService
-import no.nav.syfo.api.model.SearchQueryDTO
-import no.nav.syfo.domain.*
-import no.nav.syfo.util.*
+import no.nav.syfo.infrastructure.clients.veiledertilgang.VeilederTilgangskontrollClient
+import no.nav.syfo.util.callIdArgument
 import no.nav.syfo.util.getBearerHeader
 import no.nav.syfo.util.getCallId
+import no.nav.syfo.util.validateEnhet
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import kotlin.collections.filter
@@ -39,37 +42,42 @@ fun Route.registerPersonoversiktApiV2(
     route(personOversiktApiV2Path) {
         post("/search") {
             val callId = getCallId()
-            val token = getBearerHeader()
-                ?: throw java.lang.IllegalArgumentException("No Authorization header supplied")
+            val token =
+                getBearerHeader()
+                    ?: throw java.lang.IllegalArgumentException("No Authorization header supplied")
             val searchQuery = call.receive<SearchQueryDTO>().toSearchQuery()
 
             val searchResult = personoversiktSearchService.searchSykmeldt(search = searchQuery)
-            val fnrWithVeilederAccess = veilederTilgangskontrollClient.veilederPersonAccessListMedOBO(
-                personidenter = searchResult.map { it.fnr },
-                token = token,
-                callId = callId,
-            ) ?: emptyList()
+            val fnrWithVeilederAccess =
+                veilederTilgangskontrollClient.veilederPersonAccessListMedOBO(
+                    personidenter = searchResult.map { it.fnr },
+                    token = token,
+                    callId = callId,
+                ) ?: emptyList()
 
             val personer = searchResult.filter { fnrWithVeilederAccess.contains(it.fnr) }
             log.info("Completed search for sykmeldt, found ${personer.size} personer")
 
             if (personer.isNotEmpty()) {
-                val personerAktiveOppgaver = personoversiktOppgaverService.getAktiveOppgaver(
-                    callId = callId,
-                    token = token,
-                    personer = personer,
-                )
-                val personOversiktStatusDTOs = personer.map {
-                    val aktiveOppgaver = personerAktiveOppgaver[it.fnr]
-                    it.toPersonOversiktStatusDTO(
-                        arbeidsuforhetvurdering = aktiveOppgaver?.arbeidsuforhet,
-                        oppfolgingsoppgave = aktiveOppgaver?.oppfolgingsoppgave,
-                        aktivitetskravvurdering = aktiveOppgaver?.aktivitetskrav,
-                        manglendeMedvirkning = aktiveOppgaver?.manglendeMedvirkning,
-                        senOppfolgingKandidat = aktiveOppgaver?.senOppfolgingKandidat,
-                        dialogmotekandidatStatus = aktiveOppgaver?.dialogmotekandidat,
+                val personerAktiveOppgaver =
+                    personoversiktOppgaverService.getAktiveOppgaver(
+                        callId = callId,
+                        token = token,
+                        personer = personer,
                     )
-                }
+                val personOversiktStatusDTOs =
+                    personer.map {
+                        val aktiveOppgaver = personerAktiveOppgaver[it.fnr]
+                        it.toPersonOversiktStatusDTO(
+                            arbeidsuforhetvurdering = aktiveOppgaver?.arbeidsuforhet,
+                            oppfolgingsoppgave = aktiveOppgaver?.oppfolgingsoppgave,
+                            aktivitetskravvurdering = aktiveOppgaver?.aktivitetskrav,
+                            manglendeMedvirkning = aktiveOppgaver?.manglendeMedvirkning,
+                            senOppfolgingKandidat = aktiveOppgaver?.senOppfolgingKandidat,
+                            dialogmotekandidatStatus = aktiveOppgaver?.dialogmotekandidat,
+                            dialogmoteAvvent = aktiveOppgaver?.dialogmoteAvvent,
+                        )
+                    }
 
                 call.respond(personOversiktStatusDTOs)
             } else {
@@ -79,11 +87,13 @@ fun Route.registerPersonoversiktApiV2(
         get("/enhet/{enhet}") {
             try {
                 val callId = getCallId()
-                val token = getBearerHeader()
-                    ?: throw java.lang.IllegalArgumentException("No Authorization header supplied")
+                val token =
+                    getBearerHeader()
+                        ?: throw java.lang.IllegalArgumentException("No Authorization header supplied")
 
-                val enhet: String = call.parameters["enhet"]?.takeIf { validateEnhet(it) }
-                    ?: throw java.lang.IllegalArgumentException("Enhet mangler")
+                val enhet: String =
+                    call.parameters["enhet"]?.takeIf { validateEnhet(it) }
+                        ?: throw java.lang.IllegalArgumentException("Enhet mangler")
 
                 if (enhet == NAV_UTLAND_ENHETID) {
                     log.warn("Enhetens oversikt lastes for Nav utland")
@@ -91,8 +101,9 @@ fun Route.registerPersonoversiktApiV2(
                 when (veilederTilgangskontrollClient.harVeilederTilgangTilEnhetMedOBO(enhet, token, callId)) {
                     true -> {
                         val requestTimer: Timer.Sample = Timer.start()
-                        val personOversiktStatusList: List<PersonOversiktStatus> = personoversiktStatusService
-                            .hentPersonoversiktStatusTilknyttetEnhet(enhet = enhet)
+                        val personOversiktStatusList: List<PersonOversiktStatus> =
+                            personoversiktStatusService
+                                .hentPersonoversiktStatusTilknyttetEnhet(enhet = enhet)
 
                         val personFnrListWithVeilederAccess: List<String> =
                             veilederTilgangskontrollClient.veilederPersonAccessListMedOBO(
@@ -101,30 +112,35 @@ fun Route.registerPersonoversiktApiV2(
                                 callId = callId,
                             ) ?: emptyList()
 
-                        val personer = personOversiktStatusList
-                            .filter { personFnrListWithVeilederAccess.contains(it.fnr) }
+                        val personer =
+                            personOversiktStatusList
+                                .filter { personFnrListWithVeilederAccess.contains(it.fnr) }
 
                         if (personer.isNotEmpty()) {
-                            val personerWithName = personoversiktStatusService.getPersonOversiktStatusListWithName(
-                                callId = callId,
-                                personOversiktStatusList = personer,
-                            )
-                            val personerAktiveOppgaver = personoversiktOppgaverService.getAktiveOppgaver(
-                                callId = callId,
-                                token = token,
-                                personer = personerWithName,
-                            )
-                            val personOversiktStatusDTO = personerWithName.map {
-                                val aktiveOppgaver = personerAktiveOppgaver[it.fnr]
-                                it.toPersonOversiktStatusDTO(
-                                    arbeidsuforhetvurdering = aktiveOppgaver?.arbeidsuforhet,
-                                    oppfolgingsoppgave = aktiveOppgaver?.oppfolgingsoppgave,
-                                    aktivitetskravvurdering = aktiveOppgaver?.aktivitetskrav,
-                                    manglendeMedvirkning = aktiveOppgaver?.manglendeMedvirkning,
-                                    senOppfolgingKandidat = aktiveOppgaver?.senOppfolgingKandidat,
-                                    dialogmotekandidatStatus = aktiveOppgaver?.dialogmotekandidat,
+                            val personerWithName =
+                                personoversiktStatusService.getPersonOversiktStatusListWithName(
+                                    callId = callId,
+                                    personOversiktStatusList = personer,
                                 )
-                            }
+                            val personerAktiveOppgaver =
+                                personoversiktOppgaverService.getAktiveOppgaver(
+                                    callId = callId,
+                                    token = token,
+                                    personer = personerWithName,
+                                )
+                            val personOversiktStatusDTO =
+                                personerWithName.map {
+                                    val aktiveOppgaver = personerAktiveOppgaver[it.fnr]
+                                    it.toPersonOversiktStatusDTO(
+                                        arbeidsuforhetvurdering = aktiveOppgaver?.arbeidsuforhet,
+                                        oppfolgingsoppgave = aktiveOppgaver?.oppfolgingsoppgave,
+                                        aktivitetskravvurdering = aktiveOppgaver?.aktivitetskrav,
+                                        manglendeMedvirkning = aktiveOppgaver?.manglendeMedvirkning,
+                                        senOppfolgingKandidat = aktiveOppgaver?.senOppfolgingKandidat,
+                                        dialogmotekandidatStatus = aktiveOppgaver?.dialogmotekandidat,
+                                        dialogmoteAvvent = aktiveOppgaver?.dialogmoteAvvent,
+                                    )
+                                }
 
                             call.respond(personOversiktStatusDTO)
                         } else {
