@@ -78,6 +78,10 @@ data class Environment(
             baseUrl = getEnvVar("ISDIALOGMOTEKANDIDAT_URL"),
             clientId = getEnvVar("ISDIALOGMOTEKANDIDAT_CLIENT_ID"),
         ),
+        isdialogmote = ClientEnvironment(
+            baseUrl = getEnvVar("ISDIALOGMOTE_URL"),
+            clientId = getEnvVar("ISDIALOGMOTE_CLIENT_ID"),
+        ),
         istilgangskontroll = ClientEnvironment(
             baseUrl = getEnvVar("ISTILGANGSKONTROLL_HOST"),
             clientId = getEnvVar("ISTILGANGSKONTROLL_CLIENT_ID"),

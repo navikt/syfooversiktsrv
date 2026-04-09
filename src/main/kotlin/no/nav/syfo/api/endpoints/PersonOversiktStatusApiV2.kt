@@ -1,10 +1,11 @@
 package no.nav.syfo.api.endpoints
 
-import io.ktor.http.*
-import io.ktor.server.request.*
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.request.receive
 import io.ktor.server.response.respond
-import io.ktor.server.routing.*
+import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
+import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import io.micrometer.core.instrument.Timer
 import no.nav.syfo.application.PersonoversiktOppgaverService
@@ -14,10 +15,12 @@ import no.nav.syfo.infrastructure.COUNT_PERSONOVERSIKTSTATUS_ENHET_HENTET
 import no.nav.syfo.infrastructure.HISTOGRAM_PERSONOVERSIKT
 import no.nav.syfo.application.PersonoversiktStatusService
 import no.nav.syfo.api.model.SearchQueryDTO
-import no.nav.syfo.domain.*
-import no.nav.syfo.util.*
+import no.nav.syfo.domain.PersonOversiktStatus
+import no.nav.syfo.domain.toPersonOversiktStatusDTO
+import no.nav.syfo.util.callIdArgument
 import no.nav.syfo.util.getBearerHeader
 import no.nav.syfo.util.getCallId
+import no.nav.syfo.util.validateEnhet
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import kotlin.collections.filter
@@ -68,6 +71,7 @@ fun Route.registerPersonoversiktApiV2(
                         manglendeMedvirkning = aktiveOppgaver?.manglendeMedvirkning,
                         senOppfolgingKandidat = aktiveOppgaver?.senOppfolgingKandidat,
                         dialogmotekandidatStatus = aktiveOppgaver?.dialogmotekandidat,
+                        dialogmoteAvvent = aktiveOppgaver?.dialogmoteAvvent,
                     )
                 }
 
@@ -123,6 +127,7 @@ fun Route.registerPersonoversiktApiV2(
                                     manglendeMedvirkning = aktiveOppgaver?.manglendeMedvirkning,
                                     senOppfolgingKandidat = aktiveOppgaver?.senOppfolgingKandidat,
                                     dialogmotekandidatStatus = aktiveOppgaver?.dialogmotekandidat,
+                                    dialogmoteAvvent = aktiveOppgaver?.dialogmoteAvvent,
                                 )
                             }
 

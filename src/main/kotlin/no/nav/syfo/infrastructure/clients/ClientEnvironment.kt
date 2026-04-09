@@ -11,6 +11,7 @@ data class ClientsEnvironment(
     val ishuskelapp: ClientEnvironment,
     val ismeroppfolging: ClientEnvironment,
     val dialogmotekandidat: ClientEnvironment,
+    val isdialogmote: ClientEnvironment,
     val syfoveileder: ClientEnvironment,
 )
 
