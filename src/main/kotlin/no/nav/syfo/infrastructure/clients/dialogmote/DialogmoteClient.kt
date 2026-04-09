@@ -2,8 +2,7 @@ package no.nav.syfo.infrastructure.clients.dialogmote
 
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.plugins.ClientRequestException
-import io.ktor.client.plugins.ServerResponseException
+import io.ktor.client.plugins.ResponseException
 import io.ktor.client.request.accept
 import io.ktor.client.request.header
 import io.ktor.client.request.post
@@ -15,7 +14,6 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.application.dialogmote.DialogmoteAvventDTO
-import no.nav.syfo.application.dialogmote.DialogmoteAvventQueryDTO
 import no.nav.syfo.application.dialogmote.IDialogmoteClient
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.infrastructure.clients.ClientEnvironment
@@ -58,10 +56,7 @@ class DialogmoteClient(
                     null
                 }
             }
-        } catch (e: ClientRequestException) {
-            handleUnexpectedResponseException(e.response)
-            throw e
-        } catch (e: ServerResponseException) {
+        } catch (e: ResponseException) {
             handleUnexpectedResponseException(e.response)
             throw e
         }

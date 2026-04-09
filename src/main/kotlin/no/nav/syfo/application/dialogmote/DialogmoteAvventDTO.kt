@@ -4,10 +4,6 @@ import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.UUID
 
-data class DialogmoteAvventQueryDTO(
-    val personidenter: List<String>,
-)
-
 data class DialogmoteAvventDTO(
     val uuid: UUID,
     val createdAt: OffsetDateTime,
