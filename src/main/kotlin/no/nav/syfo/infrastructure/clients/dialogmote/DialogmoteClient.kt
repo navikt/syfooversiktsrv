@@ -72,7 +72,7 @@ class DialogmoteClient(
     }
 
     companion object {
-        private const val AVVENT_API_PATH = "/api/avvent/query"
+        private const val AVVENT_API_PATH = "/api/v2/avvent/query"
         private val log = LoggerFactory.getLogger(this::class.java)
     }
 }
