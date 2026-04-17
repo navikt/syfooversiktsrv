@@ -25,10 +25,10 @@ import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertNotNull
-import org.junit.jupiter.api.assertNull
 import java.time.Duration
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 
 class OppfolgingstilfelleConsumerTest {
     val externalMockEnvironment = ExternalMockEnvironment.Companion.instance

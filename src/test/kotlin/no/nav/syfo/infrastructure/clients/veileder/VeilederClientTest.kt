@@ -7,7 +7,7 @@ import no.nav.syfo.testutil.UserConstants
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertNull
+import kotlin.test.assertNull
 
 private const val anyCallId = "callId"
 

@@ -3,7 +3,7 @@ package no.nav.syfo.testutil.assertion
 import no.nav.syfo.infrastructure.kafka.oppfolgingstilfelle.OppfolgingstilfellePersonRecord
 import no.nav.syfo.domain.PPersonOversiktStatus
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.assertNotNull
+import kotlin.test.assertNotNull
 
 fun checkPPersonOversiktStatusOppfolgingstilfelle(
     pPersonOversiktStatus: PPersonOversiktStatus,
