@@ -6,7 +6,7 @@ import no.nav.syfo.api.model.PersonOppfolgingstilfelleVirksomhetDTO
 import no.nav.syfo.testutil.mock.eregOrganisasjonResponse
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.assertNotNull
+import kotlin.test.assertNotNull
 
 fun checkPersonOppfolgingstilfelleDTO(
     personOppfolgingstilfelleDTO: PersonOppfolgingstilfelleDTO?,

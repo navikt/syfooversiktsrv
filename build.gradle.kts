@@ -4,26 +4,27 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 group = "no.nav.syfo"
 version = "1.0-SNAPSHOT"
 
-val confluent = "8.1.1"
+val confluent = "8.2.0"
 val flyway = "11.19.0"
 val hikari = "7.0.2"
 val isdialogmoteSchema = "1.0.5"
-val jacksonDataType = "2.20.1"
+val jacksonDataType = "2.21.2"
+val jacksonDatabindVersion = "3.1.2"
 val jedis = "7.0.0"
 val json = "20250517"
-val kafka = "4.1.0"
-val ktor = "3.3.3"
-val logback = "1.5.22"
+val kafka = "4.2.0"
+val ktor = "3.4.2"
+val logback = "1.5.32"
 val logstashEncoder = "9.0"
-val mockk = "1.14.7"
-val micrometerRegistry = "1.12.13"
-val nimbusjosejwt = "10.6"
-val postgresEmbedded = "2.2.0"
+val mockk = "1.14.9"
+val micrometerRegistry = "1.16.4"
+val nimbusjosejwt = "10.9"
+val postgresEmbedded = "2.2.2"
 val postgres = "42.7.8"
-val postgresRuntimeVersion = "17.6.0"
+val postgresRuntimeVersion = "17.9.0"
 
 plugins {
-    kotlin("jvm") version "2.2.20"
+    kotlin("jvm") version "2.3.10"
     id("com.gradleup.shadow") version "8.3.8"
     id("org.jlleitschuh.gradle.ktlint") version "11.6.1"
     id("com.github.davidmc24.gradle.plugin.avro") version "1.8.0"
@@ -66,6 +67,7 @@ dependencies {
 
     // (De-)serialization
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonDataType")
+    implementation("tools.jackson.core:jackson-databind:$jacksonDatabindVersion")
 
     // Database
     implementation("org.postgresql:postgresql:$postgres")
@@ -81,32 +83,6 @@ dependencies {
     }
     implementation("org.apache.kafka:kafka_2.13:$kafka", excludeLog4j)
     implementation("io.confluent:kafka-avro-serializer:$confluent", excludeLog4j)
-    constraints {
-        implementation("org.apache.avro:avro") {
-            because("io.confluent:kafka-schema-registry:$confluent -> https://www.cve.org/CVERecord?id=CVE-2023-39410")
-            version {
-                require("1.12.1")
-            }
-        }
-        implementation("org.apache.commons:commons-compress") {
-            because("org.apache.commons:commons-compress:1.22 -> https://www.cve.org/CVERecord?id=CVE-2012-2098")
-            version {
-                require("1.28.0")
-            }
-        }
-        implementation("org.bitbucket.b_c:jose4j") {
-            because("org.apache.kafka:kafka_2.13:$kafka -> https://github.com/advisories/GHSA-6qvw-249j-h44c")
-            version {
-                require("0.9.6")
-            }
-        }
-        implementation("commons-beanutils:commons-beanutils") {
-            because("org.apache.kafka:kafka_2.13:$kafka -> https://www.cve.org/CVERecord?id=CVE-2025-48734")
-            version {
-                require("1.11.0")
-            }
-        }
-    }
     implementation("no.nav.syfo.dialogmote.avro:isdialogmote-schema:$isdialogmoteSchema")
 
     testImplementation("com.nimbusds:nimbus-jose-jwt:$nimbusjosejwt")

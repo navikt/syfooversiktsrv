@@ -22,6 +22,7 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import java.time.LocalDate
+import kotlin.test.assertNull
 
 class PersontildelingApiV2Test {
 

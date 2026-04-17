@@ -5,7 +5,7 @@ import no.nav.syfo.domain.PPersonOppfolgingstilfelleVirksomhet
 import no.nav.syfo.testutil.mock.eregOrganisasjonResponse
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.assertNull
+import kotlin.test.assertNull
 
 fun checkPPersonOppfolgingstilfelleVirksomhet(
     pPersonOppfolgingstilfelleVirksomhetList: List<PPersonOppfolgingstilfelleVirksomhet>,

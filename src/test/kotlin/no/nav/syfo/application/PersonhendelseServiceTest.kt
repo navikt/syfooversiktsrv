@@ -9,8 +9,8 @@ import no.nav.syfo.testutil.generator.generateKafkaPersonhendelse
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertNotNull
-import org.junit.jupiter.api.assertNull
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 
 class PersonhendelseServiceTest {
     private val externalMockEnvironment = ExternalMockEnvironment.Companion.instance
