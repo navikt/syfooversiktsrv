@@ -2,6 +2,7 @@ package no.nav.syfo.api.v2
 
 import io.ktor.client.call.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import no.nav.syfo.api.endpoints.personTildelingApiV2Path
@@ -378,6 +379,7 @@ class PersontildelingApiV2Test {
                         setBody(veilederBrukerKnytning)
                     }
                     assertEquals(HttpStatusCode.OK, response.status)
+                    response.bodyAsText()
 
                     val person = personOversiktStatusRepository.getPersonOversiktStatus(PersonIdent(veilederBrukerKnytning.fnr))
                     assertNotNull(person)
@@ -389,7 +391,7 @@ class PersontildelingApiV2Test {
             }
 
             @Test
-            fun `Returns Unauthorized when missing token`() {
+            fun `Returns Unauthorized when missing token`(){
                 testApplication {
                     val client = setupApiAndClient()
                     personoversiktStatusService.upsertAktivitetskravvurderingStatus(
