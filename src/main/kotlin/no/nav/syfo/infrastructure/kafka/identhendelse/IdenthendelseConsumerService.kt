@@ -32,7 +32,10 @@ class IdenthendelseConsumerService(
                 kafkaConsumer.commitSync()
             }
         } catch (ex: Exception) {
-            log.warn("Error running kafka consumer for pdl-aktor, unsubscribing and waiting $DELAY_ON_ERROR_SECONDS seconds for retry")
+            log.warn(
+                "Exception running kafka consumer for pdl-aktor, unsubscribing and waiting $DELAY_ON_ERROR_SECONDS seconds for retry",
+                ex
+            )
             kafkaConsumer.unsubscribe()
             delay(DELAY_ON_ERROR_SECONDS.seconds)
         }
