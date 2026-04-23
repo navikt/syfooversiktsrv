@@ -74,7 +74,7 @@ fun Route.registerPersonTildelingApiV2(
                     call.respond(HttpStatusCode.OK)
                 }
             } catch (e: Exception) {
-                log.error("Feil under tildeling av bruker for navIdent=$navIdent, ${e.message}", e.cause)
+                log.error("Feil under tildeling av bruker for navIdent=$navIdent, ${e.message}", e)
                 call.respond(HttpStatusCode.InternalServerError)
             }
         }
@@ -106,7 +106,7 @@ fun Route.registerPersonTildelingApiV2(
                     call.respond(HttpStatusCode.Forbidden)
                 }
             } catch (e: Exception) {
-                log.error("Feil under tildeling av bruker for navIdent=$navIdent, ${e.message}", e.cause)
+                log.error("Feil under tildeling av bruker for navIdent=$navIdent, ${e.message}", e)
                 call.respond(HttpStatusCode.InternalServerError)
             }
         }
