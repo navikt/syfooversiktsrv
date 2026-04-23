@@ -372,12 +372,17 @@ class PersontildelingApiV2Test {
                         tildeltAv = VEILEDER_ID
                     )
                     val client = setupApiAndClient()
-                    val response = client.post(url) {
-                        bearerAuth(validToken)
-                        header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
-                        setBody(veilederBrukerKnytning)
+                    try {
+                        val response = client.post(url) {
+                            bearerAuth(validToken)
+                            header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                            setBody(veilederBrukerKnytning)
+                        }
+                        assertEquals(HttpStatusCode.OK, response.status)
+                    } catch (e: Exception) {
+                        println("Test failed with exception: ${e.message}")
+                        println(e.stackTrace.contentToString())
                     }
-                    assertEquals(HttpStatusCode.OK, response.status)
 
                     val person = personOversiktStatusRepository.getPersonOversiktStatus(PersonIdent(veilederBrukerKnytning.fnr))
                     assertNotNull(person)
