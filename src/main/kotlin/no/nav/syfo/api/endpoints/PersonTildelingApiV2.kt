@@ -71,7 +71,7 @@ fun Route.registerPersonTildelingApiV2(
 
                     call.respond(HttpStatusCode.OK)
                 }
-            } catch (e: Error) {
+            } catch (e: Exception) {
                 val navIdent = getNAVIdentFromToken(token)
                 log.error("Feil under tildeling av bruker for navIdent=$navIdent, ${e.message}", e.cause)
                 call.respond(HttpStatusCode.InternalServerError)
@@ -102,7 +102,7 @@ fun Route.registerPersonTildelingApiV2(
                     log.error("Kan ikke registrere tilknytning fordi veileder ikke har tilgang til bruker, {}", callIdArgument(callId))
                     call.respond(HttpStatusCode.Forbidden)
                 }
-            } catch (e: Error) {
+            } catch (e: Exception) {
                 val navIdent = getNAVIdentFromToken(token)
                 log.error("Feil under tildeling av bruker for navIdent=$navIdent, ${e.message}", e.cause)
                 call.respond(HttpStatusCode.InternalServerError)
