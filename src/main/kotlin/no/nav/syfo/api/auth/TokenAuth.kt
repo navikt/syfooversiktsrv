@@ -8,7 +8,7 @@ const val JWT_CLAIM_AZP = "azp"
 fun getNAVIdentFromToken(token: String): String {
     val decodedJWT = JWT.decode(token)
     return decodedJWT.claims[JWT_CLAIM_NAVIDENT]?.asString()
-        ?: throw RuntimeException("Missing NAVident in private claims")
+        ?: throw IllegalArgumentException("Missing NAVident in private claims")
 }
 
 fun getConsumerClientId(token: String): String =

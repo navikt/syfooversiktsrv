@@ -82,6 +82,8 @@ fun Route.registerPersonTildelingApiV2(
             val callId = getCallId()
             val token = getBearerHeader()
                 ?: throw java.lang.IllegalArgumentException("No Authorization header supplied")
+            val navIdent = getNAVIdentFromToken(token)
+
             try {
                 val veilederBrukerKnytning: VeilederBrukerKnytning = call.receive()
 
@@ -93,7 +95,7 @@ fun Route.registerPersonTildelingApiV2(
                 if (tilgang?.erGodkjent == true) {
                     personTildelingService.lagreKnytningMellomVeilederOgBruker(
                         veilederBrukerKnytninger = listOf(veilederBrukerKnytning),
-                        tildeltAv = getNAVIdentFromToken(token),
+                        tildeltAv = navIdent,
                         token = token,
                         callId = callId,
                     )
@@ -103,7 +105,6 @@ fun Route.registerPersonTildelingApiV2(
                     call.respond(HttpStatusCode.Forbidden)
                 }
             } catch (e: Exception) {
-                val navIdent = getNAVIdentFromToken(token)
                 log.error("Feil under tildeling av bruker for navIdent=$navIdent, ${e.message}", e.cause)
                 call.respond(HttpStatusCode.InternalServerError)
             }
