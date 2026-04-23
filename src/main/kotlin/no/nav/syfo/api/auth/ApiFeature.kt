@@ -115,6 +115,9 @@ fun Application.installStatusPages() {
                 is IllegalArgumentException -> {
                     HttpStatusCode.BadRequest
                 }
+                is UnauthorizedException -> {
+                    HttpStatusCode.Unauthorized
+                }
                 is ForbiddenAccessSystemConsumer -> {
                     HttpStatusCode.Forbidden
                 }

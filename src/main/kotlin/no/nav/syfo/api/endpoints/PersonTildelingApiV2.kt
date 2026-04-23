@@ -7,6 +7,7 @@ import io.ktor.server.routing.*
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
+import no.nav.syfo.api.auth.UnauthorizedException
 import no.nav.syfo.api.auth.getNAVIdentFromToken
 import no.nav.syfo.infrastructure.COUNT_PERSONTILDELING_TILDELT
 import no.nav.syfo.application.PersonTildelingService
@@ -37,9 +38,10 @@ fun Route.registerPersonTildelingApiV2(
         post("/registrer") {
             val callId = getCallId()
             val token = getBearerHeader()
-                ?: throw java.lang.IllegalArgumentException("No Authorization header supplied")
+                ?: throw UnauthorizedException("No Authorization header supplied")
+            val navIdent = getNAVIdentFromToken(token)
+
             try {
-                val tildeltAv = getNAVIdentFromToken(token)
                 val veilederBrukerKnytningerListe = call.receive<VeilederBrukerKnytningListe>()
 
                 val tilknytningFnrListWithVeilederAccess: List<String> =
@@ -62,7 +64,7 @@ fun Route.registerPersonTildelingApiV2(
                 } else {
                     personTildelingService.lagreKnytningMellomVeilederOgBruker(
                         veilederBrukerKnytninger = veilederBrukerKnytninger,
-                        tildeltAv = tildeltAv,
+                        tildeltAv = navIdent,
                         token = token,
                         callId = callId,
                     )
@@ -72,7 +74,6 @@ fun Route.registerPersonTildelingApiV2(
                     call.respond(HttpStatusCode.OK)
                 }
             } catch (e: Exception) {
-                val navIdent = getNAVIdentFromToken(token)
                 log.error("Feil under tildeling av bruker for navIdent=$navIdent, ${e.message}", e.cause)
                 call.respond(HttpStatusCode.InternalServerError)
             }
@@ -81,7 +82,7 @@ fun Route.registerPersonTildelingApiV2(
         post("/personer/single") {
             val callId = getCallId()
             val token = getBearerHeader()
-                ?: throw java.lang.IllegalArgumentException("No Authorization header supplied")
+                ?: throw UnauthorizedException("No Authorization header supplied")
             val navIdent = getNAVIdentFromToken(token)
 
             try {
