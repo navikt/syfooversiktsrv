@@ -391,7 +391,7 @@ class PersontildelingApiV2Test {
             }
 
             @Test
-            fun `Returns Unauthorized when missing token`(){
+            fun `Returns Unauthorized when missing token`() {
                 testApplication {
                     val client = setupApiAndClient()
                     personoversiktStatusService.upsertAktivitetskravvurderingStatus(
