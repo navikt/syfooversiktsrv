@@ -320,22 +320,22 @@ class PersontildelingApiV2Test {
 
             @Test
             fun `Returns OK when already assigned to veileder`() {
-                personoversiktStatusService.upsertAktivitetskravvurderingStatus(
-                    personident = PersonIdent(ARBEIDSTAKER_FNR),
-                    isAktivVurdering = true,
-                )
-                database.setTildeltEnhet(
-                    ident = PersonIdent(ARBEIDSTAKER_FNR),
-                    enhet = NAV_ENHET,
-                )
-                personoversiktRepository.lagreVeilederForBruker(
-                    veilederBrukerKnytning = VeilederBrukerKnytning(
-                        VEILEDER_ID_2,
-                        ARBEIDSTAKER_FNR
-                    ),
-                    tildeltAv = VEILEDER_ID
-                )
                 testApplication {
+                    personoversiktStatusService.upsertAktivitetskravvurderingStatus(
+                        personident = PersonIdent(ARBEIDSTAKER_FNR),
+                        isAktivVurdering = true,
+                    )
+                    database.setTildeltEnhet(
+                        ident = PersonIdent(ARBEIDSTAKER_FNR),
+                        enhet = NAV_ENHET,
+                    )
+                    personoversiktRepository.lagreVeilederForBruker(
+                        veilederBrukerKnytning = VeilederBrukerKnytning(
+                            VEILEDER_ID_2,
+                            ARBEIDSTAKER_FNR
+                        ),
+                        tildeltAv = VEILEDER_ID
+                    )
                     val client = setupApiAndClient()
                     val response = client.post(url) {
                         bearerAuth(validToken)
@@ -355,22 +355,22 @@ class PersontildelingApiV2Test {
 
             @Test
             fun `Returns OK when already assigned to veileder and then assigned to a different`() {
-                personoversiktStatusService.upsertAktivitetskravvurderingStatus(
-                    personident = PersonIdent(ARBEIDSTAKER_FNR),
-                    isAktivVurdering = true,
-                )
-                database.setTildeltEnhet(
-                    ident = PersonIdent(ARBEIDSTAKER_FNR),
-                    enhet = NAV_ENHET,
-                )
-                personoversiktRepository.lagreVeilederForBruker(
-                    veilederBrukerKnytning = VeilederBrukerKnytning(
-                        VEILEDER_ID,
-                        ARBEIDSTAKER_FNR
-                    ),
-                    tildeltAv = VEILEDER_ID
-                )
                 testApplication {
+                    personoversiktStatusService.upsertAktivitetskravvurderingStatus(
+                        personident = PersonIdent(ARBEIDSTAKER_FNR),
+                        isAktivVurdering = true,
+                    )
+                    database.setTildeltEnhet(
+                        ident = PersonIdent(ARBEIDSTAKER_FNR),
+                        enhet = NAV_ENHET,
+                    )
+                    personoversiktRepository.lagreVeilederForBruker(
+                        veilederBrukerKnytning = VeilederBrukerKnytning(
+                            VEILEDER_ID,
+                            ARBEIDSTAKER_FNR
+                        ),
+                        tildeltAv = VEILEDER_ID
+                    )
                     val client = setupApiAndClient()
                     val response = client.post(url) {
                         bearerAuth(validToken)
@@ -461,23 +461,23 @@ class PersontildelingApiV2Test {
 
             @Test
             fun `Returns OK when tildeling`() {
-                val personident = PersonIdent(ARBEIDSTAKER_FNR)
-                personoversiktStatusService.upsertAktivitetskravvurderingStatus(
-                    personident = personident,
-                    isAktivVurdering = true,
-                )
-                database.setTildeltEnhet(
-                    ident = personident,
-                    enhet = NAV_ENHET,
-                )
-                personoversiktRepository.lagreVeilederForBruker(
-                    veilederBrukerKnytning = VeilederBrukerKnytning(
-                        VEILEDER_ID,
-                        ARBEIDSTAKER_FNR
-                    ),
-                    tildeltAv = VEILEDER_ID_2,
-                )
                 testApplication {
+                    val personident = PersonIdent(ARBEIDSTAKER_FNR)
+                    personoversiktStatusService.upsertAktivitetskravvurderingStatus(
+                        personident = personident,
+                        isAktivVurdering = true,
+                    )
+                    database.setTildeltEnhet(
+                        ident = personident,
+                        enhet = NAV_ENHET,
+                    )
+                    personoversiktRepository.lagreVeilederForBruker(
+                        veilederBrukerKnytning = VeilederBrukerKnytning(
+                            VEILEDER_ID,
+                            ARBEIDSTAKER_FNR
+                        ),
+                        tildeltAv = VEILEDER_ID_2,
+                    )
                     val client = setupApiAndClient()
                     val response = client.get(url) {
                         bearerAuth(validToken)
@@ -497,30 +497,30 @@ class PersontildelingApiV2Test {
 
             @Test
             fun `Returns OK when with historikk`() {
-                val personident = PersonIdent(ARBEIDSTAKER_FNR)
-                personoversiktStatusService.upsertAktivitetskravvurderingStatus(
-                    personident = personident,
-                    isAktivVurdering = true,
-                )
-                database.setTildeltEnhet(
-                    ident = personident,
-                    enhet = NAV_ENHET,
-                )
-                personoversiktRepository.lagreVeilederForBruker(
-                    veilederBrukerKnytning = VeilederBrukerKnytning(
-                        VEILEDER_ID,
-                        ARBEIDSTAKER_FNR
-                    ),
-                    tildeltAv = VEILEDER_ID_2,
-                )
-                personoversiktRepository.lagreVeilederForBruker(
-                    veilederBrukerKnytning = VeilederBrukerKnytning(
-                        VEILEDER_ID_2,
-                        ARBEIDSTAKER_FNR
-                    ),
-                    tildeltAv = VEILEDER_ID,
-                )
                 testApplication {
+                    val personident = PersonIdent(ARBEIDSTAKER_FNR)
+                    personoversiktStatusService.upsertAktivitetskravvurderingStatus(
+                        personident = personident,
+                        isAktivVurdering = true,
+                    )
+                    database.setTildeltEnhet(
+                        ident = personident,
+                        enhet = NAV_ENHET,
+                    )
+                    personoversiktRepository.lagreVeilederForBruker(
+                        veilederBrukerKnytning = VeilederBrukerKnytning(
+                            VEILEDER_ID,
+                            ARBEIDSTAKER_FNR
+                        ),
+                        tildeltAv = VEILEDER_ID_2,
+                    )
+                    personoversiktRepository.lagreVeilederForBruker(
+                        veilederBrukerKnytning = VeilederBrukerKnytning(
+                            VEILEDER_ID_2,
+                            ARBEIDSTAKER_FNR
+                        ),
+                        tildeltAv = VEILEDER_ID,
+                    )
                     val client = setupApiAndClient()
                     val response = client.get(url) {
                         bearerAuth(validToken)
