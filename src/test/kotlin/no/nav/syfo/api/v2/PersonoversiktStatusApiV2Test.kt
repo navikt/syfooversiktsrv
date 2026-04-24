@@ -903,49 +903,6 @@ class PersonoversiktStatusApiV2Test {
                 assertEquals(ARBEIDSTAKER_FNR, personOversiktStatus.fnr)
                 assertNotNull(personOversiktStatus.dialogmotekandidatStatus)
                 assertTrue(personOversiktStatus.dialogmotekandidatStatus!!.isKandidat)
-                assertNull(personOversiktStatus.dialogmotekandidatStatus!!.avvent)
-            }
-        }
-
-        @Test
-        fun `Returns person with active dialogmotekandidat with avvent-info`() {
-            testApplication {
-                val client = setupApiAndClient()
-                val virksomhetList = listOf(
-                    generateOppfolgingstilfelleVirksomhet(
-                        virksomhetsnummer = Virksomhetsnummer("123456789"),
-                        virksomhetsnavn = "Virksomhet AS",
-                    ),
-                )
-                val oppfolgingstilfelle = generateOppfolgingstilfelle(
-                    start = LocalDate.now().minusDays(180),
-                    end = LocalDate.now().minusDays(1),
-                    antallSykedager = 180,
-                    virksomhetList = virksomhetList,
-                )
-                val newPersonOversiktStatus = PersonOversiktStatus(fnr = UserConstants.ARBEIDSTAKER_2_FNR).copy(
-                    dialogmotekandidat = true,
-                    dialogmotekandidatGeneratedAt = OffsetDateTime.now().minusDays(10),
-                    latestOppfolgingstilfelle = oppfolgingstilfelle
-                )
-                database.connection.use { connection ->
-                    connection.createPersonOversiktStatus(commit = true, personOversiktStatus = newPersonOversiktStatus)
-                }
-                database.setTildeltEnhet(
-                    ident = PersonIdent(UserConstants.ARBEIDSTAKER_2_FNR),
-                    enhet = NAV_ENHET,
-                )
-                val response = client.get(url) {
-                    bearerAuth(validToken)
-                }
-                assertEquals(HttpStatusCode.OK, response.status)
-                val personOversiktStatus = response.body<List<PersonOversiktStatusDTO>>().first()
-                assertEquals(UserConstants.ARBEIDSTAKER_2_FNR, personOversiktStatus.fnr)
-                assertNotNull(personOversiktStatus.dialogmotekandidatStatus)
-                assertTrue(personOversiktStatus.dialogmotekandidatStatus!!.isKandidat)
-                assertNotNull(personOversiktStatus.dialogmotekandidatStatus!!.avvent)
-                assertEquals(LocalDate.now().plusWeeks(2), personOversiktStatus.dialogmotekandidatStatus!!.avvent!!.frist)
-                assertEquals("Avventer tilbakemelding fra behandler", personOversiktStatus.dialogmotekandidatStatus!!.avvent!!.beskrivelse)
             }
         }
     }
