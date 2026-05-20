@@ -10,7 +10,6 @@ import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.slf4j.LoggerFactory
 import java.sql.Connection
-import java.sql.SQLException
 import java.time.Duration
 
 class DialogmotekandidatEndringConsumer(
@@ -39,10 +38,10 @@ class DialogmotekandidatEndringConsumer(
             COUNT_KAFKA_CONSUMER_DIALOGMOTEKANDIDAT_TOMBSTONE.increment(numberOfTombstones.toDouble())
         }
 
-        transactionManager.transaction { connection ->
-            validRecords.forEach { record ->
-                COUNT_KAFKA_CONSUMER_DIALOGMOTEKANDIDAT_READ.increment()
-                log.info("Received ${KafkaDialogmotekandidatEndring::class.java.simpleName} with key=${record.key()}, ready to process.")
+        validRecords.forEach { record ->
+            COUNT_KAFKA_CONSUMER_DIALOGMOTEKANDIDAT_READ.increment()
+            log.info("Received ${KafkaDialogmotekandidatEndring::class.java.simpleName} with key=${record.key()}, ready to process.")
+            transactionManager.transaction { connection ->
                 receiveKafkaDialogmotekandidatEndring(
                     connection = connection,
                     kafkaDialogmotekandidatEndring = record.value()
@@ -73,21 +72,11 @@ class DialogmotekandidatEndringConsumer(
                 kafkaDialogmotekandidatEndring.createdAt.isAfter(it)
             } ?: true
             if (shouldUpdateKandidat) {
-                try {
-                    connection.updatePersonOversiktStatusKandidat(
-                        personident = PersonIdent(existingPersonOversiktStatus.fnr),
-                        kandidat = kafkaDialogmotekandidatEndring.kandidat,
-                        generatedAt = kafkaDialogmotekandidatEndring.createdAt,
-                    )
-                } catch (sqlException: SQLException) {
-                    // retry once before giving up (could be database concurrency conflict)
-                    log.info("Got sqlException when receiveKafkaDialogmotekandidatEndring, try again")
-                    connection.updatePersonOversiktStatusKandidat(
-                        personident = PersonIdent(existingPersonOversiktStatus.fnr),
-                        kandidat = kafkaDialogmotekandidatEndring.kandidat,
-                        generatedAt = kafkaDialogmotekandidatEndring.createdAt,
-                    )
-                }
+                connection.updatePersonOversiktStatusKandidat(
+                    personident = PersonIdent(existingPersonOversiktStatus.fnr),
+                    kandidat = kafkaDialogmotekandidatEndring.kandidat,
+                    generatedAt = kafkaDialogmotekandidatEndring.createdAt,
+                )
                 COUNT_KAFKA_CONSUMER_DIALOGMOTEKANDIDAT_UPDATED_PERSONOVERSIKT_STATUS.increment()
             }
         }

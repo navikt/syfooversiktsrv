@@ -12,7 +12,6 @@ import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.slf4j.LoggerFactory
 import java.sql.Connection
-import java.sql.SQLException
 import java.time.Duration
 
 class DialogmoteStatusendringConsumer(
@@ -38,10 +37,10 @@ class DialogmoteStatusendringConsumer(
             COUNT_KAFKA_CONSUMER_DIALOGMOTE_STATUSENDRING_TOMBSTONE.increment(numberOfTombstones.toDouble())
         }
 
-        transactionManager.transaction { connection ->
-            validRecords.forEach { record ->
-                COUNT_KAFKA_CONSUMER_DIALOGMOTE_STATUSENDRING_READ.increment()
-                log.info("Received ${KDialogmoteStatusEndring::class.java.simpleName} record with key: ${record.key()}")
+        validRecords.forEach { record ->
+            COUNT_KAFKA_CONSUMER_DIALOGMOTE_STATUSENDRING_READ.increment()
+            log.info("Received ${KDialogmoteStatusEndring::class.java.simpleName} record with key: ${record.key()}")
+            transactionManager.transaction { connection ->
                 receiveKafkaDialogmoteStatusEndring(
                     connection = connection,
                     kafkaDialogmoteStatusEndring = record.value(),
@@ -73,19 +72,10 @@ class DialogmoteStatusendringConsumer(
                 dialogmoteStatusEndring.endringTidspunkt.isAfter(it)
             } ?: true
             if (shouldUpdateMotestatus) {
-                try {
-                    connection.updatePersonOversiktStatusMotestatus(
-                        personident = PersonIdent(existingPersonOversiktStatus.fnr),
-                        dialogmoteStatusendring = dialogmoteStatusEndring,
-                    )
-                } catch (sqlException: SQLException) {
-                    // retry
-                    log.info("Got sqlException when receiveKafkaDialogmoteStatusEndring, try again")
-                    connection.updatePersonOversiktStatusMotestatus(
-                        personident = PersonIdent(existingPersonOversiktStatus.fnr),
-                        dialogmoteStatusendring = dialogmoteStatusEndring,
-                    )
-                }
+                connection.updatePersonOversiktStatusMotestatus(
+                    personident = PersonIdent(existingPersonOversiktStatus.fnr),
+                    dialogmoteStatusendring = dialogmoteStatusEndring,
+                )
                 COUNT_KAFKA_CONSUMER_DIALOGMOTE_STATUSENDRING_UPDATED_PERSONOVERSIKT_STATUS.increment()
             }
         }
