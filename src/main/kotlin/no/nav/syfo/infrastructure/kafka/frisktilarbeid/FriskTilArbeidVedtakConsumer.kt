@@ -38,16 +38,16 @@ class FriskTilArbeidVedtakConsumer(
             log.error("Value of $numberOfTombstones ConsumerRecord are null, most probably due to a tombstone. Contact the owner of the topic if an error is suspected")
         }
 
-        transactionManager.transaction { connection ->
-            validRecords.forEach { record ->
-                log.info("Received ${VedtakStatusRecord::class.java.simpleName} with key=${record.key()}, ready to process.")
-                val vedtak = record.value()
+        validRecords.forEach { record ->
+            log.info("Received ${VedtakStatusRecord::class.java.simpleName} with key=${record.key()}, ready to process.")
+            val vedtak = record.value()
+            transactionManager.transaction { connection ->
                 receiveKafkaFriskTilArbeidVedtak(
                     connection = connection,
                     vedtakStatusRecord = vedtak,
                 )
-                COUNT_KAFKA_CONSUMER_FRISKTILARBEID_READ.increment()
             }
+            COUNT_KAFKA_CONSUMER_FRISKTILARBEID_READ.increment()
         }
     }
 
