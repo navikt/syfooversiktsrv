@@ -5,7 +5,7 @@ group = "no.nav.syfo"
 version = "1.0-SNAPSHOT"
 
 val confluent = "8.2.1"
-val flyway = "11.19.0"
+val flyway = "12.6.1"
 val hikari = "7.0.2"
 val isdialogmoteSchema = "1.0.5"
 val jacksonDataType = "2.21.3"
