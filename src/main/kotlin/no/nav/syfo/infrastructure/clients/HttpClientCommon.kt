@@ -2,12 +2,13 @@ package no.nav.syfo.infrastructure.clients
 
 import io.ktor.client.*
 import io.ktor.client.engine.*
-import io.ktor.client.engine.apache.*
+import io.ktor.client.engine.apache5.Apache5
+import io.ktor.client.engine.apache5.Apache5EngineConfig
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.serialization.jackson.jackson
+import io.ktor.serialization.jackson.*
 import no.nav.syfo.util.configure
-import org.apache.http.impl.conn.SystemDefaultRoutePlanner
+import org.apache.hc.client5.http.impl.routing.SystemDefaultRoutePlanner
 import java.net.ProxySelector
 
 val commonConfig: HttpClientConfig<out HttpClientEngineConfig>.() -> Unit = {
@@ -27,7 +28,7 @@ val commonConfig: HttpClientConfig<out HttpClientEngineConfig>.() -> Unit = {
     expectSuccess = true
 }
 
-val proxyConfig: HttpClientConfig<ApacheEngineConfig>.() -> Unit = {
+val proxyConfig: HttpClientConfig<Apache5EngineConfig>.() -> Unit = {
     this.commonConfig()
     engine {
         customizeClient {
@@ -36,6 +37,6 @@ val proxyConfig: HttpClientConfig<ApacheEngineConfig>.() -> Unit = {
     }
 }
 
-fun httpClientDefault() = HttpClient(Apache, commonConfig)
+fun httpClientDefault() = HttpClient(Apache5, commonConfig)
 
-fun httpClientProxy() = HttpClient(Apache, proxyConfig)
+fun httpClientProxy() = HttpClient(Apache5, proxyConfig)

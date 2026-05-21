@@ -45,7 +45,8 @@ dependencies {
     implementation(kotlin("reflect"))
 
     implementation("io.ktor:ktor-server-auth-jwt:$ktor")
-    implementation("io.ktor:ktor-client-apache:$ktor")
+    implementation("io.ktor:ktor-client-core:$ktor")
+    implementation("io.ktor:ktor-client-apache5:$ktor")
     implementation("io.ktor:ktor-client-content-negotiation:$ktor")
     implementation("io.ktor:ktor-serialization-jackson:$ktor")
     implementation("io.ktor:ktor-server-call-id:$ktor")
@@ -73,6 +74,7 @@ dependencies {
     implementation("org.postgresql:postgresql:$postgres")
     implementation("com.zaxxer:HikariCP:$hikari")
     implementation("org.flywaydb:flyway-database-postgresql:$flyway")
+    implementation("io.ktor:ktor-client-apache:3.5.0")
     testImplementation("io.zonky.test:embedded-postgres:$postgresEmbedded")
     testImplementation(platform("io.zonky.test.postgres:embedded-postgres-binaries-bom:$postgresRuntimeVersion"))
 
