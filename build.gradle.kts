@@ -24,7 +24,7 @@ val postgres = "42.7.11"
 val postgresRuntimeVersion = "17.9.0"
 
 plugins {
-    kotlin("jvm") version "2.3.10"
+    kotlin("jvm") version "2.3.21"
     id("com.gradleup.shadow") version "8.3.8"
     id("org.jlleitschuh.gradle.ktlint") version "11.6.1"
     id("com.github.davidmc24.gradle.plugin.avro") version "1.8.0"
@@ -74,7 +74,6 @@ dependencies {
     implementation("org.postgresql:postgresql:$postgres")
     implementation("com.zaxxer:HikariCP:$hikari")
     implementation("org.flywaydb:flyway-database-postgresql:$flyway")
-    implementation("io.ktor:ktor-client-apache:3.5.0")
     testImplementation("io.zonky.test:embedded-postgres:$postgresEmbedded")
     testImplementation(platform("io.zonky.test.postgres:embedded-postgres-binaries-bom:$postgresRuntimeVersion"))
 
