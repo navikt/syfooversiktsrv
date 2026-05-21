@@ -12,10 +12,6 @@ import org.apache.hc.client5.http.impl.routing.SystemDefaultRoutePlanner
 import java.net.ProxySelector
 
 val commonConfig: HttpClientConfig<out HttpClientEngineConfig>.() -> Unit = {
-    install(HttpTimeout) {
-        requestTimeoutMillis = 30000
-        socketTimeoutMillis = 15000
-    }
     install(ContentNegotiation) {
         jackson { configure() }
     }
