@@ -185,7 +185,7 @@ fun main() {
             )
             monitor.subscribe(ApplicationStarted) {
                 applicationState.ready = true
-                logger.info("Application is ready, running Java VM ${Runtime.version()}")
+                log.info("Application is ready, running Java VM ${Runtime.version()}")
                 launchKafkaModule(
                     applicationState = applicationState,
                     environment = environment,
