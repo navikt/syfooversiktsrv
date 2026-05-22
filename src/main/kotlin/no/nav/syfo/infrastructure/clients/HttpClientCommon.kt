@@ -33,6 +33,14 @@ val proxyConfig: HttpClientConfig<Apache5EngineConfig>.() -> Unit = {
     }
 }
 
-fun httpClientDefault() = HttpClient(Apache5, commonConfig)
+val defaultConfig: HttpClientConfig<Apache5EngineConfig>.() -> Unit = {
+    this.commonConfig()
+    install(HttpTimeout) {
+        requestTimeoutMillis = 30000
+        socketTimeoutMillis = 15000
+    }
+}
+
+fun httpClientDefault() = HttpClient(Apache5, defaultConfig)
 
 fun httpClientProxy() = HttpClient(Apache5, proxyConfig)
