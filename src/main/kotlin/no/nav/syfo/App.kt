@@ -46,8 +46,6 @@ data class ApplicationState(
 
 fun main() {
     val applicationState = ApplicationState()
-    val logger = LoggerFactory.getLogger("ktor.application")
-    logger.info("syfooversiktsrv starting with java version: " + Runtime.version())
     val environment = Environment()
 
     val wellKnownVeilederV2 = getWellKnown(
@@ -126,7 +124,7 @@ fun main() {
     lateinit var oppfolgingsoppgaveService: OppfolgingsoppgaveService
 
     val applicationEnvironment = applicationEnvironment {
-        log = logger
+        log = LoggerFactory.getLogger("ktor.application")
         config = HoconApplicationConfig(ConfigFactory.load())
     }
 
@@ -187,7 +185,7 @@ fun main() {
             )
             monitor.subscribe(ApplicationStarted) {
                 applicationState.ready = true
-                logger.info("Application is ready, running Java VM ${Runtime.version()}")
+                log.info("Application is ready, running Java VM ${Runtime.version()}")
                 launchKafkaModule(
                     applicationState = applicationState,
                     environment = environment,

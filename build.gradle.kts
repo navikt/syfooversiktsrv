@@ -13,7 +13,7 @@ val jacksonDatabindVersion = "3.1.3"
 val jedis = "7.5.0"
 val json = "20250517"
 val kafka = "4.2.0"
-val ktor = "3.4.3"
+val ktor = "3.5.0"
 val logback = "1.5.32"
 val logstashEncoder = "9.0"
 val mockk = "1.14.9"
@@ -24,7 +24,7 @@ val postgres = "42.7.11"
 val postgresRuntimeVersion = "17.9.0"
 
 plugins {
-    kotlin("jvm") version "2.3.10"
+    kotlin("jvm") version "2.3.21"
     id("com.gradleup.shadow") version "8.3.8"
     id("org.jlleitschuh.gradle.ktlint") version "11.6.1"
     id("com.github.davidmc24.gradle.plugin.avro") version "1.8.0"
@@ -45,7 +45,8 @@ dependencies {
     implementation(kotlin("reflect"))
 
     implementation("io.ktor:ktor-server-auth-jwt:$ktor")
-    implementation("io.ktor:ktor-client-apache:$ktor")
+    implementation("io.ktor:ktor-client-core:$ktor")
+    implementation("io.ktor:ktor-client-apache5:$ktor")
     implementation("io.ktor:ktor-client-content-negotiation:$ktor")
     implementation("io.ktor:ktor-serialization-jackson:$ktor")
     implementation("io.ktor:ktor-server-call-id:$ktor")
