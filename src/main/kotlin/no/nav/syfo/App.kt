@@ -132,6 +132,8 @@ fun main() {
         Netty,
         environment = applicationEnvironment,
         configure = {
+            shutdownGracePeriod = 5000
+            shutdownTimeout = 10000
             connector {
                 port = applicationPort
             }
@@ -208,12 +210,9 @@ fun main() {
                     personoversiktStatusRepository = personoversiktStatusRepository,
                 )
             }
-        }
-    )
-
-    Runtime.getRuntime().addShutdownHook(
-        Thread {
-            applicationState.ready = false
+            monitor.subscribe(ApplicationStopPreparing) {
+                applicationState.ready = false
+            }
         }
     )
 
