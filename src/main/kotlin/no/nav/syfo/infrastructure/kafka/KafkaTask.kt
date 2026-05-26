@@ -19,7 +19,7 @@ inline fun <reified ConsumerRecordValue> launchKafkaTask(
     kafkaConsumerService: KafkaConsumerService<ConsumerRecordValue>,
 ) {
     launchBackgroundTask(
-        applicationState = applicationState
+        applicationState = applicationState,
     ) {
         var consecutiveErrors = 0
         while (applicationState.ready) {
@@ -32,16 +32,14 @@ inline fun <reified ConsumerRecordValue> launchKafkaTask(
                 while (applicationState.ready) {
                     kafkaConsumerService.pollAndProcessRecords(kafkaConsumer)
                 }
-            }
-            catch (ex: CancellationException) {
+            } catch (ex: CancellationException) {
                 throw ex
-            }
-            catch (ex: Exception) {
+            } catch (ex: Exception) {
                 consecutiveErrors++
                 val delayMs = minOf(consecutiveErrors * 2000L, 120_000L)
                 kafkaTaskLog.error(
                     "Exception in kafka consumer for topic $topic (consecutive errors: $consecutiveErrors). Retrying after ${delayMs}ms.",
-                    ex
+                    ex,
                 )
                 if (applicationState.ready) {
                     delay(delayMs.milliseconds)
