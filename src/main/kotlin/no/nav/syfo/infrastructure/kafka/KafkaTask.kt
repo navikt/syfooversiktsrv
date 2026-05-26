@@ -27,10 +27,10 @@ inline fun <reified ConsumerRecordValue> launchKafkaTask(
             try {
                 kafkaConsumer = KafkaConsumer<String, ConsumerRecordValue>(consumerProperties)
                 kafkaConsumer.subscribe(listOf(topic))
-                consecutiveErrors = 0
 
                 while (applicationState.ready) {
                     kafkaConsumerService.pollAndProcessRecords(kafkaConsumer)
+                    consecutiveErrors = 0
                 }
             } catch (ex: CancellationException) {
                 throw ex
