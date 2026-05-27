@@ -40,6 +40,7 @@ class FriskTilArbeidVedtakConsumer(
 
         validRecords.forEach { record ->
             log.info("Received ${VedtakStatusRecord::class.java.simpleName} with key=${record.key()}, ready to process.")
+            COUNT_KAFKA_CONSUMER_FRISKTILARBEID_READ.increment()
             val vedtak = record.value()
             transactionManager.transaction { connection ->
                 receiveKafkaFriskTilArbeidVedtak(
@@ -47,7 +48,6 @@ class FriskTilArbeidVedtakConsumer(
                     vedtakStatusRecord = vedtak,
                 )
             }
-            COUNT_KAFKA_CONSUMER_FRISKTILARBEID_READ.increment()
         }
     }
 
