@@ -21,11 +21,13 @@ inline fun <reified ConsumerRecordValue> launchKafkaTask(
     launchBackgroundTask(
         applicationState = applicationState,
     ) {
+        var consecutiveErrors = 0
         while (applicationState.ready) {
             var kafkaConsumer: KafkaConsumer<String, ConsumerRecordValue>? = null
             try {
                 kafkaConsumer = KafkaConsumer(consumerProperties)
                 kafkaConsumer.subscribe(listOf(topic))
+                consecutiveErrors = 0
                 pollWithRetry(applicationState, topic, kafkaConsumer, kafkaConsumerService)
             } catch (ex: CancellationException) {
                 throw ex
@@ -34,6 +36,11 @@ inline fun <reified ConsumerRecordValue> launchKafkaTask(
                     "Failed to create or subscribe kafka consumer for topic $topic. Recreating consumer.",
                     ex,
                 )
+                consecutiveErrors++
+                val delayMs = minOf(consecutiveErrors * 2000L, 120_000L)
+                if (applicationState.ready) {
+                    delay(delayMs.milliseconds)
+                }
             } finally {
                 kafkaConsumer?.close()
             }
