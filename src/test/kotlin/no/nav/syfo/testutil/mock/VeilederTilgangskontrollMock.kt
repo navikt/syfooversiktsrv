@@ -3,12 +3,19 @@ package no.nav.syfo.testutil.mock
 import io.ktor.client.engine.mock.*
 import io.ktor.client.request.*
 import io.ktor.http.*
+import no.nav.syfo.api.auth.getNAVIdentFromToken
 import no.nav.syfo.infrastructure.clients.veiledertilgang.Tilgang
 import no.nav.syfo.testutil.UserConstants
 import no.nav.syfo.util.NAV_PERSONIDENT_HEADER
 
+private fun HttpRequestData.navIdentFromBearer(): String? =
+    headers[HttpHeaders.Authorization]
+        ?.removePrefix("Bearer ")
+        ?.let { token ->
+            runCatching { getNAVIdentFromToken(token) }.getOrNull()
+        }
+
 suspend fun MockRequestHandleScope.tilgangskontrollResponse(request: HttpRequestData): HttpResponseData {
-    val responseAccess = Tilgang(erGodkjent = true)
     val responseAccessPersons = listOf(
         UserConstants.ARBEIDSTAKER_FNR,
         UserConstants.ARBEIDSTAKER_2_FNR,
@@ -18,16 +25,15 @@ suspend fun MockRequestHandleScope.tilgangskontrollResponse(request: HttpRequest
     val requestUrl = request.url.encodedPath
 
     return when {
+        requestUrl.endsWith("tilgang/navident/syfo") -> {
+            val fullTilgang = request.navIdentFromBearer() != UserConstants.VEILEDER_ID_NO_WRITE_ACCESS
+            respondOk(Tilgang(erGodkjent = true, fullTilgang = fullTilgang))
+        }
         requestUrl.endsWith("tilgang/navident/person") -> {
             val personident = request.headers[NAV_PERSONIDENT_HEADER]
-            when (personident) {
-                UserConstants.ARBEIDSTAKER_NO_ACCESS -> {
-                    respondOk(body = Tilgang(erGodkjent = false))
-                }
-                else -> {
-                    respondOk(responseAccess)
-                }
-            }
+            val erGodkjent = personident != UserConstants.ARBEIDSTAKER_NO_ACCESS
+            val fullTilgang = request.navIdentFromBearer() != UserConstants.VEILEDER_ID_NO_WRITE_ACCESS
+            respondOk(Tilgang(erGodkjent = erGodkjent, fullTilgang = fullTilgang))
         }
         requestUrl.endsWith("tilgang/navident/brukere") -> {
             respondOk(responseAccessPersons)
@@ -35,13 +41,13 @@ suspend fun MockRequestHandleScope.tilgangskontrollResponse(request: HttpRequest
         requestUrl.endsWith("tilgang/system/preloadbrukere") -> {
             val identer = request.receiveBody<List<String>>()
             if (identer.contains(UserConstants.ARBEIDSTAKER_4_FNR_WITH_ERROR)) {
-                return respondError(status = HttpStatusCode.InternalServerError)
+                respondError(status = HttpStatusCode.InternalServerError)
             } else {
-                return respondOk("")
+                respondOk("")
             }
         }
         requestUrl.endsWith("tilgang/navident/enhet/${UserConstants.NAV_ENHET}") -> {
-            respondOk(responseAccess)
+            respondOk(Tilgang(erGodkjent = true, fullTilgang = true))
         }
         else -> error("Unhandled path $requestUrl")
     }
