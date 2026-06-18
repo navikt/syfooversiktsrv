@@ -9,6 +9,7 @@ import no.nav.syfo.api.model.VeilederBrukerKnytningDTO
 import no.nav.syfo.api.model.VeilederTildelingHistorikkDTO
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.domain.VeilederBrukerKnytning
+import no.nav.syfo.domain.VeilederBrukerKnytningListe
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_2_FNR
 import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_FNR
@@ -69,7 +70,7 @@ class PersontildelingApiV2Test {
                         HttpHeaders.ContentType,
                         ContentType.Application.Json.toString()
                     )
-                    setBody("{\"tilknytninger\":[{\"veilederIdent\": \"${VEILEDER_ID}\",\"fnr\": \"${ARBEIDSTAKER_FNR}\",\"enhet\": \"${NAV_ENHET}\"}]}")
+                    setBody(VeilederBrukerKnytningListe(tilknytninger = listOf(VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR))))
                 }
                 assertEquals(HttpStatusCode.OK, response.status)
             }
@@ -87,7 +88,7 @@ class PersontildelingApiV2Test {
                 val response = client.post(url) {
                     bearerAuth(noWriteToken)
                     header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
-                    setBody("{\"tilknytninger\":[{\"veilederIdent\": \"${VEILEDER_ID}\",\"fnr\": \"${ARBEIDSTAKER_FNR}\",\"enhet\": \"${NAV_ENHET}\"}]}")
+                    setBody(VeilederBrukerKnytningListe(tilknytninger = listOf(VeilederBrukerKnytning(VEILEDER_ID, ARBEIDSTAKER_FNR))))
                 }
                 assertEquals(HttpStatusCode.Forbidden, response.status)
             }
