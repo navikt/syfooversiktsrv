@@ -106,12 +106,12 @@ fun Route.registerPersonTildelingApiV2(
                 }
                 val veilederBrukerKnytning: VeilederBrukerKnytning = call.receive()
 
-                val tilgangForKnytttetVeileder = veilederTilgangskontrollClient.getVeilederAccessToPerson(
+                val tilgangTilknyttetVeileder = veilederTilgangskontrollClient.getVeilederAccessToPerson(
                     personident = PersonIdent(veilederBrukerKnytning.fnr),
                     token = token,
                     callId = callId
                 )
-                if (tilgangForKnytttetVeileder?.erGodkjent == true) {
+                if (tilgangTilknyttetVeileder?.erGodkjent == true) {
                     personTildelingService.lagreKnytningMellomVeilederOgBruker(
                         veilederBrukerKnytninger = listOf(veilederBrukerKnytning),
                         tildeltAv = navIdent,
