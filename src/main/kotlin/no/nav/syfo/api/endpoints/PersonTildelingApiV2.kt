@@ -95,14 +95,23 @@ fun Route.registerPersonTildelingApiV2(
             val navIdent = getNAVIdentFromToken(token)
 
             try {
+                val syfoTilgang = veilederTilgangskontrollClient.getVeilederSyfoTilgang(
+                    token = token,
+                    callId = callId,
+                )
+                if (syfoTilgang?.fullTilgang != true) {
+                    log.warn("Kan ikke registrere tilknytning fordi veileder ikke har skrivetilgang, {}", callIdArgument(callId))
+                    call.respond(HttpStatusCode.Forbidden)
+                    return@post
+                }
                 val veilederBrukerKnytning: VeilederBrukerKnytning = call.receive()
 
-                val tilgang = veilederTilgangskontrollClient.getVeilederAccessToPerson(
+                val tilgangForKnytttetVeileder = veilederTilgangskontrollClient.getVeilederAccessToPerson(
                     personident = PersonIdent(veilederBrukerKnytning.fnr),
                     token = token,
                     callId = callId
                 )
-                if (tilgang?.erGodkjent == true && tilgang.fullTilgang) {
+                if (tilgangForKnytttetVeileder?.erGodkjent == true) {
                     personTildelingService.lagreKnytningMellomVeilederOgBruker(
                         veilederBrukerKnytninger = listOf(veilederBrukerKnytning),
                         tildeltAv = navIdent,
