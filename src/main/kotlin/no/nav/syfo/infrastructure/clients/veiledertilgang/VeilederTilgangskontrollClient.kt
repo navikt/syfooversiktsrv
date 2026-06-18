@@ -212,11 +212,7 @@ class VeilederTilgangskontrollClient(
             requestTimer.stop(HISTOGRAM_ISTILGANGSKONTROLL_ENHET)
             return response.body<Tilgang>().erGodkjent
         } catch (e: ClientRequestException) {
-            return if (e.response.status == HttpStatusCode.Forbidden) {
-                false
-            } else {
-                false
-            }
+            return false
         } catch (e: ServerResponseException) {
             log.error("Failed to get access to enhet from istilgangskontroll. requested enhet: $enhet", e)
             return false
