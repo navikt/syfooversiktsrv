@@ -452,6 +452,7 @@ class PersontildelingApiV2Test {
                     assertEquals(HttpStatusCode.Forbidden, response.status)
                 }
             }
+
             @Test
             fun `Returns Forbidden when veileder does not have write access`() {
                 testApplication {
