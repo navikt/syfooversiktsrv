@@ -43,6 +43,34 @@ class VeilederTilgangskontrollClient(
     private val pathPreloadCache = "/system/preloadbrukere"
     private val pathTilgangTilEnhetOBO = "/navident/enhet"
 
+    suspend fun getVeilederSyfoTilgang(
+        token: String,
+        callId: String,
+    ): Tilgang? {
+        val oboToken = azureAdClient.getOnBehalfOfToken(
+            scopeClientId = istilgangskontrollEnv.clientId,
+            token = token
+        )?.accessToken ?: throw RuntimeException("Failed to request syfo tilgang: Failed to get OBO token")
+        return try {
+            val response: HttpResponse = httpClient.get(getTilgangskontrollUrl("/navident/syfo")) {
+                header(HttpHeaders.Authorization, bearerHeader(oboToken))
+                header(NAV_CALL_ID_HEADER, callId)
+                accept(ContentType.Application.Json)
+            }
+            response.body<Tilgang>()
+        } catch (e: ClientRequestException) {
+            if (e.response.status == HttpStatusCode.Forbidden) {
+                log.warn("Forbidden when requesting syfo tilgang from istilgangskontroll")
+            } else {
+                log.error("Error while requesting syfo tilgang from istilgangskontroll: ${e.message}", e)
+            }
+            null
+        } catch (e: ServerResponseException) {
+            log.error("Error while requesting syfo tilgang from istilgangskontroll: ${e.message}", e)
+            null
+        }
+    }
+
     suspend fun getVeilederAccessToPerson(
         personident: PersonIdent,
         token: String,
@@ -187,7 +215,7 @@ class VeilederTilgangskontrollClient(
             return if (e.response.status == HttpStatusCode.Forbidden) {
                 false
             } else {
-                return false
+                false
             }
         } catch (e: ServerResponseException) {
             log.error("Failed to get access to enhet from istilgangskontroll. requested enhet: $enhet", e)

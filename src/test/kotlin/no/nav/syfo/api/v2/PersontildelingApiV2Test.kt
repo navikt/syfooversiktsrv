@@ -16,6 +16,7 @@ import no.nav.syfo.testutil.UserConstants.ARBEIDSTAKER_NO_ACCESS
 import no.nav.syfo.testutil.UserConstants.NAV_ENHET
 import no.nav.syfo.testutil.UserConstants.VEILEDER_ID
 import no.nav.syfo.testutil.UserConstants.VEILEDER_ID_2
+import no.nav.syfo.testutil.UserConstants.VEILEDER_ID_NO_WRITE_ACCESS
 import no.nav.syfo.testutil.UserConstants.VEILEDER_ID_NOT_ENABLED
 import no.nav.syfo.util.NAV_PERSONIDENT_HEADER
 import org.junit.jupiter.api.*
@@ -71,6 +72,24 @@ class PersontildelingApiV2Test {
                     setBody("{\"tilknytninger\":[{\"veilederIdent\": \"${VEILEDER_ID}\",\"fnr\": \"${ARBEIDSTAKER_FNR}\",\"enhet\": \"${NAV_ENHET}\"}]}")
                 }
                 assertEquals(HttpStatusCode.OK, response.status)
+            }
+        }
+
+        @Test
+        fun `Returns Forbidden when veileder does not have write access`() {
+            testApplication {
+                val client = setupApiAndClient()
+                val noWriteToken = generateJWT(
+                    audience = externalMockEnvironment.environment.azure.appClientId,
+                    issuer = externalMockEnvironment.wellKnownVeilederV2.issuer,
+                    navIdent = VEILEDER_ID_NO_WRITE_ACCESS,
+                )
+                val response = client.post(url) {
+                    bearerAuth(noWriteToken)
+                    header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                    setBody("{\"tilknytninger\":[{\"veilederIdent\": \"${VEILEDER_ID}\",\"fnr\": \"${ARBEIDSTAKER_FNR}\",\"enhet\": \"${NAV_ENHET}\"}]}")
+                }
+                assertEquals(HttpStatusCode.Forbidden, response.status)
             }
         }
     }
@@ -427,6 +446,28 @@ class PersontildelingApiV2Test {
                             VeilederBrukerKnytning(
                                 VEILEDER_ID,
                                 ARBEIDSTAKER_NO_ACCESS
+                            )
+                        )
+                    }
+                    assertEquals(HttpStatusCode.Forbidden, response.status)
+                }
+            }
+            @Test
+            fun `Returns Forbidden when veileder does not have write access`() {
+                testApplication {
+                    val client = setupApiAndClient()
+                    val noWriteToken = generateJWT(
+                        audience = externalMockEnvironment.environment.azure.appClientId,
+                        issuer = externalMockEnvironment.wellKnownVeilederV2.issuer,
+                        navIdent = VEILEDER_ID_NO_WRITE_ACCESS,
+                    )
+                    val response = client.post(url) {
+                        bearerAuth(noWriteToken)
+                        header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                        setBody(
+                            VeilederBrukerKnytning(
+                                VEILEDER_ID,
+                                ARBEIDSTAKER_FNR
                             )
                         )
                     }

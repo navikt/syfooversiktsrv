@@ -29,7 +29,7 @@ fun MockRequestHandleScope.azureAdMockResponse(request: HttpRequestData): HttpRe
         UserConstants.VEILEDER_IDENT_NO_AZURE_AD_TOKEN -> respondError(status = HttpStatusCode.NotFound)
         else -> respondOk(
             AzureAdTokenResponse(
-                access_token = "token",
+                access_token = token ?: "token",
                 expires_in = 3600,
                 token_type = "type",
             )
