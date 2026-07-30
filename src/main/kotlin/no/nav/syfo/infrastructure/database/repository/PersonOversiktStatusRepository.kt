@@ -18,6 +18,8 @@ import java.util.UUID
 import kotlin.collections.firstOrNull
 import kotlin.use
 
+const val SYSTEM_USER = "Z999999"
+
 class PersonOversiktStatusRepository(private val database: DatabaseInterface) : IPersonOversiktStatusRepository {
 
     override fun getPersonOversiktStatus(personident: PersonIdent, connection: Connection?): PersonOversiktStatus? {
@@ -195,7 +197,7 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
         tildeltAv: String,
     ) {
         database.connection.use { connection ->
-            val existingVeilederAndEnhet = connection.getExistingVeilederAndEnhet(veilederBrukerKnytning)
+            val existingVeilederAndEnhet = connection.getExistingVeilederAndEnhet(veilederBrukerKnytning.fnr)
             if (existingVeilederAndEnhet == null) {
                 throw SQLException("lagreVeilederForBruker failed, no existing personoversiktStatus found.")
             } else if (existingVeilederAndEnhet.veileder != veilederBrukerKnytning.veilederIdent) {
@@ -206,9 +208,9 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
         }
     }
 
-    private fun Connection.getExistingVeilederAndEnhet(veilederBrukerKnytning: VeilederBrukerKnytning) =
+    private fun Connection.getExistingVeilederAndEnhet(fnr: String) =
         this.prepareStatement(GET_TILDELT_VEILEDER_QUERY).use {
-            it.setString(1, veilederBrukerKnytning.fnr)
+            it.setString(1, fnr)
             it.executeQuery().toList {
                 VeilederAndEnhet(
                     getInt("id"),
@@ -280,10 +282,24 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
         }.map { it.toPersonOversiktStatus() }
 
     override fun removeTildeltVeileder(personIdent: PersonIdent) {
+        val latestHistorikkEntry = getVeilederTilknytningHistorikk(personIdent).firstOrNull()
         database.connection.use { connection ->
+            val existingVeilederAndEnhet = connection.getExistingVeilederAndEnhet(personIdent.value)
             connection.prepareStatement(REMOVE_TILDELT_VEILEDER).use {
                 it.setString(1, personIdent.value)
                 it.execute()
+            }
+            if (latestHistorikkEntry != null && existingVeilederAndEnhet?.veileder != null) {
+                connection.addVeilederHistorikk(
+                    existingVeilederAndEnhet = existingVeilederAndEnhet.copy(
+                        enhet = latestHistorikkEntry.tildeltEnhet,
+                    ),
+                    veilederBrukerKnytning = VeilederBrukerKnytning(
+                        null,
+                        personIdent.value
+                    ),
+                    tildeltAv = SYSTEM_USER,
+                )
             }
             connection.commit()
         }
