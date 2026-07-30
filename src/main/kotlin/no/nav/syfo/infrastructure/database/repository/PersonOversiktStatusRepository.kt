@@ -610,10 +610,10 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
 
         private const val GET_VEILEDER_HISTORIKK =
             """
-            SELECT tildelt_dato,tildelt_veileder,tildelt_enhet,tildelt_av 
+            SELECT tildelt_dato,tildelt_veileder,tildelt_enhet,tildelt_av,created_at 
             FROM VEILEDER_HISTORIKK
             WHERE person_oversikt_status_id IN (select id from person_oversikt_status where fnr=?)
-            ORDER BY tildelt_dato DESC
+            ORDER BY created_at DESC
             """
 
         const val AKTIV_OPPGAVE_WHERE_CLAUSE =
