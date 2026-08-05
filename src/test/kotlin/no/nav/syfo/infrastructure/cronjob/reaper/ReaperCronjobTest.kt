@@ -6,9 +6,11 @@ import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.domain.PersonOversiktStatus
+import no.nav.syfo.domain.VeilederBrukerKnytning
 import no.nav.syfo.domain.toPersonOversiktStatus
 import no.nav.syfo.infrastructure.clients.behandlendeenhet.BehandlendeEnhetClient
 import no.nav.syfo.infrastructure.database.repository.PersonOversiktStatusRepository
+import no.nav.syfo.infrastructure.database.repository.SYSTEM_USER
 import no.nav.syfo.testutil.*
 import no.nav.syfo.testutil.generator.generatePPersonOversiktStatus
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -44,6 +46,13 @@ class ReaperCronjobTest {
         val threeMonthsAgo = LocalDate.now().minusMonths(2).minusDays(1)
         val personOversiktStatus = generatePersonOversiktStatusWithTilfelleEnd(threeMonthsAgo)
         database.createPersonOversiktStatus(personOversiktStatus)
+        personoversiktRepository.lagreVeilederForBruker(
+            VeilederBrukerKnytning(
+                veilederIdent = UserConstants.VEILEDER_ID_2,
+                fnr = personOversiktStatus.fnr
+            ),
+            tildeltAv = SYSTEM_USER,
+        )
         database.setSistEndret(
             fnr = personOversiktStatus.fnr,
             sistEndret = Timestamp.from(OffsetDateTime.now().minusMonths(2).minusDays(1).toInstant()),
@@ -62,6 +71,10 @@ class ReaperCronjobTest {
         coVerify(exactly = 1) {
             behandlendeEnhetClient.unsetOppfolgingsenhet(any(), PersonIdent(personOversiktStatus.fnr))
         }
+        val veilederHistorikk = personoversiktRepository.getVeilederTilknytningHistorikk(PersonIdent(personOversiktStatus.fnr))
+        assertNotNull(veilederHistorikk)
+        assertEquals(2, veilederHistorikk!!.size)
+        assertNull(veilederHistorikk.first().tildeltVeileder)
     }
 
     @Test
@@ -110,7 +123,7 @@ class ReaperCronjobTest {
 fun generatePersonOversiktStatusWithTilfelleEnd(tilfelleEnd: LocalDate): PersonOversiktStatus =
     generatePPersonOversiktStatus().copy(
         enhet = UserConstants.NAV_ENHET,
-        veilederIdent = "Z999999",
+        veilederIdent = UserConstants.VEILEDER_ID,
         oppfolgingstilfelleUpdatedAt = OffsetDateTime.now(),
         oppfolgingstilfelleGeneratedAt = OffsetDateTime.now(),
         oppfolgingstilfelleStart = tilfelleEnd.minusDays(14),
