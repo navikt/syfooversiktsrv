@@ -18,7 +18,7 @@ fun launchBackgroundTask(
     try {
         action()
     } catch (ex: Exception) {
-        log.error("Exception received while launching background task. Terminating application.", ex)
+        log.error("Uncaught exception received while launching background task. Terminating application.", ex)
     } finally {
         applicationState.alive = false
         applicationState.ready = false
