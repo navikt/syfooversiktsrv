@@ -74,10 +74,12 @@ fun DatabaseInterface.dropData() {
 }
 
 fun DatabaseInterface.createPersonOversiktStatus(personOversiktStatus: PersonOversiktStatus) {
-    this.connection.createPersonOversiktStatus(
-        commit = true,
-        personOversiktStatus = personOversiktStatus
-    )
+    this.connection.use {
+        it.createPersonOversiktStatus(
+            commit = true,
+            personOversiktStatus = personOversiktStatus
+        )
+    }
 }
 
 const val queryUpdateTildeltEnhetAt =
