@@ -29,7 +29,7 @@ class VeilederClientTest {
     fun `Returns veileder result when veileder found`() {
         val result = runBlocking {
             veilederClient.getVeileder(
-                callId = _root_ide_package_.no.nav.syfo.infrastructure.clients.veileder.anyCallId,
+                callId = anyCallId,
                 veilederIdent = UserConstants.VEILEDER_ID,
             )
         }
@@ -43,7 +43,7 @@ class VeilederClientTest {
     fun `Returns null result when veileder not found`() {
         val result = runBlocking {
             veilederClient.getVeileder(
-                callId = _root_ide_package_.no.nav.syfo.infrastructure.clients.veileder.anyCallId,
+                callId = anyCallId,
                 veilederIdent = UserConstants.VEILEDER_ID_2,
             )
         }
@@ -55,7 +55,7 @@ class VeilederClientTest {
     fun `Returns failure when request fails`() {
         val result = runBlocking {
             veilederClient.getVeileder(
-                callId = _root_ide_package_.no.nav.syfo.infrastructure.clients.veileder.anyCallId,
+                callId = anyCallId,
                 veilederIdent = UserConstants.VEILEDER_ID_WITH_ERROR,
             )
         }
