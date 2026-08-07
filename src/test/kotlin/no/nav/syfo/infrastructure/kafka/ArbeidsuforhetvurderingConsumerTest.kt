@@ -51,7 +51,7 @@ class ArbeidsuforhetvurderingConsumerTest {
             )
         }
 
-        val arbeidsuforhetvurderingRecord = _root_ide_package_.no.nav.syfo.infrastructure.kafka.generateArbeidsvurderingRecord(
+        val arbeidsuforhetvurderingRecord = generateArbeidsvurderingRecord(
             personIdent = PersonIdent(UserConstants.ARBEIDSTAKER_FNR),
         )
         kafkaConsumer.mockPollConsumerRecords(
