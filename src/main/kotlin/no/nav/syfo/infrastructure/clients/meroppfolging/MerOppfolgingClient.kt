@@ -52,6 +52,10 @@ class MerOppfolgingClient(
                     COUNT_CALL_MEROPPFOLGING_SUCCESS.increment()
                     response.body<SenOppfolgingKandidaterResponseDTO>()
                 }
+                HttpStatusCode.NoContent -> {
+                    COUNT_CALL_MEROPPFOLGING_SUCCESS.increment()
+                    SenOppfolgingKandidaterResponseDTO(emptyMap())
+                }
                 HttpStatusCode.NotFound -> {
                     log.error("Resource not found")
                     COUNT_CALL_MEROPPFOLGING_FAIL.increment()
