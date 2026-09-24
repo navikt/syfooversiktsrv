@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.time.Month
+import java.util.UUID
 
 val activeOppfolgingstilfelle = generateOppfolgingstilfelle(
     start = LocalDate.now().minusWeeks(15),
@@ -223,6 +224,82 @@ class PersonOversiktStatusRepositoryTest {
             val pPersonOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(personident = arbeidstakerFnr)
             assertNotNull(pPersonOversiktStatus)
             assertTrue(result.isSuccess)
+        }
+    }
+
+    @Nested
+    @DisplayName("Utenlandsopphold soknad")
+    inner class UtenlandsoppholdSoknad {
+        @Test
+        fun `Adds soknad and creates person when none exists`() {
+            val soknadUuid = UUID.randomUUID()
+
+            val result = personOversiktStatusRepository.addUtenlandsoppholdSoknad(
+                personident = arbeidstakerFnr,
+                soknadUuid = soknadUuid,
+            )
+
+            assertTrue(result.isSuccess)
+            val personstatus = personOversiktStatusRepository.getPersonOversiktStatus(arbeidstakerFnr)!!
+            assertEquals(listOf(soknadUuid), personstatus.utenlandsoppholdSoknadUbehandletUuids)
+            assertTrue(personstatus.utenlandsoppholdSoknadUbehandlet)
+        }
+
+        @Test
+        fun `Adding the same soknad twice is idempotent`() {
+            val soknadUuid = UUID.randomUUID()
+
+            personOversiktStatusRepository.addUtenlandsoppholdSoknad(arbeidstakerFnr, soknadUuid)
+            personOversiktStatusRepository.addUtenlandsoppholdSoknad(arbeidstakerFnr, soknadUuid)
+
+            val personstatus = personOversiktStatusRepository.getPersonOversiktStatus(arbeidstakerFnr)!!
+            assertEquals(listOf(soknadUuid), personstatus.utenlandsoppholdSoknadUbehandletUuids)
+        }
+
+        @Test
+        fun `Removing one of two soknader keeps status active`() {
+            val firstSoknadUuid = UUID.randomUUID()
+            val secondSoknadUuid = UUID.randomUUID()
+            personOversiktStatusRepository.addUtenlandsoppholdSoknad(arbeidstakerFnr, firstSoknadUuid)
+            personOversiktStatusRepository.addUtenlandsoppholdSoknad(arbeidstakerFnr, secondSoknadUuid)
+
+            val result = personOversiktStatusRepository.removeUtenlandsoppholdSoknad(
+                personident = arbeidstakerFnr,
+                soknadUuid = firstSoknadUuid,
+            )
+
+            assertTrue(result.isSuccess)
+            val personstatus = personOversiktStatusRepository.getPersonOversiktStatus(arbeidstakerFnr)!!
+            assertEquals(listOf(secondSoknadUuid), personstatus.utenlandsoppholdSoknadUbehandletUuids)
+            assertTrue(personstatus.utenlandsoppholdSoknadUbehandlet)
+        }
+
+        @Test
+        fun `Removing the last soknad clears status`() {
+            val soknadUuid = UUID.randomUUID()
+            personOversiktStatusRepository.addUtenlandsoppholdSoknad(arbeidstakerFnr, soknadUuid)
+
+            val result = personOversiktStatusRepository.removeUtenlandsoppholdSoknad(
+                personident = arbeidstakerFnr,
+                soknadUuid = soknadUuid,
+            )
+
+            assertTrue(result.isSuccess)
+            val personstatus = personOversiktStatusRepository.getPersonOversiktStatus(arbeidstakerFnr)!!
+            assertTrue(personstatus.utenlandsoppholdSoknadUbehandletUuids.isEmpty())
+            assertFalse(personstatus.utenlandsoppholdSoknadUbehandlet)
+        }
+
+        @Test
+        fun `Removing soknad for unknown person is successful no-op`() {
+            val result = personOversiktStatusRepository.removeUtenlandsoppholdSoknad(
+                personident = arbeidstakerFnr,
+                soknadUuid = UUID.randomUUID(),
+            )
+
+            assertTrue(result.isSuccess)
+            assertEquals(0, result.getOrThrow())
+            assertNull(personOversiktStatusRepository.getPersonOversiktStatus(arbeidstakerFnr))
         }
     }
 

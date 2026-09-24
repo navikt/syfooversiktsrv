@@ -40,7 +40,10 @@ data class PersonOversiktStatus(
     val isAktivAktivitetskravvurdering: Boolean = false,
     val isAktivManglendeMedvirkningVurdering: Boolean = false,
     val isAktivKartleggingssporsmalVurdering: Boolean = false,
+    val utenlandsoppholdSoknadUbehandletUuids: List<UUID> = emptyList(),
 ) {
+    val utenlandsoppholdSoknadUbehandlet: Boolean
+        get() = utenlandsoppholdSoknadUbehandletUuids.isNotEmpty()
 
     fun isDialogmotekandidat() =
         dialogmotekandidat == true &&
@@ -69,7 +72,8 @@ data class PersonOversiktStatus(
             this.isAktivArbeidsuforhetvurdering ||
             this.isAktivSenOppfolgingKandidat ||
             this.isAktivManglendeMedvirkningVurdering ||
-            this.isAktivKartleggingssporsmalVurdering
+            this.isAktivKartleggingssporsmalVurdering ||
+            this.utenlandsoppholdSoknadUbehandlet
 
     fun updatePersonDetails(navn: String? = null, fodselsdato: LocalDate? = null): PersonOversiktStatus =
         if (navn != null && fodselsdato != null) {
@@ -154,6 +158,7 @@ fun PersonOversiktStatus.toPersonOversiktStatusDTO(
         manglendeMedvirkning = manglendeMedvirkning,
         senOppfolgingKandidat = senOppfolgingKandidat,
         isAktivKartleggingssporsmalVurdering = isAktivKartleggingssporsmalVurdering,
+        utenlandsoppholdSoknadUbehandlet = utenlandsoppholdSoknadUbehandlet,
         dialogmoteAvvent = dialogmoteAvvent,
     )
 
