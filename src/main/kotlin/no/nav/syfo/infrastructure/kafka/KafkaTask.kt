@@ -65,10 +65,13 @@ internal suspend fun <ConsumerRecordValue> pollWithRetry(
         } catch (ex: Exception) {
             consecutiveErrors++
             val delayMs = minOf(consecutiveErrors * 2000L, 120_000L)
-            kafkaTaskLog.error(
-                "Exception in kafka consumer for topic $topic (consecutive errors: $consecutiveErrors). Retrying after ${delayMs}ms.",
-                ex,
-            )
+            val message =
+                "Exception in kafka consumer for topic $topic (consecutive errors: $consecutiveErrors). Retrying after ${delayMs}ms."
+            if (consecutiveErrors == 1) {
+                kafkaTaskLog.warn(message, ex)
+            } else {
+                kafkaTaskLog.error(message, ex)
+            }
             if (applicationState.ready) {
                 delay(delayMs.milliseconds)
             }
