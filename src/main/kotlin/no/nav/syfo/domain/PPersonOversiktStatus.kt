@@ -38,6 +38,7 @@ data class PPersonOversiktStatus(
     val isAktivAktivitetskravvurdering: Boolean,
     val isAktivManglendeMedvirkningVurdering: Boolean,
     val isAktivKartleggingssporsmalVurdering: Boolean,
+    val utenlandsoppholdSoknadUbehandletUuids: List<UUID>,
 )
 
 fun PPersonOversiktStatus.toPersonOversiktStatus(
@@ -69,7 +70,8 @@ fun PPersonOversiktStatus.toPersonOversiktStatus(
     isAktivSenOppfolgingKandidat = isAktivSenOppfolgingKandidat,
     isAktivAktivitetskravvurdering = isAktivAktivitetskravvurdering,
     isAktivManglendeMedvirkningVurdering = isAktivManglendeMedvirkningVurdering,
-    isAktivKartleggingssporsmalVurdering = isAktivKartleggingssporsmalVurdering
+    isAktivKartleggingssporsmalVurdering = isAktivKartleggingssporsmalVurdering,
+    utenlandsoppholdSoknadUbehandletUuids = utenlandsoppholdSoknadUbehandletUuids,
 )
 
 fun PPersonOversiktStatus.toPersonOppfolgingstilfelle(

@@ -3,6 +3,7 @@ package no.nav.syfo.infrastructure.database.queries
 import no.nav.syfo.domain.PPersonOversiktStatus
 import no.nav.syfo.domain.PersonOversiktStatus
 import no.nav.syfo.domain.toPersonOversiktStatus
+import no.nav.syfo.infrastructure.database.getUuidList
 import no.nav.syfo.infrastructure.database.toList
 import no.nav.syfo.util.nowUTC
 import java.sql.Connection
@@ -182,4 +183,5 @@ fun ResultSet.toPPersonOversiktStatus(): PPersonOversiktStatus =
         isAktivAktivitetskravvurdering = getBoolean("is_aktiv_aktivitetskrav_vurdering"),
         isAktivManglendeMedvirkningVurdering = getBoolean("is_aktiv_manglende_medvirkning_vurdering"),
         isAktivKartleggingssporsmalVurdering = getBoolean("is_aktiv_kartleggingssporsmal_vurdering"),
+        utenlandsoppholdSoknadUbehandletUuids = getUuidList("utenlandsopphold_soknad_ubehandlet_uuids"),
     )

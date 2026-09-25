@@ -12,6 +12,7 @@ import no.nav.syfo.infrastructure.kafka.dialogmotestatusendring.launchKafkaTaskD
 import no.nav.syfo.infrastructure.kafka.frisktilarbeid.launchKafkaTaskFriskTilArbeidVedtak
 import no.nav.syfo.infrastructure.kafka.identhendelse.launchKafkaTaskIdenthendelse
 import no.nav.syfo.infrastructure.kafka.oppfolgingstilfelle.launchKafkaTaskOppfolgingstilfellePerson
+import no.nav.syfo.infrastructure.kafka.utenlandsopphold.UtenlandsoppholdSoknadstatusConsumer
 import no.nav.syfo.infrastructure.kafka.personhendelse.launchKafkaTaskPersonhendelse
 import no.nav.syfo.infrastructure.kafka.personoppgavehendelse.launchKafkaTaskPersonoppgavehendelse
 import no.nav.syfo.application.PersonoversiktStatusService
@@ -108,6 +109,12 @@ fun launchKafkaModule(
         )
 
     KartleggingssporsmalKandidatStatusConsumer(personoversiktStatusService = personoversiktStatusService)
+        .start(
+            applicationState = applicationState,
+            kafkaEnvironment = environment.kafka,
+        )
+
+    UtenlandsoppholdSoknadstatusConsumer(personoversiktStatusService = personoversiktStatusService)
         .start(
             applicationState = applicationState,
             kafkaEnvironment = environment.kafka,

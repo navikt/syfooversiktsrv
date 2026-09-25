@@ -38,4 +38,5 @@ fun generatePPersonOversiktStatus(fnr: String = UserConstants.ARBEIDSTAKER_FNR) 
     isAktivAktivitetskravvurdering = false,
     isAktivManglendeMedvirkningVurdering = false,
     isAktivKartleggingssporsmalVurdering = false,
+    utenlandsoppholdSoknadUbehandletUuids = emptyList(),
 )
