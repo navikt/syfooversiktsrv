@@ -6,6 +6,7 @@ import no.nav.syfo.infrastructure.METRICS_REGISTRY
 import org.flywaydb.core.Flyway
 import java.sql.Connection
 import java.sql.ResultSet
+import java.util.UUID
 import kotlin.apply
 import kotlin.run
 
@@ -61,3 +62,12 @@ fun <T> ResultSet.toList(mapper: ResultSet.() -> T) = mutableListOf<T>().apply {
         add(mapper())
     }
 }
+
+fun ResultSet.getUuidList(columnName: String): List<UUID> =
+    getArray(columnName)?.let { sqlArray ->
+        try {
+            (sqlArray.array as Array<*>).map { it as UUID }
+        } finally {
+            sqlArray.free()
+        }
+    } ?: emptyList()

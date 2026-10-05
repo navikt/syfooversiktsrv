@@ -5,6 +5,7 @@ import no.nav.syfo.api.model.VeilederTildelingHistorikkDTO
 import no.nav.syfo.application.IPersonOversiktStatusRepository
 import no.nav.syfo.domain.*
 import no.nav.syfo.infrastructure.database.DatabaseInterface
+import no.nav.syfo.infrastructure.database.getUuidList
 import no.nav.syfo.infrastructure.database.queries.createPersonOversiktStatus
 import no.nav.syfo.infrastructure.database.queries.updatePersonOppfolgingstilfelleVirksomhetList
 import no.nav.syfo.infrastructure.database.toList
@@ -191,6 +192,47 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
             Result.failure(e)
         }
     }
+
+    override fun addUtenlandsoppholdSoknad(personident: PersonIdent, soknadUuid: UUID): Result<Int> =
+        try {
+            database.connection.use { connection ->
+                val now = Timestamp.from(Instant.now())
+                val uuid = UUID.randomUUID().toString()
+                val rowsUpdated = connection.prepareStatement(ADD_UTENLANDSOPPHOLD_SOKNAD).use {
+                    it.setString(1, uuid)
+                    it.setString(2, personident.value)
+                    it.setObject(3, soknadUuid)
+                    it.setTimestamp(4, now)
+                    it.setTimestamp(5, now)
+                    it.executeUpdate()
+                }
+                if (rowsUpdated == 1) {
+                    connection.commit()
+                    Result.success(rowsUpdated)
+                } else {
+                    connection.rollback()
+                    Result.failure(RuntimeException("Failed to add utenlandsopphold soknad for personstatus: $uuid"))
+                }
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+
+    override fun removeUtenlandsoppholdSoknad(personident: PersonIdent, soknadUuid: UUID): Result<Int> =
+        try {
+            database.connection.use { connection ->
+                val rowsUpdated = connection.prepareStatement(REMOVE_UTENLANDSOPPHOLD_SOKNAD).use {
+                    it.setObject(1, soknadUuid)
+                    it.setTimestamp(2, Timestamp.from(Instant.now()))
+                    it.setString(3, personident.value)
+                    it.executeUpdate()
+                }
+                connection.commit()
+                Result.success(rowsUpdated)
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
 
     override fun lagreVeilederForBruker(
         veilederBrukerKnytning: VeilederBrukerKnytning,
@@ -556,6 +598,40 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
                 sist_endret = EXCLUDED.sist_endret
             """
 
+        private const val ADD_UTENLANDSOPPHOLD_SOKNAD =
+            """
+            INSERT INTO person_oversikt_status (
+                id,
+                uuid,
+                fnr,
+                utenlandsopphold_soknad_ubehandlet_uuids,
+                opprettet,
+                sist_endret
+            ) VALUES (DEFAULT, ?, ?, ARRAY[?::uuid], ?, ?)
+            ON CONFLICT (fnr)
+            DO UPDATE SET
+                utenlandsopphold_soknad_ubehandlet_uuids =
+                    CASE
+                        WHEN EXCLUDED.utenlandsopphold_soknad_ubehandlet_uuids[1] =
+                            ANY(person_oversikt_status.utenlandsopphold_soknad_ubehandlet_uuids)
+                        THEN person_oversikt_status.utenlandsopphold_soknad_ubehandlet_uuids
+                        ELSE array_append(
+                            person_oversikt_status.utenlandsopphold_soknad_ubehandlet_uuids,
+                            EXCLUDED.utenlandsopphold_soknad_ubehandlet_uuids[1]
+                        )
+                    END,
+                sist_endret = EXCLUDED.sist_endret
+            """
+
+        private const val REMOVE_UTENLANDSOPPHOLD_SOKNAD =
+            """
+            UPDATE person_oversikt_status
+            SET utenlandsopphold_soknad_ubehandlet_uuids =
+                    array_remove(utenlandsopphold_soknad_ubehandlet_uuids, ?::uuid),
+                sist_endret = ?
+            WHERE fnr = ?
+            """
+
         private const val UPSERT_AKTIVITETSKRAV_VURDERING_STATUS =
             """
             INSERT INTO person_oversikt_status (
@@ -634,6 +710,7 @@ class PersonOversiktStatusRepository(private val database: DatabaseInterface) : 
         OR is_aktiv_aktivitetskrav_vurdering = 't'
         OR is_aktiv_manglende_medvirkning_vurdering = 't'
         OR is_aktiv_kartleggingssporsmal_vurdering = 't'
+        OR cardinality(utenlandsopphold_soknad_ubehandlet_uuids) > 0
         )
         """
 
@@ -789,6 +866,7 @@ private fun ResultSet.toPPersonOversiktStatus(): PPersonOversiktStatus =
         isAktivAktivitetskravvurdering = getBoolean("is_aktiv_aktivitetskrav_vurdering"),
         isAktivManglendeMedvirkningVurdering = getBoolean("is_aktiv_manglende_medvirkning_vurdering"),
         isAktivKartleggingssporsmalVurdering = getBoolean("is_aktiv_kartleggingssporsmal_vurdering"),
+        utenlandsoppholdSoknadUbehandletUuids = getUuidList("utenlandsopphold_soknad_ubehandlet_uuids"),
     )
 
 private fun ResultSet.toPPersonOppfolgingstilfelleVirksomhet(): PPersonOppfolgingstilfelleVirksomhet =

@@ -7,6 +7,7 @@ import no.nav.syfo.domain.PersonOversiktStatus
 import no.nav.syfo.domain.Search
 import no.nav.syfo.domain.VeilederBrukerKnytning
 import java.sql.Connection
+import java.util.UUID
 
 interface IPersonOversiktStatusRepository {
 
@@ -21,6 +22,10 @@ interface IPersonOversiktStatusRepository {
     fun upsertSenOppfolgingKandidat(personident: PersonIdent, isAktivKandidat: Boolean): Result<Int>
 
     fun upsertKartleggingssporsmalKandidatStatus(personident: PersonIdent, isAktivKandidat: Boolean): Result<Int>
+
+    fun addUtenlandsoppholdSoknad(personident: PersonIdent, soknadUuid: UUID): Result<Int>
+
+    fun removeUtenlandsoppholdSoknad(personident: PersonIdent, soknadUuid: UUID): Result<Int>
 
     fun upsertAktivitetskravAktivStatus(personident: PersonIdent, isAktivVurdering: Boolean): Result<Int>
 

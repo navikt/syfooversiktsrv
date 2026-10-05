@@ -34,6 +34,7 @@ import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.time.LocalDate
 import java.time.OffsetDateTime
+import java.util.UUID
 
 class PersonoversiktStatusApiV2Test {
     val externalMockEnvironment = ExternalMockEnvironment.instance
@@ -1064,6 +1065,54 @@ class PersonoversiktStatusApiV2Test {
                 )
                 val response = client.get(url) { bearerAuth(validToken) }
                 assertEquals(HttpStatusCode.NoContent, response.status)
+            }
+        }
+
+        @Nested
+        @DisplayName("Utenlandsopphold soknad")
+        inner class UtenlandsoppholdSoknad {
+
+            @Test
+            fun `Return person when utenlandsoppholdSoknadUbehandlet true`() {
+                testApplication {
+                    val client = setupApiAndClient()
+                    val personoversiktStatus = PersonOversiktStatus(
+                        fnr = ARBEIDSTAKER_FNR,
+                        utenlandsoppholdSoknadUbehandletUuids = listOf(UUID.randomUUID()),
+                    )
+                    database.createPersonOversiktStatus(personoversiktStatus)
+                    personOversiktStatusRepository.addUtenlandsoppholdSoknad(
+                        personident = PersonIdent(ARBEIDSTAKER_FNR),
+                        soknadUuid = personoversiktStatus.utenlandsoppholdSoknadUbehandletUuids.single(),
+                    )
+                    database.setTildeltEnhet(
+                        ident = PersonIdent(ARBEIDSTAKER_FNR),
+                        enhet = NAV_ENHET,
+                    )
+
+                    val response = client.get(url) { bearerAuth(validToken) }
+
+                    assertEquals(HttpStatusCode.OK, response.status)
+                    val status = response.body<List<PersonOversiktStatusDTO>>().single()
+                    assertEquals(ARBEIDSTAKER_FNR, status.fnr)
+                    assertTrue(status.utenlandsoppholdSoknadUbehandlet)
+                }
+            }
+
+            @Test
+            fun `Return no person when utenlandsoppholdSoknadUbehandlet false`() {
+                testApplication {
+                    val client = setupApiAndClient()
+                    database.createPersonOversiktStatus(PersonOversiktStatus(fnr = ARBEIDSTAKER_FNR))
+                    database.setTildeltEnhet(
+                        ident = PersonIdent(ARBEIDSTAKER_FNR),
+                        enhet = NAV_ENHET,
+                    )
+
+                    val response = client.get(url) { bearerAuth(validToken) }
+
+                    assertEquals(HttpStatusCode.NoContent, response.status)
+                }
             }
         }
     }

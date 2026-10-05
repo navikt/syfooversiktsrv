@@ -20,6 +20,7 @@ import no.nav.syfo.infrastructure.kafka.personoppgavehendelse.COUNT_KAFKA_CONSUM
 import no.nav.syfo.infrastructure.kafka.personoppgavehendelse.COUNT_KAFKA_CONSUMER_PERSONOPPGAVEHENDELSE_UPDATED_PERSONOVERSIKT_STATUS
 import no.nav.syfo.infrastructure.kafka.personoppgavehendelse.KPersonoppgavehendelse
 import java.sql.Connection
+import java.util.UUID
 
 class PersonoversiktStatusService(
     private val pdlClient: IPdlClient,
@@ -95,6 +96,18 @@ class PersonoversiktStatusService(
             isAktivKandidat = isAktivKandidat,
         )
     }
+
+    fun addUtenlandsoppholdSoknad(personident: PersonIdent, soknadUuid: UUID): Result<Int> =
+        personoversiktStatusRepository.addUtenlandsoppholdSoknad(
+            personident = personident,
+            soknadUuid = soknadUuid,
+        )
+
+    fun removeUtenlandsoppholdSoknad(personident: PersonIdent, soknadUuid: UUID): Result<Int> =
+        personoversiktStatusRepository.removeUtenlandsoppholdSoknad(
+            personident = personident,
+            soknadUuid = soknadUuid,
+        )
 
     fun upsertAktivitetskravvurderingStatus(personident: PersonIdent, isAktivVurdering: Boolean): Result<Int> =
         personoversiktStatusRepository.upsertAktivitetskravAktivStatus(

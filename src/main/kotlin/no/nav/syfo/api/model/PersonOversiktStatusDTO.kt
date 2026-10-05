@@ -30,6 +30,7 @@ data class PersonOversiktStatusDTO(
     val aktivitetskravvurdering: AktivitetskravDTO?,
     val manglendeMedvirkning: ManglendeMedvirkningDTO?,
     val isAktivKartleggingssporsmalVurdering: Boolean,
+    val utenlandsoppholdSoknadUbehandlet: Boolean,
     val dialogmoteAvvent: DialogmoteAvventDTO?,
 )
 
