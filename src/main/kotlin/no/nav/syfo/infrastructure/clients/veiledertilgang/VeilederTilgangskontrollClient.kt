@@ -31,7 +31,6 @@ import no.nav.syfo.util.NAV_CALL_ID_HEADER
 import no.nav.syfo.util.NAV_PERSONIDENT_HEADER
 import no.nav.syfo.util.bearerHeader
 import org.slf4j.LoggerFactory
-import java.util.UUID
 
 class VeilederTilgangskontrollClient(
     private val azureAdClient: AzureAdClient,
@@ -40,7 +39,6 @@ class VeilederTilgangskontrollClient(
 ) {
 
     private val pathTilgangTilBrukereOBO = "/navident/brukere"
-    private val pathPreloadCache = "/system/preloadbrukere"
     private val pathTilgangTilEnhetOBO = "/navident/enhet"
 
     suspend fun getVeilederSyfoTilgang(
@@ -158,36 +156,6 @@ class VeilederTilgangskontrollClient(
             COUNT_CALL_TILGANGSKONTROLL_PERSONS_FAIL.increment()
             log.error("Error while requesting access to list of person from istilgangskontroll: ${e.message}", e)
             return null
-        }
-    }
-
-    suspend fun preloadCache(
-        personidenter: List<String>,
-    ): Boolean {
-        val systemToken = azureAdClient.getSystemToken(
-            scopeClientId = istilgangskontrollEnv.clientId,
-        )?.accessToken
-            ?: throw RuntimeException("Failed to request preload of list of persons: Failed to get system token")
-
-        return try {
-            val response = httpClient.post(getTilgangskontrollUrl(pathPreloadCache)) {
-                header(HttpHeaders.Authorization, bearerHeader(systemToken))
-                header(NAV_CALL_ID_HEADER, UUID.randomUUID().toString())
-                accept(ContentType.Application.Json)
-                contentType(ContentType.Application.Json)
-                setBody(personidenter)
-            }
-            HttpStatusCode.OK == response.status
-        } catch (e: ClientRequestException) {
-            if (e.response.status == HttpStatusCode.Forbidden) {
-                log.warn("Forbidden to request preload of list of person from istilgangskontroll")
-            } else {
-                log.error("Error while requesting preload of list of person from istilgangskontroll: ${e.message}", e)
-            }
-            false
-        } catch (e: ServerResponseException) {
-            log.error("Error while requesting preload of list of person from istilgangskontroll: ${e.message}", e)
-            false
         }
     }
 
