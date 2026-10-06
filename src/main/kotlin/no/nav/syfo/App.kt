@@ -207,7 +207,6 @@ fun main() {
                     azureAdClient = azureAdClient,
                     personBehandlendeEnhetService = personBehandlendeEnhetService,
                     personoversiktStatusService = personoversiktStatusService,
-                    personoversiktStatusRepository = personoversiktStatusRepository,
                 )
             }
             monitor.subscribe(ApplicationStopPreparing) {

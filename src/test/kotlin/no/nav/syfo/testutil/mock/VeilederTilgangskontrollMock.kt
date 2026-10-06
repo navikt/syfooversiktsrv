@@ -15,7 +15,7 @@ private fun HttpRequestData.navIdentFromBearer(): String? =
             runCatching { getNAVIdentFromToken(token) }.getOrNull()
         }
 
-suspend fun MockRequestHandleScope.tilgangskontrollResponse(request: HttpRequestData): HttpResponseData {
+fun MockRequestHandleScope.tilgangskontrollResponse(request: HttpRequestData): HttpResponseData {
     val responseAccessPersons = listOf(
         UserConstants.ARBEIDSTAKER_FNR,
         UserConstants.ARBEIDSTAKER_2_FNR,
@@ -37,14 +37,6 @@ suspend fun MockRequestHandleScope.tilgangskontrollResponse(request: HttpRequest
         }
         requestUrl.endsWith("tilgang/navident/brukere") -> {
             respondOk(responseAccessPersons)
-        }
-        requestUrl.endsWith("tilgang/system/preloadbrukere") -> {
-            val identer = request.receiveBody<List<String>>()
-            if (identer.contains(UserConstants.ARBEIDSTAKER_4_FNR_WITH_ERROR)) {
-                respondError(status = HttpStatusCode.InternalServerError)
-            } else {
-                respondOk("")
-            }
         }
         requestUrl.endsWith("tilgang/navident/enhet/${UserConstants.NAV_ENHET}") -> {
             respondOk(Tilgang(erGodkjent = true, fullTilgang = true))

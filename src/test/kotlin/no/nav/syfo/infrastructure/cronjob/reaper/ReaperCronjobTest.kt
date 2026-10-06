@@ -16,7 +16,7 @@ import no.nav.syfo.testutil.generator.generatePPersonOversiktStatus
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.sql.Timestamp
 import java.time.LocalDate
@@ -35,8 +35,8 @@ class ReaperCronjobTest {
         behandlendeEnhetClient = behandlendeEnhetClient,
     )
 
-    @AfterEach
-    fun tearDown() {
+    @BeforeEach
+    fun setup() {
         database.resetDatabase()
         clearMocks(behandlendeEnhetClient)
     }
