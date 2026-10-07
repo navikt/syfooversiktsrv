@@ -4,7 +4,6 @@ import io.ktor.client.call.body
 import io.ktor.client.request.get
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.infrastructure.clients.httpClientProxy
-import kotlin.io.use
 
 private val httpClient = httpClientProxy()
 
