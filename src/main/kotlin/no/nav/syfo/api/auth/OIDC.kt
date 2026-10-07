@@ -4,12 +4,11 @@ import io.ktor.client.call.body
 import io.ktor.client.request.get
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.infrastructure.clients.httpClientProxy
-import kotlin.io.use
+
+private val httpClient = httpClientProxy()
 
 fun getWellKnown(wellKnownUrl: String) = runBlocking {
-    httpClientProxy().use { client ->
-        client.get(wellKnownUrl).body<WellKnown>()
-    }
+    httpClient.get(wellKnownUrl).body<WellKnown>()
 }
 
 data class WellKnown(
