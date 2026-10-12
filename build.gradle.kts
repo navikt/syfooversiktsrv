@@ -20,7 +20,7 @@ val mockk = "1.14.11"
 val micrometerRegistry = "1.17.1"
 val nimbusjosejwt = "10.10"
 val postgresEmbedded = "2.2.2"
-val postgres = "42.7.13"
+val postgres = "42.7.14"
 val postgresRuntimeVersion = "17.9.0"
 
 plugins {
