@@ -52,6 +52,21 @@ class DialogmotekandidatPersonoversiktStatusApiV2Test {
     }
 
     @Test
+    fun `Returns NoContent for a person with a tilfelle, who is kandidat, but has an open DM2 invitation that is ENDRET`() {
+        testApplication {
+            val client = setupApiAndClient()
+            createPersonoversiktStatusWithTilfelle(database)
+            setAsKandidat(database)
+            setDialogmotestatus(database, DialogmoteStatusendringType.ENDRET)
+            setTildeltEnhet(database)
+            val response = client.get(url) {
+                bearerAuth(validToken)
+            }
+            assertEquals(HttpStatusCode.NoContent, response.status)
+        }
+    }
+
+    @Test
     fun `Return NoContent for a person with a tilfelle, who is kandidat, but it's historic`() {
         testApplication {
             val client = setupApiAndClient()

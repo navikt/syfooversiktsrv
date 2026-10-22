@@ -107,7 +107,11 @@ data class PersonOversiktStatus(
         }
 
     private fun hasOpenDialogmoteInvitation() =
-        motestatus == DialogmoteStatusendringType.INNKALT.name || motestatus == DialogmoteStatusendringType.NYTT_TID_STED.name
+        motestatus in listOf(
+            DialogmoteStatusendringType.INNKALT.name,
+            DialogmoteStatusendringType.NYTT_TID_STED.name,
+            DialogmoteStatusendringType.ENDRET.name,
+        )
 }
 
 fun List<PersonOversiktStatus>.addPersonName(
