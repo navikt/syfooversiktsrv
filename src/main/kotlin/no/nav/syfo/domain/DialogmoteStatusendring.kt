@@ -9,6 +9,7 @@ enum class DialogmoteStatusendringType {
     AVLYST,
     FERDIGSTILT,
     NYTT_TID_STED,
+    ENDRET,
     LUKKET,
 }
 

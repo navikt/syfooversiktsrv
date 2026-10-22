@@ -94,6 +94,37 @@ class KafkaDialogmoteStatusendringServiceTest {
     }
 
     @Test
+    fun `Stores motestatus ENDRET from received statusendring`() {
+        val kafkaDialogmoteStatusendringEndret = generateKafkaDialogmoteStatusendring(
+            personIdent = UserConstants.ARBEIDSTAKER_FNR,
+            type = DialogmoteStatusendringType.ENDRET,
+            endringsTidspunkt = nowUTC(),
+        )
+        every { mockKafkaConsumerDialogmoteStatusendring.poll(any<Duration>()) } returns ConsumerRecords(
+            mapOf(
+                dialogmoteStatusendringTopicPartition to listOf(
+                    dialogmoteStatusendringConsumerRecord(
+                        kafkaDialogmoteStatusendring = kafkaDialogmoteStatusendringEndret,
+                    ),
+                )
+            )
+        )
+
+        runBlocking {
+            kafkaDialogmoteStatusendringService.pollAndProcessRecords(kafkaConsumer = mockKafkaConsumerDialogmoteStatusendring)
+        }
+
+        verify(exactly = 1) {
+            mockKafkaConsumerDialogmoteStatusendring.commitSync()
+        }
+
+        val personstatus =
+            personOversiktStatusRepository.getPersonOversiktStatus(personident = PersonIdent(UserConstants.ARBEIDSTAKER_FNR))
+
+        assertEquals(DialogmoteStatusendringType.ENDRET.name, personstatus?.motestatus)
+    }
+
+    @Test
     fun `Updates existing PersonOversikStatus when PersonOversiktStatus without motestatus exists for personident`() {
         every { mockKafkaConsumerDialogmoteStatusendring.poll(any<Duration>()) } returns ConsumerRecords(
             mapOf(
