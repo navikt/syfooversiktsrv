@@ -49,6 +49,21 @@ inline fun <reified ConsumerRecordValue> launchKafkaTask(
 }
 
 @PublishedApi
+internal fun <ConsumerRecordValue> KafkaConsumer<String, ConsumerRecordValue>.seekToCommittedOffsets() {
+    val partitions = assignment()
+    if (partitions.isEmpty()) return
+    val committedOffsets = committed(partitions)
+    partitions.forEach { partition ->
+        val committed = committedOffsets[partition]
+        if (committed != null) {
+            seek(partition, committed.offset())
+        } else {
+            seekToBeginning(listOf(partition))
+        }
+    }
+}
+
+@PublishedApi
 internal suspend fun <ConsumerRecordValue> pollWithRetry(
     applicationState: ApplicationState,
     topic: String,
@@ -72,6 +87,9 @@ internal suspend fun <ConsumerRecordValue> pollWithRetry(
             } else {
                 kafkaTaskLog.error(message, ex)
             }
+            // poll() has already advanced the consumer position past the failed records. Rewind to the last
+            // committed offsets so they are retried instead of being skipped by the next commitSync().
+            kafkaConsumer.seekToCommittedOffsets()
             if (applicationState.ready) {
                 delay(delayMs.milliseconds)
             }
