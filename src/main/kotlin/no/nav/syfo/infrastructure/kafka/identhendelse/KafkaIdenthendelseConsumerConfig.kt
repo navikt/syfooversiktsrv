@@ -12,7 +12,7 @@ fun kafkaIdenthendelseConsumerConfig(
 ): Properties {
     return Properties().apply {
         putAll(kafkaAivenConsumerConfig(kafkaEnvironment))
-        this[ConsumerConfig.GROUP_ID_CONFIG] = "syfooversiktsrv-v3" // dryrun, se IDENTHENDELSE_DRY_RUN
+        this[ConsumerConfig.GROUP_ID_CONFIG] = "syfooversiktsrv-v3"
         this[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = KafkaAvroDeserializer::class.java.canonicalName
 
         this[KafkaAvroDeserializerConfig.SCHEMA_REGISTRY_URL_CONFIG] = kafkaEnvironment.aivenSchemaRegistryUrl
