@@ -159,6 +159,57 @@ class IdenthendelseServiceTest {
     }
 
     @Nested
+    @DisplayName("Dryrun")
+    inner class DryRun {
+
+        private val dryRunIdenthendelseService = IdenthendelseService(
+            database = database,
+            pdlClient = pdlClient,
+            personOversiktStatusRepository = personOversiktStatusRepository,
+            dryRun = true,
+        )
+
+        @Test
+        fun `Skal ikke oppdatere database når person har fått ny ident`() {
+            val kafkaIdenthendelseDTO = generateKafkaIdenthendelseDTO(hasOldPersonident = true)
+            val newIdent = kafkaIdenthendelseDTO.getActivePersonident()!!
+            val oldIdent = kafkaIdenthendelseDTO.getInactivePersonidenter().first()
+
+            database.connection.use { connection ->
+                connection.createPersonOversiktStatus(
+                    commit = true,
+                    personOversiktStatus = PersonOversiktStatus(fnr = oldIdent.value),
+                )
+            }
+
+            dryRunIdenthendelseService.handleIdenthendelse(kafkaIdenthendelseDTO)
+
+            assertNotNull(personOversiktStatusRepository.getPersonOversiktStatus(oldIdent))
+            assertNull(personOversiktStatusRepository.getPersonOversiktStatus(newIdent))
+        }
+
+        @Test
+        fun `Skal ikke kaste feil hvis PDL ikke har oppdatert identen`() {
+            val kafkaIdenthendelseDTO = generateKafkaIdenthendelseDTO(
+                personident = PersonIdent(UserConstants.ARBEIDSTAKER_3_FNR),
+                hasOldPersonident = true,
+            )
+            val oldIdent = kafkaIdenthendelseDTO.getInactivePersonidenter().first()
+
+            database.connection.use { connection ->
+                connection.createPersonOversiktStatus(
+                    commit = true,
+                    personOversiktStatus = PersonOversiktStatus(fnr = oldIdent.value),
+                )
+            }
+
+            dryRunIdenthendelseService.handleIdenthendelse(kafkaIdenthendelseDTO)
+
+            assertNotNull(personOversiktStatusRepository.getPersonOversiktStatus(oldIdent))
+        }
+    }
+
+    @Nested
     @DisplayName("Unhappy path")
     inner class UnhappyPath {
 
