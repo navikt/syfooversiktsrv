@@ -12,21 +12,35 @@ import java.time.Duration
 
 class IdenthendelseConsumerService(
     private val identhendelseService: IdenthendelseService,
+    private val dryRun: Boolean = false,
 ) : KafkaConsumerService<GenericRecord> {
     override val pollDurationInMillis: Long = 1000
 
     override suspend fun pollAndProcessRecords(kafkaConsumer: KafkaConsumer<String, GenericRecord>) {
         val records = kafkaConsumer.poll(Duration.ofMillis(pollDurationInMillis))
         if (records.count() > 0) {
+            var tombstones = 0
+            var failed = 0
             records.forEach { record ->
-                if (record.value() != null) {
-                    identhendelseService.handleIdenthendelse(record.value().toKafkaIdenthendelseDTO())
-                } else {
-                    log.warn("Identhendelse: Value of ConsumerRecord from topic $PDL_AKTOR_TOPIC is null, probably due to a tombstone. Contact the owner of the topic if an error is suspected")
+                val value = record.value()
+                if (value == null) {
+                    tombstones++
                     COUNT_KAFKA_CONSUMER_PDL_AKTOR_TOMBSTONE.increment()
+                } else if (dryRun) {
+                    try {
+                        identhendelseService.handleIdenthendelse(value.toKafkaIdenthendelseDTO())
+                    } catch (ex: Exception) {
+                        failed++
+                        log.warn("Identhendelse dryrun: failed to process record at offset ${record.offset()}: ${ex.message}")
+                    }
+                } else {
+                    identhendelseService.handleIdenthendelse(value.toKafkaIdenthendelseDTO())
                 }
             }
             kafkaConsumer.commitSync()
+            if (tombstones > 0 || failed > 0) {
+                log.info("Identhendelse: processed ${records.count()} records from $PDL_AKTOR_TOPIC, tombstones=$tombstones, failed=$failed")
+            }
         }
     }
 

@@ -11,6 +11,10 @@ import no.nav.syfo.infrastructure.kafka.launchKafkaTask
 
 const val PDL_AKTOR_TOPIC = "pdl.aktor-v2"
 
+// Dryrun: leser hele topicet på nytt og logger hvilke forekomster som ville blitt endret.
+// Ved reell kjøring: sett til false og bytt group id i KafkaIdenthendelseConsumerConfig.
+const val IDENTHENDELSE_DRY_RUN = true
+
 fun launchKafkaTaskIdenthendelse(
     applicationState: ApplicationState,
     environment: Environment,
@@ -26,10 +30,12 @@ fun launchKafkaTaskIdenthendelse(
         database = database,
         pdlClient = pdlClient,
         personOversiktStatusRepository = personOversiktStatusRepository,
+        dryRun = IDENTHENDELSE_DRY_RUN,
     )
 
     val kafkaIdenthendelseConsumerService = IdenthendelseConsumerService(
         identhendelseService = identhendelseService,
+        dryRun = IDENTHENDELSE_DRY_RUN,
     )
 
     val consumerProperties = kafkaIdenthendelseConsumerConfig(

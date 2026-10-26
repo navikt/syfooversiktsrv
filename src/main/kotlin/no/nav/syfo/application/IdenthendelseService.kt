@@ -16,6 +16,7 @@ class IdenthendelseService(
     private val database: DatabaseInterface,
     private val pdlClient: IPdlClient,
     private val personOversiktStatusRepository: IPersonOversiktStatusRepository,
+    private val dryRun: Boolean = false,
 ) {
 
     private val log: Logger = LoggerFactory.getLogger(IdenthendelseService::class.java)
@@ -30,6 +31,10 @@ class IdenthendelseService(
                 }
 
                 if (personOversiktStatusWithOldIdent.isNotEmpty()) {
+                    if (dryRun) {
+                        logDryRun(activeIdent, personOversiktStatusWithOldIdent)
+                        return
+                    }
                     checkThatPdlIsUpdated(activeIdent)
                     val numberOfUpdatedIdenter =
                         updateOrOverrideAndDeletePersonOversiktStatus(activeIdent, personOversiktStatusWithOldIdent)
@@ -40,6 +45,29 @@ class IdenthendelseService(
                 }
             }
         }
+    }
+
+    private fun logDryRun(
+        activeIdent: PersonIdent,
+        personOversiktStatusWithOldIdent: List<PersonOversiktStatus>,
+    ) {
+        val oldUuids = personOversiktStatusWithOldIdent.map { it.uuid }
+        val pdlIsUpdated = try {
+            checkThatPdlIsUpdated(activeIdent)
+            true
+        } catch (ex: Exception) {
+            log.warn("Identhendelse dryrun: PDL check failed for uuid=$oldUuids: ${ex.message}")
+            false
+        }
+        val personstatusActiveIdent = personOversiktStatusRepository.getPersonOversiktStatus(activeIdent)
+        val action = if (personstatusActiveIdent != null) {
+            val copyVeileder = personstatusActiveIdent.veilederIdent == null &&
+                personOversiktStatusWithOldIdent.first().veilederIdent != null
+            "DELETE_OLD(uuid=${personOversiktStatusWithOldIdent.first().uuid}, keep=${personstatusActiveIdent.uuid}, copyVeileder=$copyVeileder)"
+        } else {
+            "UPDATE_FNR(uuid=$oldUuids)"
+        }
+        log.info("Identhendelse dryrun: would perform $action, pdlIsUpdated=$pdlIsUpdated")
     }
 
     // Erfaringer fra andre team tilsier at vi burde dobbeltsjekke at ting har blitt oppdatert i PDL før vi gjør endringer
