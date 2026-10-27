@@ -7,10 +7,13 @@ import no.nav.syfo.domain.PersonOversiktStatus
 import no.nav.syfo.infrastructure.COUNT_KAFKA_CONSUMER_PDL_AKTOR_UPDATES
 import no.nav.syfo.infrastructure.database.DatabaseInterface
 import no.nav.syfo.infrastructure.database.queries.queryDeletePersonOversiktStatusFnr
+import no.nav.syfo.infrastructure.database.queries.updatePersonOversiktStatusDialogmotekandidat
 import no.nav.syfo.infrastructure.database.queries.updatePersonOversiktStatusFnr
+import no.nav.syfo.infrastructure.database.queries.updatePersonOversiktStatusMotestatusAndGeneratedAt
 import no.nav.syfo.infrastructure.database.queries.updatePersonOversiktStatusVeileder
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.time.OffsetDateTime
 
 class IdenthendelseService(
     private val database: DatabaseInterface,
@@ -94,6 +97,28 @@ class IdenthendelseService(
                 ).getOrThrow()
                 log.info("Identhendelse: is_aktiv_manglende_medvirkning_vurdering set to true for ${personstatusActiveIdent.uuid}.")
             }
+            if (oldStatus.dialogmotekandidatGeneratedAt.isNewerThan(personstatusActiveIdent.dialogmotekandidatGeneratedAt)) {
+                database.updatePersonOversiktStatusDialogmotekandidat(
+                    personident = activeIdent,
+                    kandidat = oldStatus.dialogmotekandidat,
+                    generatedAt = oldStatus.dialogmotekandidatGeneratedAt!!,
+                )
+                log.info(
+                    "Identhendelse: dialogmotekandidat set to ${oldStatus.dialogmotekandidat} (generated_at ${oldStatus.dialogmotekandidatGeneratedAt}, " +
+                        "was ${personstatusActiveIdent.dialogmotekandidat} generated_at ${personstatusActiveIdent.dialogmotekandidatGeneratedAt}) for ${personstatusActiveIdent.uuid}."
+                )
+            }
+            if (oldStatus.motestatusGeneratedAt.isNewerThan(personstatusActiveIdent.motestatusGeneratedAt)) {
+                database.updatePersonOversiktStatusMotestatusAndGeneratedAt(
+                    personident = activeIdent,
+                    motestatus = oldStatus.motestatus,
+                    generatedAt = oldStatus.motestatusGeneratedAt!!,
+                )
+                log.info(
+                    "Identhendelse: motestatus set to ${oldStatus.motestatus} (generated_at ${oldStatus.motestatusGeneratedAt}, " +
+                        "was ${personstatusActiveIdent.motestatus} generated_at ${personstatusActiveIdent.motestatusGeneratedAt}) for ${personstatusActiveIdent.uuid}."
+                )
+            }
             database.queryDeletePersonOversiktStatusFnr(oldStatus.fnr)
             log.info("Identhendelse: Deleted entry with an inactive personident from database.")
         } else {
@@ -106,3 +131,6 @@ class IdenthendelseService(
         return updatedRows
     }
 }
+
+private fun OffsetDateTime?.isNewerThan(other: OffsetDateTime?): Boolean =
+    this != null && (other == null || this.isAfter(other))

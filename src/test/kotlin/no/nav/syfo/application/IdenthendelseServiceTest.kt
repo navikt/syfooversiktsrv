@@ -1,6 +1,7 @@
 package no.nav.syfo.application
 
 import kotlinx.coroutines.runBlocking
+import no.nav.syfo.domain.DialogmoteStatusendringType
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.domain.PersonOversiktStatus
 import no.nav.syfo.infrastructure.clients.azuread.AzureAdClient
@@ -14,6 +15,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import java.time.OffsetDateTime
+import java.time.temporal.ChronoUnit
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -155,6 +158,82 @@ class IdenthendelseServiceTest {
 
             val oldPersonOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(oldIdent)
             assertNull(oldPersonOversiktStatus)
+        }
+
+        @Test
+        fun `Skal kopiere dialogmotekandidat og motestatus fra gammel forekomst når den er nyest`() {
+            val kafkaIdenthendelseDTO = generateKafkaIdenthendelseDTO(hasOldPersonident = true)
+            val newIdent = kafkaIdenthendelseDTO.getActivePersonident()!!
+            val oldIdent = kafkaIdenthendelseDTO.getInactivePersonidenter().first()
+            val now = OffsetDateTime.now().truncatedTo(ChronoUnit.SECONDS)
+
+            database.connection.use { connection ->
+                connection.createPersonOversiktStatus(
+                    commit = true,
+                    personOversiktStatus = PersonOversiktStatus(
+                        fnr = oldIdent.value,
+                        dialogmotekandidat = true,
+                        dialogmotekandidatGeneratedAt = now.minusDays(1),
+                        motestatus = DialogmoteStatusendringType.INNKALT.name,
+                        motestatusGeneratedAt = now.minusDays(1),
+                    ),
+                )
+                connection.createPersonOversiktStatus(
+                    commit = true,
+                    personOversiktStatus = PersonOversiktStatus(
+                        fnr = newIdent.value,
+                        dialogmotekandidat = false,
+                        dialogmotekandidatGeneratedAt = now.minusDays(10),
+                    ),
+                )
+            }
+
+            identhendelseService.handleIdenthendelse(kafkaIdenthendelseDTO)
+
+            val updated = personOversiktStatusRepository.getPersonOversiktStatus(newIdent)!!
+            assertEquals(true, updated.dialogmotekandidat)
+            assertEquals(now.minusDays(1).toInstant(), updated.dialogmotekandidatGeneratedAt?.toInstant())
+            assertEquals(DialogmoteStatusendringType.INNKALT.name, updated.motestatus)
+            assertEquals(now.minusDays(1).toInstant(), updated.motestatusGeneratedAt?.toInstant())
+            assertNull(personOversiktStatusRepository.getPersonOversiktStatus(oldIdent))
+        }
+
+        @Test
+        fun `Skal ikke kopiere dialogmotekandidat og motestatus fra gammel forekomst når ny forekomst er nyest`() {
+            val kafkaIdenthendelseDTO = generateKafkaIdenthendelseDTO(hasOldPersonident = true)
+            val newIdent = kafkaIdenthendelseDTO.getActivePersonident()!!
+            val oldIdent = kafkaIdenthendelseDTO.getInactivePersonidenter().first()
+            val now = OffsetDateTime.now().truncatedTo(ChronoUnit.SECONDS)
+
+            database.connection.use { connection ->
+                connection.createPersonOversiktStatus(
+                    commit = true,
+                    personOversiktStatus = PersonOversiktStatus(
+                        fnr = oldIdent.value,
+                        dialogmotekandidat = true,
+                        dialogmotekandidatGeneratedAt = now.minusDays(10),
+                        motestatus = DialogmoteStatusendringType.INNKALT.name,
+                        motestatusGeneratedAt = now.minusDays(10),
+                    ),
+                )
+                connection.createPersonOversiktStatus(
+                    commit = true,
+                    personOversiktStatus = PersonOversiktStatus(
+                        fnr = newIdent.value,
+                        dialogmotekandidat = false,
+                        dialogmotekandidatGeneratedAt = now.minusDays(1),
+                        motestatus = DialogmoteStatusendringType.FERDIGSTILT.name,
+                        motestatusGeneratedAt = now.minusDays(1),
+                    ),
+                )
+            }
+
+            identhendelseService.handleIdenthendelse(kafkaIdenthendelseDTO)
+
+            val updated = personOversiktStatusRepository.getPersonOversiktStatus(newIdent)!!
+            assertEquals(false, updated.dialogmotekandidat)
+            assertEquals(DialogmoteStatusendringType.FERDIGSTILT.name, updated.motestatus)
+            assertNull(personOversiktStatusRepository.getPersonOversiktStatus(oldIdent))
         }
 
         @Test
