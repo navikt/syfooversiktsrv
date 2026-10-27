@@ -63,6 +63,37 @@ class IdenthendelseService(
             if (personstatusActiveIdent.veilederIdent == null && oldStatus.veilederIdent != null) {
                 updatedRows += database.updatePersonOversiktStatusVeileder(oldStatus.veilederIdent, activeIdent)
             }
+            // Kopier noen felter om det trengs, og lag logginnslag slik at vi kan ettergå det
+            // Forventer ikke at disse tingene er noe som treffer mange av duplikatforekomstene
+            // Kan slette dette når vi er ferdig med rerun, for dette er en mindre aktuell problemstilling når vi er ajour med identhendelsene.
+            if (oldStatus.isAktivOppfolgingsoppgave && !personstatusActiveIdent.isAktivOppfolgingsoppgave) {
+                personOversiktStatusRepository.updateOppfolgingsoppgave(
+                    personIdent = activeIdent,
+                    isActive = true,
+                ).getOrThrow()
+                log.info("Identhendelse: trenger_oppfolging set to true for ${personstatusActiveIdent.uuid}.")
+            }
+            if (oldStatus.isAktivAktivitetskravvurdering && !personstatusActiveIdent.isAktivAktivitetskravvurdering) {
+                personOversiktStatusRepository.upsertAktivitetskravAktivStatus(
+                    personident = activeIdent,
+                    isAktivVurdering = true,
+                ).getOrThrow()
+                log.info("Identhendelse: is_aktiv_aktivitetskrav_vurdering set to true for ${personstatusActiveIdent.uuid}.")
+            }
+            if (oldStatus.isAktivArbeidsuforhetvurdering && !personstatusActiveIdent.isAktivArbeidsuforhetvurdering) {
+                personOversiktStatusRepository.updateArbeidsuforhetvurderingStatus(
+                    personident = activeIdent,
+                    isAktivVurdering = true,
+                ).getOrThrow()
+                log.info("Identhendelse: is_aktiv_arbeidsuforhet_vurdering set to true for ${personstatusActiveIdent.uuid}.")
+            }
+            if (oldStatus.isAktivManglendeMedvirkningVurdering && !personstatusActiveIdent.isAktivManglendeMedvirkningVurdering) {
+                personOversiktStatusRepository.upsertManglendeMedvirkningStatus(
+                    personident = activeIdent,
+                    isAktivVurdering = true,
+                ).getOrThrow()
+                log.info("Identhendelse: is_aktiv_manglende_medvirkning_vurdering set to true for ${personstatusActiveIdent.uuid}.")
+            }
             database.queryDeletePersonOversiktStatusFnr(oldStatus.fnr)
             log.info("Identhendelse: Deleted entry with an inactive personident from database.")
         } else {
