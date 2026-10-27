@@ -1,6 +1,7 @@
 package no.nav.syfo.application
 
 import kotlinx.coroutines.runBlocking
+import no.nav.syfo.domain.DialogmoteStatusendringType
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.domain.PersonOversiktStatus
 import no.nav.syfo.infrastructure.clients.azuread.AzureAdClient
@@ -14,7 +15,10 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import java.time.OffsetDateTime
+import java.time.temporal.ChronoUnit
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
@@ -206,6 +210,48 @@ class IdenthendelseServiceTest {
             dryRunIdenthendelseService.handleIdenthendelse(kafkaIdenthendelseDTO)
 
             assertNotNull(personOversiktStatusRepository.getPersonOversiktStatus(oldIdent))
+        }
+
+        @Test
+        fun `Skal ikke kopiere felter eller slette gammel forekomst når ny ident allerede finnes i databasen`() {
+            val kafkaIdenthendelseDTO = generateKafkaIdenthendelseDTO(hasOldPersonident = true)
+            val newIdent = kafkaIdenthendelseDTO.getActivePersonident()!!
+            val oldIdent = kafkaIdenthendelseDTO.getInactivePersonidenter().first()
+            val now = OffsetDateTime.now().truncatedTo(ChronoUnit.SECONDS)
+
+            database.connection.use { connection ->
+                connection.createPersonOversiktStatus(
+                    commit = true,
+                    personOversiktStatus = PersonOversiktStatus(
+                        fnr = oldIdent.value,
+                        veilederIdent = "Z990099",
+                        isAktivOppfolgingsoppgave = true,
+                        isAktivAktivitetskravvurdering = true,
+                        isAktivArbeidsuforhetvurdering = true,
+                        isAktivManglendeMedvirkningVurdering = true,
+                        dialogmotekandidat = true,
+                        dialogmotekandidatGeneratedAt = now.minusDays(1),
+                        motestatus = DialogmoteStatusendringType.INNKALT.name,
+                        motestatusGeneratedAt = now.minusDays(1),
+                    ),
+                )
+                connection.createPersonOversiktStatus(
+                    commit = true,
+                    personOversiktStatus = PersonOversiktStatus(fnr = newIdent.value),
+                )
+            }
+
+            dryRunIdenthendelseService.handleIdenthendelse(kafkaIdenthendelseDTO)
+
+            assertNotNull(personOversiktStatusRepository.getPersonOversiktStatus(oldIdent))
+            val activeStatus = personOversiktStatusRepository.getPersonOversiktStatus(newIdent)!!
+            assertNull(activeStatus.veilederIdent)
+            assertFalse(activeStatus.isAktivOppfolgingsoppgave)
+            assertFalse(activeStatus.isAktivAktivitetskravvurdering)
+            assertFalse(activeStatus.isAktivArbeidsuforhetvurdering)
+            assertFalse(activeStatus.isAktivManglendeMedvirkningVurdering)
+            assertNull(activeStatus.dialogmotekandidat)
+            assertNull(activeStatus.motestatus)
         }
     }
 
