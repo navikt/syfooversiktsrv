@@ -12,7 +12,6 @@ import java.time.Duration
 
 class IdenthendelseConsumerService(
     private val identhendelseService: IdenthendelseService,
-    private val dryRun: Boolean = false,
 ) : KafkaConsumerService<GenericRecord> {
     override val pollDurationInMillis: Long = 1000
 
@@ -20,27 +19,17 @@ class IdenthendelseConsumerService(
         val records = kafkaConsumer.poll(Duration.ofMillis(pollDurationInMillis))
         if (records.count() > 0) {
             var tombstones = 0
-            var failed = 0
             records.forEach { record ->
                 val value = record.value()
                 if (value == null) {
                     tombstones++
                     COUNT_KAFKA_CONSUMER_PDL_AKTOR_TOMBSTONE.increment()
-                } else if (dryRun) {
-                    try {
-                        identhendelseService.handleIdenthendelse(value.toKafkaIdenthendelseDTO())
-                    } catch (ex: Exception) {
-                        failed++
-                        log.warn("Identhendelse dryrun: failed to process record at offset ${record.offset()}: ${ex.message}")
-                    }
                 } else {
                     identhendelseService.handleIdenthendelse(value.toKafkaIdenthendelseDTO())
                 }
             }
             kafkaConsumer.commitSync()
-            if (tombstones > 0 || failed > 0) {
-                log.info("Identhendelse: processed ${records.count()} records from $PDL_AKTOR_TOPIC, tombstones=$tombstones, failed=$failed")
-            }
+            log.info("Identhendelse: processed ${records.count()} records from $PDL_AKTOR_TOPIC, tombstones=$tombstones")
         }
     }
 
