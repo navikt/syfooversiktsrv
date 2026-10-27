@@ -11,6 +11,7 @@ import no.nav.syfo.infrastructure.database.queries.updatePersonOversiktStatusFnr
 import no.nav.syfo.infrastructure.database.queries.updatePersonOversiktStatusVeileder
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.time.OffsetDateTime
 
 class IdenthendelseService(
     private val database: DatabaseInterface,
@@ -60,15 +61,42 @@ class IdenthendelseService(
             false
         }
         val personstatusActiveIdent = personOversiktStatusRepository.getPersonOversiktStatus(activeIdent)
-        val action = if (personstatusActiveIdent != null) {
-            val copyVeileder = personstatusActiveIdent.veilederIdent == null &&
-                personOversiktStatusWithOldIdent.first().veilederIdent != null
-            "DELETE_OLD(uuid=${personOversiktStatusWithOldIdent.first().uuid}, keep=${personstatusActiveIdent.uuid}, copyVeileder=$copyVeileder)"
+        if (personstatusActiveIdent != null) {
+            val oldStatus = personOversiktStatusWithOldIdent.first()
+            val copyVeileder = personstatusActiveIdent.veilederIdent == null && oldStatus.veilederIdent != null
+            val fieldsToCopy = fieldsToCopy(oldStatus, personstatusActiveIdent)
+            log.info(
+                "Identhendelse dryrun: would perform DELETE_OLD(uuid=${oldStatus.uuid}, keep=${personstatusActiveIdent.uuid}, " +
+                    "copyVeileder=$copyVeileder, copyOtherFields=${fieldsToCopy.isNotEmpty()}), pdlIsUpdated=$pdlIsUpdated"
+            )
+            fieldsToCopy.forEach { field ->
+                log.info("Identhendelse dryrun: would copy $field for ${personstatusActiveIdent.uuid}.")
+            }
         } else {
-            "UPDATE_FNR(uuid=$oldUuids)"
+            log.info("Identhendelse dryrun: would perform UPDATE_FNR(uuid=$oldUuids), pdlIsUpdated=$pdlIsUpdated")
         }
-        log.info("Identhendelse dryrun: would perform $action, pdlIsUpdated=$pdlIsUpdated")
     }
+
+    private fun fieldsToCopy(oldStatus: PersonOversiktStatus, activeStatus: PersonOversiktStatus): List<String> = listOfNotNull(
+        "trenger_oppfolging=true".takeIf {
+            oldStatus.isAktivOppfolgingsoppgave && !activeStatus.isAktivOppfolgingsoppgave
+        },
+        "is_aktiv_aktivitetskrav_vurdering=true".takeIf {
+            oldStatus.isAktivAktivitetskravvurdering && !activeStatus.isAktivAktivitetskravvurdering
+        },
+        "is_aktiv_arbeidsuforhet_vurdering=true".takeIf {
+            oldStatus.isAktivArbeidsuforhetvurdering && !activeStatus.isAktivArbeidsuforhetvurdering
+        },
+        "is_aktiv_manglende_medvirkning_vurdering=true".takeIf {
+            oldStatus.isAktivManglendeMedvirkningVurdering && !activeStatus.isAktivManglendeMedvirkningVurdering
+        },
+        "dialogmotekandidat=${oldStatus.dialogmotekandidat} (generated_at ${oldStatus.dialogmotekandidatGeneratedAt}, was ${activeStatus.dialogmotekandidat} generated_at ${activeStatus.dialogmotekandidatGeneratedAt})".takeIf {
+            oldStatus.dialogmotekandidatGeneratedAt.isNewerThan(activeStatus.dialogmotekandidatGeneratedAt)
+        },
+        "motestatus=${oldStatus.motestatus} (generated_at ${oldStatus.motestatusGeneratedAt}, was ${activeStatus.motestatus} generated_at ${activeStatus.motestatusGeneratedAt})".takeIf {
+            oldStatus.motestatusGeneratedAt.isNewerThan(activeStatus.motestatusGeneratedAt)
+        },
+    )
 
     // Erfaringer fra andre team tilsier at vi burde dobbeltsjekke at ting har blitt oppdatert i PDL før vi gjør endringer
     private fun checkThatPdlIsUpdated(nyIdent: PersonIdent) {
@@ -103,3 +131,6 @@ class IdenthendelseService(
         return updatedRows
     }
 }
+
+private fun OffsetDateTime?.isNewerThan(other: OffsetDateTime?): Boolean =
+    this != null && (other == null || this.isAfter(other))

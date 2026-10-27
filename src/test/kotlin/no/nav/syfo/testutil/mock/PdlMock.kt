@@ -70,6 +70,7 @@ fun generatePdlPersonResponse(
 
 fun generatePdlIdenter(
     personident: String,
+    historiskeIdenter: List<String> = listOf(personident.toFakeOldIdent()),
 ) = PdlIdentResponse(
     data = PdlHentIdenter(
         hentIdenter = PdlIdenter(
@@ -79,12 +80,13 @@ fun generatePdlIdenter(
                     historisk = false,
                     gruppe = IdentGruppe.FOLKEREGISTERIDENT,
                 ),
+            ) + historiskeIdenter.map {
                 PdlIdent(
-                    ident = personident.toFakeOldIdent(),
+                    ident = it,
                     historisk = true,
                     gruppe = IdentGruppe.FOLKEREGISTERIDENT,
-                ),
-            ),
+                )
+            },
         ),
     ),
     errors = null,
@@ -112,25 +114,31 @@ private fun String.toFakeOldIdent(): String {
     return "9$substring"
 }
 
+private fun PdlIdentResponse.withoutHistoriskeIdenter() = copy(
+    data = data?.copy(
+        hentIdenter = data.hentIdenter?.let { hentIdenter ->
+            PdlIdenter(identer = hentIdenter.identer.filter { !it.historisk })
+        },
+    ),
+)
+
 suspend fun MockRequestHandleScope.pdlMockResponse(request: HttpRequestData): HttpResponseData {
     val isHentIdenterRequest = request.receiveBody<Any>().toString().contains("hentIdenter")
     val isHentPersonBolkRequest = request.receiveBody<Any>().toString().contains("hentPersonBolk")
     return if (isHentIdenterRequest) {
         val pdlRequest = request.receiveBody<PdlIdentRequest>()
-        when (val personIdent = pdlRequest.variables.ident) {
-            UserConstants.ARBEIDSTAKER_3_FNR -> {
-                respondOk(generatePdlIdenter("enAnnenIdent"))
-            }
-            UserConstants.ARBEIDSTAKER_4_FNR_WITH_ERROR -> {
-                respondOk(
-                    generatePdlIdenter(personIdent)
-                        .copy(errors = generatePdlError(code = "not_found"))
-                )
-            }
-            else -> {
-                respondOk(generatePdlIdenter(personIdent))
-            }
+        val includeHistorikk = !pdlRequest.query.contains("historikk: false")
+        val response = when (val personIdent = pdlRequest.variables.ident) {
+            UserConstants.ARBEIDSTAKER_3_FNR -> generatePdlIdenter("enAnnenIdent")
+            UserConstants.ARBEIDSTAKER_4_FNR_WITH_ERROR ->
+                generatePdlIdenter(personIdent).copy(errors = generatePdlError(code = "not_found"))
+            UserConstants.ARBEIDSTAKER_IDENT_ENDRET_TO_GANGER -> generatePdlIdenter(
+                personident = "enNyereIdent",
+                historiskeIdenter = listOf(personIdent),
+            )
+            else -> generatePdlIdenter(personIdent)
         }
+        respondOk(if (includeHistorikk) response else response.withoutHistoriskeIdenter())
     } else if (isHentPersonBolkRequest) {
         val pdlRequest = request.receiveBody<PdlPersonBolkRequest>()
         respondOk(generatePdlPersonResponse(identList = pdlRequest.variables.identer))
