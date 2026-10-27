@@ -156,6 +156,28 @@ class IdenthendelseServiceTest {
             val oldPersonOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(oldIdent)
             assertNull(oldPersonOversiktStatus)
         }
+
+        @Test
+        fun `Skal oppdatere database når ny ident i hendelsen allerede er historisk i PDL`() {
+            val kafkaIdenthendelseDTO = generateKafkaIdenthendelseDTO(
+                personident = PersonIdent(UserConstants.ARBEIDSTAKER_IDENT_ENDRET_TO_GANGER),
+                hasOldPersonident = true,
+            )
+            val newIdent = kafkaIdenthendelseDTO.getActivePersonident()!!
+            val oldIdent = kafkaIdenthendelseDTO.getInactivePersonidenter().first()
+
+            database.connection.use { connection ->
+                connection.createPersonOversiktStatus(
+                    commit = true,
+                    personOversiktStatus = PersonOversiktStatus(fnr = oldIdent.value),
+                )
+            }
+
+            identhendelseService.handleIdenthendelse(kafkaIdenthendelseDTO)
+
+            assertNull(personOversiktStatusRepository.getPersonOversiktStatus(oldIdent))
+            assertNotNull(personOversiktStatusRepository.getPersonOversiktStatus(newIdent))
+        }
     }
 
     @Nested
