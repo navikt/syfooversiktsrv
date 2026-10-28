@@ -18,7 +18,6 @@ import org.junit.jupiter.api.Test
 import java.time.OffsetDateTime
 import java.time.temporal.ChronoUnit
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
@@ -160,60 +159,9 @@ class IdenthendelseServiceTest {
             val oldPersonOversiktStatus = personOversiktStatusRepository.getPersonOversiktStatus(oldIdent)
             assertNull(oldPersonOversiktStatus)
         }
-    }
-
-    @Nested
-    @DisplayName("Dryrun")
-    inner class DryRun {
-
-        private val dryRunIdenthendelseService = IdenthendelseService(
-            database = database,
-            pdlClient = pdlClient,
-            personOversiktStatusRepository = personOversiktStatusRepository,
-            dryRun = true,
-        )
 
         @Test
-        fun `Skal ikke oppdatere database når person har fått ny ident`() {
-            val kafkaIdenthendelseDTO = generateKafkaIdenthendelseDTO(hasOldPersonident = true)
-            val newIdent = kafkaIdenthendelseDTO.getActivePersonident()!!
-            val oldIdent = kafkaIdenthendelseDTO.getInactivePersonidenter().first()
-
-            database.connection.use { connection ->
-                connection.createPersonOversiktStatus(
-                    commit = true,
-                    personOversiktStatus = PersonOversiktStatus(fnr = oldIdent.value),
-                )
-            }
-
-            dryRunIdenthendelseService.handleIdenthendelse(kafkaIdenthendelseDTO)
-
-            assertNotNull(personOversiktStatusRepository.getPersonOversiktStatus(oldIdent))
-            assertNull(personOversiktStatusRepository.getPersonOversiktStatus(newIdent))
-        }
-
-        @Test
-        fun `Skal ikke kaste feil hvis PDL ikke har oppdatert identen`() {
-            val kafkaIdenthendelseDTO = generateKafkaIdenthendelseDTO(
-                personident = PersonIdent(UserConstants.ARBEIDSTAKER_3_FNR),
-                hasOldPersonident = true,
-            )
-            val oldIdent = kafkaIdenthendelseDTO.getInactivePersonidenter().first()
-
-            database.connection.use { connection ->
-                connection.createPersonOversiktStatus(
-                    commit = true,
-                    personOversiktStatus = PersonOversiktStatus(fnr = oldIdent.value),
-                )
-            }
-
-            dryRunIdenthendelseService.handleIdenthendelse(kafkaIdenthendelseDTO)
-
-            assertNotNull(personOversiktStatusRepository.getPersonOversiktStatus(oldIdent))
-        }
-
-        @Test
-        fun `Skal ikke kopiere felter eller slette gammel forekomst når ny ident allerede finnes i databasen`() {
+        fun `Skal kopiere dialogmotekandidat og motestatus fra gammel forekomst når den er nyest`() {
             val kafkaIdenthendelseDTO = generateKafkaIdenthendelseDTO(hasOldPersonident = true)
             val newIdent = kafkaIdenthendelseDTO.getActivePersonident()!!
             val oldIdent = kafkaIdenthendelseDTO.getInactivePersonidenter().first()
@@ -224,11 +172,6 @@ class IdenthendelseServiceTest {
                     commit = true,
                     personOversiktStatus = PersonOversiktStatus(
                         fnr = oldIdent.value,
-                        veilederIdent = "Z990099",
-                        isAktivOppfolgingsoppgave = true,
-                        isAktivAktivitetskravvurdering = true,
-                        isAktivArbeidsuforhetvurdering = true,
-                        isAktivManglendeMedvirkningVurdering = true,
                         dialogmotekandidat = true,
                         dialogmotekandidatGeneratedAt = now.minusDays(1),
                         motestatus = DialogmoteStatusendringType.INNKALT.name,
@@ -237,21 +180,82 @@ class IdenthendelseServiceTest {
                 )
                 connection.createPersonOversiktStatus(
                     commit = true,
-                    personOversiktStatus = PersonOversiktStatus(fnr = newIdent.value),
+                    personOversiktStatus = PersonOversiktStatus(
+                        fnr = newIdent.value,
+                        dialogmotekandidat = false,
+                        dialogmotekandidatGeneratedAt = now.minusDays(10),
+                    ),
                 )
             }
 
-            dryRunIdenthendelseService.handleIdenthendelse(kafkaIdenthendelseDTO)
+            identhendelseService.handleIdenthendelse(kafkaIdenthendelseDTO)
 
-            assertNotNull(personOversiktStatusRepository.getPersonOversiktStatus(oldIdent))
-            val activeStatus = personOversiktStatusRepository.getPersonOversiktStatus(newIdent)!!
-            assertNull(activeStatus.veilederIdent)
-            assertFalse(activeStatus.isAktivOppfolgingsoppgave)
-            assertFalse(activeStatus.isAktivAktivitetskravvurdering)
-            assertFalse(activeStatus.isAktivArbeidsuforhetvurdering)
-            assertFalse(activeStatus.isAktivManglendeMedvirkningVurdering)
-            assertNull(activeStatus.dialogmotekandidat)
-            assertNull(activeStatus.motestatus)
+            val updated = personOversiktStatusRepository.getPersonOversiktStatus(newIdent)!!
+            assertEquals(true, updated.dialogmotekandidat)
+            assertEquals(now.minusDays(1).toInstant(), updated.dialogmotekandidatGeneratedAt?.toInstant())
+            assertEquals(DialogmoteStatusendringType.INNKALT.name, updated.motestatus)
+            assertEquals(now.minusDays(1).toInstant(), updated.motestatusGeneratedAt?.toInstant())
+            assertNull(personOversiktStatusRepository.getPersonOversiktStatus(oldIdent))
+        }
+
+        @Test
+        fun `Skal ikke kopiere dialogmotekandidat og motestatus fra gammel forekomst når ny forekomst er nyest`() {
+            val kafkaIdenthendelseDTO = generateKafkaIdenthendelseDTO(hasOldPersonident = true)
+            val newIdent = kafkaIdenthendelseDTO.getActivePersonident()!!
+            val oldIdent = kafkaIdenthendelseDTO.getInactivePersonidenter().first()
+            val now = OffsetDateTime.now().truncatedTo(ChronoUnit.SECONDS)
+
+            database.connection.use { connection ->
+                connection.createPersonOversiktStatus(
+                    commit = true,
+                    personOversiktStatus = PersonOversiktStatus(
+                        fnr = oldIdent.value,
+                        dialogmotekandidat = true,
+                        dialogmotekandidatGeneratedAt = now.minusDays(10),
+                        motestatus = DialogmoteStatusendringType.INNKALT.name,
+                        motestatusGeneratedAt = now.minusDays(10),
+                    ),
+                )
+                connection.createPersonOversiktStatus(
+                    commit = true,
+                    personOversiktStatus = PersonOversiktStatus(
+                        fnr = newIdent.value,
+                        dialogmotekandidat = false,
+                        dialogmotekandidatGeneratedAt = now.minusDays(1),
+                        motestatus = DialogmoteStatusendringType.FERDIGSTILT.name,
+                        motestatusGeneratedAt = now.minusDays(1),
+                    ),
+                )
+            }
+
+            identhendelseService.handleIdenthendelse(kafkaIdenthendelseDTO)
+
+            val updated = personOversiktStatusRepository.getPersonOversiktStatus(newIdent)!!
+            assertEquals(false, updated.dialogmotekandidat)
+            assertEquals(DialogmoteStatusendringType.FERDIGSTILT.name, updated.motestatus)
+            assertNull(personOversiktStatusRepository.getPersonOversiktStatus(oldIdent))
+        }
+
+        @Test
+        fun `Skal oppdatere database når ny ident i hendelsen allerede er historisk i PDL`() {
+            val kafkaIdenthendelseDTO = generateKafkaIdenthendelseDTO(
+                personident = PersonIdent(UserConstants.ARBEIDSTAKER_IDENT_ENDRET_TO_GANGER),
+                hasOldPersonident = true,
+            )
+            val newIdent = kafkaIdenthendelseDTO.getActivePersonident()!!
+            val oldIdent = kafkaIdenthendelseDTO.getInactivePersonidenter().first()
+
+            database.connection.use { connection ->
+                connection.createPersonOversiktStatus(
+                    commit = true,
+                    personOversiktStatus = PersonOversiktStatus(fnr = oldIdent.value),
+                )
+            }
+
+            identhendelseService.handleIdenthendelse(kafkaIdenthendelseDTO)
+
+            assertNull(personOversiktStatusRepository.getPersonOversiktStatus(oldIdent))
+            assertNotNull(personOversiktStatusRepository.getPersonOversiktStatus(newIdent))
         }
     }
 

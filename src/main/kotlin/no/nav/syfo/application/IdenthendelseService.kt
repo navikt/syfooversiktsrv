@@ -7,7 +7,9 @@ import no.nav.syfo.domain.PersonOversiktStatus
 import no.nav.syfo.infrastructure.COUNT_KAFKA_CONSUMER_PDL_AKTOR_UPDATES
 import no.nav.syfo.infrastructure.database.DatabaseInterface
 import no.nav.syfo.infrastructure.database.queries.queryDeletePersonOversiktStatusFnr
+import no.nav.syfo.infrastructure.database.queries.updatePersonOversiktStatusDialogmotekandidat
 import no.nav.syfo.infrastructure.database.queries.updatePersonOversiktStatusFnr
+import no.nav.syfo.infrastructure.database.queries.updatePersonOversiktStatusMotestatusAndGeneratedAt
 import no.nav.syfo.infrastructure.database.queries.updatePersonOversiktStatusVeileder
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -17,7 +19,6 @@ class IdenthendelseService(
     private val database: DatabaseInterface,
     private val pdlClient: IPdlClient,
     private val personOversiktStatusRepository: IPersonOversiktStatusRepository,
-    private val dryRun: Boolean = false,
 ) {
 
     private val log: Logger = LoggerFactory.getLogger(IdenthendelseService::class.java)
@@ -32,10 +33,6 @@ class IdenthendelseService(
                 }
 
                 if (personOversiktStatusWithOldIdent.isNotEmpty()) {
-                    if (dryRun) {
-                        logDryRun(activeIdent, personOversiktStatusWithOldIdent)
-                        return
-                    }
                     checkThatPdlIsUpdated(activeIdent)
                     val numberOfUpdatedIdenter =
                         updateOrOverrideAndDeletePersonOversiktStatus(activeIdent, personOversiktStatusWithOldIdent)
@@ -47,56 +44,6 @@ class IdenthendelseService(
             }
         }
     }
-
-    private fun logDryRun(
-        activeIdent: PersonIdent,
-        personOversiktStatusWithOldIdent: List<PersonOversiktStatus>,
-    ) {
-        val oldUuids = personOversiktStatusWithOldIdent.map { it.uuid }
-        val pdlIsUpdated = try {
-            checkThatPdlIsUpdated(activeIdent)
-            true
-        } catch (ex: Exception) {
-            log.warn("Identhendelse dryrun: PDL check failed for uuid=$oldUuids: ${ex.message}")
-            false
-        }
-        val personstatusActiveIdent = personOversiktStatusRepository.getPersonOversiktStatus(activeIdent)
-        if (personstatusActiveIdent != null) {
-            val oldStatus = personOversiktStatusWithOldIdent.first()
-            val copyVeileder = personstatusActiveIdent.veilederIdent == null && oldStatus.veilederIdent != null
-            val fieldsToCopy = fieldsToCopy(oldStatus, personstatusActiveIdent)
-            log.info(
-                "Identhendelse dryrun: would perform DELETE_OLD(uuid=${oldStatus.uuid}, keep=${personstatusActiveIdent.uuid}, " +
-                    "copyVeileder=$copyVeileder, copyOtherFields=${fieldsToCopy.isNotEmpty()}), pdlIsUpdated=$pdlIsUpdated"
-            )
-            fieldsToCopy.forEach { field ->
-                log.info("Identhendelse dryrun: would copy $field for ${personstatusActiveIdent.uuid}.")
-            }
-        } else {
-            log.info("Identhendelse dryrun: would perform UPDATE_FNR(uuid=$oldUuids), pdlIsUpdated=$pdlIsUpdated")
-        }
-    }
-
-    private fun fieldsToCopy(oldStatus: PersonOversiktStatus, activeStatus: PersonOversiktStatus): List<String> = listOfNotNull(
-        "trenger_oppfolging=true".takeIf {
-            oldStatus.isAktivOppfolgingsoppgave && !activeStatus.isAktivOppfolgingsoppgave
-        },
-        "is_aktiv_aktivitetskrav_vurdering=true".takeIf {
-            oldStatus.isAktivAktivitetskravvurdering && !activeStatus.isAktivAktivitetskravvurdering
-        },
-        "is_aktiv_arbeidsuforhet_vurdering=true".takeIf {
-            oldStatus.isAktivArbeidsuforhetvurdering && !activeStatus.isAktivArbeidsuforhetvurdering
-        },
-        "is_aktiv_manglende_medvirkning_vurdering=true".takeIf {
-            oldStatus.isAktivManglendeMedvirkningVurdering && !activeStatus.isAktivManglendeMedvirkningVurdering
-        },
-        "dialogmotekandidat=${oldStatus.dialogmotekandidat} (generated_at ${oldStatus.dialogmotekandidatGeneratedAt}, was ${activeStatus.dialogmotekandidat} generated_at ${activeStatus.dialogmotekandidatGeneratedAt})".takeIf {
-            oldStatus.dialogmotekandidatGeneratedAt.isNewerThan(activeStatus.dialogmotekandidatGeneratedAt)
-        },
-        "motestatus=${oldStatus.motestatus} (generated_at ${oldStatus.motestatusGeneratedAt}, was ${activeStatus.motestatus} generated_at ${activeStatus.motestatusGeneratedAt})".takeIf {
-            oldStatus.motestatusGeneratedAt.isNewerThan(activeStatus.motestatusGeneratedAt)
-        },
-    )
 
     // Erfaringer fra andre team tilsier at vi burde dobbeltsjekke at ting har blitt oppdatert i PDL før vi gjør endringer
     private fun checkThatPdlIsUpdated(nyIdent: PersonIdent) {
@@ -118,6 +65,59 @@ class IdenthendelseService(
             val oldStatus = personOversiktStatusWithOldIdent.first()
             if (personstatusActiveIdent.veilederIdent == null && oldStatus.veilederIdent != null) {
                 updatedRows += database.updatePersonOversiktStatusVeileder(oldStatus.veilederIdent, activeIdent)
+            }
+            // Kopier noen felter om det trengs, og lag logginnslag slik at vi kan ettergå det
+            // Forventer ikke at disse tingene er noe som treffer mange av duplikatforekomstene
+            // Kan slette dette når vi er ferdig med rerun, for dette er en mindre aktuell problemstilling når vi er ajour med identhendelsene.
+            if (oldStatus.isAktivOppfolgingsoppgave && !personstatusActiveIdent.isAktivOppfolgingsoppgave) {
+                personOversiktStatusRepository.updateOppfolgingsoppgave(
+                    personIdent = activeIdent,
+                    isActive = true,
+                ).getOrThrow()
+                log.info("Identhendelse: trenger_oppfolging set to true for ${personstatusActiveIdent.uuid}.")
+            }
+            if (oldStatus.isAktivAktivitetskravvurdering && !personstatusActiveIdent.isAktivAktivitetskravvurdering) {
+                personOversiktStatusRepository.upsertAktivitetskravAktivStatus(
+                    personident = activeIdent,
+                    isAktivVurdering = true,
+                ).getOrThrow()
+                log.info("Identhendelse: is_aktiv_aktivitetskrav_vurdering set to true for ${personstatusActiveIdent.uuid}.")
+            }
+            if (oldStatus.isAktivArbeidsuforhetvurdering && !personstatusActiveIdent.isAktivArbeidsuforhetvurdering) {
+                personOversiktStatusRepository.updateArbeidsuforhetvurderingStatus(
+                    personident = activeIdent,
+                    isAktivVurdering = true,
+                ).getOrThrow()
+                log.info("Identhendelse: is_aktiv_arbeidsuforhet_vurdering set to true for ${personstatusActiveIdent.uuid}.")
+            }
+            if (oldStatus.isAktivManglendeMedvirkningVurdering && !personstatusActiveIdent.isAktivManglendeMedvirkningVurdering) {
+                personOversiktStatusRepository.upsertManglendeMedvirkningStatus(
+                    personident = activeIdent,
+                    isAktivVurdering = true,
+                ).getOrThrow()
+                log.info("Identhendelse: is_aktiv_manglende_medvirkning_vurdering set to true for ${personstatusActiveIdent.uuid}.")
+            }
+            if (oldStatus.dialogmotekandidatGeneratedAt.isNewerThan(personstatusActiveIdent.dialogmotekandidatGeneratedAt)) {
+                database.updatePersonOversiktStatusDialogmotekandidat(
+                    personident = activeIdent,
+                    kandidat = oldStatus.dialogmotekandidat,
+                    generatedAt = oldStatus.dialogmotekandidatGeneratedAt!!,
+                )
+                log.info(
+                    "Identhendelse: dialogmotekandidat set to ${oldStatus.dialogmotekandidat} (generated_at ${oldStatus.dialogmotekandidatGeneratedAt}, " +
+                        "was ${personstatusActiveIdent.dialogmotekandidat} generated_at ${personstatusActiveIdent.dialogmotekandidatGeneratedAt}) for ${personstatusActiveIdent.uuid}."
+                )
+            }
+            if (oldStatus.motestatusGeneratedAt.isNewerThan(personstatusActiveIdent.motestatusGeneratedAt)) {
+                database.updatePersonOversiktStatusMotestatusAndGeneratedAt(
+                    personident = activeIdent,
+                    motestatus = oldStatus.motestatus,
+                    generatedAt = oldStatus.motestatusGeneratedAt!!,
+                )
+                log.info(
+                    "Identhendelse: motestatus set to ${oldStatus.motestatus} (generated_at ${oldStatus.motestatusGeneratedAt}, " +
+                        "was ${personstatusActiveIdent.motestatus} generated_at ${personstatusActiveIdent.motestatusGeneratedAt}) for ${personstatusActiveIdent.uuid}."
+                )
             }
             database.queryDeletePersonOversiktStatusFnr(oldStatus.fnr)
             log.info("Identhendelse: Deleted entry with an inactive personident from database.")

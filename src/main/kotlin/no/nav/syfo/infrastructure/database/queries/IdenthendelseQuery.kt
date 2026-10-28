@@ -4,6 +4,7 @@ import no.nav.syfo.infrastructure.database.DatabaseInterface
 import no.nav.syfo.domain.PersonIdent
 import java.sql.Timestamp
 import java.time.Instant
+import java.time.OffsetDateTime
 
 const val queryUpdatePersonOversiktStatusFnr =
     """
@@ -49,6 +50,41 @@ fun DatabaseInterface.updatePersonOversiktStatusVeileder(veilederIdent: String, 
         }
     }
     return updatedRows
+}
+
+fun DatabaseInterface.updatePersonOversiktStatusDialogmotekandidat(
+    personident: PersonIdent,
+    kandidat: Boolean?,
+    generatedAt: OffsetDateTime,
+): Int = executeSingleRowUpdate(queryUpdatePersonOversiktStatusKandidat, kandidat, generatedAt, personident)
+
+fun DatabaseInterface.updatePersonOversiktStatusMotestatusAndGeneratedAt(
+    personident: PersonIdent,
+    motestatus: String?,
+    generatedAt: OffsetDateTime,
+): Int = executeSingleRowUpdate(queryUpdatePersonOversiktStatusMotestatus, motestatus, generatedAt, personident)
+
+private fun DatabaseInterface.executeSingleRowUpdate(
+    query: String,
+    value: Any?,
+    generatedAt: OffsetDateTime,
+    personident: PersonIdent,
+): Int {
+    this.connection.use { connection ->
+        val updatedRows = connection.prepareStatement(query).use {
+            it.setObject(1, value)
+            it.setObject(2, generatedAt)
+            it.setObject(3, Timestamp.from(Instant.now()))
+            it.setString(4, personident.value)
+            it.executeUpdate()
+        }
+        if (updatedRows != 1) {
+            connection.rollback()
+            throw IllegalStateException("Expected single row to be updated, got $updatedRows")
+        }
+        connection.commit()
+        return updatedRows
+    }
 }
 
 const val queryDeletePersonOversiktStatusFnr =
