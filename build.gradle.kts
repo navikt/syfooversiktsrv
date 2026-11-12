@@ -4,14 +4,14 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 group = "no.nav.syfo"
 version = "1.0-SNAPSHOT"
 
-val confluent = "8.2.1"
+val confluent = "8.4.0"
 val flyway = "12.6.2"
 val hikari = "7.1.0"
 val isdialogmoteSchema = "1.0.6"
 val jacksonDataType = "2.22.4"
 val jacksonDatabindVersion = "3.2.4"
 val jedis = "7.5.3"
-val json = "20260719"
+val json = "20260814"
 val kafka = "4.4.0"
 val ktor = "3.6.1"
 val logback = "1.6.6"
@@ -24,7 +24,7 @@ val postgres = "42.7.14"
 val postgresRuntimeVersion = "17.9.0"
 
 plugins {
-    kotlin("jvm") version "2.4.10"
+    kotlin("jvm") version "2.4.21"
     id("com.gradleup.shadow") version "8.3.8"
     id("org.jlleitschuh.gradle.ktlint") version "11.6.1"
     id("com.github.davidmc24.gradle.plugin.avro") version "1.8.0"
@@ -83,7 +83,23 @@ dependencies {
         exclude(group = "org.apache.logging.log4j")
     }
     implementation("org.apache.kafka:kafka_2.13:$kafka", excludeLog4j)
+    constraints {
+        implementation("at.yawk.lz4:lz4-java") {
+            version {
+                require("1.11.4")
+            }
+        }
+    }
+
     implementation("io.confluent:kafka-avro-serializer:$confluent", excludeLog4j)
+    constraints {
+        implementation("com.google.guava:guava") {
+            version {
+                require("33.8.0-jre")
+            }
+        }
+    }
+
     implementation("no.nav.syfo.dialogmote.avro:isdialogmote-schema:$isdialogmoteSchema")
 
     testImplementation("com.nimbusds:nimbus-jose-jwt:$nimbusjosejwt")
