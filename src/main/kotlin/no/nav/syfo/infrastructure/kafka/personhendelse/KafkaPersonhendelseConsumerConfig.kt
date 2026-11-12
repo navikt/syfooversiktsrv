@@ -12,7 +12,7 @@ fun kafkaPersonhendelseConsumerConfig(
 ): Properties {
     return Properties().apply {
         putAll(kafkaAivenConsumerConfig(kafkaEnvironment))
-        this[ConsumerConfig.GROUP_ID_CONFIG] = "syfooversiktsrv-v0" // kjører en dryrun på denne
+        this[ConsumerConfig.GROUP_ID_CONFIG] = "syfooversiktsrv-v0"
         this[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = KafkaAvroDeserializer::class.java.canonicalName
         this[ConsumerConfig.MAX_POLL_RECORDS_CONFIG] = "1"
 

@@ -18,15 +18,18 @@ class IdenthendelseConsumerService(
     override suspend fun pollAndProcessRecords(kafkaConsumer: KafkaConsumer<String, GenericRecord>) {
         val records = kafkaConsumer.poll(Duration.ofMillis(pollDurationInMillis))
         if (records.count() > 0) {
+            var tombstones = 0
             records.forEach { record ->
-                if (record.value() != null) {
-                    identhendelseService.handleIdenthendelse(record.value().toKafkaIdenthendelseDTO())
-                } else {
-                    log.warn("Identhendelse: Value of ConsumerRecord from topic $PDL_AKTOR_TOPIC is null, probably due to a tombstone. Contact the owner of the topic if an error is suspected")
+                val value = record.value()
+                if (value == null) {
+                    tombstones++
                     COUNT_KAFKA_CONSUMER_PDL_AKTOR_TOMBSTONE.increment()
+                } else {
+                    identhendelseService.handleIdenthendelse(value.toKafkaIdenthendelseDTO())
                 }
             }
             kafkaConsumer.commitSync()
+            log.info("Identhendelse: processed ${records.count()} records from $PDL_AKTOR_TOPIC, tombstones=$tombstones")
         }
     }
 
